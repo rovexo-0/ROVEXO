@@ -59,7 +59,7 @@ describe("ROVEXO Supreme Blood Code XIII — Sprint IV Wallet", () => {
     expect(isHomepageSearchBarRoute("/")).toBe(true);
     expect(isHomepageSearchBarRoute("/wallet")).toBe(false);
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    const route = readSource("app/wallet/page.tsx");
+    const route = readSource("app/(platform)/wallet/page.tsx");
     expect(hub).toContain("data-blood-code-xiii");
     expect(hub).toContain("showBottomNav");
     expect(hub).toContain("BALANCE_PAGE_NAME");

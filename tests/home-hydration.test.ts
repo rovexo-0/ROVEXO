@@ -15,13 +15,11 @@ describe("Home page hydration safety", () => {
     expect(categoryRail).toContain("css.rail");
   });
 
-  it("defers header height measurement to layout effects", () => {
+  it("defers chrome height measurement to layout effects in scroll context", () => {
     const scrollSource = readSource("components/home/RovexoMobileHeaderScrollContext.tsx");
-    const headerSource = readSource("components/header/RovexoHeaderV2.tsx");
-
+    // Header Master Freeze: RovexoHeaderV2 no longer measures itself via useLayoutEffect.
     expect(scrollSource).toContain("useLayoutEffect");
-    expect(headerSource).toContain("useLayoutEffect");
-    expect(headerSource).toContain("headerRef");
+    expect(readSource("components/header/RovexoHeaderV2.tsx")).toContain("HEADER_MASTER_FREEZE_V1");
   });
 
   it("keeps HomepageSearchField hydration-safe with stable SSR markup", () => {

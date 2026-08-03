@@ -112,7 +112,8 @@
   --inbox-purple: #9333ea;
   --inbox-purple-gradient: linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%);
   --inbox-text: #111111;
-  --inbox-muted: #8b8b93;
+  /* #6f6f78 on #fff ≈ 5.0:1 — WCAG 2.2 AA (was #8b8b93 ≈ 3.4:1 FAIL) */
+  --inbox-muted: #6f6f78;
   --inbox-secondary: #6b6b73;
   --inbox-border: rgb(15 23 42 / 0.06);
   --inbox-surface: #ffffff;
@@ -213,11 +214,10 @@
 }
 
 .inbox-hub__tab--on {
-  color: #9333ea;
-  background-image: var(--inbox-purple-gradient);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* Solid purple — axe cannot compute contrast for transparent clipped gradient text */
+  color: #7c3aed;
+  background-image: none;
+  -webkit-text-fill-color: #7c3aed;
 }
 
 .inbox-hub__tab-count {

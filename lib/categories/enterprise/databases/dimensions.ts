@@ -36,6 +36,7 @@ export const PILLOW_SIZES = [
   "Super Standard",
   "King",
   "Super King",
+  "Queen",
   "Square",
   "Body Pillow",
   "Travel",
@@ -44,6 +45,10 @@ export const PILLOW_SIZES = [
   "Euro",
   "V-Shaped",
   "Wedge",
+  "One Size",
+  "Compact",
+  "Contoured",
+  "Full Body",
 ] as const;
 
 export const DUVET_SIZES = [

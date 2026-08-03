@@ -138,7 +138,7 @@ describe("Homepage V4 section architecture", () => {
 
   it("uses featured + feed fetches only on the homepage", () => {
 
-    const page = readSource("app/page.tsx");
+    const page = readSource("app/(platform)/page.tsx");
 
     const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 

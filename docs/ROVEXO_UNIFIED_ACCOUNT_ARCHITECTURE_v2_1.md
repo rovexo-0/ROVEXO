@@ -94,11 +94,11 @@ One ROVEXO account per email. Capabilities expand by action and verification. No
 
 | My Account menu | `lib/account-center/canonical-menu.ts` |
 
-| ROVEXO Ideas | `lib/rovexo-ideas/`, `app/account/ideas/`, `app/super-admin/rovexo-ideas/` |
+| ROVEXO Ideas | `lib/rovexo-ideas/`, `app/(platform)/account/ideas/`, `app/(platform)/super-admin/rovexo-ideas/` |
 
 | DB | `supabase/migrations/20260708160000_rovexo_ideas_v2_1.sql` |
 
-| Verification | `app/account/verification/` |
+| Verification | `app/(platform)/account/verification/` |
 
 | Delete account | `features/account-module/components/DeleteAccountFlow.tsx` |
 

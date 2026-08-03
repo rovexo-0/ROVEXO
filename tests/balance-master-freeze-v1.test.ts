@@ -25,8 +25,8 @@ describe("Balance Senior Audit — Wallet Production reuse", () => {
   });
 
   it("Wallet hub is the thin WalletPage entry; legacy /balance redirects", () => {
-    const walletRoute = readSource("app/wallet/page.tsx");
-    const balanceRoute = readSource("app/balance/page.tsx");
+    const walletRoute = readSource("app/(platform)/wallet/page.tsx");
+    const balanceRoute = readSource("app/(platform)/balance/page.tsx");
     const walletPage = readSource("features/wallet/components/WalletPage.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
     const config = readSource("next.config.ts");

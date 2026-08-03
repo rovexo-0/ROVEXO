@@ -47,7 +47,7 @@ describe("checkout sprint 2 — payment + sendcloud", () => {
 
   it("lands paid sessions on checkout success route", () => {
     const checkout = readSource("lib/orders/checkout.ts");
-    const success = readSource("app/checkout/[slug]/success/page.tsx");
+    const success = readSource("app/(platform)/checkout/[slug]/success/page.tsx");
     const view = readSource("features/checkout/components/CheckoutSuccessView.tsx");
 
     expect(checkout).toContain("/checkout/${product.slug}/success?order_id=");

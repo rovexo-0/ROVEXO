@@ -2,16 +2,17 @@
  * Generates official ROVEXO brand assets (Blood XXXVII / XXXVIII · Phase C).
  * Level I Master → OG / splash · Level III App Icon → PWA / Apple · Level IV → favicon
  * Run: node scripts/generate-brand-assets.mjs
+ *
+ * App Icon source must be the official RX mark (may be landscape crop).
+ * Pipeline: trim → square canvas → contain (no letterbox from non-square masters).
  */
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync, copyFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const masterPng = join(root, "public", "brand", "canonical-rx", "rx-mark-v3.png");
-
-
 const appIconPng = join(root, "public", "brand", "canonical-rx", "app-icon-v1.png");
 const faviconSrcPng = join(root, "public", "brand", "canonical-rx", "favicon-rx-v1.png");
 
@@ -27,63 +28,67 @@ for (const [label, path] of [
 }
 
 const master = readFileSync(masterPng);
-const appIcon = readFileSync(appIconPng);
-const faviconSrc = readFileSync(faviconSrcPng);
-const chromeSource = appIcon;
-const faviconSource = faviconSrc;
 
-async function png(size, outPath, options = {}) {
-  mkdirSync(dirname(outPath), { recursive: true });
-  let pipeline = sharp(chromeSource).resize(size, size, {
-    fit: "contain",
-    background: options.background ?? { r: 0, g: 0, b: 0, alpha: 0 },
-  });
-  if (options.flatten) {
-    pipeline = pipeline.flatten({ background: options.flatten });
-  }
-  await pipeline.png({ compressionLevel: 9 }).toFile(outPath);
+/** Trim alpha, centre into square at coverRatio of canvas. */
+async function squareFrom(sourcePathOrBuffer, size, coverRatio = 0.9) {
+  const trimmed = await sharp(sourcePathOrBuffer).trim({ threshold: 8 }).png().toBuffer();
+  const iconSize = Math.round(size * coverRatio);
+  const icon = await sharp(trimmed)
+    .resize(iconSize, iconSize, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toBuffer();
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([{ input: icon, gravity: "centre" }])
+    .png({ compressionLevel: 9 })
+    .toBuffer();
 }
 
-async function maskablePng(size, outPath) {
+async function writePngBuffer(buffer, outPath) {
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, buffer);
+}
+
+async function png(size, outPath, source, coverRatio = 0.9) {
+  await writePngBuffer(await squareFrom(source, size, coverRatio), outPath);
+}
+
+async function maskablePng(size, outPath, source) {
   mkdirSync(dirname(outPath), { recursive: true });
   const iconSize = Math.round(size * 0.72);
+  const icon = await squareFrom(source, iconSize, 1);
   const pad = Math.round((size - iconSize) / 2);
-  const icon = await sharp(chromeSource)
-    .resize(iconSize, iconSize, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png()
-    .toBuffer();
   await sharp({
-    create: { width: size, height: size, channels: 4, background: { r: 11, g: 18, b: 36, alpha: 1 } },
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 11, g: 18, b: 36, alpha: 1 },
+    },
   })
     .composite([{ input: icon, top: pad, left: pad }])
     .png({ compressionLevel: 9 })
     .toFile(outPath);
 }
 
-async function monochromePng(size, outPath) {
+async function monochromePng(size, outPath, source) {
   mkdirSync(dirname(outPath), { recursive: true });
-  await sharp(chromeSource)
-    .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .greyscale()
-    .threshold(140)
-    .png()
-    .toFile(outPath);
+  const buf = await squareFrom(source, size, 0.9);
+  await sharp(buf).greyscale().threshold(140).png().toFile(outPath);
 }
 
-async function adaptiveForeground(size, outPath) {
+async function adaptiveForeground(size, outPath, source) {
   mkdirSync(dirname(outPath), { recursive: true });
-  const iconSize = Math.round(size * 0.58);
-  const pad = Math.round((size - iconSize) / 2);
-  const icon = await sharp(chromeSource)
-    .resize(iconSize, iconSize, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png()
-    .toBuffer();
-  await sharp({
-    create: { width: size, height: size, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-  })
-    .composite([{ input: icon, top: pad, left: pad }])
-    .png({ compressionLevel: 9 })
-    .toFile(outPath);
+  writeFileSync(outPath, await squareFrom(source, size, 0.58));
 }
 
 async function adaptiveBackground(size, outPath) {
@@ -109,15 +114,10 @@ async function ogImage(outPath) {
     .toFile(outPath);
 }
 
-async function createIco(sizes) {
+async function createIco(sizes, source) {
   const buffers = [];
   for (const s of sizes) {
-    buffers.push(
-      await sharp(faviconSource)
-        .resize(s, s, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-        .png()
-        .toBuffer(),
-    );
+    buffers.push(await squareFrom(source, s, 0.92));
   }
 
   const count = buffers.length;
@@ -164,11 +164,14 @@ async function splash(width, height, outPath) {
     .toFile(outPath);
 }
 
+const chromeSource = appIconPng;
+const faviconSource = faviconSrcPng;
+
 const webIcons = [
-  ["public/icons/favicon-16.png", 16],
-  ["public/icons/favicon-32.png", 32],
-  ["public/icons/favicon-48.png", 48],
-  ["public/icons/favicon-64.png", 64],
+  ["public/icons/favicon-16.png", 16, "favicon"],
+  ["public/icons/favicon-32.png", 32, "favicon"],
+  ["public/icons/favicon-48.png", 48, "favicon"],
+  ["public/icons/favicon-64.png", 64, "favicon"],
   ["public/icons/icon-16.png", 16],
   ["public/icons/icon-32.png", 32],
   ["public/icons/icon-48.png", 48],
@@ -188,6 +191,7 @@ const webIcons = [
   ["public/icons/icon-120.png", 120],
   ["app/apple-icon.png", 180],
   ["public/apple-icon.png", 180],
+  ["public/apple-touch-icon.png", 180],
   ["app/icon.png", 512],
 ];
 
@@ -229,14 +233,40 @@ const iosContents = {
 };
 
 async function main() {
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2048" height="2048" viewBox="0 0 2048 2048" role="img" aria-label="ROVEXO RX App Icon">
-  <title>ROVEXO Official App Icon</title>
-  <image width="2048" height="2048" xlink:href="/brand/canonical-rx/app-icon-v1.png" href="/brand/canonical-rx/app-icon-v1.png"/>
+  // Ensure Level III App Icon is square (trim + pad) before deriving matrix.
+  const meta = await sharp(chromeSource).metadata();
+  if (meta.width !== meta.height) {
+    console.log(
+      `Normalizing Level III App Icon ${meta.width}x${meta.height} → 2048x2048 square…`,
+    );
+    const normalized = await squareFrom(chromeSource, 2048, 0.9);
+    writeFileSync(appIconPng, normalized);
+    await sharp(normalized)
+      .webp({ quality: 92, alphaQuality: 100 })
+      .toFile(join(root, "public", "brand", "canonical-rx", "app-icon-v1.webp"));
+    await sharp(normalized)
+      .avif({ quality: 55 })
+      .toFile(join(root, "public", "brand", "canonical-rx", "app-icon-v1.avif"));
+  }
+  copyFileSync(
+    appIconPng,
+    join(root, "public", "brand", "canonical-rx", "app-icon-header-v1.png"),
+  );
+
+  // Self-contained Level IV favicon.svg (no external href — browsers require embedded data)
+  {
+    const buf = await squareFrom(faviconSource, 64, 0.92);
+    const b64 = buf.toString("base64");
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ROVEXO">
+  <title>ROVEXO</title>
+  <image width="64" height="64" href="data:image/png;base64,${b64}"/>
 </svg>
 `;
-  writeFileSync(join(root, "public", "brand", "canonical-rx", "rx-emblem-v1.svg"), svg);
-  writeFileSync(join(root, "public", "favicon.svg"), svg);
+    writeFileSync(join(root, "public", "favicon.svg"), svg);
+    console.log("✓ public/favicon.svg");
+  }
+
   await sharp(chromeSource)
     .webp({ quality: 92, alphaQuality: 100 })
     .toFile(join(root, "public", "brand", "canonical-rx", "rx-emblem-v1.webp"));
@@ -246,14 +276,15 @@ async function main() {
 
   for (const [rel, size, kind] of webIcons) {
     const out = join(root, rel);
-    if (kind === "maskable") await maskablePng(size, out);
-    else await png(size, out);
+    if (kind === "maskable") await maskablePng(size, out, chromeSource);
+    else if (kind === "favicon") await png(size, out, faviconSource, 0.92);
+    else await png(size, out, chromeSource, 0.9);
     console.log("✓", rel);
   }
 
-  await png(32, join(root, "public", "icons", "favicon.ico.png"));
+  await png(32, join(root, "public", "icons", "favicon.ico.png"), faviconSource, 0.92);
 
-  const ico = await createIco([16, 32, 48]);
+  const ico = await createIco([16, 32, 48], faviconSource);
   writeFileSync(join(root, "public", "favicon.ico"), ico);
   writeFileSync(join(root, "app", "favicon.ico"), ico);
   console.log("✓ public/favicon.ico");
@@ -262,22 +293,22 @@ async function main() {
   const iosDir = join(root, "mobile", "ios", "AppIcon.appiconset");
   mkdirSync(iosDir, { recursive: true });
   for (const size of iosSizes) {
-    await png(size, join(iosDir, `icon-${size}.png`));
+    await png(size, join(iosDir, `icon-${size}.png`), chromeSource, 0.9);
     console.log("✓ ios", size);
   }
   writeFileSync(join(iosDir, "Contents.json"), JSON.stringify(iosContents, null, 2));
 
   for (const [folder, size] of Object.entries(androidLauncher)) {
     const dir = join(root, "mobile", "android", folder);
-    await png(size, join(dir, "ic_launcher.png"));
+    await png(size, join(dir, "ic_launcher.png"), chromeSource, 0.9);
     console.log("✓ android", folder, size);
   }
 
   for (const [folder, size] of Object.entries(androidAdaptive)) {
     const dir = join(root, "mobile", "android", folder);
-    await adaptiveForeground(size, join(dir, "ic_launcher_foreground.png"));
+    await adaptiveForeground(size, join(dir, "ic_launcher_foreground.png"), chromeSource);
     await adaptiveBackground(size, join(dir, "ic_launcher_background.png"));
-    await monochromePng(size, join(dir, "ic_launcher_monochrome.png"));
+    await monochromePng(size, join(dir, "ic_launcher_monochrome.png"), chromeSource);
     console.log("✓ android adaptive", folder);
   }
 

@@ -24,12 +24,16 @@ describe("Sell UI v1.0 freeze (COD SÂNGE)", () => {
     }
   });
 
-  it("Brand / Material / Colour suppress search in SellOptionPicker", () => {
+  it("COD SÂNGE — search enabled ONLY for Brand and Material (not Colour/Condition/Size)", () => {
     const picker = read("features/sell/ui/SellOptionPicker.tsx");
     expect(picker).toContain("isBrandPicker");
     expect(picker).toContain("isMaterialPicker");
     expect(picker).toContain("isColourPicker");
-    expect(picker).toMatch(/effectiveSearchable[\s\S]*!isColourPicker[\s\S]*!isBrandPicker[\s\S]*!isMaterialPicker/);
+    expect(picker).toMatch(
+      /effectiveSearchable\s*=\s*Boolean\(searchable\s*&&\s*\(isBrandPicker\s*\|\|\s*isMaterialPicker\)\)/,
+    );
+    expect(picker).toContain("SEARCH_MIN_CHARS = 2");
+    expect(picker).toContain("normalizeSearch");
   });
 
   it("Parcel picker has no search chrome", () => {

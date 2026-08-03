@@ -14,7 +14,7 @@ describe("Super Admin Command Center v1.0", () => {
   });
 
   it("wires home page to Command Center v2 live provider", () => {
-    const pageSource = readFileSync(join(process.cwd(), "app/super-admin/page.tsx"), "utf8");
+    const pageSource = readFileSync(join(process.cwd(), "app/(platform)/super-admin/page.tsx"), "utf8");
     expect(pageSource).toContain("CommandCenterLiveProvider");
     expect(pageSource).toContain("CommandCenterV2Live");
     expect(pageSource).toContain("getCommandCenterV1Snapshot");

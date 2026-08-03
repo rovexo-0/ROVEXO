@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
 describe("Search Header SSOT separation v1.0", () => {
   it("Header Search opens Global Search /search — never Browse Categories landing", () => {
     const field = readSource("components/home/HomepageSearchField.tsx");
-    const searchPage = readSource("app/search/page.tsx");
+    const searchPage = readSource("app/(platform)/search/page.tsx");
     const results = readSource("features/search/components/SearchResultsView.tsx");
     const landing = readSource("features/search/components/SearchLandingView.tsx");
 
@@ -24,7 +24,7 @@ describe("Search Header SSOT separation v1.0", () => {
   it("Bottom Browse opens /browse Browse Categories — independent of Header Search", () => {
     const nav = readSource("components/ui/BottomNavigation.tsx");
     const canonical = readSource("lib/homepage/canonical-nav.ts");
-    const browsePage = readSource("app/browse/page.tsx");
+    const browsePage = readSource("app/(platform)/browse/page.tsx");
 
     expect(nav).toContain('href: "/browse"');
     expect(nav).toContain('t("nav.browse")');
@@ -35,7 +35,7 @@ describe("Search Header SSOT separation v1.0", () => {
   });
 
   it("keeps Camera Search on Global Search path", () => {
-    const searchPage = readSource("app/search/page.tsx");
+    const searchPage = readSource("app/(platform)/search/page.tsx");
     expect(searchPage).toContain("CAMERA_SEARCH_V1");
     expect(searchPage).toContain("visual === \"1\"");
   });

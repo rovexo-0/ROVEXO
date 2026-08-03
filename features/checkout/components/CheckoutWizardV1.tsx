@@ -21,6 +21,7 @@ import type { CheckoutFormController } from "@/features/checkout/hooks/use-check
 import type { CheckoutStep } from "@/features/checkout/types";
 import type { ProductDetail } from "@/lib/products/types";
 import type { PaymentMethodId } from "@/lib/checkout/payment";
+import type { BundleCheckoutSnapshotV1 } from "@/lib/bundle/bundle-snapshot-v1";
 
 type CheckoutWizardV1Props = {
   product: ProductDetail;
@@ -29,6 +30,7 @@ type CheckoutWizardV1Props = {
   embedded?: boolean;
   onClose?: () => void;
   initialStep?: CheckoutStep;
+  bundleSnapshot?: BundleCheckoutSnapshotV1 | null;
 };
 
 type DeliveryMode = "collection_point" | "ship_home";
@@ -68,6 +70,7 @@ export function CheckoutWizardV1({
   buyerPhone,
   embedded = false,
   onClose,
+  bundleSnapshot = null,
 }: CheckoutWizardV1Props) {
   const {
     draft,
@@ -220,7 +223,7 @@ export function CheckoutWizardV1({
         <div className="ckt-v1__sections">
           <section className="ckt-v1__section" aria-label="Product">
             <h2 className="ckt-v1__section-title">Product</h2>
-            <CheckoutProductSummary product={product} />
+            <CheckoutProductSummary product={product} bundleSnapshot={bundleSnapshot} />
           </section>
 
           <section className="ckt-v1__section" aria-labelledby="ckt-address-title">

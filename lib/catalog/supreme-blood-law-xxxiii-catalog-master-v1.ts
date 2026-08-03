@@ -175,7 +175,10 @@ export function certifyCatalogMasterBloodLawXxxiii(
     "Compact colour database invalid",
   );
 
-  const brandsOk = getBrandsForProductType("trainers").includes(CATALOG_NO_BRAND);
+  const brandsOk = getBrandsForProductType("trainers", {
+    rootSlug: "womens-fashion",
+    subcategorySlug: "shoes",
+  }).includes(CATALOG_NO_BRAND);
   add(
     "brand-database",
     "Brand Database",

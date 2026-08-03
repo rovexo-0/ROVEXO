@@ -84,7 +84,7 @@ describe("OAuth Configuration Freeze v1.0 — LEVEL 8", () => {
     expect(actions).toContain("signInWithOAuth");
     expect(actions).not.toContain("Clerk");
     expect(actions).not.toContain("NextAuth");
-    expect(existsSync(join(process.cwd(), "app/auth/callback/route.ts"))).toBe(
+    expect(existsSync(join(process.cwd(), "app/(platform)/auth/callback/route.ts"))).toBe(
       true,
     );
     const rule = readSource(".cursor/rules/oauth-configuration-freeze-v1.mdc");

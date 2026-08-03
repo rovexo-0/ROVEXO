@@ -22,6 +22,7 @@ import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { FOLLOWING_FEED_ENGINE_V1 } from "@/lib/following-feed/following-feed-engine-v1";
 import type { FollowingFeedCard, FollowingFeedPage } from "@/lib/following-feed/types";
+import { subscribeFollowingFeedRealtime } from "@/lib/realtime/following-feed-realtime";
 import css from "@/features/home/components/FollowingFeedSection.module.css";
 
 function formatGbp(amount: number): string {
@@ -220,6 +221,7 @@ export const FollowingFeedSection = memo(function FollowingFeedSection() {
   const authReady = Boolean(auth?.ready);
 
   const [items, setItems] = useState<FollowingFeedCard[]>([]);
+  const [rtTick, setRtTick] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [emptyMessage, setEmptyMessage] = useState<string | null>(null);
@@ -275,17 +277,24 @@ export const FollowingFeedSection = memo(function FollowingFeedSection() {
 
     void run(1, "replace");
 
-    const pollId = setInterval(() => {
+    const realtime = subscribeFollowingFeedRealtime(viewerId, () => {
+      setRtTick((tick) => tick + 1);
       void (async () => {
         const data = await fetchFeedPage(1);
-        if (cancelled || data.error || data.empty) return;
+        if (cancelled || data.error) return;
+        if (data.empty) {
+          setEmptyMessage(data.emptyMessage);
+          setItems([]);
+          return;
+        }
+        setEmptyMessage(null);
         setItems((prev) => mergeUnique(data.items, prev));
       })();
-    }, 45_000);
+    });
 
     return () => {
       cancelled = true;
-      clearInterval(pollId);
+      realtime.unsubscribe();
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     };
   }, [authReady, viewerId]);
@@ -332,6 +341,7 @@ export const FollowingFeedSection = memo(function FollowingFeedSection() {
     <section
       className={css.followingFeed}
       data-following-feed="v1.0"
+      data-following-rt-tick={rtTick}
       aria-label="Following feed"
     >
       <h2 className={css.followingFeedTitle}>Following</h2>

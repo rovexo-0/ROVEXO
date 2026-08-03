@@ -2,6 +2,7 @@
 
 import { useId, useMemo } from "react";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
+import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { SELL_CURRENCY_SSR_DEFAULT } from "@/lib/sell/currency";
@@ -23,7 +24,7 @@ export function SellPricingBlock({ bare = false }: { bare?: boolean }) {
         <div className="sell-price-with-icon__field min-w-0 flex-1">
           <div className="cds-field sell-price-currency__field">
             <label htmlFor={priceId} className="cds-field__label">
-              Price
+              <ListingAttributeLabel>Price</ListingAttributeLabel>
             </label>
             {/* Adornment wraps the control only — never the label — so £ stays inside the input. */}
             <div className="sell-price-currency">

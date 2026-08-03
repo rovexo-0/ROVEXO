@@ -35,8 +35,8 @@ function scanGlobalDomains(): CommunicationDomainScanResult[] {
 
 function communicationFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/messages/page.tsx") &&
-    fileExists("app/notifications/page.tsx") &&
+    fileExists("app/(platform)/messages/page.tsx") &&
+    fileExists("app/(platform)/notifications/page.tsx") &&
     scan.shippingCompletionPass
   );
 }
@@ -56,10 +56,10 @@ function scanEmailPlatform(scan: MarketplaceCompletionScanResult): CompletionVal
     if (check === "order-confirmation") pass = fileExists("lib/orders/notifications.ts");
     if (check === "shipping-updates") pass = fileExists("lib/shipping/service.ts");
     if (check === "refund-emails") pass = fileExists("lib/stripe/refunds.ts");
-    if (check === "dispute-emails") pass = fileExists("app/protection/page.tsx");
+    if (check === "dispute-emails") pass = fileExists("app/(platform)/protection/page.tsx");
     if (check === "seller-emails") pass = fileExists("lib/seller/migration/notifications.ts");
     if (check === "company-emails") pass = fileExists("lib/notifications-engine/registry.ts");
-    if (check === "support-emails") pass = fileExists("app/support/page.tsx");
+    if (check === "support-emails") pass = fileExists("app/(platform)/support/page.tsx");
     return createCheck("communication-email", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -193,7 +193,7 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
   };
   const values: Record<(typeof COMMUNICATION_CERTIFICATION_SCORES)[number], number> = {
     messaging: passPercent,
-    notification: fileExists("app/notifications/page.tsx") ? 100 : 85,
+    notification: fileExists("app/(platform)/notifications/page.tsx") ? 100 : 85,
     email: fileExists("lib/email/service.ts") ? 100 : 85,
     push: fileExists("lib/integrations-engine/defaults.ts") ? 100 : 90,
     realtime: fileExists("lib/messages/realtime.ts") ? 100 : 85,
@@ -218,8 +218,8 @@ function buildPassConditions(
   checksPass: boolean,
 ): CommunicationPassConditionResult[] {
   const mapping: Record<(typeof COMMUNICATION_PASS_CONDITIONS)[number], boolean> = {
-    "messages-pass": fileExists("app/messages/page.tsx") && fileExists("app/api/messages/route.ts"),
-    "notifications-pass": fileExists("app/notifications/page.tsx") && fileExists("app/api/notifications/route.ts"),
+    "messages-pass": fileExists("app/(platform)/messages/page.tsx") && fileExists("app/api/messages/route.ts"),
+    "notifications-pass": fileExists("app/(platform)/notifications/page.tsx") && fileExists("app/api/notifications/route.ts"),
     "email-pass": fileExists("lib/email/service.ts"),
     "push-pass": fileExists("lib/integrations-engine/defaults.ts"),
     "realtime-pass": fileExists("lib/messages/realtime.ts"),

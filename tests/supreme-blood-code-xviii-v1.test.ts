@@ -56,7 +56,7 @@ describe("ROVEXO Supreme Blood Code XVIII — Sprint V Sell", () => {
     expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.I).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.V).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentSprint).toBe("VI");

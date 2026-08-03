@@ -67,7 +67,12 @@ describe("ROVEXO Catalog Master v1.0 — Absolute Law XXX", () => {
           const attrs = resolveProductTypeAttributes(slug);
           expect(attrs.length).toBeGreaterThanOrEqual(3);
           expect(attrs.length).toBeLessThanOrEqual(6);
-          expect(getBrandsForProductType(slug)).toContain(CATALOG_NO_BRAND);
+          expect(
+            getBrandsForProductType(slug, {
+              rootSlug: sector.slug,
+              subcategorySlug: dept.slug,
+            }),
+          ).toContain(CATALOG_NO_BRAND);
         }
       }
     }

@@ -11,21 +11,21 @@ export type GlobalWorkflowValidationResult = {
 };
 
 const WORKFLOW_REFS: Record<(typeof GLOBAL_WORKFLOW_JOURNEYS)[number], string> = {
-  "buyer-journey": "app/account/page.tsx",
-  "seller-journey": "app/seller/dashboard/page.tsx",
-  "company-journey": "app/business/dashboard/page.tsx",
-  "business-journey": "app/business/center/page.tsx",
-  "super-admin-journey": "app/super-admin/marketplace-completion/page.tsx",
-  checkout: "app/checkout/[slug]/page.tsx",
-  orders: "app/account/orders/page.tsx",
-  wallet: "app/wallet/page.tsx",
-  payments: "app/account/payment-methods/page.tsx",
-  shipping: "app/shipping/page.tsx",
-  messaging: "app/messages/page.tsx",
-  notifications: "app/notifications/page.tsx",
-  "listing-publish": "app/sell/page.tsx",
-  "ai-category": "app/sell/new/page.tsx",
-  "ai-validation": "app/sell/new/page.tsx",
+  "buyer-journey": "app/(platform)/account/page.tsx",
+  "seller-journey": "app/(platform)/seller/dashboard/page.tsx",
+  "company-journey": "app/(platform)/business/dashboard/page.tsx",
+  "business-journey": "app/(platform)/business/center/page.tsx",
+  "super-admin-journey": "app/(platform)/super-admin/marketplace-completion/page.tsx",
+  checkout: "app/(platform)/checkout/[slug]/page.tsx",
+  orders: "app/(platform)/account/orders/page.tsx",
+  wallet: "app/(platform)/wallet/page.tsx",
+  payments: "app/(platform)/account/payment-methods/page.tsx",
+  shipping: "app/(platform)/shipping/page.tsx",
+  messaging: "app/(platform)/messages/page.tsx",
+  notifications: "app/(platform)/notifications/page.tsx",
+  "listing-publish": "app/(platform)/sell/page.tsx",
+  "ai-category": "app/(platform)/sell/new/page.tsx",
+  "ai-validation": "app/(platform)/sell/new/page.tsx",
 };
 
 export function runGlobalWorkflowValidation(input: { modulesComplete: boolean }): GlobalWorkflowValidationResult {

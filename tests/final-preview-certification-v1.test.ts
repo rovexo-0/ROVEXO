@@ -170,7 +170,7 @@ describe("Final Preview Certification v1.0 — Sell Native Photo Picker", () => 
     expect(existsSync(join(process.cwd(), "features/sell/ui/UniversalPhotoPickerSheet.tsx"))).toBe(
       false,
     );
-    expect(existsSync(join(process.cwd(), "app/sell/camera/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/sell/camera/page.tsx"))).toBe(true);
   });
 });
 
@@ -192,7 +192,7 @@ describe("Final Preview Certification v1.0 — Master Menu + Phone Width", () =>
 
 describe("Final Preview Certification v1.0 — Transaction Hub", () => {
   it("messages route redirects to inbox hub", () => {
-    const messages = readSource("app/messages/page.tsx");
+    const messages = readSource("app/(platform)/messages/page.tsx");
     expect(messages).toContain("redirect");
     expect(messages).toMatch(/inbox/i);
   });

@@ -30,7 +30,7 @@ const screenshots = existsSync(screenshotDir)
   : [];
 
 const delivery = readFileSync(join(ROOT, "lib/checkout/delivery.ts"), "utf8");
-const checkoutPage = readFileSync(join(ROOT, "app/checkout/[slug]/page.tsx"), "utf8");
+const checkoutPage = readFileSync(join(ROOT, "app/(platform)/checkout/[slug]/page.tsx"), "utf8");
 const businessCard = readFileSync(
   join(ROOT, "features/business/dashboard/components/BusinessProfileCard.tsx"),
   "utf8",
@@ -71,7 +71,7 @@ const gates = [
   { name: "Brand system (ROVEXO + RX)", result: brandCert ? "PASS" : "FAIL", weight: 10 },
   { name: "Playwright matrix", result: playwrightResult, weight: 20 },
   { name: "Screenshot report", result: screenshots.length >= 14 ? "PASS" : "PENDING", weight: 10 },
-  { name: "Super Admin pricing manager", result: existsSync(join(ROOT, "app/super-admin/pricing/page.tsx")) ? "PASS" : "FAIL", weight: 5 },
+  { name: "Super Admin pricing manager", result: existsSync(join(ROOT, "app/(platform)/super-admin/pricing/page.tsx")) ? "PASS" : "FAIL", weight: 5 },
 ];
 
 const earned = gates.reduce((sum, gate) => {
@@ -107,7 +107,7 @@ ${criticalIssues.length ? criticalIssues.join("\n") : "_None — all automated g
 ## Shipping audit
 
 - Root cause fixed: client checkout no longer gates live Sendcloud quotes on \`process.env.SENDCLOUD_PUBLIC_KEY\` (server-only).
-- Server passes \`liveShippingEnabled={isSendcloudConfigured()}\` from \`app/checkout/[slug]/page.tsx\`.
+- Server passes \`liveShippingEnabled={isSendcloudConfigured()}\` from \`app/(platform)/checkout/[slug]/page.tsx\`.
 - Seller-paid listings display **Shipping included** — no conflicting dispatch pricing copy.
 - Live carrier rates: shown when Sendcloud is configured and seller dispatch address exists.
 

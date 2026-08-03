@@ -16,7 +16,7 @@
 
 | Surface | File | Role |
 |---------|------|------|
-| Route | `app/search/page.tsx` | Idle → landing; `?q` / `?category` → results |
+| Route | `app/(platform)/search/page.tsx` | Idle → landing; `?q` / `?category` → results |
 | Landing | `features/search/components/SearchLandingView.tsx` | Search field · Recent · Trending · typeahead |
 | Landing CSS | `styles/rovexo/search-landing-v1.css` | Private `--srch-land-*` tokens |
 | Results | `features/search/components/SearchResultsView.tsx` | Heading · count · grid · empty · error |

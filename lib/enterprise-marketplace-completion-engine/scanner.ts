@@ -109,53 +109,53 @@ function scanMarketplaceModules(): MarketplaceModuleResult[] {
 }
 
 const BUYER_JOURNEY_REFS: Record<string, string> = {
-  register: "app/account/page.tsx",
+  register: "app/(platform)/account/page.tsx",
   login: "lib/supabase/middleware.ts",
-  search: "app/search/page.tsx",
-  categories: "app/categories/page.tsx",
-  filters: "app/search/page.tsx",
-  listing: "app/listing/[slug]/page.tsx",
-  wishlist: "app/saved/page.tsx",
-  cart: "app/cart/page.tsx",
-  checkout: "app/checkout/[slug]/page.tsx",
-  payment: "app/account/payment-methods/page.tsx",
-  orders: "app/account/orders/page.tsx",
-  tracking: "app/shipping/page.tsx",
-  delivery: "app/shipping/page.tsx",
-  review: "app/seller/review-center/page.tsx",
-  support: "app/support/page.tsx",
+  search: "app/(platform)/search/page.tsx",
+  categories: "app/(platform)/categories/page.tsx",
+  filters: "app/(platform)/search/page.tsx",
+  listing: "app/(platform)/listing/[slug]/page.tsx",
+  wishlist: "app/(platform)/saved/page.tsx",
+  cart: "app/(platform)/cart/page.tsx",
+  checkout: "app/(platform)/checkout/[slug]/page.tsx",
+  payment: "app/(platform)/account/payment-methods/page.tsx",
+  orders: "app/(platform)/account/orders/page.tsx",
+  tracking: "app/(platform)/shipping/page.tsx",
+  delivery: "app/(platform)/shipping/page.tsx",
+  review: "app/(platform)/seller/review-center/page.tsx",
+  support: "app/(platform)/support/page.tsx",
   logout: "middleware.ts",
 };
 
 const SELLER_JOURNEY_REFS: Record<string, string> = {
-  register: "app/account/page.tsx",
-  "business-verification": "app/business/page.tsx",
-  profile: "app/account/profile/page.tsx",
-  "create-listing": "app/sell/new/page.tsx",
-  "upload-photos": "app/sell/camera/page.tsx",
-  "ai-category": "app/sell/new/page.tsx",
-  "ai-validation": "app/sell/new/page.tsx",
-  stock: "app/seller/listings/page.tsx",
-  shipping: "app/seller/orders/page.tsx",
-  draft: "app/sell/new/page.tsx",
-  preview: "app/sell/new/page.tsx",
-  publish: "app/sell/page.tsx",
-  orders: "app/seller/orders/page.tsx",
-  analytics: "app/seller/analytics/page.tsx",
-  wallet: "app/seller/wallet/page.tsx",
-  messages: "app/messages/page.tsx",
-  "vacation-mode": "app/account/settings/page.tsx",
+  register: "app/(platform)/account/page.tsx",
+  "business-verification": "app/(platform)/business/page.tsx",
+  profile: "app/(platform)/account/profile/page.tsx",
+  "create-listing": "app/(platform)/sell/new/page.tsx",
+  "upload-photos": "app/(platform)/sell/camera/page.tsx",
+  "ai-category": "app/(platform)/sell/new/page.tsx",
+  "ai-validation": "app/(platform)/sell/new/page.tsx",
+  stock: "app/(platform)/seller/listings/page.tsx",
+  shipping: "app/(platform)/seller/orders/page.tsx",
+  draft: "app/(platform)/sell/new/page.tsx",
+  preview: "app/(platform)/sell/new/page.tsx",
+  publish: "app/(platform)/sell/page.tsx",
+  orders: "app/(platform)/seller/orders/page.tsx",
+  analytics: "app/(platform)/seller/analytics/page.tsx",
+  wallet: "app/(platform)/seller/wallet/page.tsx",
+  messages: "app/(platform)/messages/page.tsx",
+  "vacation-mode": "app/(platform)/account/settings/page.tsx",
 };
 
 const COMPANY_JOURNEY_REFS: Record<string, string> = {
-  "company-registration": "app/business/page.tsx",
-  "business-verification": "app/business/page.tsx",
-  employees: "app/business/center/page.tsx",
-  permissions: "app/business/center/page.tsx",
-  reports: "app/business/dashboard/page.tsx",
-  analytics: "app/business/analytics/page.tsx",
-  invoices: "app/business/center/page.tsx",
-  settings: "app/account/settings/page.tsx",
+  "company-registration": "app/(platform)/business/page.tsx",
+  "business-verification": "app/(platform)/business/page.tsx",
+  employees: "app/(platform)/business/center/page.tsx",
+  permissions: "app/(platform)/business/center/page.tsx",
+  reports: "app/(platform)/business/dashboard/page.tsx",
+  analytics: "app/(platform)/business/analytics/page.tsx",
+  invoices: "app/(platform)/business/center/page.tsx",
+  settings: "app/(platform)/account/settings/page.tsx",
 };
 
 function scanJourney(category: string, steps: readonly string[], refs: Record<string, string>): CompletionValidationItem[] {
@@ -213,7 +213,7 @@ function scanHomepageChecks(homepagePass: boolean): CompletionValidationItem[] {
 }
 
 function scanSearchChecks(): CompletionValidationItem[] {
-  const searchPage = readSource("app/search/page.tsx");
+  const searchPage = readSource("app/(platform)/search/page.tsx");
   const searchApi = fileExists("app/api/search/route.ts");
   return SEARCH_VALIDATION_CHECKS.map((check) =>
     createCheck("search", check, searchPage.length > 0 && searchApi, searchApi ? `${labelize(check)} validated` : "Search integration incomplete"),
@@ -221,7 +221,7 @@ function scanSearchChecks(): CompletionValidationItem[] {
 }
 
 function scanCategoryChecks(): CompletionValidationItem[] {
-  const categoriesPage = readSource("app/categories/page.tsx");
+  const categoriesPage = readSource("app/(platform)/categories/page.tsx");
   const categoryMgmt = fileExists("lib/enterprise-category-management-center/engine.ts");
   return CATEGORY_VALIDATION_CHECKS.map((check) =>
     createCheck("categories", check, categoriesPage.length > 0 && categoryMgmt, `${labelize(check)} taxonomy validated`),
@@ -229,7 +229,7 @@ function scanCategoryChecks(): CompletionValidationItem[] {
 }
 
 function scanListingChecks(): CompletionValidationItem[] {
-  const sellFlow = fileExists("app/sell/new/page.tsx") && fileExists("app/listing/[slug]/page.tsx");
+  const sellFlow = fileExists("app/(platform)/sell/new/page.tsx") && fileExists("app/(platform)/listing/[slug]/page.tsx");
   return LISTING_VALIDATION_CHECKS.map((check) =>
     createCheck("listings", check, sellFlow, `${labelize(check)} listing workflow validated`),
   );

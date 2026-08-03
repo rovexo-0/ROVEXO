@@ -78,9 +78,9 @@ describe("ROVEXO v1.0 — Homepage Final Freeze", () => {
   });
 
   it("never calls notFound for store / user / listing missing resources", () => {
-    const userPage = readSource("app/user/[username]/page.tsx");
-    const storePage = readSource("app/store/[slug]/page.tsx");
-    const listingPage = readSource("app/listing/[slug]/page.tsx");
+    const userPage = readSource("app/(platform)/user/[username]/page.tsx");
+    const storePage = readSource("app/(platform)/store/[slug]/page.tsx");
+    const listingPage = readSource("app/(platform)/listing/[slug]/page.tsx");
     expect(userPage).not.toContain("notFound(");
     expect(storePage).not.toContain("notFound(");
     expect(listingPage).not.toContain("notFound(");

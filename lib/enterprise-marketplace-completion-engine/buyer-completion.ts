@@ -42,8 +42,8 @@ function scanGlobalDomains(): BuyerDomainScanResult[] {
 
 function buyerFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/account/page.tsx") &&
-    fileExists("app/cart/page.tsx") &&
+    fileExists("app/(platform)/account/page.tsx") &&
+    fileExists("app/(platform)/cart/page.tsx") &&
     fileExists("features/checkout/components/CheckoutPage.tsx") &&
     scan.listingCompletionPass
   );
@@ -51,32 +51,32 @@ function buyerFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
 
 function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const refs: Partial<Record<(typeof BUYER_WORKFLOW_VALIDATION)[number], string>> = {
-    landing: "app/page.tsx",
+    landing: "app/(platform)/page.tsx",
     registration: "app/(auth)/register/page.tsx",
     login: "app/(auth)/login/page.tsx",
     "email-verification": "app/api/profile/verify-email/route.ts",
-    "two-factor-authentication": "app/account/security/page.tsx",
-    "profile-setup": "app/account/profile/page.tsx",
-    "address-book": "app/account/addresses/page.tsx",
-    search: "app/search/page.tsx",
-    categories: "app/categories/page.tsx",
+    "two-factor-authentication": "app/(platform)/account/security/page.tsx",
+    "profile-setup": "app/(platform)/account/profile/page.tsx",
+    "address-book": "app/(platform)/account/addresses/page.tsx",
+    search: "app/(platform)/search/page.tsx",
+    categories: "app/(platform)/categories/page.tsx",
     filters: "features/search/components/SearchFilters.tsx",
-    wishlist: "app/saved/page.tsx",
+    wishlist: "app/(platform)/saved/page.tsx",
     "recently-viewed": "components/home/HomeRecentlyViewedCarousel.tsx",
     "product-details": "features/product-detail/ProductDetailPage.tsx",
     "share-listing": "components/share/ShareListingSheet.tsx",
     "report-listing": "app/api/listings/report/route.ts",
     "contact-seller": "features/product-detail/ProductStoreSection.tsx",
-    cart: "app/cart/page.tsx",
+    cart: "app/(platform)/cart/page.tsx",
     checkout: "features/checkout/components/CheckoutPage.tsx",
-    payment: "app/account/payment-methods/page.tsx",
+    payment: "app/(platform)/account/payment-methods/page.tsx",
     "buyer-protection": "features/product-detail/ProductDetailPage.tsx",
     "order-confirmation": "features/checkout/components/CheckoutSuccessView.tsx",
     "order-tracking": "features/commerce-ui/views/TrackingView.tsx",
     delivery: "features/orders/components/DeliveryStatusCard.tsx",
     "order-completion": "features/orders/components/OrderDetailView.tsx",
     review: "features/orders/components/OrderReviewCard.tsx",
-    support: "app/support/page.tsx",
+    support: "app/(platform)/support/page.tsx",
     logout: "middleware.ts",
   };
 
@@ -90,16 +90,16 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
 function scanProfile(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_PROFILE_VALIDATION.map((check) => {
     let pass = buyerFoundationReady(scan);
-    if (check === "profile" || check === "avatar" || check === "display-name") pass = fileExists("app/account/profile/page.tsx");
-    if (check === "addresses") pass = fileExists("app/account/addresses/page.tsx");
-    if (check === "language") pass = fileExists("app/account/preferences/language/page.tsx");
-    if (check === "appearance") pass = fileExists("app/account/preferences/appearance/page.tsx");
-    if (check === "notification-preferences") pass = fileExists("app/notifications/preferences/page.tsx");
-    if (check === "privacy") pass = fileExists("app/account/privacy/page.tsx");
-    if (check === "security" || check === "phone") pass = fileExists("app/account/security/page.tsx");
-    if (check.includes("payment")) pass = fileExists("app/account/payment-methods/page.tsx");
+    if (check === "profile" || check === "avatar" || check === "display-name") pass = fileExists("app/(platform)/account/profile/page.tsx");
+    if (check === "addresses") pass = fileExists("app/(platform)/account/addresses/page.tsx");
+    if (check === "language") pass = fileExists("app/(platform)/account/preferences/language/page.tsx");
+    if (check === "appearance") pass = fileExists("app/(platform)/account/preferences/appearance/page.tsx");
+    if (check === "notification-preferences") pass = fileExists("app/(platform)/notifications/preferences/page.tsx");
+    if (check === "privacy") pass = fileExists("app/(platform)/account/privacy/page.tsx");
+    if (check === "security" || check === "phone") pass = fileExists("app/(platform)/account/security/page.tsx");
+    if (check.includes("payment")) pass = fileExists("app/(platform)/account/payment-methods/page.tsx");
     if (check.includes("saved-searches")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
-    if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
+    if (check.includes("wishlist")) pass = fileExists("app/(platform)/saved/page.tsx");
     if (check.includes("recently-viewed")) pass = fileExists("components/home/HomeRecentlyViewedCarousel.tsx");
     return createCheck("buyer-profile", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -108,9 +108,9 @@ function scanProfile(scan: MarketplaceCompletionScanResult): CompletionValidatio
 function scanShopping(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_SHOPPING_VALIDATION.map((check) => {
     let pass = buyerFoundationReady(scan) && scan.searchCompletionPass;
-    if (check === "homepage") pass = scan.homepagePass && fileExists("app/page.tsx");
-    if (check === "search") pass = fileExists("app/search/page.tsx");
-    if (check.includes("category")) pass = fileExists("app/categories/page.tsx");
+    if (check === "homepage") pass = scan.homepagePass && fileExists("app/(platform)/page.tsx");
+    if (check === "search") pass = fileExists("app/(platform)/search/page.tsx");
+    if (check.includes("category")) pass = fileExists("app/(platform)/categories/page.tsx");
     if (check.includes("filter") || check.includes("sort")) pass = fileExists("features/search/components/SearchFilters.tsx");
     if (check.includes("recommend") || check.includes("featured") || check.includes("sponsored")) pass = fileExists("components/home/HomeContent.tsx");
     if (check.includes("recently-viewed")) pass = fileExists("components/home/HomeRecentlyViewedCarousel.tsx");
@@ -123,13 +123,13 @@ function scanProductPage(scan: MarketplaceCompletionScanResult): CompletionValid
   const detail = readSource("features/product-detail/ProductDetailPage.tsx");
 
   return BUYER_PRODUCT_PAGE_VALIDATION.map((check) => {
-    let pass = detail.length > 0 && fileExists("app/listing/[slug]/page.tsx");
+    let pass = detail.length > 0 && fileExists("app/(platform)/listing/[slug]/page.tsx");
     if (check.includes("image") || check === "gallery" || check === "zoom") {
       pass = fileExists("features/product-detail/ProductGalleryV1.tsx");
     }
     if (check === "description") pass = fileExists("features/product-detail/ProductDescriptionV1.tsx");
     if (check.includes("seller")) pass = fileExists("features/product-detail/ProductStoreSection.tsx");
-    if (check.includes("business")) pass = fileExists("app/business/directory/page.tsx");
+    if (check.includes("business")) pass = fileExists("app/(platform)/business/directory/page.tsx");
     if (check.includes("buyer-protection")) {
       pass = detail.includes("formatListingPriceIncl");
     }
@@ -137,7 +137,7 @@ function scanProductPage(scan: MarketplaceCompletionScanResult): CompletionValid
     if (check.includes("returns")) pass = fileExists("features/checkout/components/CheckoutReturnPolicy.tsx");
     if (check.includes("review") || check.includes("related")) pass = fileExists("features/product-detail/ProductSimilarItems.tsx");
     if (check.includes("share")) pass = fileExists("components/share/ShareListingSheet.tsx");
-    if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
+    if (check.includes("wishlist")) pass = fileExists("app/(platform)/saved/page.tsx");
     if (check.includes("attribute") || check.includes("compatibility")) pass = detail.length > 0;
     return createCheck("buyer-product-page", check, pass && buyerFoundationReady(scan), pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -174,7 +174,7 @@ function scanCheckout(scan: MarketplaceCompletionScanResult): CompletionValidati
 
 function scanOrders(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_ORDER_VALIDATION.map((check) => {
-    let pass = fileExists("app/account/orders/page.tsx") && buyerFoundationReady(scan);
+    let pass = fileExists("app/(platform)/account/orders/page.tsx") && buyerFoundationReady(scan);
     if (check.includes("tracking")) pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check.includes("delivery")) pass = fileExists("features/orders/components/DeliveryStatusCard.tsx");
     if (check.includes("invoice") || check.includes("receipt")) pass = fileExists("app/api/orders/[id]/receipt/route.ts");
@@ -188,10 +188,10 @@ function scanOrders(scan: MarketplaceCompletionScanResult): CompletionValidation
 
 function scanNotifications(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_NOTIFICATION_VALIDATION.map((check) => {
-    let pass = fileExists("app/notifications/page.tsx") && buyerFoundationReady(scan);
+    let pass = fileExists("app/(platform)/notifications/page.tsx") && buyerFoundationReady(scan);
     if (check.includes("email") || check.includes("push") || check.includes("in-app")) pass = fileExists("app/api/notifications/route.ts");
     if (check.includes("order") || check.includes("shipping") || check.includes("buyer-protection")) pass = fileExists("app/api/notifications/preferences/route.ts");
-    if (check.includes("preferences") || check.includes("marketing")) pass = fileExists("app/notifications/preferences/page.tsx");
+    if (check.includes("preferences") || check.includes("marketing")) pass = fileExists("app/(platform)/notifications/preferences/page.tsx");
     if (check.includes("sms")) pass = fileExists("lib/search-engine/registry.ts");
     return createCheck("buyer-notifications", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -203,7 +203,7 @@ function scanButtons(scan: MarketplaceCompletionScanResult): CompletionValidatio
     if (check === "search") pass = fileExists("components/header/HeaderSearchBar.tsx");
     if (check === "category") pass = fileExists("components/home/HomeCategoryRail.tsx");
     if (check === "wishlist") pass = fileExists("components/header/HeaderWishlistLink.tsx");
-    if (check === "cart") pass = fileExists("app/cart/page.tsx");
+    if (check === "cart") pass = fileExists("app/(platform)/cart/page.tsx");
     if (check === "checkout" || check === "pay") pass = fileExists("features/checkout/components/CheckoutPayFooter.tsx");
     if (check.includes("track") || check.includes("confirm-delivery") || check.includes("dispute")) {
       pass = fileExists("features/orders/components/OrderActionsCard.tsx");
@@ -214,8 +214,8 @@ function scanButtons(scan: MarketplaceCompletionScanResult): CompletionValidatio
         readSource("features/product-detail/ProductDetailPage.tsx").includes("onContact");
     }
     if (check === "review") pass = fileExists("features/orders/components/OrderReviewCard.tsx");
-    if (check === "settings") pass = fileExists("app/account/settings/page.tsx");
-    if (check === "support") pass = fileExists("app/support/page.tsx");
+    if (check === "settings") pass = fileExists("app/(platform)/account/settings/page.tsx");
+    if (check === "support") pass = fileExists("app/(platform)/support/page.tsx");
     return createCheck("buyer-buttons", check, pass, pass ? `${labelize(check)} validated` : `${labelize(check)} pending`);
   });
 }
@@ -223,13 +223,13 @@ function scanButtons(scan: MarketplaceCompletionScanResult): CompletionValidatio
 function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_DATABASE_VALIDATION.map((check) => {
     let pass = buyerFoundationReady(scan);
-    if (check.includes("profile")) pass = fileExists("app/account/profile/page.tsx");
+    if (check.includes("profile")) pass = fileExists("app/(platform)/account/profile/page.tsx");
     if (check.includes("order")) pass = fileExists("app/api/orders/route.ts");
-    if (check.includes("address")) pass = fileExists("app/account/addresses/page.tsx");
-    if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
+    if (check.includes("address")) pass = fileExists("app/(platform)/account/addresses/page.tsx");
+    if (check.includes("wishlist")) pass = fileExists("app/(platform)/saved/page.tsx");
     if (check.includes("saved-searches")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
     if (check.includes("notification")) pass = fileExists("app/api/notifications/route.ts");
-    if (check.includes("payment")) pass = fileExists("app/account/payment-methods/page.tsx");
+    if (check.includes("payment")) pass = fileExists("app/(platform)/account/payment-methods/page.tsx");
     if (check.includes("buyer-protection")) {
       pass =
         fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") ||
@@ -245,10 +245,10 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     if (check.includes("registration")) pass = fileExists("app/(auth)/register/page.tsx");
     if (check.includes("login")) pass = fileExists("app/(auth)/login/page.tsx");
     if (check.includes("checkout")) pass = fileExists("features/checkout/components/CheckoutPage.tsx");
-    if (check.includes("order")) pass = fileExists("app/account/orders/page.tsx");
-    if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
+    if (check.includes("order")) pass = fileExists("app/(platform)/account/orders/page.tsx");
+    if (check.includes("wishlist")) pass = fileExists("app/(platform)/saved/page.tsx");
     if (check.includes("saved-search")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
-    if (check.includes("notification")) pass = fileExists("app/notifications/page.tsx");
+    if (check.includes("notification")) pass = fileExists("app/(platform)/notifications/page.tsx");
     if (check.includes("buyer-protection")) {
       pass =
         fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") ||
@@ -306,8 +306,8 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
     ux: passPercent,
     ui: scan.globalUiPass ? 100 : 90,
     checkout: fileExists("features/checkout/components/CheckoutPage.tsx") ? 100 : 85,
-    order: fileExists("app/account/orders/page.tsx") ? 100 : 85,
-    security: fileExists("app/account/security/page.tsx") ? 100 : 90,
+    order: fileExists("app/(platform)/account/orders/page.tsx") ? 100 : 85,
+    security: fileExists("app/(platform)/account/security/page.tsx") ? 100 : 90,
     accessibility: scan.globalUiPass ? 100 : 90,
     performance: scan.homepagePass ? 100 : 90,
     marketplace: scan.passPercent,
@@ -332,19 +332,19 @@ function buildPassConditions(
   const mapping: Record<(typeof BUYER_PASS_CONDITIONS)[number], boolean> = {
     "registration-pass": fileExists("app/(auth)/register/page.tsx") && buyerFoundationReady(scan),
     "login-pass": fileExists("app/(auth)/login/page.tsx"),
-    "search-pass": scan.searchCompletionPass && fileExists("app/search/page.tsx"),
-    "wishlist-pass": fileExists("app/saved/page.tsx"),
-    "cart-pass": fileExists("app/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
+    "search-pass": scan.searchCompletionPass && fileExists("app/(platform)/search/page.tsx"),
+    "wishlist-pass": fileExists("app/(platform)/saved/page.tsx"),
+    "cart-pass": fileExists("app/(platform)/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
     "checkout-pass": fileExists("features/checkout/components/CheckoutPage.tsx"),
-    "orders-pass": fileExists("app/account/orders/page.tsx"),
+    "orders-pass": fileExists("app/(platform)/account/orders/page.tsx"),
     "tracking-pass": fileExists("features/commerce-ui/views/TrackingView.tsx"),
-    "notifications-pass": fileExists("app/notifications/page.tsx"),
+    "notifications-pass": fileExists("app/(platform)/notifications/page.tsx"),
     "buyer-protection-pass":
       fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") &&
       readSource("features/product-detail/ProductDetailPage.tsx").includes("formatListingPriceIncl"),
     "performance-pass": scan.homepagePass,
     "accessibility-pass": scan.globalUiPass,
-    "security-pass": fileExists("app/account/security/page.tsx"),
+    "security-pass": fileExists("app/(platform)/account/security/page.tsx"),
     "marketplace-pass": scan.listingCompletionPass,
     "enterprise-pass": scan.certificationGatePass && scan.omegaPass,
     "omega-pass": scan.omegaPass,

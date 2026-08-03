@@ -9,6 +9,7 @@ export function AccountSellerStarRating({ rating }: AccountSellerStarRatingProps
   return (
     <span
       className="ac-canonical__seller-stars"
+      role="img"
       aria-label={`${clamped.toFixed(1)} out of 5 stars`}
     >
       {"★".repeat(filled)}

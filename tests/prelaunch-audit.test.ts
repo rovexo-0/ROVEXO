@@ -66,12 +66,12 @@ describe("Pre-launch production config", () => {
   });
 
   it("requires seller orders list to consolidate into canonical /orders", () => {
-    const listSource = readFileSync(path.join(process.cwd(), "app/seller/orders/page.tsx"), "utf8");
+    const listSource = readFileSync(path.join(process.cwd(), "app/(platform)/seller/orders/page.tsx"), "utf8");
     expect(listSource).toContain('permanentRedirect("/orders")');
 
     // Phase I Conversation Routing: seller order detail is redirect-only → Hub.
     // Order ownership still resolves via fetchOrderForUser inside the server helper.
-    const detailSource = readFileSync(path.join(process.cwd(), "app/seller/orders/[id]/page.tsx"), "utf8");
+    const detailSource = readFileSync(path.join(process.cwd(), "app/(platform)/seller/orders/[id]/page.tsx"), "utf8");
     expect(detailSource).toContain("getProfile()");
     expect(detailSource).toContain("resolveOrderConversationHrefForUser");
     expect(detailSource).toContain("redirect(");

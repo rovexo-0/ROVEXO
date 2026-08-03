@@ -24,12 +24,22 @@ export function createClient() {
 
 export function tryCreateClient() {
   if (!isSupabaseConfigured()) {
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-supabase-client", "UNCONFIGURED");
+    }
     return null;
   }
 
   try {
-    return createClient();
+    const client = createClient();
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-supabase-client", "OK");
+    }
+    return client;
   } catch {
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-supabase-client", "THROW");
+    }
     return null;
   }
 }

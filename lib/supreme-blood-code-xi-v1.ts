@@ -37,12 +37,13 @@ export const SUPREME_BLOOD_CODE_XI_V1 = {
     III: { module: "ORDERS", route: "/orders", status: "LOCKED", completion: "100_COMPLETE" },
     IV: { module: "WALLET", route: "/wallet", status: "LOCKED" },
     V: { module: "SELL", route: "/sell", status: "LOCKED" },
-    VI: { module: "CHECKOUT", route: "/checkout", status: "IN_DEVELOPMENT" },
+    VI: { module: "CHECKOUT", route: "/checkout", status: "LOCKED" },
     VII: { module: "ACCOUNT", route: "/account", status: "FORBIDDEN_TO_START" },
   } as const,
 
   currentSprint: "VI" as const,
   currentModule: "CHECKOUT" as const,
+  checkoutPermanentlyFrozen: true,
   currentAllowedRoute: "/checkout" as const,
 
   sprintIiiForbidden: [

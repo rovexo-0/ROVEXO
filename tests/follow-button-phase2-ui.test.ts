@@ -45,7 +45,7 @@ describe("Follow Engine v1.0 — Complete Follow system", () => {
   });
 
   it("loads follow truth on public profile page", () => {
-    const page = readSource("app/user/[username]/page.tsx");
+    const page = readSource("app/(platform)/user/[username]/page.tsx");
     expect(page).toContain("getFollowCounts");
     expect(page).toContain("isFollowing");
     expect(page).toContain("@/lib/follow/marketplace-follow-store-v1");

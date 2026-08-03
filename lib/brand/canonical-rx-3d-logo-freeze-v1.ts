@@ -145,10 +145,19 @@ export const CANONICAL_RX_ICON_PATHS = {
   favicon48: "/icons/favicon-48.png",
   favicon64: "/icons/favicon-64.png",
   apple: "/apple-icon.png",
+  appleTouch: "/apple-touch-icon.png",
+  icon32: "/icons/icon-32.png",
+  icon48: "/icons/icon-48.png",
+  icon64: "/icons/icon-64.png",
   icon192: "/icons/icon-192.png",
   icon512: "/icons/icon-512.png",
   maskable512: "/icons/icon-maskable-512.png",
+  maskableIcon512: "/icons/maskable-icon-512.png",
   icon1024: "/icons/icon-1024.png",
+  faviconIco: "/favicon.ico",
+  faviconSvg: "/favicon.svg",
+  /** Owner-approved RX-only favicon/PWA source (no hands). */
+  rxOnlySource: "/brand/canonical-rx/rx-favicon-source-v1.png",
 } as const;
 
 /** @deprecated alias — prefer CANONICAL_LOGO_ENGINE_V1 */

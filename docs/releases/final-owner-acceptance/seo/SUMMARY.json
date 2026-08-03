@@ -1,0 +1,129 @@
+{
+  "public_rows": [
+    {
+      "file": "categories-desktop.report.json",
+      "url": "http://127.0.0.1:3000/categories",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "categories-mobile.report.json",
+      "url": "http://127.0.0.1:3000/categories",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "category-desktop.report.json",
+      "url": "http://127.0.0.1:3000/category/womens-fashion",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "category-mobile.report.json",
+      "url": "http://127.0.0.1:3000/category/womens-fashion",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "listing-desktop.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "listing-mobile.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "product-desktop.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "product-mobile.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "search-desktop.report.json",
+      "url": "http://127.0.0.1:3000/search",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    },
+    {
+      "file": "search-mobile.report.json",
+      "url": "http://127.0.0.1:3000/search",
+      "err": null,
+      "perf": 84,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "meta_description": 1
+    }
+  ],
+  "excluded_auth_redirects": [
+    {
+      "file": "homepage-guest-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 98,
+      "bp": 96,
+      "seo": 69,
+      "meta_description": 1,
+      "excluded": true
+    },
+    {
+      "file": "homepage-guest-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 98,
+      "bp": 96,
+      "seo": 69,
+      "meta_description": 1,
+      "excluded": true
+    }
+  ],
+  "gate_fails": []
+}

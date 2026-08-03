@@ -94,6 +94,30 @@ export function suggestConditionFromText(title: string, description = ""): strin
   return condition && isSellQuickCondition(condition) ? condition : null;
 }
 
+export function suggestMaterialFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  return findMaterial(corpus);
+}
+
+export function suggestModelFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  return findModel(corpus);
+}
+
+export function suggestStorageFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  return findStorage(corpus);
+}
+
+export function suggestSizeFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  return findSize(corpus);
+}
+
 function findBrand(text: string): string | null {
   for (const brand of MARKETPLACE_BRANDS) {
     const pattern = new RegExp(`\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
@@ -139,80 +163,18 @@ function findSize(text: string): string | null {
 }
 
 /** Deterministic prefill from title + description — never overwrites user values. */
+/**
+ * COD SÂNGE — Category Attribute Database.
+ * Attribute VALUES are never auto-written into the draft.
+ * Heuristics remain as picker *suggestions* only (`suggestBrandFromText`, etc.).
+ */
 export function buildDeterministicPrefill(
-  draft: SellListingDraft,
-  categoryPath: FlatCategoryPath | null = draft.categoryPath,
+  _draft: SellListingDraft,
+  _categoryPath: FlatCategoryPath | null = null,
 ): DeterministicPrefillPatch {
-  const corpus = normalizeListingText(`${draft.title} ${draft.description}`);
-  if (!corpus.trim()) return {};
-
-  const patch: DeterministicPrefillPatch = { attributes: { ...draft.attributes } };
-  let changed = false;
-
-  if (!draft.brand) {
-    const brand = suggestBrandFromText(draft.title, draft.description);
-    if (brand) {
-      patch.brand = brand;
-      changed = true;
-    }
-  }
-
-  if (!draft.color) {
-    const color =
-      suggestColourFromTitle(draft.title) ?? suggestColourFromDescription(draft.description);
-    if (color) {
-      patch.color = color;
-      changed = true;
-    }
-  }
-
-  if (!draft.condition) {
-    const condition = suggestConditionFromText(draft.title, draft.description);
-    if (condition) {
-      patch.condition = condition;
-      changed = true;
-    }
-  }
-
-  if (!draft.material) {
-    const material = findMaterial(corpus);
-    if (material) {
-      patch.material = material;
-      changed = true;
-    }
-  }
-
-  if (!draft.size) {
-    const size = findSize(corpus);
-    if (size) {
-      patch.size = size;
-      changed = true;
-    }
-  }
-
-  const model = findModel(corpus);
-  if (model && !draft.attributes.model) {
-    patch.attributes = { ...patch.attributes, model };
-    changed = true;
-  }
-
-  const storage = findStorage(corpus);
-  if (storage && !draft.attributes.storage) {
-    patch.attributes = { ...patch.attributes, storage };
-    changed = true;
-  }
-
-  if (!changed) {
-    delete patch.attributes;
-    return {};
-  }
-
-  if (patch.attributes && Object.keys(patch.attributes).length === 0) {
-    delete patch.attributes;
-  }
-
-  void categoryPath;
-  return patch;
+  void _draft;
+  void _categoryPath;
+  return {};
 }
 
 /** Merge prefill patch into draft without overwriting non-empty fields. */

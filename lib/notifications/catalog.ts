@@ -580,7 +580,7 @@ export function resolveCanonicalNotificationHref(
         if (context.productSlug && context.offerId) {
           return `/checkout/${encodeURIComponent(context.productSlug)}?offerId=${encodeURIComponent(context.offerId)}`;
         }
-        // Legacy deep link — app/checkout/page.tsx resolves to slug + locked price.
+        // Legacy deep link — app/(platform)/checkout/page.tsx resolves to slug + locked price.
         return context.offerId
           ? `/checkout?offerId=${encodeURIComponent(context.offerId)}`
           : "/inbox?tab=messages&filter=offers";

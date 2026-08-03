@@ -21,15 +21,17 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO Supreme Blood Code XXIII — Sprint VI Checkout", () => {
-  it("locks APPROVED TO START · IN DEVELOPMENT without inventing freeze", () => {
+  it("locks OWNER CERTIFIED · PERMANENT FREEZE after Owner visual PASS", () => {
     expect(SUPREME_BLOOD_CODE_XXIII_V1.codename).toBe(
-      "SPRINT_VI_CHECKOUT_APPROVED_TO_START",
+      "SPRINT_VI_CHECKOUT_OWNER_CERTIFIED_PERMANENT_FREEZE",
     );
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.status).toBe("APPROVED_TO_START");
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.developmentStatus).toBe("IN_DEVELOPMENT");
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.permanentlyFrozen).toBe(false);
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.complete100).toBe(false);
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.ownerCertified).toBe(false);
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.status).toBe(
+      "100_COMPLETE_OWNER_CERTIFIED_PERMANENT_FREEZE",
+    );
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.developmentStatus).toBe("PERMANENTLY_FROZEN");
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.permanentlyFrozen).toBe(true);
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.complete100).toBe(true);
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.ownerCertified).toBe(true);
     expect(SUPREME_BLOOD_CODE_XXIII_V1.checkoutLaw.officialUrl).toBe(
       "http://localhost:3000/checkout",
     );
@@ -48,12 +50,12 @@ describe("ROVEXO Supreme Blood Code XXIII — Sprint VI Checkout", () => {
     expect(isHomepageSearchBarRoute("/checkout/abc/success")).toBe(false);
   });
 
-  it("live roadmap: I–V LOCKED · VI IN DEVELOPMENT · VII+ forbidden", () => {
+  it("live roadmap: I–VI LOCKED · VII+ forbidden", () => {
     expect(SUPREME_BLOOD_CODE_XXIII_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XXIII_V1.liveSprintStatus.VII).toBe("FORBIDDEN_TO_START");
-    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
-    expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("LOCKED");
+    expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentSprint).toBe("VI");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentModule).toBe("CHECKOUT");
   });
@@ -98,7 +100,7 @@ describe("ROVEXO Supreme Blood Code XXIII — Sprint VI Checkout", () => {
     const doc = readSource("docs/engineering/SUPREME_BLOOD_CODE_XXIII_V1.md");
     const page = readSource("features/checkout/components/CheckoutPage.tsx");
     expect(rule).toContain("alwaysApply: true");
-    expect(rule).toContain("IN DEVELOPMENT");
+    expect(rule).toContain("PERMANENT FREEZE");
     expect(rule).toContain("ONE CLICK = ONE PAYMENT");
     expect(doc).toContain("Sprint VI Checkout");
     expect(doc).toContain("http://localhost:3000/checkout");
@@ -107,6 +109,6 @@ describe("ROVEXO Supreme Blood Code XXIII — Sprint VI Checkout", () => {
     expect(page).toContain('data-blood-code-xxiv="24.0"');
     expect(page).toContain('data-absolute-financial-law="1.0"');
     expect(page).toContain('data-checkout-sprint="VI"');
-    expect(page).toContain('data-checkout-sprint-status="IN-DEVELOPMENT"');
+    expect(page).toContain('data-checkout-sprint-status="PERMANENTLY-FROZEN"');
   });
 });

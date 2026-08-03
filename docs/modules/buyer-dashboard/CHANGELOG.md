@@ -13,7 +13,7 @@ All notable changes to the official Buyer Dashboard module.
 - `types/buyer/dashboard.ts`
 - `styles/rovexo-buyer-dashboard.css` with protocol breakpoints
 - Middleware protection for `/buyer`
-- `app/buyer/error.tsx` error boundary
+- `app/(platform)/buyer/error.tsx` error boundary
 - Lazy-loaded secondary sections
 - Vitest contract tests
 - Playwright E2E suite

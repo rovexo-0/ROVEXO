@@ -1,5 +1,7 @@
 import "server-only";
 
+import { safeFetch, SsrfBlockedError } from "@/lib/security/ssrf-guard-v1";
+
 export type ApiFetchOptions = {
   headers?: Record<string, string>;
   signal?: AbortSignal;
@@ -37,10 +39,19 @@ export async function apiFetchWithRetry(
   let attempt = 0;
 
   while (attempt <= retries) {
-    const response = await fetch(url, {
-      headers: options.headers,
-      signal: options.signal ?? AbortSignal.timeout(20_000),
-    });
+    let response: Response;
+    try {
+      response = await safeFetch(url, {
+        headers: options.headers,
+        signal: options.signal ?? AbortSignal.timeout(20_000),
+        ssrf: { allowHttp: true },
+      });
+    } catch (error) {
+      if (error instanceof SsrfBlockedError) {
+        throw new ConnectorApiError(error.message, 400, false);
+      }
+      throw error;
+    }
 
     if (response.ok || !isRetryableStatus(response.status) || attempt === retries) {
       return response;

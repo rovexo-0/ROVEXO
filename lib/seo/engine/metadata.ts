@@ -78,9 +78,13 @@ export function productPageMetadata(input: {
   slug: string;
   imageUrl?: string;
 }): Metadata {
+  const description =
+    (input.description ?? "").replace(/\s+/g, " ").trim().slice(0, 160) ||
+    `Buy ${input.title} on ROVEXO. Secure UK marketplace checkout.`;
+
   return buildPageMetadata({
     title: `${input.title} · ROVEXO`,
-    description: input.description.slice(0, 160) || `Buy ${input.title} on ROVEXO.`,
+    description,
     path: `/listing/${input.slug}`,
     imageUrl: input.imageUrl,
   });

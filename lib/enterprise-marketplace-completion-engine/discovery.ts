@@ -37,13 +37,13 @@ export function runAutonomousMarketplaceDiscovery(input: {
     } else if (check.includes("accessibility")) {
       pass = input.globalPass;
     } else if (check.includes("seo") || check.includes("metadata")) {
-      pass = input.homepagePass && fileExists("app/page.tsx");
+      pass = input.homepagePass && fileExists("app/(platform)/page.tsx");
     } else if (check.includes("categories")) {
-      pass = fileExists("app/categories/page.tsx");
+      pass = fileExists("app/(platform)/categories/page.tsx");
     } else if (check.includes("images") || check.includes("icons")) {
       pass = premiumStylesActive();
     } else if (check.includes("ai")) {
-      pass = fileExists("app/sell/new/page.tsx");
+      pass = fileExists("app/(platform)/sell/new/page.tsx");
     } else if (check.includes("audit") || check.includes("logs")) {
       pass = input.launchPass;
     }

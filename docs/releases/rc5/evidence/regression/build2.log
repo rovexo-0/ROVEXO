@@ -1,0 +1,2112 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 prebuild
+> npm run verify:assets && npm run typecheck && npm run lint && npm run test:full-demo-contracts && npm run certify:full-demo
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 verify:assets
+> npx tsx scripts/validate-production-assets.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✅ Premium assets verified
+✅ Production assets only
+✅ No placeholder graphics
+✅ Homepage approved
+✅ Production deployment allowed
+
+Summary: 564 premium assets · 684 total raster assets · 0 blocking issues
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 lint
+> eslint
+
+
+/home/mihai/ROVEXO/components/Header.tsx
+  23:3  warning  'compact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/mobile-device.ts
+  1:10  warning  'expect' is defined but never used                           @typescript-eslint/no-unused-vars
+  3:3   warning  'MOBILE_DEVICE_INTERNAL_PAD_X_PX' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/realtime-certification.ts
+  83:10  warning  'sendMessageButton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/features/notifications/components/RealtimeNotificationProvider.tsx
+  20:24  warning  'invalidateShareInflight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-launch-readiness-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/consistency.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/modernization.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scan-utils.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/full-demo/deploy-gate.ts
+  8:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/homepage-engineering-director/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/dashboard-scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/ops/repo-path.ts
+  2:10  warning  'workspacePath' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/security/ssrf-guard-v1.ts
+  201:45  warning  '_ignored' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/operations/recommendations.ts
+  3:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/premium-design/inventory.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts
+  14:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts
+  23:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxvii-official-brand-emblem-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts
+  15:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/scripts/assert-catalog-runtime-fingerprint.ts
+  49:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  63:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  67:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  73:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  82:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+
+/home/mihai/ROVEXO/scripts/remove-two-demo-listings.mjs
+  283:9  warning  'allTargetsAccounted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 31 problems (0 errors, 31 warnings)
+  0 errors and 5 warnings potentially fixable with the `--fix` option.
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:full-demo-contracts
+> vitest run tests/full-demo-certification.test.ts tests/auth-startup-canonical.test.ts tests/auth-guest-entry-v1.test.ts tests/auth-splash-v1.test.ts tests/auth-welcome-v1.test.ts tests/launch-certification-master.test.ts tests/launch-certification-mode.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+
+ Test Files  7 passed (7)
+      Tests  42 passed (42)
+   Start at  18:55:44
+   Duration  1.09s (transform 289ms, setup 32ms, import 445ms, tests 57ms, environment 0ms)
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 certify:full-demo
+> npx tsx scripts/certify-full-demo.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "version": "v1.0",
+  "generatedAt": "2026-08-03T17:55:47.379Z",
+  "passed": true,
+  "deploymentBlocked": false,
+  "checks": [
+    {
+      "id": "demo_accounts_permanent",
+      "pass": true,
+      "detail": "ROVEXO LIVE BUYER + LIVE SELLER permanence contract locked"
+    },
+    {
+      "id": "demo_virtual_funds",
+      "pass": true,
+      "detail": "Both accounts require £50,000 virtual balance"
+    },
+    {
+      "id": "demo_buyer_quotas",
+      "pass": true,
+      "detail": "Buyer inventory quotas locked (100/50/50/50/50)"
+    },
+    {
+      "id": "demo_seller_quotas",
+      "pass": true,
+      "detail": "Seller quotas: Absolute Law v5.0 products=0 (real only) + sales/offers/promotions floors"
+    },
+    {
+      "id": "authentication_passed",
+      "pass": true,
+      "detail": "Authentication screens present (Login + Register frozen)"
+    },
+    {
+      "id": "orders_passed",
+      "pass": true,
+      "detail": "Orders path + Full Demo order seed present"
+    },
+    {
+      "id": "wallet_passed",
+      "pass": true,
+      "detail": "Virtual wallet / escrow payout path wired"
+    },
+    {
+      "id": "tracking_passed",
+      "pass": true,
+      "detail": "Demo shipping + tracking history seed wired"
+    },
+    {
+      "id": "checkout_passed",
+      "pass": true,
+      "detail": "Virtual checkout path wired (no real Stripe in demo mode)"
+    },
+    {
+      "id": "responsive_passed",
+      "pass": true,
+      "detail": "Certification surfaces include marketplace + responsive targets"
+    },
+    {
+      "id": "performance_passed",
+      "pass": true,
+      "detail": "Launch certification dashboard at 100%"
+    },
+    {
+      "id": "permanence_guards",
+      "pass": true,
+      "detail": "Delete/suspend/reset/cleanup/migration/E2E paths refuse Full Demo Accounts"
+    },
+    {
+      "id": "deploy_action_gate",
+      "pass": true,
+      "detail": "Super Admin deploy API requires MFA + Full Demo + Deployment certification + no-override"
+    },
+    {
+      "id": "mandatory_e2e_wired",
+      "pass": true,
+      "detail": "All 25 runtime E2E steps and fail-closed pre-deployment command are wired"
+    },
+    {
+      "id": "buyer_flow_defined",
+      "pass": true,
+      "detail": "Buyer cert flow: login → … → completed"
+    },
+    {
+      "id": "seller_flow_defined",
+      "pass": true,
+      "detail": "Seller cert flow: login → … → wallet_payout → completed"
+    },
+    {
+      "id": "product_target",
+      "pass": true,
+      "detail": "Absolute Law v5.0: LIVE SELLER uses real products only (no seeded catalogue)"
+    },
+    {
+      "id": "permanence_contract",
+      "pass": true,
+      "detail": "Permanence contract: never expire / delete / reset"
+    },
+    {
+      "id": "release_demo_certification_passed",
+      "pass": true,
+      "detail": "Release requirement: demo_certification_passed"
+    },
+    {
+      "id": "release_authentication_passed",
+      "pass": true,
+      "detail": "Release requirement: authentication_passed"
+    },
+    {
+      "id": "release_orders_passed",
+      "pass": true,
+      "detail": "Release requirement: orders_passed"
+    },
+    {
+      "id": "release_wallet_passed",
+      "pass": true,
+      "detail": "Release requirement: wallet_passed"
+    },
+    {
+      "id": "release_tracking_passed",
+      "pass": true,
+      "detail": "Release requirement: tracking_passed"
+    },
+    {
+      "id": "release_checkout_passed",
+      "pass": true,
+      "detail": "Release requirement: checkout_passed"
+    },
+    {
+      "id": "release_responsive_passed",
+      "pass": true,
+      "detail": "Release requirement: responsive_passed"
+    },
+    {
+      "id": "release_performance_passed",
+      "pass": true,
+      "detail": "Release requirement: performance_passed"
+    }
+  ],
+  "buyerFlow": [
+    "login",
+    "buy",
+    "checkout",
+    "wallet",
+    "tracking",
+    "delivered",
+    "review",
+    "completed"
+  ],
+  "sellerFlow": [
+    "login",
+    "receive_offer",
+    "accept_offer",
+    "generate_label",
+    "tracking",
+    "delivered",
+    "wallet_payout",
+    "completed"
+  ],
+  "releaseRequirements": [
+    "demo_certification_passed",
+    "authentication_passed",
+    "orders_passed",
+    "wallet_passed",
+    "tracking_passed",
+    "checkout_passed",
+    "responsive_passed",
+    "performance_passed"
+  ],
+  "surfaces": [
+    "Homepage",
+    "Search",
+    "Categories",
+    "Product page",
+    "Buy now",
+    "Cart",
+    "Checkout",
+    "Wallet",
+    "Orders",
+    "Inbox Hub",
+    "Tracking",
+    "Notifications",
+    "Reviews",
+    "Refunds",
+    "Business Dashboard",
+    "Seller Dashboard",
+    "Settings",
+    "Trust Centre",
+    "Business Verification",
+    "Promotions",
+    "Analytics"
+  ],
+  "quotas": {
+    "buyer": {
+      "virtualBalanceGbp": 50000,
+      "completedOrders": 100,
+      "cancelledOrders": 50,
+      "refundedOrders": 50,
+      "deliveredOrders": 50,
+      "disputes": 50,
+      "notifications": 20,
+      "reviews": 100,
+      "messages": 40,
+      "trackingHistoryOrders": 100
+    },
+    "seller": {
+      "virtualBalanceGbp": 50000,
+      "products": 0,
+      "completedSales": 100,
+      "cancelledSales": 50,
+      "refundedSales": 50,
+      "offers": 40,
+      "counterOffers": 20,
+      "disputes": 50,
+      "notifications": 20,
+      "messages": 40,
+      "promotions": 10,
+      "analyticsEvents": 50
+    }
+  }
+}
+
+✓ FULL DEMO STATIC CONTRACT PASSED — run certify:predeploy for deployment eligibility.
+
+
+> rovexo@1.0.0-rc.1 build
+> npm run assert:catalog-fingerprint && next build
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 assert:catalog-fingerprint
+> npx tsx scripts/assert-catalog-runtime-fingerprint.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[catalog-fingerprint] live revision=uk-960-rc2b-2026-08-01 treeHash=33dfeed10261b00fbcb3edb8597196979351d345aabec3b18be33d13ce96ed54 nodes=1044 leaves=960
+[catalog-fingerprint] lock revision=uk-960-rc2b-2026-08-01 treeHash=33dfeed10261b00fbcb3edb8597196979351d345aabec3b18be33d13ce96ed54 nodes=1044 leaves=960
+[catalog-fingerprint] PASS — Localhost ≡ Preview ≡ Production fingerprint lock
+▲ Next.js 16.2.12 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · staticGenerationMaxConcurrency: 2
+  · staticGenerationRetryCount: 3
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Turbopack build encountered 4 warnings:
+./app/api/super-admin/premium-design/route.ts:20:22
+The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 29160 files in [project]/
+  [90m18 |[0m
+  [90m19 |[0m [36masync[0m [36mfunction[0m runNodeScript(scriptRelativePath: string) {
+[31m[1m>[0m [90m20 |[0m   [36mconst[0m scriptPath = path.join([33mROOT[0m, scriptRelativePath);
+  [90m   |[0m                      [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m21 |[0m   [36mconst[0m { stdout, stderr } = [36mawait[0m execFileAsync(process.execPath, [scriptPath], {
+  [90m22 |[0m     cwd: [33mROOT[0m,
+  [90m23 |[0m     maxBuffer: [35m12[0m * [35m1024[0m * [35m1024[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import trace:
+  App Route:
+    ./app/api/super-admin/premium-design/route.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+
+./lib/design-studio-v1/asset-scanner.ts:25:24
+The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+  [90m23 |[0m     [36mwhile[0m ((match = [33mPUBLIC_REF_PATTERN[0m.exec(content)) !== [36mnull[0m) {
+  [90m24 |[0m       [36mconst[0m assetPath = [32m`/[0m${match[[35m1[0m][32m}`[0m;
+[31m[1m>[0m [90m25 |[0m       [36mconst[0m diskPath = join(publicDir, match[[35m1[0m].replace([35m/^\//[0m, [32m""[0m));
+  [90m   |[0m                        [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m26 |[0m       [36mif[0m (!existsSync(diskPath)) {
+  [90m27 |[0m         findings.push({
+  [90m28 |[0m           id: [32m`broken-[0m${rel[32m}-[0m${match.index[32m}`[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+  #2 [App Route]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./lib/design-studio-v1/design-audit.ts
+    ./app/api/super-admin/design-studio/route.ts
+
+  #3 [Server Component]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./lib/design-studio-v1/snapshot.ts
+    ./app/super-admin/experience/page.tsx
+
+
+./lib/design-studio-v1/icon-scanner.ts:52:22
+The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+  [90m50 |[0m
+  [90m51 |[0m   [36mfor[0m ([36mconst[0m entry [36mof[0m collectRegisteredIcons()) {
+[31m[1m>[0m [90m52 |[0m     [36mconst[0m diskPath = join(publicDir, entry.path.replace([35m/^\//[0m, [32m""[0m));
+  [90m   |[0m                      [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m53 |[0m     [36mif[0m (!existsSync(diskPath)) {
+  [90m54 |[0m       findings.push({
+  [90m55 |[0m         id: [32m`missing-[0m${entry.key[32m}`[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+  #2 [App Route]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./lib/design-studio-v1/design-audit.ts
+    ./app/api/super-admin/design-studio/route.ts
+
+  #3 [Server Component]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./lib/design-studio-v1/snapshot.ts
+    ./app/super-admin/experience/page.tsx
+
+
+./next.config.ts
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Import trace:
+  App Route:
+    ./next.config.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+
+✓ Compiled successfully in 26.8s
+  Running TypeScript ...
+  Finished TypeScript in 29.9s ...
+  Collecting page data using 31 workers ...
+  Generating static pages using 31 workers (0/857) ...
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (214/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (428/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (562/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (642/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (719/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (784/857) 
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN pklotmwxtnnepaitedic.supabase.co
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'pklotmwxtnnepaitedic.supabase.co'
+  }
+}
+  Generating static pages using 31 workers (831/857) 

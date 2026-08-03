@@ -8,7 +8,7 @@ function readSource(relativePath: string): string {
 
 describe("Phase 1 — View Profile opens Public Profile", () => {
   it("loads public profile via store resolve with public profile fallback", () => {
-    const page = readSource("app/user/[username]/page.tsx");
+    const page = readSource("app/(platform)/user/[username]/page.tsx");
     expect(page).toContain("resolvePublicProfile");
     expect(page).toContain("getPublicSellerProfile");
     expect(page).toContain("resolveStoreByRouteParam");

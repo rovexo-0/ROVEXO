@@ -56,10 +56,29 @@ export const HOME_PATTERNS = [
   "Damask",
   "Textured",
   "Abstract",
+  "Herringbone",
+  "Chevron",
+  "Bouclé",
+  "Velvet",
+  "Hotel Stripe",
+  "Piping Edge",
+] as const;
+
+export const PILLOW_PATTERNS = [
+  "Solid",
+  "Quilted",
+  "Textured",
+  "Piping Edge",
+  "Hotel Stripe",
+  "Mesh Panel",
+  "Jersey Knit",
+  "Two-Tone",
 ] as const;
 
 export const MARKETPLACE_PATTERNS_BY_VERTICAL = {
   default: MARKETPLACE_PATTERNS,
   fashion: FASHION_PATTERNS,
   home: HOME_PATTERNS,
+  pillows: PILLOW_PATTERNS,
+  bedding: HOME_PATTERNS,
 } as const;

@@ -89,7 +89,7 @@ describe("Master Checkout Architecture — Buy Now engines (order AFTER payment)
 
   it("forbids generic checkout errors on Confirm & Pay path", () => {
     const form = readSource("features/checkout/hooks/use-checkout-form.ts");
-    const error = readSource("app/checkout/error.tsx");
+    const error = readSource("app/(platform)/checkout/error.tsx");
     expect(form).not.toContain("Something went wrong");
     expect(form).not.toContain("You're offline");
     expect(error).toContain("RVX_UNCLASSIFIED");

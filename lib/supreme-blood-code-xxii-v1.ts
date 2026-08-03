@@ -202,7 +202,7 @@ export const SUPREME_BLOOD_CODE_XXII_V1 = {
     III: "LOCKED",
     IV: "LOCKED",
     V: "LOCKED",
-    VI: "IN_DEVELOPMENT",
+    VI: "LOCKED",
     VII: "FORBIDDEN_TO_START",
     VIII: "FORBIDDEN_TO_START",
   } as const,
@@ -267,10 +267,8 @@ export function isBloodXxiiSellPermanentlyFrozen(): boolean {
 }
 
 export function canStartSprintViCheckout(): boolean {
-  return (
-    isBloodXxiiSellPermanentlyFrozen() &&
-    SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VI === "IN_DEVELOPMENT"
-  );
+  // Sprint VI Checkout is Owner-certified LOCKED (Blood XXIII). Re-start gate stays closed.
+  return false;
 }
 
 export function isBloodXxiiSellModificationAllowed(input: {

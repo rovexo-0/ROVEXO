@@ -56,7 +56,7 @@ const sampleConversation = {
 
 describe("Conversation Hub Sprint 3", () => {
   it("mounts ConversationHub with sprint-3 version markers", () => {
-    const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
+    const route = readSource("app/(platform)/inbox/conversation/[conversationId]/page.tsx");
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const css = readSource("styles/rovexo/conversation-hub-v1.css");
 
@@ -143,7 +143,9 @@ describe("Conversation Hub Sprint 3", () => {
     expect(mapOfferDbStatus("rejected")).toBe("declined");
     expect(mapOfferDbStatus("pending")).toBe("open");
     expect(mapOfferDbStatus("cancelled")).toBe("countered");
-    expect(readSource("app/api/offers/[id]/route.ts")).toContain('action: z.enum(["accept", "decline", "counter"])');
+    expect(readSource("app/api/offers/[id]/route.ts")).toContain(
+      'action: z.enum(["accept", "decline", "counter", "cancel"])',
+    );
     expect(readSource("app/api/messages/[id]/route.ts")).toContain('kind?: "text" | "photo" | "emoji"');
   });
 

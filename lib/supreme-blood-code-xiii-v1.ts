@@ -119,7 +119,7 @@ export const SUPREME_BLOOD_CODE_XIII_V1 = {
     masterUi: "docs/modules/wallet/MASTER_UI_SPECIFICATION.md",
     page: "features/wallet/components/WalletHubV1.tsx",
     wrapper: "features/wallet/components/WalletPage.tsx",
-    route: "app/wallet/page.tsx",
+    route: "app/(platform)/wallet/page.tsx",
     css: "styles/rovexo/wallet-hub-v1.css",
     routes: "lib/wallet/canonical-routes.ts",
   } as const,

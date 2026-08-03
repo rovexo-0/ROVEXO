@@ -1,6 +1,7 @@
 "use client";
 
 import { clampStockLevel } from "@/lib/sell/inventory";
+import { showViewItemStockStatus } from "@/lib/bundle/bundle-domain-v1";
 import type { ProductDetail } from "@/lib/products/types";
 
 type ProductStockStatusProps = {
@@ -9,7 +10,8 @@ type ProductStockStatusProps = {
 };
 
 /**
- * Product-page-only stock visibility (UI Absolute Law).
+ * Product-page-only stock visibility (Bundle Engine Master Spec).
+ * Stock == 1 → hide under-price status. Stock > 1 → In Stock · N available.
  * Listing cards never show stock badges or quantity.
  */
 export function ProductStockStatus({ stock, availability }: ProductStockStatusProps) {
@@ -30,6 +32,10 @@ export function ProductStockStatus({ stock, availability }: ProductStockStatusPr
     );
   }
 
+  if (!showViewItemStockStatus(qty)) {
+    return null;
+  }
+
   return (
     <p
       className="pd-v1__stock"
@@ -43,9 +49,7 @@ export function ProductStockStatus({ stock, availability }: ProductStockStatusPr
         </span>{" "}
         In Stock
       </span>
-      <span className="pd-v1__stock-detail">
-        {qty === 1 ? "Only 1 available" : `${qty} available`}
-      </span>
+      <span className="pd-v1__stock-detail">{`${qty} available`}</span>
     </p>
   );
 }

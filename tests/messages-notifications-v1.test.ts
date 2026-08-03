@@ -9,9 +9,9 @@ function readSource(relativePath: string): string {
 describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
   it("serves unified inbox and Messages Transaction Hub", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
-    const messagesRoute = readSource("app/messages/page.tsx");
+    const messagesRoute = readSource("app/(platform)/messages/page.tsx");
     const messagesMenu = readSource("lib/account-center/messages-menu.ts");
-    const notificationsRoute = readSource("app/notifications/page.tsx");
+    const notificationsRoute = readSource("app/(platform)/notifications/page.tsx");
     const index = readSource("styles/rovexo/index.css");
 
     expect(inbox).toContain("data-inbox-hub=");

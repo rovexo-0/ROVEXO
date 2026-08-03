@@ -11,9 +11,16 @@ import {
   COUNTER_OFFER_ENGINE_V1,
   COUNTER_OFFER_ERROR_COPY,
 } from "@/lib/offers/counter-offer-engine-v1";
+import { parseBundleMessageMeta } from "@/lib/bundle/bundle-payload-v1";
+import { BUNDLE_BUY_NOW_ENGINE } from "@/lib/bundle/bundle-buy-now-engine-v1";
+import {
+  restoreBundleToActive,
+} from "@/lib/bundle/bundle-lifecycle-v1";
+import { appendBundleEvent } from "@/lib/bundle/bundle-events-v1";
+import { expireStaleBundleOffers } from "@/lib/bundle/bundle-lifecycle-v1";
 
 const patchSchema = z.object({
-  action: z.enum(["accept", "decline", "counter"]),
+  action: z.enum(["accept", "decline", "counter", "cancel"]),
   amount: z.number().positive().optional(),
   message: z.string().max(500).optional(),
   conversationId: z.string().uuid().optional(),
@@ -27,6 +34,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   void COUNTER_OFFER_ENGINE_V1.bloodLaw;
   const { user } = await requireAuthContext();
   const { id } = await context.params;
+  void expireStaleBundleOffers().catch(() => undefined);
 
   let body: unknown;
   try {
@@ -137,6 +145,40 @@ export async function PATCH(request: Request, context: RouteContext) {
         { status: 403 },
       );
     }
+    const { data: product } = await supabase
+      .from("products")
+      .select("slug, title, product_images ( url, is_primary, sort_order )")
+      .eq("id", offer.product_id)
+      .maybeSingle();
+
+    const { bundle } = parseBundleMessageMeta(offer.message);
+    let checkoutHref = product?.slug
+      ? `/checkout/${encodeURIComponent(product.slug)}?offerId=${encodeURIComponent(id)}`
+      : href;
+
+    // Bundle: reserve + checkout session FIRST, then accept — never leave orphan accepted offers.
+    if (bundle?.bundleId) {
+      const buyNow = await BUNDLE_BUY_NOW_ENGINE({
+        buyerId: offer.buyer_id,
+        bundleId: bundle.bundleId,
+        offerId: id,
+        lockedItemPrice: Number(offer.amount),
+        conversationId: parsed.data.conversationId ?? null,
+      });
+      if (!buyNow.ok) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: buyNow.error,
+            code: buyNow.code,
+            accepted: false,
+          },
+          { status: 409 },
+        );
+      }
+      checkoutHref = buyNow.checkoutPath;
+    }
+
     const { data: acceptedRows, error } = await supabase
       .from("offers")
       .update({ status: "accepted" })
@@ -144,27 +186,54 @@ export async function PATCH(request: Request, context: RouteContext) {
       .eq("status", "pending")
       .select("id");
     if (error) {
+      if (bundle?.bundleId) {
+        // Rollback checkout session created above (releases reserve + restores bundle).
+        const { CHECKOUT_SESSION_ENGINE_getByPublicId, CHECKOUT_SESSION_ENGINE_destroy } =
+          await import("@/lib/checkout/engines/checkout-session-engine-v1");
+        const csMatch = checkoutHref.match(/[?&]cs=([^&]+)/);
+        if (csMatch?.[1]) {
+          const session = await CHECKOUT_SESSION_ENGINE_getByPublicId(
+            decodeURIComponent(csMatch[1]),
+          );
+          if (session) {
+            await CHECKOUT_SESSION_ENGINE_destroy({ session, status: "cancelled" });
+          }
+        }
+      }
       return NextResponse.json(
         { success: false, error: "Database update failed.", code: "DATABASE_UPDATE_FAILED" },
         { status: 500 },
       );
     }
     if (!acceptedRows?.length) {
+      if (bundle?.bundleId) {
+        const { CHECKOUT_SESSION_ENGINE_getByPublicId, CHECKOUT_SESSION_ENGINE_destroy } =
+          await import("@/lib/checkout/engines/checkout-session-engine-v1");
+        const csMatch = checkoutHref.match(/[?&]cs=([^&]+)/);
+        if (csMatch?.[1]) {
+          const session = await CHECKOUT_SESSION_ENGINE_getByPublicId(
+            decodeURIComponent(csMatch[1]),
+          );
+          if (session) {
+            await CHECKOUT_SESSION_ENGINE_destroy({ session, status: "cancelled" });
+          }
+        }
+      }
       return NextResponse.json(
         { success: false, error: "Offer version mismatch.", code: "OFFER_VERSION_MISMATCH" },
         { status: 409 },
       );
     }
 
-    const { data: product } = await supabase
-      .from("products")
-      .select("slug, title, product_images ( url, is_primary, sort_order )")
-      .eq("id", offer.product_id)
-      .maybeSingle();
+    if (bundle?.bundleId) {
+      await appendBundleEvent({
+        bundleId: bundle.bundleId,
+        actorId: user.id,
+        eventType: "bundle.offer_accepted",
+        payload: { offerId: id, amount: Number(offer.amount) },
+      });
+    }
 
-    const checkoutHref = product?.slug
-      ? `/checkout/${encodeURIComponent(product.slug)}?offerId=${encodeURIComponent(id)}`
-      : href;
     const productTitle = product?.title?.trim() || undefined;
     const images = (
       product as {
@@ -180,7 +249,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       eventType: "offer_accepted",
       idempotencyKey: `offer-accept:${id}`,
       notificationType: "offer",
-      title: "Offer accepted",
+      title: bundle?.bundleId ? "Bundle offer accepted" : "Offer accepted",
       subtitle: `Accepted £${Number(offer.amount).toFixed(2)}`,
       detail: productTitle,
       href: checkoutHref,
@@ -191,6 +260,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         productId: offer.product_id,
         productSlug: product?.slug,
         acceptedOfferPrice: Number(offer.amount),
+        bundleId: bundle?.bundleId ?? null,
       },
     });
     return NextResponse.json({
@@ -199,7 +269,51 @@ export async function PATCH(request: Request, context: RouteContext) {
       acceptedOfferPrice: Number(offer.amount),
       offerId: id,
       checkoutHref,
+      bundleId: bundle?.bundleId ?? null,
     });
+  }
+
+  if (parsed.data.action === "cancel") {
+    if (offer.seller_id !== user.id && offer.buyer_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: "Permission denied.", code: "PERMISSION_DENIED" },
+        { status: 403 },
+      );
+    }
+    const { data: cancelledRows, error } = await supabase
+      .from("offers")
+      .update({ status: "cancelled" })
+      .eq("id", id)
+      .eq("status", "pending")
+      .select("id");
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: "Database update failed.", code: "DATABASE_UPDATE_FAILED" },
+        { status: 500 },
+      );
+    }
+    if (!cancelledRows?.length) {
+      return NextResponse.json(
+        { success: false, error: "Offer version mismatch.", code: "OFFER_VERSION_MISMATCH" },
+        { status: 409 },
+      );
+    }
+    const { bundle } = parseBundleMessageMeta(offer.message);
+    if (bundle?.bundleId) {
+      await appendBundleEvent({
+        bundleId: bundle.bundleId,
+        actorId: user.id,
+        eventType: "bundle.offer_cancelled",
+        payload: { offerId: id },
+      });
+      await restoreBundleToActive({
+        bundleId: bundle.bundleId,
+        actorId: user.id,
+        fromStatuses: ["offer_pending", "checkout"],
+        reason: "offer_cancelled",
+      });
+    }
+    return NextResponse.json({ success: true, status: "cancelled", offerId: id });
   }
 
   if (parsed.data.action === "decline") {
@@ -227,6 +341,21 @@ export async function PATCH(request: Request, context: RouteContext) {
         { status: 409 },
       );
     }
+    const { bundle } = parseBundleMessageMeta(offer.message);
+    if (bundle?.bundleId) {
+      await appendBundleEvent({
+        bundleId: bundle.bundleId,
+        actorId: user.id,
+        eventType: "bundle.offer_declined",
+        payload: { offerId: id },
+      });
+      await restoreBundleToActive({
+        bundleId: bundle.bundleId,
+        actorId: user.id,
+        fromStatuses: ["offer_pending", "checkout"],
+        reason: "offer_declined",
+      });
+    }
     const notifyUser = offer.seller_id === user.id ? offer.buyer_id : offer.seller_id;
     const { data: declineProduct } = await supabase
       .from("products")
@@ -250,10 +379,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       subtitle: `Buyer offered £${Number(offer.amount).toFixed(2)}`,
       href,
       avatarUrl: declineImageUrl,
-      avatarName: declineProduct?.title?.trim() || undefined,
-      payload: { offerId: id },
+      avatarName: declineProduct?.title ?? undefined,
+      payload: { offerId: id, bundleId: bundle?.bundleId ?? null },
     });
-    return NextResponse.json({ success: true, status: "rejected" });
+    return NextResponse.json({ success: true, status: "declined", offerId: id });
   }
 
   return NextResponse.json(

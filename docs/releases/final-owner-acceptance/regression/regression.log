@@ -1,0 +1,1591 @@
+=== TYPECHECK 2026-08-03T18:27:08+01:00 ===
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 typecheck
+> tsc --noEmit
+
+TYPECHECK_EXIT=0
+=== LINT 2026-08-03T18:27:12+01:00 ===
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 lint
+> eslint
+
+
+/home/mihai/ROVEXO/components/Header.tsx
+  23:3  warning  'compact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/mobile-device.ts
+  1:10  warning  'expect' is defined but never used                           @typescript-eslint/no-unused-vars
+  3:3   warning  'MOBILE_DEVICE_INTERNAL_PAD_X_PX' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/realtime-certification.ts
+  83:10  warning  'sendMessageButton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/features/notifications/components/RealtimeNotificationProvider.tsx
+  20:24  warning  'invalidateShareInflight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-launch-readiness-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/consistency.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/modernization.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scan-utils.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/full-demo/deploy-gate.ts
+  8:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/homepage-engineering-director/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/dashboard-scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/ops/repo-path.ts
+  2:10  warning  'workspacePath' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/security/ssrf-guard-v1.ts
+  201:45  warning  '_ignored' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/operations/recommendations.ts
+  3:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/premium-design/inventory.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts
+  14:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts
+  23:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxvii-official-brand-emblem-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts
+  15:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/scripts/assert-catalog-runtime-fingerprint.ts
+  49:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  63:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  67:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  73:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  82:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+
+/home/mihai/ROVEXO/scripts/remove-two-demo-listings.mjs
+  283:9  warning  'allTargetsAccounted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 31 problems (0 errors, 31 warnings)
+  0 errors and 5 warnings potentially fixable with the `--fix` option.
+
+LINT_EXIT=0
+=== TESTCI 2026-08-03T18:27:52+01:00 ===
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:ci
+> vitest run --exclude tests/supabase.integration.test.ts --exclude tests/category-detection-step7.test.ts --exclude tests/suggest-category-from-title.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts (43 tests | 8 failed) 1471ms
+     × reports current marketplace completion scan baseline 78ms
+     × verifies current module and gate scan results 41ms
+     × runs full validation against current certification baseline 363ms
+     × reports current intelligence, consistency, health and final rules baseline 34ms
+     × reports current launch mode baseline 49ms
+     × reports current zero defect program baseline 33ms
+     × reports current enterprise delivery program baseline 37ms
+     × reports current permanent execution mode baseline 33ms
+ ❯ tests/navigation-audit.test.ts (13 tests | 1 failed) 123ms
+       × provides global scroll chrome at root layout 5ms
+ ❯ tests/enterprise-launch-readiness-engine.test.ts (18 tests | 7 failed) 38ms
+     × passes full launch readiness scan at 100% 9ms
+     × verifies all scores and gates pass 3ms
+     × plans no repairs when certification eligible 3ms
+     × creates default state 3ms
+     × runs full validation 3ms
+     × checks certification eligibility 2ms
+     × computes health and readiness 3ms
+ ❯ tests/homepage-enterprise-certification-engine.test.ts (32 tests | 5 failed) 27ms
+     × creates default state with certification data 7ms
+     × runs full homepage validation 1ms
+     × runs homepage integrity validation 2ms
+     × checks certification eligibility at 100% 1ms
+     × validates readiness 1ms
+ ❯ tests/homepage-engineering-director.test.ts (9 tests | 5 failed) 14ms
+     × passes full homepage engineering scan at 100% 6ms
+     × verifies all homepage components complete 2ms
+     × verifies all engineering scores at 100% 1ms
+     × verifies all production gates pass 1ms
+     × plans no repairs when certification eligible 1ms
+ ❯ tests/cluster-6-authentication-scope-lock.test.ts (5 tests | 1 failed) 9ms
+     × locks singularity: one middleware chain · one callback · one provider 6ms
+ ❯ tests/image-search-lock.test.ts (5 tests | 1 failed) 9ms
+     × Confirm hands results to SearchProvider — Provider owns close + replace 6ms
+ ❯ tests/header.test.ts (7 tests | 1 failed) 8ms
+     × routes marketplace through HeaderProvider identical chrome (no per-page header) 4ms
+ ❯ tests/header-master-freeze-v1.test.ts (6 tests | 1 failed) 8ms
+     × mounts HeaderProvider once in root layout 5ms
+ ❯ tests/home-enterprise-migration.test.ts (4 tests | 1 failed) 7ms
+     × renders CanonicalHomepage with the Product Owner section stack only 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 31 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cluster-6-authentication-scope-lock.test.ts > Cluster 6 Authentication Scope Lock > locks singularity: one middleware chain · one callback · one provider
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain 'AuthProvider'
+
+- Expected
++ Received
+
+- AuthProvider
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/cluster-6-authentication-scope-lock.test.ts:76:20
+     74|
+     75|     const layout = readSource("app/layout.tsx");
+     76|     expect(layout).toContain("AuthProvider");
+       |                    ^
+     77|     expect(layout).not.toContain("SessionProvider");
+     78|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness scanner > passes full launch readiness scan at 100%
+AssertionError: expected 'fail' to be 'pass' // Object.is equality
+
+Expected: "pass"
+Received: "fail"
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:93:25
+     91|   it("passes full launch readiness scan at 100%", () => {
+     92|     const scan = runLaunchReadinessScan("full-scan");
+     93|     expect(scan.status).toBe("pass");
+       |                         ^
+     94|     expect(scan.passPercent).toBe(100);
+     95|     expect(scan.launchReady).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness scanner > verifies all scores and gates pass
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:103:68
+    101|     const scan = runLaunchReadinessScan("enterprise-certification");
+    102|     expect(scan.scores.every((s) => s.score >= 100 && s.status === "pa…
+    103|     expect(scan.productionGates.every((g) => g.status === "pass")).toB…
+       |                                                                    ^
+    104|     expect(scan.blockers.every((b) => !b.active)).toBe(true);
+    105|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness scanner > plans no repairs when certification eligible
+AssertionError: expected 'resolve-blocker' to be 'noop' // Object.is equality
+
+Expected: "noop"
+Received: "resolve-blocker"
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:110:32
+    108|     const scan = runLaunchReadinessScan();
+    109|     const planned = planLaunchReadinessRepairs(scan);
+    110|     expect(planned[0]?.action).toBe("noop");
+       |                                ^
+    111|     expect(attemptLaunchReadinessRepair(scan, true).executed).toEqual(…
+    112|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness engine > creates default state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:119:52
+    117|     const state = createDefaultLaunchReadinessState();
+    118|     expect(state.email.length).toBe(EMAIL_CHECKS.length);
+    119|     expect(state.launchScan.certificationEligible).toBe(true);
+       |                                                    ^
+    120|     expect(state.dashboard.launchReady).toBe(true);
+    121|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness engine > runs full validation
+AssertionError: expected 'fail' to be 'pass' // Object.is equality
+
+Expected: "pass"
+Received: "fail"
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:125:27
+    123|   it("runs full validation", () => {
+    124|     const result = runFullLaunchReadinessValidation("launch-validation…
+    125|     expect(result.status).toBe("pass");
+       |                           ^
+    126|     expect(result.certificationEligible).toBe(true);
+    127|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness engine > checks certification eligibility
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:131:78
+    129|   it("checks certification eligibility", () => {
+    130|     const state = createDefaultLaunchReadinessState();
+    131|     expect(isLaunchCertificationEligible(state.dashboard, state.launch…
+       |                                                                              ^
+    132|   });
+    133|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/31]⎯
+
+ FAIL  tests/enterprise-launch-readiness-engine.test.ts > enterprise launch readiness export and health > computes health and readiness
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-launch-readiness-engine.test.ts:151:53
+    149|     const snapshot = sampleSnapshot();
+    150|     expect(computeLaunchReadinessHealth(snapshot).checks.length).toBeG…
+    151|     expect(validateLaunchReadiness(snapshot).ready).toBe(true);
+       |                                                     ^
+    152|   });
+    153| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > marketplace completion scanner > reports current marketplace completion scan baseline
+AssertionError: expected 81.48 to be 89.51 // Object.is equality
+
+- Expected
++ Received
+
+- 89.51
++ 81.48
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:328:30
+    326|     const scan = runMarketplaceCompletionScan("marketplace-finalizatio…
+    327|     expect(scan.status).toBe("fail");
+    328|     expect(scan.passPercent).toBe(CURRENT_SCAN_BASELINE.passPercent);
+       |                              ^
+    329|     expect(scan.modulesComplete).toBe(CURRENT_SCAN_BASELINE.modulesCom…
+    330|     expect(scan.modulesTotal).toBe(MARKETPLACE_MODULE_REGISTRY.length);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > marketplace completion scanner > verifies current module and gate scan results
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:339:38
+    337|     const incompleteIds = scan.modules.filter((m) => !m.complete).map(…
+    338|     expect(incompleteIds).toEqual([...CURRENT_SCAN_BASELINE.incomplete…
+    339|     expect(scan.launchReadinessPass).toBe(true);
+       |                                      ^
+    340|     expect(scan.homepagePass).toBe(true);
+    341|     expect(scan.globalUiPass).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > marketplace completion engine > runs full validation against current certification baseline
+AssertionError: expected 89.54 to be 93.13 // Object.is equality
+
+- Expected
++ Received
+
+- 93.13
++ 89.54
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:417:69
+    415|     const state = createDefaultMarketplaceCompletionState();
+    416|     expect(isMarketplaceCertificationEligible(state.dashboard, state.c…
+    417|     expect(computeMarketplaceEnterpriseScore(state.completionScan)).to…
+       |                                                                     ^
+    418|   });
+    419| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > marketplace intelligence 069.1 > reports current intelligence, consistency, health and final rules baseline
+AssertionError: expected 51.72 to be 58.62 // Object.is equality
+
+- Expected
++ Received
+
+- 58.62
++ 51.72
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:443:38
+    441|     const health = buildEnterpriseHealthScores({ completionScan: scan,…
+    442|     expect(isMarketplaceIntelligencePass(intelligence)).toBe(false);
+    443|     expect(intelligence.passPercent).toBe(CURRENT_SCAN_BASELINE.intell…
+       |                                      ^
+    444|     expect(isMarketplaceConsistencyPass(consistency)).toBe(false);
+    445|     expect(isEnterpriseHealthPass(health)).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > final launch mode 070 > reports current launch mode baseline
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:500:70
+    498|     expect(isLaunchModePass(launchMode)).toBe(false);
+    499|     expect(launchMode.launchReady).toBe(false);
+    500|     expect(launchMode.priorities.every((p) => p.passPercent >= 100)).t…
+       |                                                                      ^
+    501|     expect(launchMode.launchRules.every((r) => r.pass)).toBe(false);
+    502|     expect(launchMode.activeBlockers).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > zero defect program 071 > reports current zero defect program baseline
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:526:43
+    524|     const zeroDefect = runZeroDefectScan(scan);
+    525|     expect(isZeroDefectPass(zeroDefect)).toBe(false);
+    526|     expect(zeroDefect.zeroDefectGatePass).toBe(true);
+       |                                           ^
+    527|     expect(zeroDefect.criticalDefects).toBe(0);
+    528|     expect(zeroDefect.highPriorityDefects).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > enterprise delivery program 073 > reports current enterprise delivery program baseline
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:591:70
+    589|     expect(enterpriseDelivery.releaseGate.every((g) => g.pass)).toBe(f…
+    590|     expect(enterpriseDelivery.zeroDefectPolicy.every((p) => p.pass)).t…
+    591|     expect(enterpriseDelivery.dashboard.every((d) => d.score >= 85)).t…
+       |                                                                      ^
+    592|     expect(scan.enterpriseDeliveryPass).toBe(false);
+    593|     expect(scan.productionLaunchReady).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/31]⎯
+
+ FAIL  tests/enterprise-marketplace-completion-engine.test.ts > execution mode 074 > reports current permanent execution mode baseline
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/enterprise-marketplace-completion-engine.test.ts:621:65
+    619|     expect(executionMode.finalSuccess.every((s) => s.pass)).toBe(false…
+    620|     expect(executionMode.releasePolicy.every((p) => p.pass)).toBe(fals…
+    621|     expect(executionMode.dashboard.every((d) => d.score >= 70)).toBe(t…
+       |                                                                 ^
+    622|     expect(scan.executionModePass).toBe(false);
+    623|     expect(scan.launchReadyFinal).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/31]⎯
+
+ FAIL  tests/header-master-freeze-v1.test.ts > Header Master Freeze v1.0 — OWNER LOCKED > mounts HeaderProvider once in root layout
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain 'HeaderProvider'
+
+- Expected
++ Received
+
+- HeaderProvider
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/header-master-freeze-v1.test.ts:49:20
+     47|   it("mounts HeaderProvider once in root layout", () => {
+     48|     const layout = readSource("app/layout.tsx");
+     49|     expect(layout).toContain("HeaderProvider");
+       |                    ^
+     50|     expect(layout.match(/<HeaderProvider>/g)?.length).toBe(1);
+     51|     expect(layout.match(/<SearchProvider>/g)?.length).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/31]⎯
+
+ FAIL  tests/header.test.ts > official header design > routes marketplace through HeaderProvider identical chrome (no per-page header)
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain 'HeaderProvider'
+
+- Expected
++ Received
+
+- HeaderProvider
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/header.test.ts:64:20
+     62|     const provider = readFileSync(path.join(process.cwd(), "features/h…
+     63|     const layout = readFileSync(path.join(process.cwd(), "app/layout.t…
+     64|     expect(layout).toContain("HeaderProvider");
+       |                    ^
+     65|     expect(provider).toContain('layout="default"');
+     66|     expect(provider).toContain("SEARCH_PRIORITY_FREEZE_V1");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/31]⎯
+
+ FAIL  tests/home-enterprise-migration.test.ts > Homepage enterprise migration contract > renders CanonicalHomepage with the Product Owner section stack only
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain 'HeaderProvider'
+
+- Expected
++ Received
+
+- HeaderProvider
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/home-enterprise-migration.test.ts:51:42
+     49|     expect(page).toContain("CanonicalHomepage");
+     50|     expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);
+     51|     expect(readSource("app/layout.tsx")).toContain("HeaderProvider");
+       |                                          ^
+     52|     expect(page).toContain("resolveHomepageV4Sections");
+     53|     expect(page).toContain("fetchHomepageFeed");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/31]⎯
+
+ FAIL  tests/homepage-engineering-director.test.ts > homepage engineering director scanner > passes full homepage engineering scan at 100%
+AssertionError: expected 'fail' to be 'pass' // Object.is equality
+
+Expected: "pass"
+Received: "fail"
+
+ ❯ tests/homepage-engineering-director.test.ts:46:25
+     44|   it("passes full homepage engineering scan at 100%", () => {
+     45|     const scan = runFullHomepageEngineeringScan();
+     46|     expect(scan.status).toBe("pass");
+       |                         ^
+     47|     expect(scan.passPercent).toBe(100);
+     48|     expect(scan.completionPercent).toBe(100);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/31]⎯
+
+ FAIL  tests/homepage-engineering-director.test.ts > homepage engineering director scanner > verifies all homepage components complete
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-engineering-director.test.ts:58:70
+     56|   it("verifies all homepage components complete", () => {
+     57|     const scan = runFullHomepageEngineeringScan();
+     58|     expect(scan.components.every((component) => component.complete)).t…
+       |                                                                      ^
+     59|     expect(scan.legacyViolations).toEqual([]);
+     60|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/31]⎯
+
+ FAIL  tests/homepage-engineering-director.test.ts > homepage engineering director scanner > verifies all engineering scores at 100%
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-engineering-director.test.ts:64:89
+     62|   it("verifies all engineering scores at 100%", () => {
+     63|     const scan = runFullHomepageEngineeringScan();
+     64|     expect(scan.scores.every((score) => score.score >= 100 && score.st…
+       |                                                                                         ^
+     65|   });
+     66|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/31]⎯
+
+ FAIL  tests/homepage-engineering-director.test.ts > homepage engineering director scanner > verifies all production gates pass
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-engineering-director.test.ts:69:101
+     67|   it("verifies all production gates pass", () => {
+     68|     const scan = runFullHomepageEngineeringScan();
+     69|     expect(scan.productionGates.every((gate) => gate.passPercent >= 10…
+       |                                                                                                     ^
+     70|   });
+     71|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/31]⎯
+
+ FAIL  tests/homepage-engineering-director.test.ts > homepage engineering director scanner > plans no repairs when certification eligible
+AssertionError: expected 'complete-component' to be 'noop' // Object.is equality
+
+Expected: "noop"
+Received: "complete-component"
+
+ ❯ tests/homepage-engineering-director.test.ts:76:32
+     74|     const planned = planHomepageEngineeringRepairs(scan);
+     75|     expect(planned).toHaveLength(1);
+     76|     expect(planned[0]?.action).toBe("noop");
+       |                                ^
+     77|     const repair = attemptHomepageEngineeringRepair(scan, true);
+     78|     expect(repair.executed).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/31]⎯
+
+ FAIL  tests/homepage-enterprise-certification-engine.test.ts > homepage enterprise certification engine > creates default state with certification data
+AssertionError: expected 'fail' to be 'pass' // Object.is equality
+
+Expected: "pass"
+Received: "fail"
+
+ ❯ tests/homepage-enterprise-certification-engine.test.ts:142:42
+    140|     expect(state.integrity.length).toBe(5);
+    141|     expect(state.integrityScan.certificationEligible).toBe(true);
+    142|     expect(state.engineeringScan.status).toBe("pass");
+       |                                          ^
+    143|     expect(state.engineeringScan.passPercent).toBe(100);
+    144|     expect(state.engineeringScan.productionReady).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/31]⎯
+
+ FAIL  tests/homepage-enterprise-certification-engine.test.ts > homepage enterprise certification engine > runs full homepage validation
+AssertionError: expected 'fail' to be 'pass' // Object.is equality
+
+Expected: "pass"
+Received: "fail"
+
+ ❯ tests/homepage-enterprise-certification-engine.test.ts:160:27
+    158|   it("runs full homepage validation", () => {
+    159|     const result = runFullHomepageValidation();
+    160|     expect(result.status).toBe("pass");
+       |                           ^
+    161|     expect(result.passPercent).toBe(100);
+    162|     expect(result.scores.length).toBe(OMEGA_CERTIFICATION_SCORES.lengt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/31]⎯
+
+ FAIL  tests/homepage-enterprise-certification-engine.test.ts > homepage enterprise certification engine > runs homepage integrity validation
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-enterprise-certification-engine.test.ts:170:42
+    168|   it("runs homepage integrity validation", () => {
+    169|     const result = runHomepageIntegrityValidation("enterprise-certific…
+    170|     expect(result.certificationEligible).toBe(true);
+       |                                          ^
+    171|     expect(result.integrity.length).toBe(5);
+    172|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/31]⎯
+
+ FAIL  tests/homepage-enterprise-certification-engine.test.ts > homepage enterprise certification engine > checks certification eligibility at 100%
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-enterprise-certification-engine.test.ts:207:117
+    205|   it("checks certification eligibility at 100%", () => {
+    206|     const state = createDefaultHomepageCertificationState();
+    207|     expect(isCertificationEligible(state.dashboard, state.omegaScores,…
+       |                                                                                                                     ^
+    208|   });
+    209| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/31]⎯
+
+ FAIL  tests/homepage-enterprise-certification-engine.test.ts > homepage enterprise certification export and health > validates readiness
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/homepage-enterprise-certification-engine.test.ts:229:29
+    227|     const snapshot = sampleSnapshot();
+    228|     const readiness = validateHomepageCertificationReadiness(snapshot);
+    229|     expect(readiness.ready).toBe(true);
+       |                             ^
+    230|     expect(readiness.score).toBeGreaterThanOrEqual(80);
+    231|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/31]⎯
+
+ FAIL  tests/image-search-lock.test.ts > Camera Search v1.0 — Master Freeze > Confirm hands results to SearchProvider — Provider owns close + replace
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain '<SearchProvider>'
+
+- Expected
++ Received
+
+- <SearchProvider>
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/image-search-lock.test.ts:77:20
+     75|     expect(provider).toContain("useSearchOverlayState");
+     76|     expect(provider).toContain("handleOverlayDismiss");
+     77|     expect(layout).toContain("<SearchProvider>");
+       |                    ^
+     78|     // ONE provider only in root layout
+     79|     expect(layout.match(/<SearchProvider/g)?.length).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/31]⎯
+
+ FAIL  tests/navigation-audit.test.ts > Navigation audit — auth and shell > Navigation audit — app shell > provides global scroll chrome at root layout
+AssertionError: expected 'import type { Metadata, Viewport } fr…' to contain 'AppShellLayout'
+
+- Expected
++ Received
+
+- AppShellLayout
++ import type { Metadata, Viewport } from "next";
++ import { Geist, Geist_Mono } from "next/font/google";
++
++ import "@/styles/rovexo/index.css";
++ import "./globals.css";
++ import { RootProviders } from "@/components/layout/RootProviders";
++ import { organizationJsonLd } from "@/lib/seo/metadata";
++ import { getAppUrl } from "@/lib/supabase/env";
++ import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
++
++ const launchPrivateRobots = resolveLaunchPrivateModeRobots();
++
++ const geistSans = Geist({
++   variable: "--font-geist-sans",
++   subsets: ["latin"],
++ });
++
++ const geistMono = Geist_Mono({
++   variable: "--font-geist-mono",
++   subsets: ["latin"],
++ });
++
++ // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
++ // hydration so language and text direction (incl. RTL) never flash on first paint.
++ const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
++
++ /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
++ export const viewport: Viewport = {
++   width: "device-width",
++   initialScale: 1,
++   viewportFit: "cover",
++ };
++
++ export const metadata: Metadata = {
++   metadataBase: new URL(getAppUrl()),
++   title: {
++     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     template: "%s | ROVEXO",
++   },
++   description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++   openGraph: {
++     type: "website",
++     locale: "en_GB",
++     siteName: "ROVEXO",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
++   },
++   twitter: {
++     card: "summary_large_image",
++     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
++     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
++     images: ["/brand/og-image.png"],
++   },
++   alternates: {
++     canonical: "/",
++   },
++   manifest: "/manifest.webmanifest",
++   appleWebApp: {
++     capable: true,
++     title: "ROVEXO",
++     statusBarStyle: "default",
++   },
++   icons: {
++     icon: [
++       { url: "/favicon.ico" },
++       { url: "/favicon.svg", type: "image/svg+xml" },
++       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
++       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
++       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
++       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
++       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
++       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
++     ],
++     apple: [
++       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
++       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
++     ],
++     shortcut: [{ url: "/favicon.ico" }],
++   },
++   other: {
++     "mobile-web-app-capable": "yes",
++   },
++   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
++ };
++
++ export default function RootLayout({
++   children,
++ }: Readonly<{
++   children: React.ReactNode;
++ }>) {
++   return (
++     <html
++       lang="en-GB"
++       dir="ltr"
++       data-theme="light"
++       data-scroll-behavior="smooth"
++       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
++     >
++       <head>
++         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
++         <script
++           type="application/ld+json"
++           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
++         />
++       </head>
++       <body className="min-h-full flex flex-col bg-background text-text-primary">
++         <RootProviders>{children}</RootProviders>
++       </body>
++     </html>
++   );
++ }
++
+
+ ❯ tests/navigation-audit.test.ts:221:20
+    219|     const layout = readFileSync(path.join(process.cwd(), "app/layout.t…
+    220|     const shell = readFileSync(path.join(process.cwd(), "components/la…
+    221|     expect(layout).toContain("AppShellLayout");
+       |                    ^
+    222|     expect(shell).toContain("AppChromeScrollProvider");
+    223|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/31]⎯
+
+
+ Test Files  10 failed | 582 passed (592)
+      Tests  31 failed | 4580 passed (4611)
+   Start at  18:27:52
+   Duration  241.30s (transform 9.67s, setup 1.70s, import 24.41s, tests 166.80s, environment 648ms)
+
+TESTCI_EXIT=1
+=== FULL DEMO 2026-08-03T18:31:44+01:00 ===
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Chromium browser binary…
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[playwright] Chromium install complete.
+[playwright] Using workspace Chromium libs: /home/mihai/ROVEXO/.local-chromium-libs/lib
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 29114 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 25 tests using 1 worker
+
+(node:413289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/full-demo-certification.spec.ts:92:7 › Full Demo — mandatory deployment certification › 01 BUYER LOGIN (5.3s)
+  ✓   2 [chromium] › e2e/full-demo-certification.spec.ts:97:7 › Full Demo — mandatory deployment certification › 02 SELLER LOGIN (3.3s)
+  ✓   3 [chromium] › e2e/full-demo-certification.spec.ts:102:7 › Full Demo — mandatory deployment certification › 03 CREATE PRODUCT (12.4s)
+  ✓   4 [chromium] › e2e/full-demo-certification.spec.ts:156:7 › Full Demo — mandatory deployment certification › 04 PRODUCT APPEARS ON HOMEPAGE (915ms)
+  ✓   5 [chromium] › e2e/full-demo-certification.spec.ts:168:7 › Full Demo — mandatory deployment certification › 05 BUYER SEARCHES PRODUCT (1.1s)
+  ✓   6 [chromium] › e2e/full-demo-certification.spec.ts:177:7 › Full Demo — mandatory deployment certification › 06 BUY NOW (819ms)
+  ✘   7 [chromium] › e2e/full-demo-certification.spec.ts:182:7 › Full Demo — mandatory deployment certification › 07 CHECKOUT (34.7s)
+  -   8 [chromium] › e2e/full-demo-certification.spec.ts:239:7 › Full Demo — mandatory deployment certification › 08 PAYMENT SUCCESS (VIRTUAL)
+  -   9 [chromium] › e2e/full-demo-certification.spec.ts:248:7 › Full Demo — mandatory deployment certification › 09 ORDER CREATED
+  -  10 [chromium] › e2e/full-demo-certification.spec.ts:258:7 › Full Demo — mandatory deployment certification › 10 SELLER RECEIVES ORDER
+  -  11 [chromium] › e2e/full-demo-certification.spec.ts:269:7 › Full Demo — mandatory deployment certification › 11 ACCEPT ORDER
+  -  12 [chromium] › e2e/full-demo-certification.spec.ts:274:7 › Full Demo — mandatory deployment certification › 12 GENERATE VIRTUAL LABEL
+  -  13 [chromium] › e2e/full-demo-certification.spec.ts:281:7 › Full Demo — mandatory deployment certification › 13 TRACKING GENERATED
+  -  14 [chromium] › e2e/full-demo-certification.spec.ts:288:7 › Full Demo — mandatory deployment certification › 14 PARCEL CREATED
+  -  15 [chromium] › e2e/full-demo-certification.spec.ts:304:7 › Full Demo — mandatory deployment certification › 15 SHIPPED
+  -  16 [chromium] › e2e/full-demo-certification.spec.ts:313:7 › Full Demo — mandatory deployment certification › 16 DELIVERED
+  -  17 [chromium] › e2e/full-demo-certification.spec.ts:322:7 › Full Demo — mandatory deployment certification › 17 COMPLETED
+  -  18 [chromium] › e2e/full-demo-certification.spec.ts:342:7 › Full Demo — mandatory deployment certification › 18 REVIEW CREATED
+  -  19 [chromium] › e2e/full-demo-certification.spec.ts:356:7 › Full Demo — mandatory deployment certification › 19 WALLET UPDATED
+  -  20 [chromium] › e2e/full-demo-certification.spec.ts:371:7 › Full Demo — mandatory deployment certification › 20 NOTIFICATIONS VERIFIED
+  -  21 [chromium] › e2e/full-demo-certification.spec.ts:379:7 › Full Demo — mandatory deployment certification › 21 MESSAGES VERIFIED
+  -  22 [chromium] › e2e/full-demo-certification.spec.ts:386:7 › Full Demo — mandatory deployment certification › 22 REFUND VERIFIED
+  -  23 [chromium] › e2e/full-demo-certification.spec.ts:495:7 › Full Demo — mandatory deployment certification › 23 CANCEL VERIFIED
+  -  24 [chromium] › e2e/full-demo-certification.spec.ts:586:7 › Full Demo — mandatory deployment certification › 24 LOGOUT VERIFIED
+  -  25 [chromium] › e2e/full-demo-certification.spec.ts:591:7 › Full Demo — mandatory deployment certification › 25 LOGIN AGAIN VERIFIED
+
+
+  1) [chromium] › e2e/full-demo-certification.spec.ts:182:7 › Full Demo — mandatory deployment certification › 07 CHECKOUT 
+
+    TimeoutError: apiRequestContext.post: Timeout 30000ms exceeded.
+    Call log:
+      - → POST http://127.0.0.1:13025/api/orders/checkout
+        - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.7827.55 Safari/537.36
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 233
+        - cookie: sb-pklotmwxtnnepaitedic-auth-token.0=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSkZVekkxTmlJc0ltdHBaQ0k2SWpsak1UaGpPR0UxTFRZMk16Y3RORFprWmkwNU5HUXdMVGRrWmpjNU5qY3dPR1l6T1NJc0luUjVjQ0k2SWtwWFZDSjkuZXlKcGMzTWlPaUpvZEhSd2N6b3ZMM0JyYkc5MGJYZDRkRzV1WlhCaGFYUmxaR2xqTG5OMWNHRmlZWE5sTG1OdkwyRjFkR2d2ZGpFaUxDSnpkV0lpT2lKall6WmhNbVF6TXkwd056bG1MVFJpT1RRdE9EVXpNeTB4T0RGbU5tWTVNVGs1TWpJaUxDSmhkV1FpT2lKaGRYUm9aVzUwYVdOaGRHVmtJaXdpWlhod0lqb3hOemcxTnpneU1EZ3lMQ0pwWVhRaU9qRTNPRFUzTnpnME9ESXNJbVZ0WVdsc0lqb2laR1Z0Ynk1aWRYbGxja0J5YjNabGVHOHVZMjh1ZFdzaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pWkdWdGJ5NWlkWGxsY2tCeWIzWmxlRzh1WTI4dWRXc2lMQ0psYldGcGJGOTJaWEpwWm1sbFpDSTZkSEoxWlN3aVpuVnNiRjl1WVcxbElqb2lVazlXUlZoUElFeEpWa1VnUWxWWlJWSWlMQ0p3YUc5dVpWOTJaWEpwWm1sbFpDSTZabUZzYzJVc0luSnZiR1VpT2lKaWRYbGxjaUlzSW5OMVlpSTZJbU5qTm1FeVpETXpMVEEzT1dZdE5HSTVOQzA0TlRNekxURTRNV1kyWmpreE9Ua3lNaUlzSW5WelpYSnVZVzFsSWpvaWNtOTJaWGh2WDJ4cGRtVmZZblY1WlhJaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSndZWE56ZDI5eVpDSXNJblJwYldWemRHRnRjQ0k2TVRjNE5UYzNPRFE0TW4xZExDSnpaWE56YVc5dVgybGtJam9pTWpWbE5qRmpNbVl0TlRVek5DMDBZV1V6TFRrM01EY3RPREZqTnpVM09XTTRaVEJoSWl3aWFYTmZZVzV2Ym5sdGIzVnpJanBtWVd4elpYMC5qQXhlX04yOWFVdE00dlpKaW44NmkwdHo4b0lPNE5rUnZNMERHdXotd0FJV08wLXBHbnRrT3NXTWxEeUQ5YXJQV2ktUlQyZW4tMVJIX01GU1YtVFRxZyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzg1NzgyMDgyLCJyZWZyZXNoX3Rva2VuIjoib3RhcXFnM2VnaHdpIiwidXNlciI6eyJpZCI6ImNjNmEyZDMzLTA3OWYtNGI5NC04NTMzLTE4MWY2ZjkxOTkyMiIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiZGVtby5idXllckByb3ZleG8uY28udWsiLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI2LTA4LTAxVDE4OjEyOjMyLjY4MjgwNFoiLCJwaG9uZSI6IiIsImNvbmZpcm1lZF9hdCI6IjIwMjYtMDgtMDFUMTg6MTI6MzIuNjgyODA0WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjYtMDgtMDNUMTc6MzQ6NDIuMDQ0NjYxMjA2WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiZGVtby5idXllckByb3ZleG8uY28udWsiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiUk9WRVhPIExJVkUgQlVZRVIiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInJvbGUiOiJidXllciIsInN1YiI6ImNjNmEyZDMzLTA3OWYtNGI5NC04NTMzLTE4MWY2ZjkxOTkyMiIsInVzZXJuYW1lIjoicm92ZXhvX2xpdmVfYnV5ZXIifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiI0YmVjZTc1YS00NWNjLTQ0MDAtYjQwNS02YjA2OThkZmRlYjUiLCJpZCI6ImNjNmEyZDMzLTA3OWYtNGI5NC04NTMzLTE4MWY2ZjkxOTkyMiIsInVzZXJfaWQiOiJjYzZhMmQzMy0wNzlmLTRiOTQtODUzMy0xODFmNmY5MTk5MjIiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoiZGVtby5idXllckByb3ZleG8uY28udWsiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZ1bGxfbmFtZSI6IlJPVkVYTyBMSVZFIEJVWUVSIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJyb2xlIjoiYnV5ZXIiLCJzdWIiOiJjYzZhMmQzMy0wNzlmLTRiOTQtODUzMy0xODFmNmY5MTk5MjIiLCJ1c2VybmFtZSI6InJvdmV4b19saXZlX2J1eWVyIn0sInByb3ZpZGVyIjoiZW1haWwiLCJsYXN0X3NpZ25faW5fYXQiOiIyMDI2LTA3LTE3VDE3OjEzOjMyLjc5ODE4M1oiLCJjcmVhdGVkX2F0IjoiMjAyNi0wNy0xN1QxNzoxMzozMi43OTgyMzhaIiwidXBkYXRlZF9hdCI6IjIwMjYtMDctMTdUMTc6MTM6MzIuNzk4MjM4WiIsImVtYWlsIjoiZGVtby5idXllckByb3ZleG8uY28udWsifV0sImNyZWF0ZWRfYXQiOiIyMDI2LTA3LTE3VDE3OjEzOjMyLjYzMTIzOVoiLCJ1cGRhdGVkX2F0IjoiMjAyNi0wOC0wM1QxNzozNDo0Mi4xOTU0NzNaI; sb-pklotmwxtnnepaitedic-auth-token.1=iwiaXNfYW5vbnltb3VzIjpmYWxzZX0sIndlYWtfcGFzc3dvcmQiOm51bGx9
+
+
+      217 |     expect(shippingAddressId).toBeTruthy();
+      218 |
+    > 219 |     const response = await buyerPage.request.post("/api/orders/checkout", {
+          |                                              ^
+      220 |       data: {
+      221 |         productSlug,
+      222 |         deliveryOption: "delivery_available",
+        at /home/mihai/ROVEXO/e2e/full-demo-certification.spec.ts:219:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/full-demo-certification-Fu-2efd0-t-certification-07-CHECKOUT-chromium/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/full-demo-certification-Fu-2efd0-t-certification-07-CHECKOUT-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/full-demo-certification-Fu-2efd0-t-certification-07-CHECKOUT-chromium/error-context.md
+
+    Error Context: test-results/full-demo-certification-Fu-2efd0-t-certification-07-CHECKOUT-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/full-demo-certification.spec.ts:182:7 › Full Demo — mandatory deployment certification › 07 CHECKOUT 
+  18 did not run
+  6 passed (4.1m)
+FULLDEMO_EXIT=1

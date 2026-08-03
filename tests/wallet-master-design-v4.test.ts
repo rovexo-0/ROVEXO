@@ -37,11 +37,11 @@ describe("Wallet Master Design System Contract v4.0 — Profile inheritance", ()
 
   it("wallet child routes fail-closed via AccountCanonicalShell + FailClosedPanel", () => {
     const routes = [
-      "app/wallet/error.tsx",
-      "app/wallet/transactions/error.tsx",
-      "app/wallet/pending/error.tsx",
-      "app/wallet/processing/error.tsx",
-      "app/wallet/locked/error.tsx",
+      "app/(platform)/wallet/error.tsx",
+      "app/(platform)/wallet/transactions/error.tsx",
+      "app/(platform)/wallet/pending/error.tsx",
+      "app/(platform)/wallet/processing/error.tsx",
+      "app/(platform)/wallet/locked/error.tsx",
     ];
     for (const route of routes) {
       const src = readSource(route);
@@ -50,15 +50,15 @@ describe("Wallet Master Design System Contract v4.0 — Profile inheritance", ()
       expect(src).not.toContain("error.message");
     }
     // Payment Methods + Bank Accounts v5 — Fail Closed v2: soft Empty State, never Retry panel
-    const pmError = readSource("app/wallet/payment-methods/error.tsx");
+    const pmError = readSource("app/(platform)/wallet/payment-methods/error.tsx");
     expect(pmError).toContain("AccountCanonicalShell");
     expect(pmError).toContain("No payment methods added yet.");
     expect(pmError).not.toContain("FailClosedPanel");
-    const baError = readSource("app/wallet/bank-accounts/error.tsx");
+    const baError = readSource("app/(platform)/wallet/bank-accounts/error.tsx");
     expect(baError).toContain("AccountCanonicalShell");
     expect(baError).toContain("Add Bank Account");
     expect(baError).not.toContain("FailClosedPanel");
-    expect(readSource("app/wallet/loading.tsx")).toContain("AccountCanonicalShell");
-    expect(readSource("app/wallet/loading.tsx")).not.toContain("BetaAppShell");
+    expect(readSource("app/(platform)/wallet/loading.tsx")).toContain("AccountCanonicalShell");
+    expect(readSource("app/(platform)/wallet/loading.tsx")).not.toContain("BetaAppShell");
   });
 });

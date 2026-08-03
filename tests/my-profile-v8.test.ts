@@ -52,9 +52,9 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
 
   it("ships bio 250 + avatar/bio entry pages", () => {
     const schema = readSource("lib/account/schemas.ts");
-    const bioPage = readSource("app/account/profile/bio/page.tsx");
-    const avatarPage = readSource("app/account/profile/avatar/page.tsx");
-    const editProfile = readSource("app/account/edit-profile/page.tsx");
+    const bioPage = readSource("app/(platform)/account/profile/bio/page.tsx");
+    const avatarPage = readSource("app/(platform)/account/profile/avatar/page.tsx");
+    const editProfile = readSource("app/(platform)/account/edit-profile/page.tsx");
     const editor = readSource("features/profile/components/ProfileBioEditor.tsx");
     expect(schema).toContain(".max(250");
     expect(editor).toContain("BIO_MAX = 250");

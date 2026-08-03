@@ -253,6 +253,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={SEARCH_SYSTEM_V1.placeholder}
                 autoComplete="off"
+                aria-label={SEARCH_SYSTEM_V1.placeholder}
                 aria-controls="search-overlay-results"
                 aria-activedescendant={
                   activeIndex >= 0 ? `search-nav-item-${activeIndex}` : undefined

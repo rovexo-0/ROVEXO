@@ -120,12 +120,12 @@ function evaluateDetection(
       break;
     case "missing-categories":
     case "missing-subcategories":
-      pass = fileExists("app/categories/page.tsx") && fileExists("lib/enterprise-category-management-center/engine.ts");
+      pass = fileExists("app/(platform)/categories/page.tsx") && fileExists("lib/enterprise-category-management-center/engine.ts");
       message = pass ? "Category taxonomy complete" : "Category hierarchy incomplete";
       break;
     case "missing-seo":
     case "missing-metadata":
-      pass = fileExists("app/page.tsx") && homepagePass;
+      pass = fileExists("app/(platform)/page.tsx") && homepagePass;
       message = pass ? "SEO and metadata validated" : "SEO or metadata gaps detected";
       break;
     case "missing-accessibility":

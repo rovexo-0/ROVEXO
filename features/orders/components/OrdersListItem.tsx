@@ -75,6 +75,8 @@ export function OrdersListItem({ order, href, status, priceAmount }: OrdersListI
     <Link
       href={href}
       className={cn("orders-page__item", status.cssClass)}
+      data-order-id={order.id}
+      data-order-status={order.status}
       aria-label={`${order.product.title}, ${formatOrderListPrice(priceAmount)}, ${status.label}`}
     >
       <span className="orders-page__item-thumb" aria-hidden>

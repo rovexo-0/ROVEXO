@@ -10,7 +10,7 @@ export type GlobalComponentValidationResult = {
 };
 
 const COMPONENT_REFS: Partial<Record<(typeof GLOBAL_COMPONENT_TYPES)[number], string>> = {
-  page: "app/page.tsx",
+  page: "app/(platform)/page.tsx",
   component: "components/ui/Button.tsx",
   card: "features/categories/components/CategoryCompactCard.tsx",
   widget: "components/home/HomeCategoryRail.tsx",
@@ -21,11 +21,11 @@ const COMPONENT_REFS: Partial<Record<(typeof GLOBAL_COMPONENT_TYPES)[number], st
   dialog: "components/ui/Button.tsx",
   modal: "components/ui/Button.tsx",
   navigation: "middleware.ts",
-  search: "app/search/page.tsx",
+  search: "app/(platform)/search/page.tsx",
   banner: "components/home/HomeContent.tsx",
   category: "components/home/HomeCategoryRail.tsx",
-  listing: "app/listing/[slug]/page.tsx",
-  dashboard: "app/seller/dashboard/page.tsx",
+  listing: "app/(platform)/listing/[slug]/page.tsx",
+  dashboard: "app/(platform)/seller/dashboard/page.tsx",
 };
 
 export function runGlobalComponentValidation(input: { globalPass: boolean; homepagePass: boolean }): GlobalComponentValidationResult {

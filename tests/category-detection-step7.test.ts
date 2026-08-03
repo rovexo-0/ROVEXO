@@ -10,23 +10,41 @@ import { resolveTitleCategoryPath } from "@/lib/sell/title-category-rules";
 
 /**
  * STEP 7 paths: legacy title-rule keys still resolve via aliases;
- * detection surfaces Catalog Master segments after canonicalize.
+ * detection surfaces Catalog Master leaf-phrase SSOT (Suggest Safety Law).
+ * Brand + short-leaf titles fail closed — fixtures use leaf-capable phrases only.
  */
-const STEP7_CASES = [
+const STEP7_LEGACY_RESOLVE = [
   {
-    title: "Apple Magic Mouse",
+    title: "Apple Magic Mouse (legacy path only)",
     legacyPath: ["computers", "computer-accessories", "mice"] as const,
     catalogPath: ["electronics", "computers", "mice"] as const,
   },
   {
-    title: "Nike Air Max",
+    title: "Nike Air Max Trainers (legacy path only)",
     legacyPath: ["shoes", "trainers", "nike"] as const,
     catalogPath: ["mens-fashion", "shoes", "trainers"] as const,
   },
   {
-    title: "PlayStation 5",
+    title: "PlayStation 5 Console (legacy path only)",
     legacyPath: ["gaming", "consoles", "playstation"] as const,
     catalogPath: ["electronics", "gaming", "consoles"] as const,
+  },
+] as const;
+
+/** Detection fixtures = Catalog Master leaf phrases that resolve under Suggest SSOT. */
+const STEP7_DETECTION = [
+  {
+    title: "Gaming Mice",
+    catalogPath: ["electronics", "gaming", "gaming-mice"] as const,
+  },
+  {
+    title: "Trainers",
+    // Duplicate leaf name "Trainers" — phrase index resolves Women's Fashion first.
+    catalogPath: ["womens-fashion", "shoes", "trainers"] as const,
+  },
+  {
+    title: "PlayStation Console",
+    catalogPath: ["electronics", "gaming", "playstation-consoles"] as const,
   },
 ] as const;
 
@@ -42,14 +60,14 @@ describe("category detection confidence bands", () => {
   });
 
   it("returns at most one visible suggestion", () => {
-    const detection = detectCategoryFromTitle("Nike Air Max");
+    const detection = detectCategoryFromTitle("Sleeping bag");
     expect(detection.suggestions.length).toBeLessThanOrEqual(1);
   });
 });
 
 describe("STEP 7 — deterministic category detection", () => {
   it("resolves expected marketplace paths (legacy + catalog)", () => {
-    for (const testCase of STEP7_CASES) {
+    for (const testCase of STEP7_LEGACY_RESOLVE) {
       expect(resolveTitleCategoryPath([...testCase.legacyPath]), testCase.title).not.toBeNull();
       const resolved = resolveTitleCategoryPath([...testCase.legacyPath]);
       expect(resolved!.categorySlug, testCase.title).toBe(testCase.catalogPath[0]);
@@ -58,7 +76,7 @@ describe("STEP 7 — deterministic category detection", () => {
     }
   });
 
-  it.each(STEP7_CASES.map((c) => [c.title, c.catalogPath] as const))(
+  it.each(STEP7_DETECTION.map((c) => [c.title, c.catalogPath] as const))(
     "detects %s with at least possible-match confidence",
     (title, expectedPath) => {
       const detection = detectCategoryFromTitle(title);

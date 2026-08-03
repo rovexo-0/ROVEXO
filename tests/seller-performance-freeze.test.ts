@@ -100,7 +100,7 @@ describe("Seller Performance v1.0 — CANONICAL FREEZE", () => {
 
   it("reads stored engine values on account and dashboard (no client-side scoring)", () => {
     const summary = readSource("lib/account-center/seller-performance-summary.ts");
-    const page = readSource("app/seller/performance/page.tsx");
+    const page = readSource("app/(platform)/seller/performance/page.tsx");
     const dashboardService = readSource("lib/seller-performance/service.ts").split(
       "export async function getSellerPerformanceDashboard",
     )[1]?.split("export async function getPublicSellerPerformanceSummary")[0] ?? "";

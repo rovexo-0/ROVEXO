@@ -57,7 +57,7 @@ function scanVisualIntegrity(homeContent: string, scan: MarketplaceCompletionSca
 function scanSearchArea(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const header = readSource("components/Header.tsx");
   const searchComponent = header.includes("HeaderSearchBar");
-  const searchPage = fileExists("app/search/page.tsx");
+  const searchPage = fileExists("app/(platform)/search/page.tsx");
   const searchApi = fileExists("app/api/search/route.ts");
 
   return HOMEPAGE_SEARCH_VALIDATION.map((check) => {
@@ -75,7 +75,7 @@ function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletion
   const hasRail = homeContent.includes("HomeCategoryRail");
   const noLegacyGrid = !homeContent.includes("CategoryGridSection");
   const categoryCss = fileExists("styles/rovexo/category-rail.css");
-  const categoriesPage = fileExists("app/categories/page.tsx");
+  const categoriesPage = fileExists("app/(platform)/categories/page.tsx");
 
   return HOMEPAGE_CATEGORY_VALIDATION.map((check) => {
     let pass = hasRail && noLegacyGrid && scan.homepagePass;
@@ -85,7 +85,7 @@ function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletion
     if (check.includes("routing")) pass = fileExists("middleware.ts");
     if (check.includes("seo")) pass = scan.homepagePass;
     if (check.includes("responsive") || check.includes("spacing") || check.includes("scroll")) pass = categoryCss && premiumStylesActive();
-    if (check.includes("translation")) pass = fileExists("app/categories/page.tsx");
+    if (check.includes("translation")) pass = fileExists("app/(platform)/categories/page.tsx");
     return createCheck("homepage-category", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -136,7 +136,7 @@ function scanButtonValidation(scan: MarketplaceCompletionScanResult): Completion
     if (check === "api") pass = fileExists("app/api/search/route.ts");
     if (check === "database") pass = fileExists("lib/supabase/middleware.ts");
     if (check === "permission" || check === "redirect") pass = fileExists("middleware.ts");
-    if (check === "notification") pass = fileExists("app/notifications/page.tsx");
+    if (check === "notification") pass = fileExists("app/(platform)/notifications/page.tsx");
     return createCheck("homepage-buttons", check, pass, pass ? `${labelize(check)} validated` : `${labelize(check)} pending`);
   });
 }
@@ -160,7 +160,7 @@ function scanPerformance(scan: MarketplaceCompletionScanResult): CompletionValid
 }
 
 function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const pageSource = readSource("app/page.tsx");
+  const pageSource = readSource("app/(platform)/page.tsx");
   return HOMEPAGE_SEO_CHECKS.map((check) => {
     let pass = scan.homepagePass && pageSource.length > 0;
     if (check.includes("metadata") || check.includes("canonical") || check.includes("opengraph")) pass = pageSource.includes("metadata") || pageSource.includes("generateMetadata");

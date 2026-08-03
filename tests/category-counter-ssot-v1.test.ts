@@ -11,8 +11,8 @@ function readSource(relativePath: string): string {
 describe("Category counter SSOT certification v1.0", () => {
   it("Browse Categories uses eligible listings counts — not raw published tallies", () => {
     // Browse Categories ownership = `/browse` (Bottom Nav). Header Search `/search` must not load counters.
-    const browsePage = readSource("app/browse/page.tsx");
-    const searchPage = readSource("app/search/page.tsx");
+    const browsePage = readSource("app/(platform)/browse/page.tsx");
+    const searchPage = readSource("app/(platform)/search/page.tsx");
     expect(browsePage).toContain("getCanonicalBrowseCategoryCounts");
     expect(browsePage).not.toContain("getTopLevelCategoryCounts");
     expect(browsePage).not.toContain("aggregateCountsByCanonicalRoot");
@@ -22,7 +22,7 @@ describe("Category counter SSOT certification v1.0", () => {
   });
 
   it("Category page and Browse counters share buildCategoryEligibleListingsOptions", () => {
-    const categoryPage = readSource("app/category/[...slug]/page.tsx");
+    const categoryPage = readSource("app/(platform)/category/[...slug]/page.tsx");
     const eligible = readSource("lib/listings/eligible-listings.ts");
     expect(categoryPage).toContain("buildCategoryEligibleListingsOptions");
     expect(categoryPage).toContain("getEligibleListings");

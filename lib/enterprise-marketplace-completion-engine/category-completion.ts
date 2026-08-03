@@ -85,7 +85,7 @@ function scanHomepageSync(homeContent: string, scan: MarketplaceCompletionScanRe
 }
 
 function scanSearchSync(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const searchPage = fileExists("app/search/page.tsx");
+  const searchPage = fileExists("app/(platform)/search/page.tsx");
   const searchApi = fileExists("app/api/search/route.ts");
   const categorySearch = fileExists("lib/sell/category-picker-search.ts");
   const categoryIndex = fileExists("lib/sell/category-picker-search.ts");
@@ -104,7 +104,7 @@ function scanSearchSync(scan: MarketplaceCompletionScanResult): CompletionValida
 function scanListingSync(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const resolveListing = fileExists("lib/categories/resolve-listing.ts");
   const categoryPath = fileExists("lib/listings/category-path.ts");
-  const sellPage = fileExists("app/sell/new/page.tsx");
+  const sellPage = fileExists("app/(platform)/sell/new/page.tsx");
   const aiSuggest = fileExists("lib/sell/suggest-category-from-title.ts");
 
   return CATEGORY_LISTING_SYNC_CHECKS.map((check) => {
@@ -143,7 +143,7 @@ function scanAiCategoryEngine(): AiCategoryValidationItem[] {
 }
 
 function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const categoriesPage = readSource("app/categories/page.tsx");
+  const categoriesPage = readSource("app/(platform)/categories/page.tsx");
   const treeSource = readSource("lib/categories/marketplace-tree.ts");
 
   return CATEGORY_SEO_CHECKS.map((check) => {
@@ -264,12 +264,12 @@ function buildPassConditions(
     "no-duplicate-homepage-rendering": hasRail && noLegacyGrid,
     "no-orphan-categories": foundation && fileExists("lib/categories/validate-taxonomy.ts"),
     "no-circular-hierarchy": foundation && fileExists("lib/categories/validate-taxonomy.ts"),
-    "no-broken-routes": fileExists("middleware.ts") && fileExists("app/categories/page.tsx"),
+    "no-broken-routes": fileExists("middleware.ts") && fileExists("app/(platform)/categories/page.tsx"),
     "no-broken-listings": fileExists("lib/categories/resolve-listing.ts") && fileExists("lib/listings/category-path.ts"),
-    "search-synchronization-pass": fileExists("lib/sell/category-picker-search.ts") && fileExists("app/search/page.tsx"),
+    "search-synchronization-pass": fileExists("lib/sell/category-picker-search.ts") && fileExists("app/(platform)/search/page.tsx"),
     "homepage-synchronization-pass": scan.homepageCompletionPass && hasRail && noLegacyGrid,
     "listing-synchronization-pass": fileExists("lib/categories/resolve-listing.ts"),
-    "seo-pass": readSource("app/categories/page.tsx").includes("metadata"),
+    "seo-pass": readSource("app/(platform)/categories/page.tsx").includes("metadata"),
     "accessibility-pass": scan.globalUiPass,
     "performance-pass": scan.homepagePass,
     "enterprise-pass": scan.certificationGatePass && scan.omegaPass,

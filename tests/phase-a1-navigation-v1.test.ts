@@ -17,23 +17,23 @@ describe("Phase A1 — Performance & Navigation", () => {
   });
 
   it("isolates Inbox list loading from Conversation routes", () => {
-    expect(existsSync(join(process.cwd(), "app/inbox/(list)/loading.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/inbox/(list)/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/inbox/loading.tsx"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "app/(platform)/inbox/(list)/loading.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/inbox/(list)/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/inbox/loading.tsx"))).toBe(false);
     expect(
-      existsSync(join(process.cwd(), "app/inbox/conversation/[conversationId]/loading.tsx")),
+      existsSync(join(process.cwd(), "app/(platform)/inbox/conversation/[conversationId]/loading.tsx")),
     ).toBe(true);
   });
 
   it("server-redirects /inbox?order= to Conversation when resolvable", () => {
-    const page = readSource("app/inbox/(list)/page.tsx");
+    const page = readSource("app/(platform)/inbox/(list)/page.tsx");
     expect(page).toContain("resolveOrderConversationHrefForUser");
     expect(page).toContain('href.includes("/inbox/conversation/")');
     expect(page).toContain("redirect(href)");
   });
 
   it("hydrates Conversation with parallel order on the server", () => {
-    const page = readSource("app/inbox/conversation/[conversationId]/page.tsx");
+    const page = readSource("app/(platform)/inbox/conversation/[conversationId]/page.tsx");
     expect(page).toContain("fetchOrderForUser");
     expect(page).toContain("Promise.all");
     expect(page).toContain("initialOrder");

@@ -15,7 +15,7 @@ describe("sell page Absolute Authority v1.0", () => {
 
   it("has one canonical SellPage with Account DS + Owner field order", () => {
     const page = readSource("features/sell/ui/SellPage.tsx");
-    const route = readSource("app/sell/page.tsx");
+    const route = readSource("app/(platform)/sell/page.tsx");
 
     expect(route).toContain("SellPage");
     expect(route).not.toContain("SellScreen");
@@ -43,7 +43,7 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(() => readSource("features/sell/ui/SellReviewBlock.tsx")).toThrow();
     expect(() => readSource("features/sell/ui/SellConditionBlock.tsx")).toThrow();
 
-    const loading = readSource("app/sell/loading.tsx");
+    const loading = readSource("app/(platform)/sell/loading.tsx");
     expect(loading).toContain("BetaAppShell");
     expect(loading).toContain("SellSkeleton");
 
@@ -105,9 +105,10 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(bar).not.toContain("sell-publish-bar fixed");
   });
 
-  it("primitives use CanonicalMenuRow — no Sell-only cards", () => {
+  it("primitives use Listing Attribute rows (Account CDS) — no Sell-only cards", () => {
     const primitives = readSource("features/sell/ui/SellPrimitives.tsx");
-    expect(primitives).toContain("CanonicalMenuRow");
+    // Owner Attribute Design System: ListingAttributeRow → cds-menu-row (same CDS as CanonicalMenuRow).
+    expect(primitives).toContain("ListingAttributeRow");
     expect(primitives).not.toContain("SellRowsCard");
     expect(primitives).not.toContain("SellCompactRow");
   });

@@ -48,7 +48,7 @@ describe("checkout absolute law v1.0 — DONE readiness FINAL LOCK", () => {
   });
 
   it("success route wires DONE gate", () => {
-    const route = readSource("app/checkout/[slug]/success/page.tsx");
+    const route = readSource("app/(platform)/checkout/[slug]/success/page.tsx");
     expect(route).toContain("evaluateDoneReadinessGate");
     expect(route).toContain("doneReady={gate.allPass}");
     expect(route).not.toContain('redirect("/inbox")');

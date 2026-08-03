@@ -31,7 +31,7 @@ describe("ROVEXO canonical auth startup (Login guest entry)", () => {
   it("routes guests and logout to Login, post-auth to Homepage", () => {
     const middleware = readSource("lib/supabase/middleware.ts");
     const actions = readSource("lib/auth/actions.ts");
-    const signout = readSource("app/auth/signout/route.ts");
+    const signout = readSource("app/(platform)/auth/signout/route.ts");
     const redirects = readSource("lib/auth/redirects.ts");
 
     expect(middleware).toContain('loginUrl.pathname = "/login"');

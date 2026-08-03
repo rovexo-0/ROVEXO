@@ -68,7 +68,20 @@ function detectBestWorksheet(workbook: XLSX.WorkBook): string {
   return bestSheet;
 }
 
+/** Max spreadsheet upload size — limits prototype-pollution / ReDoS blast radius (xlsx has no npm fix). */
+const XLSX_MAX_BYTES = 5 * 1024 * 1024;
+
+function assertXlsxBufferSafe(buffer: Buffer): void {
+  if (buffer.byteLength === 0) {
+    throw new Error("Spreadsheet is empty.");
+  }
+  if (buffer.byteLength > XLSX_MAX_BYTES) {
+    throw new Error("Spreadsheet exceeds maximum allowed size.");
+  }
+}
+
 export function parseXlsxBuffer(buffer: Buffer, worksheetName?: string): ParsedXlsxContent {
+  assertXlsxBufferSafe(buffer);
   const workbook = XLSX.read(buffer, { type: "buffer", cellDates: false });
   const worksheet = worksheetName ?? detectBestWorksheet(workbook);
   const sheet = workbook.Sheets[worksheet] ?? workbook.Sheets[workbook.SheetNames[0]!]!;
@@ -114,7 +127,8 @@ export function previewXlsxContent(
   worksheetName?: string,
 ): ParsedXlsxContent & { preview: MigrationRawListing[]; worksheets: string[] } {
   const buffer = Buffer.isBuffer(content) ? content : Buffer.from(content, "utf8");
-  const workbook = XLSX.read(buffer, { type: "buffer" });
+  assertXlsxBufferSafe(buffer);
+  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: false });
   const parsed = parseXlsxBuffer(buffer, worksheetName);
   const resolvedMapping = mergeFileColumnMapping(parsed.detectedMapping, mapping);
   const preview = parsed.rows.slice(0, limit).map((row, index) =>

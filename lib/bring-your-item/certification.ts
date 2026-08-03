@@ -83,7 +83,7 @@ function step(
 }
 
 export function runBringYourItemCertification(rootDir: string = workspacePath()): BringYourItemCertificationReport {
-  const legacyImportPage = readSource(rootDir, "app/import/page.tsx");
+  const legacyImportPage = readSource(rootDir, "app/(platform)/import/page.tsx");
   const headerCta = readSource(rootDir, "components/header/HeaderBringYourItemCta.tsx");
   const migrationCenter = readSource(rootDir, "features/seller/migration/components/MigrationCenterPage.tsx");
   const wizardHook = readSource(rootDir, "features/seller/migration/hooks/use-migration-wizard.ts");
@@ -112,8 +112,8 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
   void legacyImportPage;
   void sellerDash;
 
-  const byiRoute = readSource(rootDir, "app/account/bring-your-item/page.tsx");
-  const connectorsRoute = readSource(rootDir, "app/seller/connectors/page.tsx");
+  const byiRoute = readSource(rootDir, "app/(platform)/account/bring-your-item/page.tsx");
+  const connectorsRoute = readSource(rootDir, "app/(platform)/seller/connectors/page.tsx");
   const consumerImportLive =
     byiRoute.includes("MigrationCenterPage") &&
     connectorsRoute.includes("MarketplaceConnectorsPage");
@@ -208,24 +208,24 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
       { id: "import-cancel", label: "Import job cancellation", pass: readSource(rootDir, "app/api/seller/migration/[id]/route.ts").includes("cancel") },
     ]),
     step("buyer", "Buyer Validation", [
-      { id: "listing-route", label: "Public listing page", pass: existsSync(join(rootDir, "app/listing/[slug]/page.tsx")) },
-      { id: "search-route", label: "Search route", pass: existsSync(join(rootDir, "app/search/page.tsx")) || masterQa.includes("/search") },
-      { id: "saved-route", label: "Favorites/saved route", pass: existsSync(join(rootDir, "app/saved/page.tsx")) },
+      { id: "listing-route", label: "Public listing page", pass: existsSync(join(rootDir, "app/(platform)/listing/[slug]/page.tsx")) },
+      { id: "search-route", label: "Search route", pass: existsSync(join(rootDir, "app/(platform)/search/page.tsx")) || masterQa.includes("/search") },
+      { id: "saved-route", label: "Favorites/saved route", pass: existsSync(join(rootDir, "app/(platform)/saved/page.tsx")) },
       // Inbox Hub freeze: canonical messaging is /inbox (legacy /messages redirects).
       {
         id: "messages-route",
         label: "Messaging route",
         pass:
-          existsSync(join(rootDir, "app/inbox/(list)/page.tsx")) ||
-          existsSync(join(rootDir, "app/inbox/page.tsx")) ||
-          existsSync(join(rootDir, "app/messages/page.tsx")) ||
-          existsSync(join(rootDir, "app/messages")),
+          existsSync(join(rootDir, "app/(platform)/inbox/(list)/page.tsx")) ||
+          existsSync(join(rootDir, "app/(platform)/inbox/page.tsx")) ||
+          existsSync(join(rootDir, "app/(platform)/messages/page.tsx")) ||
+          existsSync(join(rootDir, "app/(platform)/messages")),
       },
     ]),
     step("seller", "Seller Validation", [
       { id: "seller-dashboard", label: "Seller dashboard sections", pass: sellerDash.includes("/seller") },
       { id: "import-history", label: "Migration history", pass: readSource(rootDir, "features/seller/migration/components/SellerMigrationHistorySection.tsx").includes("?job=") },
-      { id: "sell-flow", label: "Sell/publish flow", pass: existsSync(join(rootDir, "app/sell/page.tsx")) },
+      { id: "sell-flow", label: "Sell/publish flow", pass: existsSync(join(rootDir, "app/(platform)/sell/page.tsx")) },
       { id: "platform-ready", label: "Platform readiness rules", pass: isPlatformImportReady("ebay", { connected: true, hasSourceInput: false }) && resolveDefaultImportMethod("csv") === "csv" },
     ]),
     step("responsive", "Responsive Certification", [

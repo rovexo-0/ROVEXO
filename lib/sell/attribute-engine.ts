@@ -413,8 +413,8 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
       { id: "other", label: "Other" },
     ],
     placeholder: "Select platform",
-    searchable: true,
-    allowCustomFromSearch: true,
+    searchable: false,
+    allowCustomFromSearch: false,
   },
   collection: {
     id: "collection",
@@ -509,7 +509,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     target: { kind: "map" },
     options: MATERIAL_OPTIONS,
     searchable: true,
-    searchPlaceholder: "Search cover materials",
+    searchPlaceholder: "Search materials",
     placeholder: "Select cover material",
   },
   features: {
@@ -518,7 +518,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "select-single",
     target: { kind: "map" },
     options: [],
-    searchable: true,
+    searchable: false,
     searchPlaceholder: "Search features",
     placeholder: "Select feature",
   },
@@ -688,7 +688,7 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
         return { ...def, options: toOptions(scoped.styles) };
       case "features":
         return scoped.features.length > 0
-          ? { ...def, options: toOptions(scoped.features), searchable: true }
+          ? { ...def, options: toOptions(scoped.features), searchable: false }
           : def;
       case "storage":
         return { ...def, options: toOptions(scoped.storage) };

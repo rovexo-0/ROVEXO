@@ -106,7 +106,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "02_homepage",
     label: "Homepage",
-    routeEvidence: ["app/(main)/page.tsx", "app/page.tsx"],
+    routeEvidence: ["app/(main)/page.tsx", "app/(platform)/page.tsx"],
     sourceEvidence: [
       "components/header/RovexoHeaderV2.tsx",
       "components/ui/ListingCard.tsx",
@@ -116,14 +116,14 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "03_search",
     label: "Search",
-    routeEvidence: ["app/(main)/search/page.tsx", "app/search/page.tsx"],
+    routeEvidence: ["app/(main)/search/page.tsx", "app/(platform)/search/page.tsx"],
     sourceEvidence: ["lib/search/search-engine-v1.ts", "lib/search/search-master-freeze-v1.ts"],
     requiredTokens: ["search", "Recent"],
   },
   {
     id: "04_listing",
     label: "Listing",
-    routeEvidence: ["app/listing/[slug]/page.tsx"],
+    routeEvidence: ["app/(platform)/listing/[slug]/page.tsx"],
     sourceEvidence: [
       "features/product-detail/ProductActionBarV1.tsx",
       "features/transaction-hub/TransactionHubBottomActions.tsx",
@@ -134,7 +134,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "05_messaging",
     label: "Messaging",
-    routeEvidence: ["app/(main)/inbox/page.tsx", "app/inbox/(list)/page.tsx", "app/inbox/page.tsx"],
+    routeEvidence: ["app/(main)/inbox/page.tsx", "app/(platform)/inbox/(list)/page.tsx", "app/(platform)/inbox/page.tsx"],
     sourceEvidence: [
       "features/inbox/components/InboxPage.tsx",
       "features/inbox/components/ConversationHub.tsx",
@@ -154,7 +154,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "07_checkout",
     label: "Checkout",
-    routeEvidence: ["app/(main)/checkout/page.tsx", "app/checkout/page.tsx"],
+    routeEvidence: ["app/(main)/checkout/page.tsx", "app/(platform)/checkout/page.tsx"],
     sourceEvidence: [
       "lib/checkout/buy-now-guard-v1.ts",
       "lib/supreme-blood-code-xxiii-v1.ts",
@@ -164,7 +164,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "08_wallet",
     label: "Wallet",
-    routeEvidence: ["app/(main)/wallet/page.tsx", "app/wallet/page.tsx", "app/balance/page.tsx"],
+    routeEvidence: ["app/(main)/wallet/page.tsx", "app/(platform)/wallet/page.tsx", "app/(platform)/balance/page.tsx"],
     sourceEvidence: ["lib/wallet/balance-final-freeze-v1.1.ts"],
     requiredTokens: ["Balance", "Withdraw"],
   },
@@ -180,7 +180,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
     label: "Payment Methods",
     routeEvidence: [
       "app/(main)/wallet/payment-methods/page.tsx",
-      "app/wallet/payment-methods/page.tsx",
+      "app/(platform)/wallet/payment-methods/page.tsx",
     ],
     sourceEvidence: [],
     requiredTokens: ["Payment"],
@@ -195,7 +195,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "12_orders",
     label: "Orders",
-    routeEvidence: ["app/(main)/orders/page.tsx", "app/orders/page.tsx"],
+    routeEvidence: ["app/(main)/orders/page.tsx", "app/(platform)/orders/page.tsx"],
     sourceEvidence: ["lib/supreme-blood-code-xii-v1.ts"],
     requiredTokens: ["Orders"],
   },
@@ -228,8 +228,8 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
     label: "Dashboards",
     routeEvidence: [
       "app/(main)/account/page.tsx",
-      "app/account/page.tsx",
-      "app/super-admin/page.tsx",
+      "app/(platform)/account/page.tsx",
+      "app/(platform)/super-admin/page.tsx",
     ],
     sourceEvidence: ["lib/account-center/canonical-menu.ts"],
     requiredTokens: ["account", "Profile"],
@@ -695,13 +695,13 @@ export function certifyFullPlatformProductionRuntimeXlII(): FullPlatformCertific
   add(
     "marketplace-runtime-routes",
     "Marketplace live routes",
-    Boolean(firstExisting(["app/page.tsx", "app/(main)/page.tsx"])) &&
-      Boolean(firstExisting(["app/search/page.tsx", "app/(main)/search/page.tsx"])) &&
-      Boolean(firstExisting(["app/listing/[slug]/page.tsx"])) &&
-      Boolean(firstExisting(["app/inbox/(list)/page.tsx", "app/inbox/page.tsx", "app/(main)/inbox/page.tsx"])) &&
-      Boolean(firstExisting(["app/checkout/page.tsx", "app/(main)/checkout/page.tsx"])) &&
-      Boolean(firstExisting(["app/orders/page.tsx", "app/(main)/orders/page.tsx"])) &&
-      Boolean(firstExisting(["app/wallet/page.tsx", "app/(main)/wallet/page.tsx", "app/balance/page.tsx"])),
+    Boolean(firstExisting(["app/(platform)/page.tsx", "app/(main)/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/search/page.tsx", "app/(main)/search/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/listing/[slug]/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/inbox/(list)/page.tsx", "app/(platform)/inbox/page.tsx", "app/(main)/inbox/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/checkout/page.tsx", "app/(main)/checkout/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/orders/page.tsx", "app/(main)/orders/page.tsx"])) &&
+      Boolean(firstExisting(["app/(platform)/wallet/page.tsx", "app/(main)/wallet/page.tsx", "app/(platform)/balance/page.tsx"])),
     "Homepage · Search · Listing · Inbox · Checkout · Orders · Wallet routes must exist",
   );
 

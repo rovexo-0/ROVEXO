@@ -19,10 +19,13 @@ export async function countAccountActiveListings(userId: string): Promise<number
   return count ?? 0;
 }
 
-export async function countAccountSavedItems(_userId: string): Promise<number> {
-  void _userId;
-  // FLASH TEST: temporarily disable saved_items.id query — return 0 only.
-  return 0;
+export async function countAccountSavedItems(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("saved_items")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  return count ?? 0;
 }
 
 export async function countAccountActiveOrders(userId: string): Promise<number> {

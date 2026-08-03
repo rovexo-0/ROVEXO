@@ -84,8 +84,8 @@ function scanFeatureDiscovery(scan: MarketplaceCompletionScanResult): FeatureDis
     if (kind.includes("accessibility")) pass = scan.globalUiPass;
     if (kind.includes("seo")) pass = scan.homepagePass;
     if (kind.includes("metadata")) pass = fileExists(".env.example");
-    if (kind.includes("analytics")) pass = fileExists("app/seller/analytics/page.tsx");
-    if (kind.includes("notification")) pass = fileExists("app/notifications/page.tsx");
+    if (kind.includes("analytics")) pass = fileExists("app/(platform)/seller/analytics/page.tsx");
+    if (kind.includes("notification")) pass = fileExists("app/(platform)/notifications/page.tsx");
     if (kind.includes("monitoring") || kind.includes("logging") || kind.includes("health")) pass = scan.launchReadinessPass;
     if (kind.includes("infrastructure")) pass = scan.launchReadinessPass;
     if (kind.includes("enterprise")) pass = scan.omegaPass;
@@ -123,9 +123,9 @@ function scanGlobalUiValidation(scan: MarketplaceCompletionScanResult): GlobalUi
     let pass = scan.globalUiPass && hasUi;
     if (check.includes("page")) pass = scan.modulesComplete === scan.modulesTotal;
     if (check.includes("card")) pass = fileExists("features/categories/components/CategoryCompactCard.tsx");
-    if (check.includes("category")) pass = fileExists("app/categories/page.tsx");
-    if (check.includes("listing")) pass = fileExists("app/listing/[slug]/page.tsx");
-    if (check.includes("dashboard")) pass = fileExists("app/account/page.tsx");
+    if (check.includes("category")) pass = fileExists("app/(platform)/categories/page.tsx");
+    if (check.includes("listing")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
+    if (check.includes("dashboard")) pass = fileExists("app/(platform)/account/page.tsx");
     if (check.includes("navigation")) pass = fileExists("middleware.ts");
     if (check.includes("banner")) pass = scan.homepagePass;
     if (check.includes("legacy") || check === "every-component") pass = !homeContent.includes("CategoryGridSection") && scan.globalUiPass;
@@ -147,7 +147,7 @@ function scanGlobalUxValidation(scan: MarketplaceCompletionScanResult): GlobalUx
     if (check === "offline" || check === "retry") pass = scan.launchReadinessPass;
     if (check === "api") pass = fileExists("app/api/search/route.ts");
     if (check === "database") pass = fileExists("lib/supabase/middleware.ts");
-    if (check === "notification") pass = fileExists("app/notifications/page.tsx");
+    if (check === "notification") pass = fileExists("app/(platform)/notifications/page.tsx");
     if (check === "permission" || check === "redirect") pass = fileExists("middleware.ts");
     return {
       id: `global-ux-${check}`,
@@ -162,29 +162,29 @@ function scanGlobalUxValidation(scan: MarketplaceCompletionScanResult): GlobalUx
 
 function scanGlobalMarketplaceValidation(scan: MarketplaceCompletionScanResult): GlobalMarketplaceValidationResult[] {
   const refs: Partial<Record<(typeof GLOBAL_MARKETPLACE_VALIDATION_CHECKS)[number], string>> = {
-    categories: "app/categories/page.tsx",
-    search: "app/search/page.tsx",
-    filters: "app/search/page.tsx",
-    listings: "app/listing/[slug]/page.tsx",
-    photos: "app/sell/camera/page.tsx",
-    "ai-category": "app/sell/new/page.tsx",
-    "ai-validation": "app/sell/new/page.tsx",
-    stock: "app/seller/listings/page.tsx",
-    pricing: "app/listing/[slug]/page.tsx",
-    shipping: "app/shipping/page.tsx",
-    compatibility: "app/listing/[slug]/page.tsx",
-    wishlist: "app/saved/page.tsx",
-    cart: "app/cart/page.tsx",
-    checkout: "app/checkout/[slug]/page.tsx",
-    payments: "app/account/payment-methods/page.tsx",
-    wallet: "app/wallet/page.tsx",
-    orders: "app/account/orders/page.tsx",
-    tracking: "app/shipping/page.tsx",
-    "buyer-protection": "app/protection/page.tsx",
-    "trust-score": "app/trust/page.tsx",
-    reviews: "app/seller/review-center/page.tsx",
-    messages: "app/messages/page.tsx",
-    notifications: "app/notifications/page.tsx",
+    categories: "app/(platform)/categories/page.tsx",
+    search: "app/(platform)/search/page.tsx",
+    filters: "app/(platform)/search/page.tsx",
+    listings: "app/(platform)/listing/[slug]/page.tsx",
+    photos: "app/(platform)/sell/camera/page.tsx",
+    "ai-category": "app/(platform)/sell/new/page.tsx",
+    "ai-validation": "app/(platform)/sell/new/page.tsx",
+    stock: "app/(platform)/seller/listings/page.tsx",
+    pricing: "app/(platform)/listing/[slug]/page.tsx",
+    shipping: "app/(platform)/shipping/page.tsx",
+    compatibility: "app/(platform)/listing/[slug]/page.tsx",
+    wishlist: "app/(platform)/saved/page.tsx",
+    cart: "app/(platform)/cart/page.tsx",
+    checkout: "app/(platform)/checkout/[slug]/page.tsx",
+    payments: "app/(platform)/account/payment-methods/page.tsx",
+    wallet: "app/(platform)/wallet/page.tsx",
+    orders: "app/(platform)/account/orders/page.tsx",
+    tracking: "app/(platform)/shipping/page.tsx",
+    "buyer-protection": "app/(platform)/protection/page.tsx",
+    "trust-score": "app/(platform)/trust/page.tsx",
+    reviews: "app/(platform)/seller/review-center/page.tsx",
+    messages: "app/(platform)/messages/page.tsx",
+    notifications: "app/(platform)/notifications/page.tsx",
   };
 
   return GLOBAL_MARKETPLACE_VALIDATION_CHECKS.map((check) => {
@@ -293,21 +293,21 @@ function buildZeroDefectPolicy(scan: MarketplaceCompletionScanResult, criticalDe
     "critical-performance-regressions": scan.homepagePass,
     "critical-accessibility-issues": scan.globalUiPass,
     "critical-seo-issues": scan.homepagePass,
-    "broken-homepage": scan.homepagePass && fileExists("app/page.tsx"),
-    "broken-search": fileExists("app/search/page.tsx"),
-    "broken-categories": fileExists("app/categories/page.tsx"),
-    "broken-listing-publish": fileExists("app/sell/page.tsx"),
-    "broken-checkout": fileExists("app/checkout/[slug]/page.tsx"),
-    "broken-payments": fileExists("app/account/payment-methods/page.tsx"),
-    "broken-wallet": fileExists("app/wallet/page.tsx"),
-    "broken-orders": fileExists("app/account/orders/page.tsx"),
-    "broken-shipping": fileExists("app/shipping/page.tsx"),
-    "broken-buyer-journey": fileExists("app/account/page.tsx"),
-    "broken-seller-journey": fileExists("app/seller/dashboard/page.tsx"),
-    "broken-company-journey": fileExists("app/business/dashboard/page.tsx"),
-    "broken-notifications": fileExists("app/notifications/page.tsx"),
-    "broken-messages": fileExists("app/messages/page.tsx"),
-    "broken-enterprise-modules": fileExists("app/super-admin/launch-readiness/page.tsx"),
+    "broken-homepage": scan.homepagePass && fileExists("app/(platform)/page.tsx"),
+    "broken-search": fileExists("app/(platform)/search/page.tsx"),
+    "broken-categories": fileExists("app/(platform)/categories/page.tsx"),
+    "broken-listing-publish": fileExists("app/(platform)/sell/page.tsx"),
+    "broken-checkout": fileExists("app/(platform)/checkout/[slug]/page.tsx"),
+    "broken-payments": fileExists("app/(platform)/account/payment-methods/page.tsx"),
+    "broken-wallet": fileExists("app/(platform)/wallet/page.tsx"),
+    "broken-orders": fileExists("app/(platform)/account/orders/page.tsx"),
+    "broken-shipping": fileExists("app/(platform)/shipping/page.tsx"),
+    "broken-buyer-journey": fileExists("app/(platform)/account/page.tsx"),
+    "broken-seller-journey": fileExists("app/(platform)/seller/dashboard/page.tsx"),
+    "broken-company-journey": fileExists("app/(platform)/business/dashboard/page.tsx"),
+    "broken-notifications": fileExists("app/(platform)/notifications/page.tsx"),
+    "broken-messages": fileExists("app/(platform)/messages/page.tsx"),
+    "broken-enterprise-modules": fileExists("app/(platform)/super-admin/launch-readiness/page.tsx"),
   };
 
   return DELIVERY_ZERO_DEFECT_POLICY.map((policy) => ({

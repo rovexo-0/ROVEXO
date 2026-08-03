@@ -78,7 +78,7 @@ export function ensureProductionBuild(webServerEnv) {
     "lib/navigation/session-visit-depth.ts",
     "styles/rovexo/account-hub-v1.css",
     "styles/rovexo/account-module-v1.css",
-    "app/account/page.tsx",
+    "app/(platform)/account/page.tsx",
     "features/account-module/components/ProfileViewV1.tsx",
     "features/account-module/components/SellerListingsV1.tsx",
     "features/account-module/components/OrdersV1.tsx",
@@ -89,10 +89,10 @@ export function ensureProductionBuild(webServerEnv) {
     "styles/rovexo/inbox-hub-v1.css",
     "styles/rovexo/conversation-hub-v1.css",
     "styles/rovexo/messages-v1.css",
-    "app/inbox/page.tsx",
-    "app/messages/page.tsx",
+    "app/(platform)/inbox/page.tsx",
+    "app/(platform)/messages/page.tsx",
     "styles/rovexo/notifications-v1.css",
-    "app/notifications/page.tsx",
+    "app/(platform)/notifications/page.tsx",
   ];
   const buildIdPath = path.join(process.cwd(), ".next", "BUILD_ID");
   const buildMtime = fs.existsSync(buildIdPath) ? fs.statSync(buildIdPath).mtimeMs : 0;

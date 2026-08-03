@@ -1,0 +1,279 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.2.12
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 76ms
+[createSellerListing] product insert failed {
+  code: '23514',
+  message: 'new row for relation "products" violates check constraint "products_price_check"',
+  details: null,
+  hint: null
+}
+[api/sell/draft] Error: new row for relation "products" violates check constraint "products_price_check"
+    at U (.next/server/chunks/lib_listings_repository_ts_0_9iyk2._.js:6:8338)
+    at async T (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:4166)
+    at async l (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:8239)
+    at async s (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:9280)
+    at async Module.j [as handler] (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:10387)
+[createSellerListing] product insert failed {
+  code: '23514',
+  message: 'new row for relation "products" violates check constraint "products_price_check"',
+  details: null,
+  hint: null
+}
+[api/sell/draft] Error: new row for relation "products" violates check constraint "products_price_check"
+    at U (.next/server/chunks/lib_listings_repository_ts_0_9iyk2._.js:6:8338)
+    at async T (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:4166)
+    at async l (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:8239)
+    at async s (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:9280)
+    at async Module.j [as handler] (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:10387)
+[createSellerListing] product insert failed {
+  code: '23514',
+  message: 'new row for relation "products" violates check constraint "products_price_check"',
+  details: null,
+  hint: null
+}
+[api/sell/draft] Error: new row for relation "products" violates check constraint "products_price_check"
+    at U (.next/server/chunks/lib_listings_repository_ts_0_9iyk2._.js:6:8338)
+    at async T (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:4166)
+    at async l (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:8239)
+    at async s (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:9280)
+    at async Module.j [as handler] (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:10387)
+[createSellerListing] product insert failed {
+  code: '23514',
+  message: 'new row for relation "products" violates check constraint "products_price_check"',
+  details: null,
+  hint: null
+}
+[api/sell/draft] Error: new row for relation "products" violates check constraint "products_price_check"
+    at U (.next/server/chunks/lib_listings_repository_ts_0_9iyk2._.js:6:8338)
+    at async T (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:4166)
+    at async l (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:8239)
+    at async s (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:9280)
+    at async Module.j [as handler] (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:10387)
+[createSellerListing] product insert failed {
+  code: '23514',
+  message: 'new row for relation "products" violates check constraint "products_price_check"',
+  details: null,
+  hint: null
+}
+[api/sell/draft] Error: new row for relation "products" violates check constraint "products_price_check"
+    at U (.next/server/chunks/lib_listings_repository_ts_0_9iyk2._.js:6:8338)
+    at async T (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:4166)
+    at async l (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:8239)
+    at async s (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:9280)
+    at async Module.j [as handler] (.next/server/chunks/0ily_next_dist_esm_build_templates_app-route_0bdi9so.js:1:10387)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+    at async q (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:4256)
+    at async Module.O [as handler] (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:2:9947)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error [InvariantError]: Invariant: The client reference manifest for route "/inbox/conversation/[conversationId]" does not exist. This is a bug in Next.js.
+    at Object.get (.next/server/chunks/ssr/0ily_next_dist_0ojh5dd._.js:3:1714)
+    at async o (.next/server/chunks/ssr/0ily_next_dist_esm_build_templates_app-page_0vt9st5.js:1:11715)
+⨯ Error: Failed to load static file for page: /500 ENOENT: no such file or directory, open '/home/mihai/ROVEXO/.next/server/pages/500.html'
+    at ignore-listed frames

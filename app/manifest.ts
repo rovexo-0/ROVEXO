@@ -23,6 +23,12 @@ export default function manifest(): MetadataRoute.Manifest {
       purpose: "maskable",
     },
     {
+      src: "/icons/maskable-icon-512.png",
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "maskable",
+    },
+    {
       src: CANONICAL_RX_APP_ICON,
       sizes: "2048x2048",
       type: "image/png",

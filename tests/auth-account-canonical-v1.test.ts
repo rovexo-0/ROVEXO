@@ -100,7 +100,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
   });
 
   it("keeps Verification page available without hub menu entry", () => {
-    const verification = readSource("app/account/verification/page.tsx");
+    const verification = readSource("app/(platform)/account/verification/page.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
     expect(verification).toContain("VerificationHubPage");
@@ -116,14 +116,14 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(redirect).toContain("/account/addresses");
     expect(redirect).toContain(`${PROFILE_RETURN_TO_PARAM}=`);
     expect(readSource("lib/profile/auto-verified.ts")).toContain("recalculateRovexoVerified");
-    expect(readSource("app/auth/callback/route.ts")).toContain("syncAutoVerifiedProfile");
+    expect(readSource("app/(platform)/auth/callback/route.ts")).toContain("syncAutoVerifiedProfile");
   });
 
   it("wires checkout publish and withdraw gates", () => {
     expect(readSource("features/checkout/lib/load-checkout-page.ts")).toContain(
       "resolveProfileCompletionRedirect",
     );
-    expect(readSource("app/wallet/withdraw/page.tsx")).toContain("resolveProfileCompletionRedirect");
+    expect(readSource("app/(platform)/wallet/withdraw/page.tsx")).toContain("resolveProfileCompletionRedirect");
     expect(readSource("app/api/account/profile-gate/route.ts")).toContain("resolveProfileCompletionRedirect");
     expect(readSource("features/sell/context/SellProvider.tsx")).toContain("profile-gate");
   });

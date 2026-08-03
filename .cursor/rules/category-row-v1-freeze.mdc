@@ -1,0 +1,31 @@
+# ROVEXO Category Row v1.0 — FREEZE
+
+**STATUS: OWNER APPROVED · UI LOCK · FEATURE LOCK · FREEZE CERTIFIED**
+
+SSOT: `lib/sell/category-row-v1-freeze.ts`  
+Doc: `docs/modules/sell/CATEGORY_ROW_V1_FREEZE.md`  
+Official: `http://localhost:3000/sell`
+
+## Canonical
+
+```
+SellCategoryBlock → SellNavRow → ListingAttributeRow
+  · one Master icon
+  · one ListingAttributeLabel ("Category")
+  · one breadcrumb (description under label)
+  · one chevron
+```
+
+Category path must never live in the right `value` slot.
+
+## Cursor must never
+
+- Add `ListingAttributeIcon` wrap around Master icons
+- Duplicate `ListingAttributeLabel` / `aria-label="Category"`
+- Put category path in `value`
+- CSS-hide duplicates (opacity / display:none / absolute / z-index)
+- Create parallel Category row components
+
+## Post-freeze
+
+Bug · performance · a11y only. Structural/visual change requires Owner unlock.

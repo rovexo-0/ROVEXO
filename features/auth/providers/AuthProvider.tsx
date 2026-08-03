@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import type { UserRole } from "@/lib/supabase/types/database";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 
@@ -31,10 +32,37 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const AUTH_PROFILE_DEFER_PREFIXES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/welcome",
+  "/splash",
+] as const;
+
+function isAuthProfileDeferredRoute(pathname: string): boolean {
+  return AUTH_PROFILE_DEFER_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
 /** Session-wide cache — survives Soft Nav + provider remounts. undefined = not loaded. */
 let cachedProfile: AuthProfile | null | undefined;
 let cachedError: string | null = null;
 let inflight: Promise<AuthProfile | null> | null = null;
+
+/**
+ * Drop stale viewer identity at auth boundaries (sign-out → login → sign-in).
+ * Soft-nav preserves this module; without invalidation, listing Owner/Buyer menu
+ * compares the previous account id to listing.seller_id and swaps menus.
+ */
+export function invalidateAuthProfileCache(): void {
+  cachedProfile = undefined;
+  cachedError = null;
+  inflight = null;
+}
 
 async function loadProfileOnce(force = false): Promise<AuthProfile | null> {
   if (!force && cachedProfile !== undefined) {
@@ -74,14 +102,22 @@ async function loadProfileOnce(force = false): Promise<AuthProfile | null> {
 /**
  * ONE Auth Owner — /api/profile once per app session (app load).
  * Soft navigation must NOT trigger another network fetch.
+ * RC7: defer profile network on auth routes so login LCP is not contended
+ * (sign-in still uses server actions — no auth logic change).
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname() ?? "";
+  const deferProfile = isAuthProfileDeferredRoute(pathname);
   const [profile, setProfile] = useState<AuthProfile | null>(() =>
     cachedProfile === undefined ? null : cachedProfile,
   );
-  const [loading, setLoading] = useState(() => cachedProfile === undefined);
+  const [loading, setLoading] = useState(() =>
+    deferProfile ? false : cachedProfile === undefined,
+  );
   const [error, setError] = useState<string | null>(() => cachedError);
-  const [ready, setReady] = useState(() => cachedProfile !== undefined);
+  const [ready, setReady] = useState(() =>
+    deferProfile ? true : cachedProfile !== undefined,
+  );
 
   const syncFromCache = useCallback(async (force = false) => {
     if (force) {
@@ -97,9 +133,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void HEADER_MASTER_FREEZE_V1.oneProfileFetchOnAppLoad;
     let cancelled = false;
-    // All setState runs after await — never synchronously inside the effect body.
+
+    // Auth routes: skip /api/profile network (login LCP). Invalidate stale identity
+    // so the next app-route load cannot reuse the previous account's profile.id.
+    if (deferProfile) {
+      invalidateAuthProfileCache();
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setProfile(null);
+        setError(null);
+        setLoading(false);
+        setReady(true);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // Leaving auth routes (or first app mount): force fetch so viewer id matches session.
+    // Soft nav within app keeps deferProfile=false → effect does not re-run → one fetch.
     void (async () => {
-      const next = await loadProfileOnce(false);
+      const next = await loadProfileOnce(true);
       if (cancelled) return;
       setProfile(next);
       setError(cachedError);
@@ -109,11 +163,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [deferProfile]);
 
   const refresh = useCallback(async () => {
-    cachedProfile = undefined;
-    cachedError = null;
+    invalidateAuthProfileCache();
     await syncFromCache(true);
   }, [syncFromCache]);
 

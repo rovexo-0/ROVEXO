@@ -1,0 +1,25 @@
+RC6 Login CSS / JS transfer sizes (Lighthouse network-requests)
+
+BEFORE mobile (RC5 baseline copy → docs/releases/rc6/evidence/login-perf/BEFORE-mobile.report.json)
+  CSS transfer total: 152726 B (~149 KiB)
+  JS  transfer total: 326117 B (~319 KiB)
+  Unused CSS est: ~103 KiB
+  Unused JS  est: ~66 KiB
+
+FINAL mobile (docs/releases/rc6/evidence/login-perf/FINAL-login-mobile.report.json)
+  CSS transfer total: 60429 B (~59 KiB)
+  JS  transfer total: 296874 B (~290 KiB)
+  Unused CSS est: ~21 KiB (chunk 2_qpvi1hbk7zb.css)
+  Unused JS  est: ~77 KiB (38o-jlfrz7gew.js + 3m-x0-nwv87vj.js)
+
+DELTA
+  CSS transfer: -92297 B (~-60%)
+  JS  transfer: -29243 B (~-9%)
+  Unused CSS: 103 → 21 KiB (−82 KiB)
+  Perf score: 83 → 90 (+7)
+  LCP: 4386 ms → 3560 ms (−826 ms)
+
+Built chunk sizes (.next/static/chunks, post-build4)
+  2mb0vdux0xjt1.css  794886 B  — platform index.css (NOT on login HTML)
+  2_qpvi1hbk7zb.css  169179 B  — shared auth/root CSS (still contains marketplace selector strings)
+  2x8rot60kmmna.css  121890 B

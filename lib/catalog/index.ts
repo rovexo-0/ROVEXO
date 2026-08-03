@@ -18,8 +18,20 @@ export {
 } from "@/lib/catalog/brands";
 export {
   getBrandsForProductType,
+  getBrandsForProductTypePath,
   assertProductTypeBrandsIncludeNoBrand,
+  assertProductTypeBrandOrder,
+  assertCrossCategoryBrandSeparation,
+  getCategoryBrandDatabaseStats,
+  orderCategoryBrandDatabase,
 } from "@/lib/catalog/brands-by-product-type";
+export {
+  getMaterialsForProductType,
+  getMaterialsForProductTypePath,
+  getCategoryMaterialDatabaseStats,
+  assertCrossCategoryMaterialSeparation,
+  orderCategoryMaterialDatabase,
+} from "@/lib/catalog/product-type-material-database-v1";
 export { CATALOG_MATERIALS } from "@/lib/catalog/materials";
 export { CATALOG_SIZES } from "@/lib/catalog/sizes";
 export {

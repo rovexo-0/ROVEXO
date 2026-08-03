@@ -92,7 +92,7 @@ const LEGACY_STYLE_ARCHIVE = [
 ];
 
 const CONSUMER_FILES = [
-  "app/page.tsx",
+  "app/(platform)/page.tsx",
   "components/beta/BetaAppShell.tsx",
   "lib/homepage/feed-resolve.ts",
   "components/ui/BottomNavigation.tsx",

@@ -655,14 +655,14 @@ async function certNextjs() {
   await runStep("NEXT", "next-loading", "loading.tsx present on key routes", async () => {
     const required = [
       "app/loading.tsx",
-      "app/search/loading.tsx",
-      "app/orders/loading.tsx",
-      "app/sell/loading.tsx",
-      "app/wallet/loading.tsx",
-      "app/balance/loading.tsx",
-      "app/account/loading.tsx",
-      "app/inbox/(list)/loading.tsx",
-      "app/inbox/conversation/[conversationId]/loading.tsx",
+      "app/(platform)/search/loading.tsx",
+      "app/(platform)/orders/loading.tsx",
+      "app/(platform)/sell/loading.tsx",
+      "app/(platform)/wallet/loading.tsx",
+      "app/(platform)/balance/loading.tsx",
+      "app/(platform)/account/loading.tsx",
+      "app/(platform)/inbox/(list)/loading.tsx",
+      "app/(platform)/inbox/conversation/[conversationId]/loading.tsx",
     ];
     const missing = required.filter((p) => !existsSync(join(process.cwd(), p)));
     if (missing.length) throw new Error(`Missing loading.tsx: ${missing.join(", ")}`);

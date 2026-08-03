@@ -19,7 +19,7 @@ Build the only buyer dashboard implementation. Production-ready, mobile-first, p
 
 | Layer | Path |
 |-------|------|
-| Page | `app/buyer/page.tsx` |
+| Page | `app/(platform)/buyer/page.tsx` |
 | Component | `components/buyer/BuyerDashboard.tsx` |
 | Hooks | `hooks/buyer/` |
 | Services | `lib/buyer/` |
@@ -91,7 +91,7 @@ Every section implements: Loading (skeleton), Empty, Error, Success.
 
 ## Performance
 
-- Server fetch in `app/buyer/page.tsx`
+- Server fetch in `app/(platform)/buyer/page.tsx`
 - `Suspense` + `BuyerSkeleton` for initial load
 - Secondary sections lazy-loaded via `next/dynamic`
 - Client components only where interaction requires

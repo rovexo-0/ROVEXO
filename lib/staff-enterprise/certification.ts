@@ -72,7 +72,7 @@ function grepDuplicatePatterns(rootDir: string): StaffEnterpriseCertCheck[] {
 }
 
 function auditDeadRoutes(rootDir: string): StaffEnterpriseCertCheck[] {
-  const staffPage = readSource(rootDir, "app/staff/page.tsx");
+  const staffPage = readSource(rootDir, "app/(platform)/staff/page.tsx");
   const staffApi = readSource(rootDir, "app/api/staff-enterprise/route.ts");
   const middleware = readSource(rootDir, "lib/supabase/middleware.ts");
 
@@ -313,8 +313,8 @@ export function runStaffEnterpriseCertification(rootDir: string = workspacePath(
       id: "staff-portal-comms-ui",
       label: "Staff portal messaging and calls UI",
       pass:
-        existsSync(join(rootDir, "app/staff/messages/page.tsx")) &&
-        existsSync(join(rootDir, "app/staff/calls/page.tsx")) &&
+        existsSync(join(rootDir, "app/(platform)/staff/messages/page.tsx")) &&
+        existsSync(join(rootDir, "app/(platform)/staff/calls/page.tsx")) &&
         readSource(rootDir, "features/staff-enterprise/StaffEnterpriseShell.tsx").includes("initiateCall"),
     },
     {

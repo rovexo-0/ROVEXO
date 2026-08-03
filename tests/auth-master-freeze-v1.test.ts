@@ -59,7 +59,7 @@ describe("AUTH Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(actions).toContain("supabase.auth.signUp");
     expect(actions).toContain("supabase.auth.signOut");
 
-    const callback = readSource("app/auth/callback/route.ts");
+    const callback = readSource("app/(platform)/auth/callback/route.ts");
     expect(callback).toContain("exchangeCodeForSession");
 
     const freezeRule = readSource(".cursor/rules/auth-master-freeze-v1.mdc");

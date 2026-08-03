@@ -55,6 +55,6 @@ describe("Shipping Engine v1.0 Scope Lock", () => {
     expect(readSource("features/shipping/components/ShipmentWizard.tsx")).toContain(
       "DEFERRED TO v1.1",
     );
-    expect(readSource("app/shipping/page.tsx")).toContain("Scope Lock");
+    expect(readSource("app/(platform)/shipping/page.tsx")).toContain("Scope Lock");
   });
 });

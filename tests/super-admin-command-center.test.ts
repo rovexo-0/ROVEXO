@@ -29,7 +29,7 @@ describe("Super Admin Command Center SSOT", () => {
   });
 
   it("registers database command center route and API", () => {
-    expect(readFileSync(join(process.cwd(), "app/super-admin/database/page.tsx"), "utf8")).toContain(
+    expect(readFileSync(join(process.cwd(), "app/(platform)/super-admin/database/page.tsx"), "utf8")).toContain(
       "DatabaseCommandCenter",
     );
     expect(readFileSync(join(process.cwd(), "app/api/super-admin/database/route.ts"), "utf8")).toContain(
@@ -38,13 +38,13 @@ describe("Super Admin Command Center SSOT", () => {
   });
 
   it("redirects legacy commerce pages to canonical engines", () => {
-    expect(readFileSync(join(process.cwd(), "app/super-admin/orders/page.tsx"), "utf8")).toContain(
+    expect(readFileSync(join(process.cwd(), "app/(platform)/super-admin/orders/page.tsx"), "utf8")).toContain(
       "/super-admin/orders-engine",
     );
-    expect(readFileSync(join(process.cwd(), "app/super-admin/payments/page.tsx"), "utf8")).toContain(
+    expect(readFileSync(join(process.cwd(), "app/(platform)/super-admin/payments/page.tsx"), "utf8")).toContain(
       "/super-admin/payments-engine",
     );
-    expect(readFileSync(join(process.cwd(), "app/super-admin/listings/page.tsx"), "utf8")).toContain(
+    expect(readFileSync(join(process.cwd(), "app/(platform)/super-admin/listings/page.tsx"), "utf8")).toContain(
       "/super-admin/moderation",
     );
   });

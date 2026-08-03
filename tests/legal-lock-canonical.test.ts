@@ -49,11 +49,11 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(getLegalDocument("verification-policy")?.title).toBe("Verification Policy");
     expect(getLegalDocument("intellectual-property-policy")?.title).toContain("Notice and Takedown");
     expect(listLegalDocuments().every((doc) => doc.content.length > 200)).toBe(true);
-    expect(readSource("app/terms/page.tsx")).toContain("/legal/terms-and-conditions");
-    expect(readSource("app/privacy/page.tsx")).toContain("/legal/privacy-policy");
-    expect(readSource("app/cookies/page.tsx")).toContain("/legal/cookie-policy");
-    expect(readSource("app/verification-policy/page.tsx")).toContain("/legal/verification-policy");
-    expect(readSource("app/trust-center/page.tsx")).toContain('redirect("/trust")');
+    expect(readSource("app/(platform)/terms/page.tsx")).toContain("/legal/terms-and-conditions");
+    expect(readSource("app/(platform)/privacy/page.tsx")).toContain("/legal/privacy-policy");
+    expect(readSource("app/(platform)/cookies/page.tsx")).toContain("/legal/cookie-policy");
+    expect(readSource("app/(platform)/verification-policy/page.tsx")).toContain("/legal/verification-policy");
+    expect(readSource("app/(platform)/trust-center/page.tsx")).toContain('redirect("/trust")');
     expect(readSource("lib/legal/canonical-documents.ts")).not.toContain("Business Seller Terms");
     expect(readSource("lib/legal/canonical-documents.ts")).toContain("Personal Account");
   });
@@ -78,7 +78,7 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(txn).not.toContain("Export / Invoices");
     expect(txn).not.toContain(">Payouts<");
     expect(readSource("features/wallet/components/AnnualStatementDetail.tsx")).toContain("Download PDF");
-    expect(readSource("app/wallet/statements/annual/page.tsx")).toContain("AnnualStatementsList");
+    expect(readSource("app/(platform)/wallet/statements/annual/page.tsx")).toContain("AnnualStatementsList");
   });
 
   it("chains annual statement balances from monthly data", () => {
@@ -124,11 +124,11 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     const summary = summarizeUkComplianceAudit();
     expect(UK_COMPLIANCE_AUDIT.length).toBeGreaterThanOrEqual(17);
     expect(summary.missing).toBe(0);
-    expect(readSource("app/seller/compliance/page.tsx")).toContain("ComplianceDashboard");
+    expect(readSource("app/(platform)/seller/compliance/page.tsx")).toContain("ComplianceDashboard");
     expect(readSource("lib/compliance/digital-platform-reporting.ts")).toContain("serializeComplianceCsv");
   });
 
   it("redirects duplicate seller wallet transaction route", () => {
-    expect(readSource("app/seller/wallet/transactions/[id]/page.tsx")).toContain("/wallet/transactions/");
+    expect(readSource("app/(platform)/seller/wallet/transactions/[id]/page.tsx")).toContain("/wallet/transactions/");
   });
 });

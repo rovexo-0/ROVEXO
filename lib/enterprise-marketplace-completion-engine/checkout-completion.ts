@@ -42,7 +42,7 @@ function scanGlobalDomains(): CheckoutDomainScanResult[] {
 
 function checkoutFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/checkout/[slug]/page.tsx") &&
+    fileExists("app/(platform)/checkout/[slug]/page.tsx") &&
     fileExists("features/checkout/components/CheckoutPage.tsx") &&
     fileExists("app/api/orders/checkout/route.ts") &&
     scan.buyerCompletionPass
@@ -232,7 +232,7 @@ function buildPassConditions(
   checksPass: boolean,
 ): CheckoutPassConditionResult[] {
   const mapping: Record<(typeof CHECKOUT_PASS_CONDITIONS)[number], boolean> = {
-    "cart-pass": fileExists("app/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
+    "cart-pass": fileExists("app/(platform)/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
     "checkout-pass": fileExists("features/checkout/components/CheckoutPage.tsx"),
     "payment-pass": fileExists("lib/stripe/server.ts") && fileExists("features/commerce-ui/views/CheckoutView.tsx"),
     "order-pass": fileExists("lib/orders/checkout.ts"),

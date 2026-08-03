@@ -23,15 +23,17 @@ describe("Phase C — Business cleanup & branding lock", () => {
   });
 
   it("redirects /business layout to Personal Account", () => {
-    const layout = readSource("app/business/layout.tsx");
+    const layout = readSource("app/(platform)/business/layout.tsx");
     expect(layout).toContain("isV1BusinessUxRemoved");
     expect(layout).toContain('redirect(PHASE_C_V1_BUSINESS_CLEANUP_V1.redirectBusinessRoutesTo)');
   });
 
-  it("removes Following feed from Canonical Homepage", () => {
+  it("does not mount Following feed on Canonical Homepage (Homepage v1.0 freeze)", () => {
     const home = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
     expect(home).not.toContain("FollowingFeedSection");
+    expect(home).not.toContain("Follow sellers");
     expect(home).toContain("CanonicalMarketplaceFeed");
+    expect(home).toContain("CanonicalCategoryRail");
   });
 
   it("removes Holiday Mode enabled banner toast + PDP banner", () => {
@@ -52,9 +54,13 @@ describe("Phase C — Business cleanup & branding lock", () => {
     );
   });
 
-  it("wires layout icons to Level III App Icon", () => {
-    expect(readSource("app/layout.tsx")).toContain("/brand/canonical-rx/app-icon-v1.png");
-    expect(readSource("app/layout.tsx")).not.toContain("/brand/canonical-rx/rx-mark-v3.png");
+  it("wires layout icons to official RX favicon matrix (no Master Emblem)", () => {
+    const layout = readSource("app/layout.tsx");
+    expect(layout).toContain("/favicon.ico");
+    expect(layout).toContain("/icons/icon-192.png");
+    expect(layout).toContain("/apple-touch-icon.png");
+    expect(layout).not.toContain("/brand/canonical-rx/rx-mark-v3.png");
+    expect(layout).not.toContain("/brand/canonical-rx/master-emblem-v1.png");
   });
 
   it("removes Businesses search scope", () => {

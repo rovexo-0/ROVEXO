@@ -1,0 +1,41 @@
+# ROVEXO BUNDLE ENGINE v1.0 — OWNER LOCKED
+
+**STATUS: OWNER LOCKED IMPLEMENTATION · NOT FROZEN**
+
+SSOT: `lib/bundle/bundle-engine-v1.ts`  
+Engineering: `docs/modules/bundle/MASTER_ENGINEERING_SPECIFICATION_V1.md`  
+UI: `docs/modules/bundle/MASTER_UI_SPECIFICATION_V1.md`
+
+## Absolute
+
+```
+LISTING → BUNDLE → CHECKOUT
+```
+
+Bundle ≠ cart · Bundle ≠ second checkout · Bundle = Product Detail extension.
+
+## Singularity
+
+ONE Bundle Engine · ONE active bundle per buyer · ONE seller per bundle · ONE order · ONE conversation · ONE payment · ONE payout.
+
+## Parents (immutable)
+
+Sell v1.0 freeze · View Item v1.0 freeze — extend only · no redesign.
+
+## View Item approved extensions only
+
+- Stock under price **only if stock > 1**  
+- Quantity **only if stock > 1**  
+- Add to Bundle (48px outline) · Sheet 320/220ms · Sticky bar 60px  
+
+## Forbidden
+
+Second engine · cart · parallel checkout · localStorage authority · parallel threads/orders · soft-fail stock · Sell/View Item redesign
+
+## Gates before freeze
+
+100% journey · zero duplicates · TypeScript · ESLint · build · Playwright · a11y · concurrency · regression · Owner approval
+
+## Cursor must never
+
+Commit / push / deploy Bundle without Owner authorization · redesign frozen Sell or View Item · invent a second Bundle system

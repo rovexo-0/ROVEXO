@@ -42,7 +42,7 @@ function scanGlobalDomains(): SearchDomainScanResult[] {
 
 function searchFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/search/page.tsx") &&
+    fileExists("app/(platform)/search/page.tsx") &&
     fileExists("app/api/search/route.ts") &&
     fileExists("features/search/components/SearchResultsView.tsx") &&
     scan.categoryCompletionPass
@@ -50,7 +50,7 @@ function searchFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
 }
 
 function scanSearchEngine(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const searchPage = fileExists("app/search/page.tsx");
+  const searchPage = fileExists("app/(platform)/search/page.tsx");
   const searchApi = fileExists("app/api/search/route.ts");
   const overlay = fileExists("features/search/components/SearchOverlay.tsx");
   const registry = readSource("lib/search-engine/registry.ts");
@@ -175,7 +175,7 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
 }
 
 function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const searchPage = readSource("app/search/page.tsx");
+  const searchPage = readSource("app/(platform)/search/page.tsx");
 
   return SEARCH_SEO_VALIDATION.map((check) => {
     let pass = searchPage.includes("generateMetadata") || searchPage.includes("buildPageMetadata");
@@ -296,7 +296,7 @@ function buildPassConditions(
     "pagination-pass": resultsSource.includes("page"),
     "infinite-scroll-pass": resultsSource.includes("useIntersectionWhenVisible"),
     "performance-pass": scan.homepagePass && fileExists("features/search/hooks/use-debounced-value.ts"),
-    "seo-pass": readSource("app/search/page.tsx").includes("buildPageMetadata"),
+    "seo-pass": readSource("app/(platform)/search/page.tsx").includes("buildPageMetadata"),
     "accessibility-pass": scan.globalUiPass,
     "enterprise-pass": scan.certificationGatePass && scan.omegaPass,
     "omega-pass": scan.omegaPass,

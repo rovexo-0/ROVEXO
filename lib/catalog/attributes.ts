@@ -66,7 +66,7 @@ export const ATTR = {
   size: { key: "size", label: "Size", options: "clothingSizes" },
   shoeSize: { key: "size", label: "UK Size", options: "shoeSizes" },
   kidsSize: { key: "size", label: "Size", options: "kidsSizes" },
-  ringSize: { key: "size", label: "Size", options: "ringSizes" },
+  ringSize: { key: "size", label: "Ring Size", options: "ringSizes" },
   storage: { key: "storage", label: "Storage", options: "storage" },
   ram: { key: "ram", label: "RAM", options: "ram" },
   type: { key: "type", label: "Type" },

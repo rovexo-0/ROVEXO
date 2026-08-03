@@ -82,7 +82,7 @@ describe("Blood XXVIII + Law XXX — Canonical Root Categories", () => {
       "utf8",
     );
     const categoriesPage = readFileSync(
-      path.join(process.cwd(), "app/categories/page.tsx"),
+      path.join(process.cwd(), "app/(platform)/categories/page.tsx"),
       "utf8",
     );
     expect(landing).toContain("ROVEXO_HOME_CATEGORY_RAIL");

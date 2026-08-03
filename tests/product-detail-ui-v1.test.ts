@@ -77,7 +77,8 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToCart).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.buyNow).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.makeOffer).toBe(true);
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(false);
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(true);
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToCart).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.deliveryRemovedFromViewItem).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Add to Cart");
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Delivery on View Item");
@@ -239,19 +240,38 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
   });
 
   it("info rows never duplicate stock; dynamic map omits empty fields", () => {
-    const rows = buildProductInformationRows(sampleProduct());
+    // Leaf schema (t-shirts) drives order — Attribute Engine v1.0 (not hardcoded Fashion root).
+    const apparel = sampleProduct({
+      size: null,
+      categoryBreadcrumbs: [
+        { id: "w", name: "Women's Fashion", slug: "womens-fashion" },
+        { id: "t", name: "Tops", slug: "womens-tops" },
+        { id: "ts", name: "T-Shirts", slug: "t-shirts" },
+      ],
+    });
+    const rows = buildProductInformationRows(apparel);
     expect(rows.map((r) => r.id)).toEqual([
       "category",
       "brand",
+      "colour",
       "condition",
       "material",
-      "colour",
       "uploaded",
     ]);
     expect(rows.some((r) => r.id === "stock")).toBe(false);
 
     const stockOnly = buildProductInformationRows(
-      sampleProduct({ stock: 1, material: null, colour: null }),
+      sampleProduct({
+        stock: 1,
+        material: null,
+        colour: null,
+        size: null,
+        categoryBreadcrumbs: [
+          { id: "w", name: "Women's Fashion", slug: "womens-fashion" },
+          { id: "t", name: "Tops", slug: "womens-tops" },
+          { id: "ts", name: "T-Shirts", slug: "t-shirts" },
+        ],
+      }),
     );
     expect(stockOnly.some((r) => r.id === "stock")).toBe(false);
     expect(stockOnly.map((r) => r.id)).toEqual(["category", "brand", "condition", "uploaded"]);
@@ -266,13 +286,16 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNow");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNowLoading");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.makeOffer");
-    expect(bar).not.toContain("onAddToBundle");
+    expect(bar).toContain("onAddToBundle");
+    expect(bar).toContain("Add to Bundle");
     expect(bar).not.toContain("PRODUCT_ACTION_BAR_COPY.addToCart");
     expect(bar).not.toContain("pd-v1__action-btn--cart");
     expect(bar).toContain('data-add-to-cart="removed-forever"');
     expect(css).toContain("repeat(2, minmax(0, 1fr))");
+    expect(css).toContain(".pd-v1__add-to-bundle");
     expect(page).toContain("useProductActionBar");
     expect(page).toContain("OfferComposerSheet");
+    expect(page).toContain("handleAddToBundle");
     expect(bar).not.toContain("Message");
   });
 });

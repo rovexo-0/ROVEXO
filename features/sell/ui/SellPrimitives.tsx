@@ -1,21 +1,23 @@
 "use client";
 
 /**
- * Sell field helpers — Account CDS only (CanonicalMenuRow).
- * No Sell-only cards, rows, or spacing systems.
+ * Sell field helpers — Account CDS + Listing Attribute Design System.
+ * Header SSOT: SellFlowHeader (= SellPanelHeader) — no Size-specific headers.
  */
 
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import { CanonicalMenuRow, CanonicalSwitch } from "@/src/components/canonical";
+import { CanonicalSwitch } from "@/src/components/canonical";
+import { ListingAttributeRow } from "@/components/listing/ListingAttributeRow";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
 
-/** Field trigger — Profile Master Icon System + CanonicalMenuRow. */
+/** Field trigger — ListingAttributeRow (icon · label · value · chevron). */
 export function SellNavRow({
   label,
   value,
+  description,
   placeholder = "",
   onClick,
   ariaLabel,
@@ -25,6 +27,8 @@ export function SellNavRow({
 }: {
   label: string;
   value?: string;
+  /** Second line under label (Category path). */
+  description?: string;
   /** Empty by default — Master Freeze: no Select / Choose placeholders. */
   placeholder?: string;
   onClick: () => void;
@@ -37,14 +41,15 @@ export function SellNavRow({
   const hasValue = Boolean(value && value.trim().length > 0);
   const icon = iconFieldId ? <SellFieldMasterIcon fieldId={iconFieldId} /> : leading;
   return (
-    <CanonicalMenuRow
-      title={label}
+    <ListingAttributeRow
+      label={label}
       value={hasValue ? value : placeholder || undefined}
+      description={description}
       onClick={onClick}
-      showChevron
       icon={icon}
       ariaLabel={ariaLabel}
-      className={cn(hasError && "cds-menu-row--error")}
+      hasError={hasError}
+      showChevron
     />
   );
 }
@@ -58,7 +63,10 @@ export function SellInlineError({ message }: { message?: string }) {
   );
 }
 
-/** Fullscreen picker header — Account back + title rhythm. */
+/**
+ * Canonical Sell Flow / selector header (Brand · Condition · Colour · Size · …).
+ * Single SSOT — never recreate for Size or any picker.
+ */
 export function SellPanelHeader({
   title,
   onBack,
@@ -67,7 +75,10 @@ export function SellPanelHeader({
   onBack: () => void;
 }) {
   return (
-    <header className="account-canonical-header cds-header sell-compact-picker__header sticky top-0 z-50">
+    <header
+      className="account-canonical-header cds-header sell-compact-picker__header sticky top-0 z-50"
+      data-sell-flow-header="1.0"
+    >
       <div className="account-canonical-header__bar account-canonical-header__bar--titled">
         <button
           type="button"
@@ -83,5 +94,8 @@ export function SellPanelHeader({
     </header>
   );
 }
+
+/** Owner name for the same header SSOT — Size and every Sell modal must use this. */
+export const SellFlowHeader = SellPanelHeader;
 
 export { CanonicalSwitch as SellToggle };

@@ -20,7 +20,8 @@
   height: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: #ef4444;
+  /* #b91c1c on #fff ≈ 6.5:1 — WCAG 2.2 AA for badge numerals (was #ef4444 ≈ 3.8:1 FAIL) */
+  background: #b91c1c;
   color: #fff;
   font-size: 10px;
   font-weight: 700;

@@ -52,7 +52,7 @@ describe("Checkout UI Freeze — CHECKOUT_UI_v1.0", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
     const page = readSource("features/checkout/components/CheckoutPage.tsx");
     const header = readSource("features/checkout/components/CheckoutPageHeader.tsx");
-    const success = readSource("app/checkout/[slug]/success/page.tsx");
+    const success = readSource("app/(platform)/checkout/[slug]/success/page.tsx");
     const css = readSource("styles/rovexo/checkout-v1.css");
     const price = readSource("features/checkout/components/CheckoutPriceSummary.tsx");
     expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
@@ -107,7 +107,7 @@ describe("Checkout UI Freeze — CHECKOUT_UI_v1.0", () => {
 
   it("redirects legacy address/payment/review URLs to single checkout", () => {
     for (const step of ["address", "payment", "review"] as const) {
-      const src = readSource(`app/checkout/[slug]/${step}/page.tsx`);
+      const src = readSource(`app/(platform)/checkout/[slug]/${step}/page.tsx`);
       expect(src).toContain("redirect");
       expect(src).toMatch(/\/checkout\/\$\{/);
     }

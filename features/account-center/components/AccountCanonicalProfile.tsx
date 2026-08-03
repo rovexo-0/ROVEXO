@@ -24,13 +24,13 @@ type AccountCanonicalProfileProps = {
  * Social Followers permanently removed (CEO Social System Removal).
  */
 export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalProfileProps) {
-  const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
   const username = profile.username?.trim() || profile.fullName || "Username";
   const href = profile.username?.trim()
     ? `/user/${encodeURIComponent(profile.username.trim())}`
     : "/account/profile";
   const newMember = isNewMemberProfile(snapshot.reviewCount);
-  const ratingValue = newMember ? 0 : snapshot.rating;
+  const ratingLabel = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
+  const ratingValue = newMember ? "0.0" : ratingLabel.slice(0, ratingLabel.indexOf(" ★"));
   const reviewCount = Math.max(0, snapshot.reviewCount);
   const { showBadge } = resolveVerifiedStatus({ isRovexoVerified: profile.verified });
 
@@ -57,8 +57,8 @@ export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalP
               <VerifiedBadge className="ac-canonical__verified-badge" />
             ) : null}
           </h1>
-          <p className="ac-canonical__rating" aria-label={`Rating ${ratingLine}`}>
-            <span className="ac-canonical__rating-value">{ratingValue.toFixed(1)}</span>
+          <p className="ac-canonical__rating" data-rating-ssot={ratingLabel}>
+            <span className="ac-canonical__rating-value">{ratingValue}</span>
             <span className="ac-canonical__rating-star" aria-hidden>
               {" "}
               ★{" "}

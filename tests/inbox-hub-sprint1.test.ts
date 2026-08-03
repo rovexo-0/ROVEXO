@@ -15,10 +15,10 @@ function readSource(relativePath: string): string {
 
 describe("Inbox Hub Sprint 1 canonical foundation", () => {
   it("locks /inbox as the live hub route", () => {
-    const route = readSource("app/inbox/(list)/page.tsx");
-    const legacyMessages = readSource("app/messages/page.tsx");
-    const legacyNotifications = readSource("app/notifications/page.tsx");
-    const conversation = readSource("app/inbox/conversation/[conversationId]/page.tsx");
+    const route = readSource("app/(platform)/inbox/(list)/page.tsx");
+    const legacyMessages = readSource("app/(platform)/messages/page.tsx");
+    const legacyNotifications = readSource("app/(platform)/notifications/page.tsx");
+    const conversation = readSource("app/(platform)/inbox/conversation/[conversationId]/page.tsx");
     const css = readSource("styles/rovexo/inbox-hub-v1.css");
     const index = readSource("styles/rovexo/index.css");
 
@@ -72,7 +72,7 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
 
   it("keeps ConversationHub as the only live conversation surface", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
-    const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
+    const route = readSource("app/(platform)/inbox/conversation/[conversationId]/page.tsx");
     expect(hub).toContain("data-conversation-hub");
     expect(hub).toContain("TransactionActionBar");
     expect(route).toContain("ConversationHub");

@@ -10,6 +10,10 @@ import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 
 export type CanonicalHomepageProps = HomepageV4Sections;
 
+/**
+ * ROVEXO Homepage v1.0 (CEO Final Lock).
+ * Following feed is NOT mounted here — Follow Engine remains for Profile / dashboards.
+ */
 export const CanonicalHomepage = memo(function CanonicalHomepage({
   showcases,
   feed,
@@ -31,10 +35,10 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
       className={css.hpCanonical}
       data-hp-homepage="canonical"
       data-hp-homepage-version="phase-2-refinement-01"
+      data-hp-following="removed"
     >
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
-      {/* Phase C — Following feed removed from v1.0 Homepage (engine retained for v2.0). */}
       <CanonicalMarketplaceFeed initialPage={feed} reservedIds={reservedIds} />
     </ScrollContainer>
   );

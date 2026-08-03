@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
-import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
+import { SellFlowHeader } from "@/features/sell/ui/SellPrimitives";
 import { CheckLineIcon, SearchLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalMenuRow, CanonicalButton, CanonicalInput } from "@/src/components/canonical";
 import type { SelectionOption } from "@/lib/sell/attribute-options";
@@ -41,8 +41,12 @@ export type SellOptionPickerProps = {
   onDone: (selected: string[]) => void;
 };
 
-function normalize(value: string): string {
-  return value.trim().toLowerCase();
+function normalizeSearch(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
 }
 
 function SelectedTrailing() {
@@ -66,7 +70,7 @@ function ColourSwatchCell({
 }) {
   const swatch = option.swatch ?? "#E5E7EB";
   const isGradient = swatch.includes("gradient");
-  const isOther = normalize(option.label) === "other" || normalize(option.id) === "other";
+  const isOther = normalizeSearch(option.label) === "other" || normalizeSearch(option.id) === "other";
   const isLight = /^(#fff|#ffffff|white)$/i.test(swatch.trim());
 
   return (
@@ -131,10 +135,14 @@ export function SellOptionPicker({
   const isColourPicker = visualKind === "colour" || showSwatch;
   const isBrandPicker = visualKind === "brand";
   const isMaterialPicker = visualKind === "material";
-  /** V1.1 — Brand / Material / Colour have no search (finite, scannable lists). */
-  const effectiveSearchable =
-    searchable && !isColourPicker && !isBrandPicker && !isMaterialPicker;
+  /**
+   * COD SÂNGE Category Attribute Database V1.0 —
+   * Search ONLY for Brand and Material. Never Colour / Condition / Size / short lists.
+   */
+  const effectiveSearchable = Boolean(searchable && (isBrandPicker || isMaterialPicker));
   const effectiveSearchPlaceholder = searchPlaceholder;
+  /** Local search activates after 2 characters (instant filter, no server). */
+  const SEARCH_MIN_CHARS = 2;
 
   const allOptions = useMemo<EnrichedPickerOption[]>(() => {
     const known = new Set<string>();
@@ -153,16 +161,17 @@ export function SellOptionPicker({
   }, [options, value, visualKind]);
 
   const trimmed = query.trim();
+  const searchActive = effectiveSearchable && trimmed.length >= SEARCH_MIN_CHARS;
   const filtered = useMemo(() => {
-    if (!trimmed) return allOptions;
-    const q = normalize(trimmed);
-    return allOptions.filter((option) => normalize(option.label).includes(q));
-  }, [allOptions, trimmed]);
+    if (!searchActive) return allOptions;
+    const q = normalizeSearch(trimmed);
+    return allOptions.filter((option) => normalizeSearch(option.label).includes(q));
+  }, [allOptions, searchActive, trimmed]);
 
   const showCustom =
     allowCustomFromSearch &&
-    trimmed.length > 0 &&
-    !allOptions.some((option) => normalize(option.label) === normalize(trimmed));
+    searchActive &&
+    !allOptions.some((option) => normalizeSearch(option.label) === normalizeSearch(trimmed));
 
   const resolvedPopularIds = useMemo(() => {
     if (isColourPicker) return undefined;
@@ -171,7 +180,7 @@ export function SellOptionPicker({
   }, [popularIds, isColourPicker]);
 
   const popularOptions = useMemo(() => {
-    if (!resolvedPopularIds || trimmed) return [];
+    if (!resolvedPopularIds || searchActive) return [];
     const set = new Set(resolvedPopularIds.map((id) => id.toLowerCase()));
     const ordered: EnrichedPickerOption[] = [];
     for (const id of resolvedPopularIds) {
@@ -182,13 +191,13 @@ export function SellOptionPicker({
     }
     if (ordered.length > 0) return ordered;
     return allOptions.filter((option) => set.has(option.id.toLowerCase()) || set.has(option.label.toLowerCase()));
-  }, [allOptions, resolvedPopularIds, trimmed]);
+  }, [allOptions, resolvedPopularIds, searchActive]);
 
   const remainderOptions = useMemo(() => {
-    if (!popularOptions.length || trimmed) return filtered;
+    if (!popularOptions.length || searchActive) return filtered;
     const popular = new Set(popularOptions.map((option) => option.id));
     return filtered.filter((option) => !popular.has(option.id));
-  }, [filtered, popularOptions, trimmed]);
+  }, [filtered, popularOptions, searchActive]);
 
   const selectSingle = (id: string) => {
     onDone([id]);
@@ -298,7 +307,7 @@ export function SellOptionPicker({
   return (
     <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel={title} lockScroll={false}>
       <div className={cn(sellPanel, "sell-compact-picker flex min-h-0 flex-1 flex-col")}>
-        <SellPanelHeader title={title} onBack={onClose} />
+        <SellFlowHeader title={title} onBack={onClose} />
 
         {effectiveSearchable ? (
           <div className="sell-option-picker__search shrink-0 border-b border-border">

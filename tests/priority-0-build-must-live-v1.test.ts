@@ -38,8 +38,10 @@ describe("ROVEXO Priority 0 — Build Must Live", () => {
     const layout = readSource(PRIORITY_0_BUILD_MUST_LIVE_V1.entrypoints.rootLayout);
     const postcss = readSource(PRIORITY_0_BUILD_MUST_LIVE_V1.entrypoints.postcss);
     expect(globals).toContain('@import "tailwindcss"');
-    expect(layout).toContain("@/styles/rovexo/index.css");
+    /* RC6 — full index.css loads from platform group; auth-entry from auth group. */
     expect(layout).toContain("./globals.css");
+    expect(readSource("app/(platform)/layout.tsx")).toContain("@/styles/rovexo/index.css");
+    expect(readSource("app/(auth)/layout.tsx")).toContain("@/styles/rovexo/auth-entry.css");
     expect(postcss).toContain("@tailwindcss/postcss");
     expect(existsSync(join(process.cwd(), PRIORITY_0_BUILD_MUST_LIVE_V1.entrypoints.tokens))).toBe(
       true,

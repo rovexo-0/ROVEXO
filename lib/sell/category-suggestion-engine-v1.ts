@@ -90,7 +90,21 @@ const RANK_CONFIDENCE: Record<CategoryMatchRank, number> = {
   path_confidence: 0.72,
 };
 
-const MIN_QUERY_LENGTH = 5;
+const MIN_QUERY_LENGTH = 3;
+
+/** Catalog Master leaf noise: storage / capacity tokens must not block phrase explain. */
+const STORAGE_OR_SKU_TOKEN = /^\d+(\.\d+)?(gb|tb|mb|kb|oz|ml|cm|mm|in|inch|kg|g)$/i;
+
+/** Minimal irregular plurals for Catalog Master leaf names (not a keyword pack). */
+const IRREGULAR_TOKEN_ALIASES: Readonly<Record<string, string>> = {
+  mouse: "mice",
+  mice: "mouse",
+};
+
+function expandTokenAliases(token: string): string[] {
+  const alias = IRREGULAR_TOKEN_ALIASES[token];
+  return alias ? [token, alias] : [token];
+}
 
 function wholeWordIncludes(haystack: string, needle: string): boolean {
   if (!needle) return false;
@@ -124,22 +138,43 @@ function passesOwnerConfidenceGate(suggestion: CategorySuggestion | null): Categ
 
 /**
  * Fail closed: a short Catalog Master phrase must not absorb unrelated query words.
- * Allows model noise only (digits, tokens length ≤ 3) — never typo dictionaries.
+ * Allows model noise only (digits, storage/SKU, tokens length ≤ 3) — never typo dictionaries.
  */
 function phraseExplainsQuery(phrase: string, queryTokens: ReadonlySet<string>): boolean {
   const phraseTokens = tokenizeCatalogText(phrase);
   if (phraseTokens.length === 0) return false;
+
+  const queryHas = (token: string) =>
+    expandTokenAliases(token).some((alias) => queryTokens.has(alias));
+
   if (phraseTokens.length >= 2) {
-    return phraseTokens.every((token) => queryTokens.has(token));
+    return phraseTokens.every((token) => queryHas(token));
   }
   const leafToken = phraseTokens[0]!;
   for (const token of queryTokens) {
-    if (token === leafToken) continue;
+    if (expandTokenAliases(token).includes(leafToken)) continue;
     if (/^\d+$/.test(token)) continue;
+    if (STORAGE_OR_SKU_TOKEN.test(token)) continue;
     if (token.length <= 3) continue;
     return false;
   }
-  return queryTokens.has(leafToken);
+  return queryHas(leafToken);
+}
+
+function expandQueryVariants(normalized: string): string[] {
+  const tokens = tokenizeCatalogText(normalized);
+  const variants = new Set<string>([normalized]);
+  for (let index = 0; index < tokens.length; index += 1) {
+    const aliases = expandTokenAliases(tokens[index]!);
+    if (aliases.length < 2) continue;
+    for (const alias of aliases) {
+      if (alias === tokens[index]) continue;
+      const next = [...tokens];
+      next[index] = alias;
+      variants.add(next.join(" "));
+    }
+  }
+  return [...variants];
 }
 
 /**
@@ -148,17 +183,19 @@ function phraseExplainsQuery(phrase: string, queryTokens: ReadonlySet<string>): 
  */
 function matchPhraseIndex(normalized: string): CategorySuggestion | null {
   const { phraseIndex } = getRuntimeCatalogIndex();
-  const queryTokens = new Set(tokenizeCatalogText(normalized));
   let bestLeaf: RuntimeLeafEntry | null = null;
   let bestPhraseLen = 0;
 
-  for (const [phrase, leaf] of phraseIndex) {
-    if (phrase.length < bestPhraseLen) continue;
-    if (!(normalized === phrase || wholeWordIncludes(normalized, phrase))) continue;
-    if (!phraseExplainsQuery(phrase, queryTokens)) continue;
-    if (phrase.length > bestPhraseLen) {
-      bestPhraseLen = phrase.length;
-      bestLeaf = leaf;
+  for (const variant of expandQueryVariants(normalized)) {
+    const queryTokens = new Set(tokenizeCatalogText(variant));
+    for (const [phrase, leaf] of phraseIndex) {
+      if (phrase.length < bestPhraseLen) continue;
+      if (!(variant === phrase || wholeWordIncludes(variant, phrase))) continue;
+      if (!phraseExplainsQuery(phrase, queryTokens)) continue;
+      if (phrase.length > bestPhraseLen) {
+        bestPhraseLen = phrase.length;
+        bestLeaf = leaf;
+      }
     }
   }
 

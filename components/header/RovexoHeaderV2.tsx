@@ -9,6 +9,7 @@ import { focusRing } from "@/components/ui/tokens";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 import { SEARCH_PRIORITY_FREEZE_V1 } from "@/lib/header/search-priority-freeze-v1";
 import { OFFICIAL_BRAND_APP_ICON } from "@/lib/brand/official-brand-application-v1";
+import "@/styles/rovexo/header-v2.css";
 
 export type RovexoHeaderV2Props = {
   showSearch?: boolean;

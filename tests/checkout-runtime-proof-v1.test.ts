@@ -10,12 +10,12 @@ function readSource(relativePath: string): string {
 }
 
 describe("Checkout runtime proof + blockers (Blood XXIII Agent 1)", () => {
-  it("Blocker 1 — Owner flags are manual gates (no artificial PASS)", () => {
+  it("Blocker 1 — Owner flags closed after Owner PASS (no artificial PASS)", () => {
     expect(CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1.blocker1OwnerFlags.artificialPassForbidden).toBe(
       true,
     );
     expect(CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1.blocker1OwnerFlags.status).toBe(
-      "OWNER_MANUAL_GATE",
+      "OWNER_PASS_CLOSED",
     );
     expect(
       resolveBloodXxiiiPermanentFreeze({

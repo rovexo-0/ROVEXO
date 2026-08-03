@@ -65,8 +65,8 @@ describe("ROVEXO GLOBAL FAIL CLOSED ENGINE v1.0 (LOCK)", () => {
     const files = [
       "app/error.tsx",
       "app/global-error.tsx",
-      "app/wallet/error.tsx",
-      "app/settings/error.tsx",
+      "app/(platform)/wallet/error.tsx",
+      "app/(platform)/settings/error.tsx",
     ];
     for (const file of files) {
       const src = readSource(file);
@@ -74,7 +74,7 @@ describe("ROVEXO GLOBAL FAIL CLOSED ENGINE v1.0 (LOCK)", () => {
       expect(src).not.toMatch(/\{error\.message/);
       expect(src).not.toMatch(/error\.message\s*\|\|/);
     }
-    const userProfileError = readSource("app/user/[username]/error.tsx");
+    const userProfileError = readSource("app/(platform)/user/[username]/error.tsx");
     expect(userProfileError).toContain('data-fail-closed="empty-only"');
     expect(userProfileError).not.toMatch(/\{error\.message/);
   });
@@ -84,7 +84,7 @@ describe("ROVEXO GLOBAL FAIL CLOSED ENGINE v1.0 (LOCK)", () => {
     expect(service).toContain("tryCreateAdminClient");
     expect(service).not.toMatch(/createAdminClient\(\)/);
     expect(service).toContain("never throw");
-    const route = readSource("app/account/profile/page.tsx");
+    const route = readSource("app/(platform)/account/profile/page.tsx");
     expect(route).toContain("FailClosedPanel");
     expect(route).toContain("profileDetailsFromSession");
     expect(route).not.toContain('redirect("/login?next=/account/profile")');

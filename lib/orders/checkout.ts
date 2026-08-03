@@ -28,6 +28,7 @@ import {
 } from "@/lib/checkout/engines/checkout-session-engine-v1";
 import { CHECKOUT_SESSION_TTL_SECONDS } from "@/lib/checkout/engines/status-map-v1";
 import { createOrderFromPaidCheckoutSession } from "@/lib/orders/create-order-from-checkout-session.server";
+import { isBundleCheckoutSnapshot } from "@/lib/bundle/bundle-snapshot-v1";
 
 /** @deprecated Legacy awaiting_payment window. Absolute Law = 120s checkout session. */
 const RESERVATION_MINUTES = Math.ceil(CHECKOUT_SESSION_TTL_SECONDS / 60);
@@ -376,6 +377,14 @@ async function finalizeCheckoutSessionPayment(
     return { error: "Payment session expired." };
   }
 
+  // Open session only — stock/status after paid short-circuit (blocks RVX-2007 on retry).
+  if (product.status !== "reserved" && product.status !== "published") {
+    return { error: "This item is out of stock." };
+  }
+  if (product.stock <= 0) {
+    return { error: "This item is out of stock." };
+  }
+
   if (!input.shippingAddressId) {
     return { error: "Shipping address is required." };
   }
@@ -597,8 +606,12 @@ async function finalizeCheckoutSessionPayment(
         currency: (session.currency || "gbp").toLowerCase(),
         unit_amount: Math.round(lockedItemPrice * 100),
         product_data: {
-          name: product.title,
-          description: product.condition,
+          name: isBundleCheckoutSnapshot(session.bundle_lines)
+            ? `Bundle (${session.bundle_lines.lines.length} items)`
+            : product.title,
+          description: isBundleCheckoutSnapshot(session.bundle_lines)
+            ? `bundleId:${session.bundle_lines.bundleId}`
+            : product.condition,
         },
       },
     },
@@ -625,6 +638,16 @@ async function finalizeCheckoutSessionPayment(
 
   // Stripe expires_at minimum is ~30m; ROVEXO Absolute Law enforces 120s via session destroy.
   const stripeExpiresAt = Math.floor(Date.now() / 1000) + 30 * 60;
+  const bundleSnap = isBundleCheckoutSnapshot(session.bundle_lines) ? session.bundle_lines : null;
+  const bundleLinesMeta = bundleSnap
+    ? JSON.stringify(
+        bundleSnap.lines.map((line) => ({
+          productId: line.productId,
+          qty: line.quantity,
+          unitPrice: line.unitPrice,
+        })),
+      ).slice(0, 450)
+    : "";
 
   const stripeSession = await stripe.checkout.sessions.create(
     {
@@ -642,6 +665,11 @@ async function finalizeCheckoutSessionPayment(
         deliveryCarrier,
         paymentMethodId: selected?.id ?? "",
         offerId: session.offer_id ?? "",
+        bundleId: bundleSnap?.bundleId ?? "",
+        bundleLines: bundleLinesMeta,
+        currency: session.currency || "GBP",
+        subtotal: String(lockedItemPrice),
+        snapshotLockedAt: bundleSnap?.lockedAt ?? "",
       },
       payment_intent_data: {
         metadata: {
@@ -653,6 +681,10 @@ async function finalizeCheckoutSessionPayment(
           shippingAddressId: input.shippingAddressId,
           deliveryCarrier,
           offerId: session.offer_id ?? "",
+          bundleId: bundleSnap?.bundleId ?? "",
+          bundleLines: bundleLinesMeta,
+          currency: session.currency || "GBP",
+          subtotal: String(lockedItemPrice),
         },
       },
       success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
@@ -733,13 +765,14 @@ export async function createOrderCheckoutSession(
 
   const csId = input.checkoutSessionId?.trim() || null;
   if (csId) {
-    // Session owner may pay while listing is reserved (not published).
-    if (product.status !== "reserved" && product.status !== "published") {
-      return { error: "This item is out of stock." };
-    }
-    if (product.stock <= 0) {
-      return { error: "This item is out of stock." };
-    }
+    /**
+     * Absolute Financial Law — ONE CLICK = ONE PAYMENT = ONE ORDER.
+     * Duplicate Confirm & Pay (double-click / retry / refresh) MUST return the
+     * same paid order. Stock is already 0 after first settlement — evaluating
+     * stock BEFORE the paid-session short-circuit falsely returns RVX-2007.
+     * Stock / status gates live inside finalizeCheckoutSessionPayment AFTER
+     * the `status === "paid"` idempotent return.
+     */
     return finalizeCheckoutSessionPayment({
       ...input,
       checkoutSessionId: csId,

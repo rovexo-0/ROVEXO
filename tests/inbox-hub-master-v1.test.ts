@@ -53,7 +53,7 @@ describe("Inbox Hub Master Implementation v1.0", () => {
     expect(css).toContain("--inbox-btn-h: 56px");
     expect(css).toContain("--inbox-empty-cta-h: 44px");
     expect(css).toContain("--inbox-btn-radius: 16px");
-    expect(css).toContain("min-height: calc(52px + env(safe-area-inset-top, 0px))");
+    expect(css).toContain("min-height: calc(44px + env(safe-area-inset-top, 0px))");
     expect(css).toContain("grid-template-columns: 1fr 1fr");
     expect(css).toContain("width: 50%");
     expect(css).toContain("max-width: none");
@@ -68,8 +68,8 @@ describe("Inbox Hub Master Implementation v1.0", () => {
   });
 
   it("keeps singular Messages/Notifications entry via redirects", () => {
-    expect(readSource("app/messages/page.tsx")).toContain("redirect(");
-    expect(readSource("app/notifications/page.tsx")).toContain("INBOX_ROUTES.notificationsTab");
+    expect(readSource("app/(platform)/messages/page.tsx")).toContain("redirect(");
+    expect(readSource("app/(platform)/notifications/page.tsx")).toContain("INBOX_ROUTES.notificationsTab");
     expect(readSource("lib/homepage/canonical-nav.ts")).toContain('href: "/inbox"');
   });
 

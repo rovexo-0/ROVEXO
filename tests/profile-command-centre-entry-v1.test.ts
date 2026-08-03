@@ -55,13 +55,13 @@ describe("Profile Command Centre entry RC1", () => {
   });
 
   it("wires My Profile · middleware · layouts without CSS hide hacks", () => {
-    const page = readSource("app/user/[username]/page.tsx");
+    const page = readSource("app/(platform)/user/[username]/page.tsx");
     const view = readSource("features/profile/components/ViewProfilePage.tsx");
     const button = readSource("features/profile/components/ProfileCommandCentreButton.tsx");
     const css = readSource("styles/rovexo/view-profile-v1.css");
     const middleware = readSource("lib/supabase/middleware.ts");
-    const adminLayout = readSource("app/admin/layout.tsx");
-    const superLayout = readSource("app/super-admin/layout.tsx");
+    const adminLayout = readSource("app/(platform)/admin/layout.tsx");
+    const superLayout = readSource("app/(platform)/super-admin/layout.tsx");
 
     expect(page).toContain("resolveProfileCommandCentreEntry");
     expect(page).toContain("commandCentre=");

@@ -44,9 +44,9 @@ describe("ROVEXO Supreme Blood Code XXII — Sprint V Permanent Freeze", () => {
 
   it("opens Sprint VI Checkout; forbids VII–VIII; protects Sell from redesign", () => {
     expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XXII_V1.liveSprintStatus.VII).toBe("FORBIDDEN_TO_START");
-    expect(canStartSprintViCheckout()).toBe(true);
+    expect(canStartSprintViCheckout()).toBe(false);
     expect(SUPREME_BLOOD_CODE_XI_V1.currentSprint).toBe("VI");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentModule).toBe("CHECKOUT");
     expect(
@@ -65,7 +65,7 @@ describe("ROVEXO Supreme Blood Code XXII — Sprint V Permanent Freeze", () => {
 
   it("aligns XV/XVI/XXI live freeze + zero regression for Sell", () => {
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XXI_V1.liveSprintStatus.V).toBe("LOCKED");
     expect(isZeroRegressionProtectedLive("V")).toBe(true);
     expect(isZeroRegressionProtectedLive("IV")).toBe(true);

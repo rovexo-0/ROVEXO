@@ -42,7 +42,7 @@ function scanGlobalDomains(): ListingDomainScanResult[] {
 
 function listingFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/sell/page.tsx") &&
+    fileExists("app/(platform)/sell/page.tsx") &&
     fileExists("features/sell/hooks/use-sell-wizard.ts") &&
     fileExists("app/api/listings/route.ts") &&
     scan.searchCompletionPass
@@ -56,7 +56,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
   return LISTING_WORKFLOW_VALIDATION.map((check) => {
     let pass = listingFoundationReady(scan);
     if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) pass = draftStorage && wizard.includes("saveSellDraft");
-    if (check === "edit") pass = fileExists("app/seller/listings/[id]/edit/page.tsx");
+    if (check === "edit") pass = fileExists("app/(platform)/seller/listings/[id]/edit/page.tsx");
     if (check === "duplicate") pass = fileExists("app/api/listings/[id]/duplicate/route.ts");
     if (check === "preview") pass = fileExists("features/sell/ui/SellPage.tsx");
     if (check === "publish") pass = wizard.includes("publishListing");
@@ -163,7 +163,7 @@ function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionVal
     }
     if (check.includes("marketplace") || check.includes("search") || check.includes("featured")) pass = productCard;
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
-    if (check.includes("seo")) pass = fileExists("app/listing/[slug]/page.tsx");
+    if (check.includes("seo")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
     if (check.includes("published")) pass = readSource("features/sell/context/SellProvider.tsx").includes("router.push(`/listing/${slug}`)");
     return createCheck("listing-preview", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -179,7 +179,7 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("homepage") || check.includes("featured")) pass = fileExists("app/api/listings/feature/route.ts");
     if (check.includes("business")) pass = fileExists("lib/moderation/scan-listing.ts");
-    if (check.includes("seo")) pass = fileExists("app/listing/[slug]/page.tsx");
+    if (check.includes("seo")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
     if (check.includes("notification") || check.includes("analytics") || check.includes("audit")) {
       pass = wizard.includes("trackGaEvent") || repository.length > 0;
     }
@@ -236,7 +236,7 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     if (check.includes("category-mapping")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("search-mapping")) pass = fileExists("lib/categories/resolve-listing.ts");
     if (check.includes("homepage")) pass = scan.homepagePass;
-    if (check.includes("seo")) pass = fileExists("app/listing/[slug]/page.tsx");
+    if (check.includes("seo")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
     if (check.includes("responsive")) pass = premiumStylesActive();
     if (check.includes("duplicate")) pass = fileExists("lib/moderation/analyzer.ts");
     if (check.includes("orphan")) pass = fileExists("lib/sell/draft-storage.ts");
@@ -289,7 +289,7 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
   };
   const values: Record<(typeof LISTING_CERTIFICATION_SCORES)[number], number> = {
     quality: passPercent,
-    seo: fileExists("app/listing/[slug]/page.tsx") ? 100 : 90,
+    seo: fileExists("app/(platform)/listing/[slug]/page.tsx") ? 100 : 90,
     performance: scan.homepagePass ? 100 : 90,
     ux: scan.globalUiPass ? 100 : 90,
     accessibility: scan.globalUiPass ? 100 : 90,
@@ -318,13 +318,13 @@ function buildPassConditions(
   const typesSource = readSource("features/sell/types.ts");
 
   const mapping: Record<(typeof LISTING_PASS_CONDITIONS)[number], boolean> = {
-    "create-pass": fileExists("app/sell/page.tsx") && foundation,
+    "create-pass": fileExists("app/(platform)/sell/page.tsx") && foundation,
     "draft-pass": fileExists("lib/sell/draft-storage.ts"),
     "preview-pass": fileExists("features/sell/ui/SellPage.tsx"),
     "publish-pass": readSource("features/sell/hooks/use-sell-wizard.ts").includes("publishListing"),
     "image-upload-pass": fileExists("app/api/listings/upload/route.ts"),
     "ai-validation-pass": fileExists("lib/sell/category-detection-pro.ts"),
-    "seo-pass": fileExists("app/listing/[slug]/page.tsx"),
+    "seo-pass": fileExists("app/(platform)/listing/[slug]/page.tsx"),
     "accessibility-pass": scan.globalUiPass,
     "performance-pass": scan.homepagePass,
     "marketplace-pass": fileExists("lib/moderation/scan-listing.ts"),

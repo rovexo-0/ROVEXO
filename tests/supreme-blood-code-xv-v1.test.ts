@@ -115,7 +115,7 @@ describe("ROVEXO Supreme Blood Code XV — Owner Certification & Freeze Law", ()
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.III).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XIV_V1.developmentStatus).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.masterRoadmap.IV.route).toBe("/wallet");
   });

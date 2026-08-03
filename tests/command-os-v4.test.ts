@@ -36,7 +36,7 @@ describe("ROVEXO Command OS Enterprise v4.0", () => {
   });
 
   it("wires Command OS page, API, and styles", () => {
-    const page = readSource("app/super-admin/command-os/page.tsx");
+    const page = readSource("app/(platform)/super-admin/command-os/page.tsx");
     expect(page).toContain("getCommandOsSnapshot");
     expect(page).toContain("CommandOsShell");
 

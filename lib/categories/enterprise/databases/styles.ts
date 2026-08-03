@@ -62,8 +62,27 @@ export const HOME_STYLES = [
   "Classic",
 ] as const;
 
+export const PILLOW_STYLES = [
+  "Classic Bed Pillow",
+  "Hotel Style",
+  "Contoured",
+  "U-Shape",
+  "C-Shape",
+  "J-Shape",
+  "Wedge",
+  "Full Body",
+  "Travel",
+  "Cervical",
+  "Firm Support",
+  "Soft Plush",
+  "Scatter Cushion",
+  "Lumbar",
+] as const;
+
 export const MARKETPLACE_STYLES_BY_VERTICAL = {
   default: MARKETPLACE_STYLES,
   fashion: FASHION_STYLES,
   home: HOME_STYLES,
+  pillows: PILLOW_STYLES,
+  bedding: HOME_STYLES,
 } as const;

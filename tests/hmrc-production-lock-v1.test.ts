@@ -109,7 +109,7 @@ describe("HMRC Production Lock", () => {
   });
 
   it("exposes Super Admin HMRC Settings without DB owner editing", () => {
-    const page = readSource("app/super-admin/hmrc/page.tsx");
+    const page = readSource("app/(platform)/super-admin/hmrc/page.tsx");
     expect(page).toContain("HmrcSettingsPanel");
     const panel = readSource("features/super-admin/hmrc/HmrcSettingsPanel.tsx");
     expect(panel).toContain("platformSettingsKey");
@@ -170,7 +170,7 @@ describe("HMRC Production Lock", () => {
   });
 
   it("fail-closes seller compliance route for buyers", () => {
-    const page = readSource("app/seller/compliance/page.tsx");
+    const page = readSource("app/(platform)/seller/compliance/page.tsx");
     expect(page).toContain("canAccessHmrcSellerCentre");
     expect(page).toContain("hmrc=seller_only");
     const docs = readSource("app/api/seller/compliance/documents/[kind]/route.ts");

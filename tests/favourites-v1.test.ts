@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
 
 describe("Favourites / Saved — LIVE production lock", () => {
   it("keeps existing /saved route and SavedItemsV1", () => {
-    const page = readSource("app/saved/page.tsx");
+    const page = readSource("app/(platform)/saved/page.tsx");
     expect(page).toContain("SavedItemsV1");
     expect(page).toContain("fetchSavedItems");
     expect(page).toContain("initialItems");

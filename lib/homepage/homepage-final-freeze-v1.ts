@@ -47,6 +47,8 @@ export const HOMEPAGE_CEO_FINAL_LOCK = {
   compactPremium: true,
   mobileFirst: true,
   socialFollow: "PERMANENTLY_REMOVED" as const,
+  /** Marketplace Following feed must not mount on Homepage (Owner 2026-08-03). */
+  homepageFollowingFeed: "REMOVED" as const,
   showcase: {
     horizontalScrollOnly: true,
     newestFirst: true,

@@ -51,7 +51,7 @@ describe("ROVEXO v1.0 — Master Architect engagement certification", () => {
     expect(engine).toContain('reason: "owner"');
     expect(engine).toContain("seller_id === user.id");
 
-    const listing = readSource("app/listing/[slug]/page.tsx");
+    const listing = readSource("app/(platform)/listing/[slug]/page.tsx");
     expect(listing).not.toContain("recordProductView");
     expect(listing).not.toContain("from \"next/server\"");
 

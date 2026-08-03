@@ -27,6 +27,8 @@ import type { Notification } from "@/lib/notifications/types";
 import { formatInboxRelativeTime } from "@/lib/messages/utils";
 import type { Conversation } from "@/lib/messages/types";
 import { cn } from "@/lib/cn";
+import { invalidateShareInflight } from "@/lib/performance/fetch";
+import { tryCreateClient } from "@/lib/supabase/client";
 import {
   INBOX_CANONICAL_VERSION,
   INBOX_HUB_MASTER_DOM,
@@ -287,8 +289,16 @@ export function InboxPage() {
     [router],
   );
 
-  const loadMessages = useCallback(async () => {
+  const loadMessages = useCallback(async (opts?: { fresh?: boolean }) => {
     try {
+      if (opts?.fresh) {
+        invalidateShareInflight("GET:/api/messages");
+        const response = await fetch("/api/messages", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { conversations?: Conversation[] };
+        applyConversations(payload.conversations ?? []);
+        return;
+      }
       const payload = await shareInflightJson<{ conversations?: Conversation[] }>(
         "GET:/api/messages",
         "/api/messages",
@@ -300,8 +310,16 @@ export function InboxPage() {
     }
   }, [applyConversations]);
 
-  const loadNotifications = useCallback(async () => {
+  const loadNotifications = useCallback(async (opts?: { fresh?: boolean }) => {
     try {
+      if (opts?.fresh) {
+        invalidateShareInflight("GET:/api/notifications");
+        const response = await fetch("/api/notifications", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { notifications?: Notification[] };
+        applyNotifications(payload.notifications ?? []);
+        return;
+      }
       const payload = await shareInflightJson<{ notifications?: Notification[] }>(
         "GET:/api/notifications",
         "/api/notifications",
@@ -418,7 +436,11 @@ export function InboxPage() {
   const refreshAll = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([loadMessages(), loadNotifications(), refresh()]);
+      await Promise.all([
+        loadMessages({ fresh: true }),
+        loadNotifications({ fresh: true }),
+        refresh(),
+      ]);
     } finally {
       setRefreshing(false);
     }
@@ -436,32 +458,141 @@ export function InboxPage() {
       if (realtimeRefreshTimer.current != null) window.clearTimeout(realtimeRefreshTimer.current);
       realtimeRefreshTimer.current = window.setTimeout(() => {
         realtimeRefreshTimer.current = null;
+        invalidateShareInflight("GET:/api/messages");
+        invalidateShareInflight("GET:/api/notifications");
         void refreshAllRef.current();
       }, 250);
     };
-    const sub = subscribeInboxRealtime((event) => {
-      if (
-        event.type === "conversation.updated" ||
-        event.type === "notification.updated" ||
-        event.type === "notification.created" ||
-        event.type === "badge.updated" ||
-        event.type === "message.created" ||
-        event.type === "message.updated" ||
-        event.type === "offer.updated" ||
-        event.type === "order.updated"
-      ) {
-        scheduleRealtimeRefresh();
-      }
-    });
+    const patchConversationFromRealtime = (event: {
+      conversationId?: string;
+      payload?: Record<string, unknown>;
+    }) => {
+      const id = event.conversationId;
+      const row = event.payload;
+      if (!id || !row) return;
+      setConversations((prev) => {
+        const next = prev.map((item) => {
+          if (item.id !== id) return item;
+          const isBuyer = item.participant.role === "seller";
+          const unreadRaw = isBuyer ? row.buyer_unread_count : row.seller_unread_count;
+          return {
+            ...item,
+            lastMessage:
+              typeof row.last_message === "string" ? row.last_message : item.lastMessage,
+            lastMessageAt:
+              typeof row.last_message_at === "string"
+                ? row.last_message_at
+                : item.lastMessageAt,
+            unreadCount:
+              typeof unreadRaw === "number" ? unreadRaw : item.unreadCount,
+          };
+        });
+        const changed = next.some((item, index) => item !== prev[index]);
+        if (!changed) return prev;
+        setInboxConversationsCache(next);
+        return next;
+      });
+    };
+    const userId = profile?.id ?? null;
+    const sub = subscribeInboxRealtime(
+      (event) => {
+        if (event.type === "conversation.updated" || event.type === "badge.updated") {
+          patchConversationFromRealtime(event);
+        }
+        if (
+          event.type === "conversation.updated" ||
+          event.type === "notification.updated" ||
+          event.type === "notification.created" ||
+          event.type === "badge.updated" ||
+          event.type === "message.created" ||
+          event.type === "message.updated" ||
+          event.type === "offer.updated" ||
+          event.type === "order.updated"
+        ) {
+          scheduleRealtimeRefresh();
+        }
+      },
+      { userId },
+    );
     return () => {
       sub.unsubscribe();
       if (realtimeRefreshTimer.current != null) window.clearTimeout(realtimeRefreshTimer.current);
     };
-  }, []);
+  }, [profile?.id]);
+
+  /* Conversation-scoped message INSERT → patch list preview in place. */
+  const conversationIdsKey = useMemo(
+    () =>
+      conversations
+        .slice(0, 10)
+        .map((c) => c.id)
+        .filter(Boolean)
+        .sort()
+        .join(","),
+    [conversations],
+  );
+
+  useEffect(() => {
+    const userId = profile?.id;
+    if (!userId || !conversationIdsKey) return;
+    const supabase = tryCreateClient();
+    if (!supabase) return;
+
+    // Prefer the top (most recent) conversation — primary certification path.
+    const primaryId = conversations[0]?.id;
+    if (!primaryId) return;
+
+    const applyMessageInsert = (row: Record<string, unknown>) => {
+      const conversationId = String(row.conversation_id ?? "");
+      if (!conversationId) return;
+      const content = row.deleted_at ? "Message deleted" : String(row.content ?? "");
+      const sentAt = String(row.sent_at ?? new Date().toISOString());
+      setConversations((prev) => {
+        const existing = prev.find((item) => item.id === conversationId);
+        if (!existing) {
+          invalidateShareInflight("GET:/api/messages");
+          void loadMessages({ fresh: true });
+          return prev;
+        }
+        const patched = {
+          ...existing,
+          lastMessage: content || existing.lastMessage,
+          lastMessageAt: sentAt,
+          unreadCount: Math.max(existing.unreadCount + 1, 1),
+        };
+        const rest = prev.filter((item) => item.id !== conversationId);
+        const next = [patched, ...rest];
+        setInboxConversationsCache(next);
+        return next;
+      });
+    };
+
+    const channel = supabase
+      .channel(`inbox-rt-msg-primary:${userId}:${primaryId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${primaryId}`,
+        },
+        (payload) => {
+          applyMessageInsert(payload.new as Record<string, unknown>);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [profile?.id, conversations, conversationIdsKey, loadMessages]);
 
   /* XLIII / Hub open sync — realtime is primary; keep event bridge only. */
   useEffect(() => {
     const onInboxSync = () => {
+      invalidateShareInflight("GET:/api/messages");
+      invalidateShareInflight("GET:/api/notifications");
       void refreshAll();
     };
     window.addEventListener("rovexo:inbox-sync", onInboxSync);
@@ -469,6 +600,18 @@ export function InboxPage() {
       window.removeEventListener("rovexo:inbox-sync", onInboxSync);
     };
   }, [refreshAll]);
+
+  const prevMessagesBadge = useRef<number | null>(null);
+  /* When unread message badge bumps via provider RT, refresh conversation list. */
+  useEffect(() => {
+    if (!profile?.id) return;
+    const prev = prevMessagesBadge.current;
+    prevMessagesBadge.current = mobileBadges.messages;
+    if (prev === null) return;
+    if (mobileBadges.messages <= prev) return;
+    invalidateShareInflight("GET:/api/messages");
+    void loadMessages({ fresh: true });
+  }, [mobileBadges.messages, profile?.id, loadMessages]);
 
   /* Prefer local/cache; fall back to provider tray so first paint never shows Empty. */
   const effectiveNotifications = useMemo(() => {

@@ -232,7 +232,7 @@ describe("Photo System Product Integration — Phase III Camera & Gallery", () =
     const fileInput = readSource("features/sell/ui/SellPhotoFileInput.tsx");
     expect(fileInput).toContain('data-product-integration-entry="gallery_picker"');
 
-    const cameraPage = readSource("app/sell/camera/page.tsx");
+    const cameraPage = readSource("app/(platform)/sell/camera/page.tsx");
     expect(cameraPage).toContain('redirect("/sell")');
     expect(cameraPage).toContain("Product Integration");
 

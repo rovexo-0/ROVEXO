@@ -19,7 +19,7 @@ const SCAN_DIRS = [
 
 const SKIP_DIRS = new Set(["node_modules", ".next", "dist", "build", "super-admin"]);
 const SKIP_FILES = new Set([
-  "app/fluency-3d-preview/page.tsx",
+  "app/(platform)/fluency-3d-preview/page.tsx",
   "features/super-admin/enterprise-business-intelligence/EnterpriseBiAdmin.tsx",
   // Frozen Wallet bank-detail label; it is not an account-type selector or role flow.
   "features/wallet/components/WalletBankAccountsPage.tsx",

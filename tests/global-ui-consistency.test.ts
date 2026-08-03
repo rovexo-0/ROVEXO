@@ -117,15 +117,15 @@ describe("account hub menu alignment", () => {
 
 describe("discovery header standardization", () => {
   const DISCOVERY_ROUTES = [
-    "app/categories/page.tsx",
-    "app/category/[...slug]/page.tsx",
-    "app/brand/[slug]/page.tsx",
-    "app/browse/[...segments]/page.tsx",
-    "app/collections/[slug]/page.tsx",
-    "app/discover/[slug]/page.tsx",
-    "app/trends/[slug]/page.tsx",
-    "app/l/[location]/page.tsx",
-    "app/l/[location]/[...category]/page.tsx",
+    "app/(platform)/categories/page.tsx",
+    "app/(platform)/category/[...slug]/page.tsx",
+    "app/(platform)/brand/[slug]/page.tsx",
+    "app/(platform)/browse/[...segments]/page.tsx",
+    "app/(platform)/collections/[slug]/page.tsx",
+    "app/(platform)/discover/[slug]/page.tsx",
+    "app/(platform)/trends/[slug]/page.tsx",
+    "app/(platform)/l/[location]/page.tsx",
+    "app/(platform)/l/[location]/[...category]/page.tsx",
     "features/store/components/ProStorePage.tsx",
   ];
 
@@ -142,23 +142,23 @@ describe("discovery header standardization", () => {
   });
 
   it("uses DiscoveryPageShell on categories index", () => {
-    expect(readSource("app/categories/page.tsx")).toContain("DiscoveryPageShell");
+    expect(readSource("app/(platform)/categories/page.tsx")).toContain("DiscoveryPageShell");
   });
 });
 
 describe("canonical shell migrations", () => {
   const CANONICAL_SHELL_ROUTES = [
-    "app/plans/page.tsx",
+    "app/(platform)/plans/page.tsx",
   ];
 
   const ACCOUNT_CANONICAL_SHELL_ROUTES = [
-    "app/business/directory/page.tsx",
+    "app/(platform)/business/directory/page.tsx",
     "features/wholesale/components/WholesaleCenterPage.tsx",
   ];
 
   const LEGAL_CANONICAL_ROUTES = [
-    "app/legal/page.tsx",
-    "app/legal/[slug]/page.tsx",
+    "app/(platform)/legal/page.tsx",
+    "app/(platform)/legal/[slug]/page.tsx",
   ];
 
   it("wraps secondary hubs in CanonicalPageShell", () => {

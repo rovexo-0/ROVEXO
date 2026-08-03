@@ -151,7 +151,7 @@ describe("Photo System Product Integration — Phase IV Upload & Storage", () =>
       expect(source).not.toMatch(/from ["']@\/lib\/sell\/draft-photo-storage["']/);
     }
 
-    const appSell = walkFiles(path.join(process.cwd(), "app/sell"));
+    const appSell = walkFiles(path.join(process.cwd(), "app/(platform)/sell"));
     for (const file of appSell) {
       const source = readFileSync(file, "utf8");
       expect(source).not.toMatch(/from ["']@\/lib\/listings\/upload-client["']/);

@@ -110,9 +110,15 @@ export function validateCatalogMaster(): CatalogValidationReport {
           errors.push(`Attribute budget fail for ${slug} (${attrs.length})`);
         }
 
-        const brands = getBrandsForProductType(slug);
+        const brands = getBrandsForProductType(slug, {
+          rootSlug: sector.slug,
+          subcategorySlug: dept.slug,
+        });
         if (!assertProductTypeBrandsIncludeNoBrand(brands)) {
-          errors.push(`Missing No Brand for product type: ${slug}`);
+          errors.push(`Missing/invalid Brand order for product type: ${typeKey}`);
+        }
+        if (brands.length < 10) {
+          errors.push(`Brand database too small for product type: ${typeKey} (${brands.length})`);
         }
 
         if (!name.trim()) {

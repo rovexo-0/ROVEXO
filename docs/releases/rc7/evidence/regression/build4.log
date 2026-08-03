@@ -1,0 +1,29 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 prebuild
+> npm run verify:assets && npm run typecheck && npm run lint && npm run test:full-demo-contracts && npm run certify:full-demo
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 verify:assets
+> npx tsx scripts/validate-production-assets.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✅ Premium assets verified
+✅ Production assets only
+✅ No placeholder graphics
+✅ Homepage approved
+✅ Production deployment allowed
+
+Summary: 564 premium assets · 684 total raster assets · 0 blocking issues
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 lint
+> eslint
+
+Killed

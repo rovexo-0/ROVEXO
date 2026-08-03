@@ -57,8 +57,8 @@ describe("Phase C.1 — Legal & Compliance Alignment Lock", () => {
   it("redirects withdrawn Business Seller Terms slug and business policies route", () => {
     expect(readSource("next.config.ts")).toContain("/legal/business-seller-terms");
     expect(readSource("next.config.ts")).toContain("/legal/seller-terms");
-    expect(readSource("app/business/policies/page.tsx")).toContain('/legal/seller-terms');
-    expect(readSource("app/business/policies/page.tsx")).not.toContain("business-seller-terms");
+    expect(readSource("app/(platform)/business/policies/page.tsx")).toContain('/legal/seller-terms');
+    expect(readSource("app/(platform)/business/policies/page.tsx")).not.toContain("business-seller-terms");
   });
 
   it("wires Register legal acceptance to Terms, Privacy, and Cookie Policy", () => {
@@ -74,7 +74,7 @@ describe("Phase C.1 — Legal & Compliance Alignment Lock", () => {
     expect(legalRows.map((r) => r.href)).toEqual(["/legal", "/seller/compliance"]);
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain('href: "/legal"');
     expect(readSource("components/legal/CookieConsentBanner.tsx")).toContain("/legal/cookie-policy");
-    expect(readSource("app/account/settings/about/page.tsx")).toContain('redirect("/account/settings")');
+    expect(readSource("app/(platform)/account/settings/about/page.tsx")).toContain('redirect("/account/settings")');
   });
 
   it("Settings SUPPORT contains Help Centre only (no Contact Support row)", () => {

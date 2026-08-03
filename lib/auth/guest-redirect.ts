@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
 import { fetchProfileByUserId } from "@/lib/profile/repository";
 import { createClient } from "@/lib/supabase/server";
+import { mfaChallengeHref, readMfaAssurance } from "@/lib/auth/mfa";
 
 /**
  * Redirect signed-in visitors away from login/register using the Server Component
@@ -22,6 +23,11 @@ export async function redirectIfAuthenticated(next?: string | null): Promise<voi
 
   if (!user.email_confirmed_at) {
     redirect(`/verify-email?email=${encodeURIComponent(user.email ?? "")}`);
+  }
+
+  const assurance = await readMfaAssurance(supabase);
+  if (assurance.requiresChallenge) {
+    redirect(mfaChallengeHref(next));
   }
 
   const profile = await fetchProfileByUserId(user.id);

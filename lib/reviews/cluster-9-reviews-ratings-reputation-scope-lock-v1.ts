@@ -126,7 +126,7 @@ export const CLUSTER_9_REVIEWS_RATINGS_REPUTATION_SCOPE_LOCK_V1 = {
     },
     reviewModerationUi: {
       status: "DEFERRED_V1_1",
-      path: "app/super-admin/reviews/page.tsx",
+      path: "app/(platform)/super-admin/reviews/page.tsx",
       note: "Placeholder only — excluded from Cluster 9 certification",
     },
     reviewReplyUi: {

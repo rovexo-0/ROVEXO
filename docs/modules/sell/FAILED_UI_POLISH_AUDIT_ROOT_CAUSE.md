@@ -25,11 +25,11 @@
 
 **Proven from:**
 
-- `app/sell/page.tsx` → `<SellPage />`
+- `app/(platform)/sell/page.tsx` → `<SellPage />`
 - `features/sell/ui/SellPage.tsx` JSX order
 
 ```
-app/sell/page.tsx
+app/(platform)/sell/page.tsx
 └─ SellPage (features/sell/ui/SellPage.tsx)
    └─ SellProvider
       └─ SellPageInner
@@ -95,7 +95,7 @@ app/sell/page.tsx
 **Import chain (exact):**
 
 ```
-app/layout.tsx
+app/(platform)/layout.tsx
   → import "@/styles/rovexo/index.css"
     → styles/rovexo/index.css
       → @import "./sell.css";   (line ~116, near end of sheet)

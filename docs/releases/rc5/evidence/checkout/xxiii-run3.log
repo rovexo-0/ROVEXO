@@ -1,0 +1,107 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 29176 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 6 tests using 1 worker
+
+(node:453948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:80:7 › Blood XXIII — Checkout certification journey › 01 Product page exposes Buy Now (1.1s)
+  ✓  2 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:88:7 › Blood XXIII — Checkout certification journey › 02 Buy Now creates checkout session (no order yet) (1.0s)
+  ✓  3 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:105:7 › Blood XXIII — Checkout certification journey › 03 Checkout page loads with cs binding (952ms)
+  ✓  4 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:114:7 › Blood XXIII — Checkout certification journey › 04 Confirm & Pay (virtual) creates order (7.5s)
+  ✓  5 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:161:7 › Blood XXIII — Checkout certification journey › 05 Duplicate Confirm & Pay returns same order (no second payment) (730ms)
+  ✓  6 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:187:7 › Blood XXIII — Checkout certification journey › 06 DONE readiness exposes conversation Hub id when ready (1.0s)
+
+  6 passed (1.8m)

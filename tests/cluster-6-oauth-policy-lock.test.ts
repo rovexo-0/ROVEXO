@@ -67,7 +67,7 @@ describe("Cluster 6 OAuth Policy Lock (RC1)", () => {
     expect(actions).toContain("signInWithOAuth");
     expect(actions).toContain("oauth_provider_unavailable");
 
-    const callback = readSource("app/auth/callback/route.ts");
+    const callback = readSource("app/(platform)/auth/callback/route.ts");
     expect(callback).toContain("exchangeCodeForSession");
     expect(callback).toContain("syncAutoVerifiedProfile");
     expect(callback).toContain("oauth_cancelled");

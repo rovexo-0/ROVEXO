@@ -37,16 +37,20 @@ const FORBIDDEN_SECTIONS = [
   "RovexoNewListings",
   "RovexoBoostListings",
   "HomepageV3ListingRail",
+  "FollowingFeedSection",
+  "Follow sellers",
 ];
 
 describe("Homepage enterprise migration contract", () => {
   it("renders CanonicalHomepage with the Product Owner section stack only", () => {
-    const page = readSource("app/page.tsx");
+    const page = readSource("app/(platform)/page.tsx");
     const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
     expect(page).toContain("CanonicalHomepage");
     expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);
-    expect(readSource("app/layout.tsx")).toContain("HeaderProvider");
+    expect(readSource("components/layout/PlatformChromeProviders.tsx")).toContain(
+      "HeaderProvider",
+    );
     expect(page).toContain("resolveHomepageV4Sections");
     expect(page).toContain("fetchHomepageFeed");
     expect(page).toContain('fetchProducts("recommended"');
@@ -87,10 +91,11 @@ describe("Homepage enterprise migration contract", () => {
     expect(betaShell).toContain("BottomNavigation");
   });
 
-  it("wires header scroll-hide on mobile", () => {
+  it("keeps marketplace header without deprecated scroll-hide chrome", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
-
-    expect(header).toContain("isChromeVisible");
-    expect(header).toContain("max-lg:-translate-y-full");
+    // Search Priority Freeze + Header Master Freeze: no scroll-hide chrome.
+    expect(header).not.toContain("isChromeVisible");
+    expect(header).toContain("HEADER_MASTER_FREEZE_V1");
+    expect(header).toContain("SEARCH_PRIORITY_FREEZE_V1");
   });
 });

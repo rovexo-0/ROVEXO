@@ -35,7 +35,7 @@ function readSource(relativePath: string): string {
 
 describe("auctions launch-ready consumer gate", () => {
   it("redirects /auctions to Search — no consumer Coming Soon page", () => {
-    const route = readSource("app/auctions/page.tsx");
+    const route = readSource("app/(platform)/auctions/page.tsx");
 
     expect(route).toContain('redirect("/search")');
     expect(route).not.toContain("AuctionsComingSoonPage");

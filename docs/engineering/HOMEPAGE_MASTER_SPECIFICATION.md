@@ -30,7 +30,7 @@
 
 | Layer | Canonical path |
 |-------|----------------|
-| Route | `app/page.tsx` |
+| Route | `app/(platform)/page.tsx` |
 | Page component | `components/home/RovexoHomePage.tsx` |
 | Shell | `components/beta/BetaAppShell.tsx` + `components/home/HomePageShell.tsx` |
 | Header | `components/Header.tsx` (`variant="homepage"`) |
@@ -652,7 +652,7 @@ Promote **verified business sellers** with a horizontal listing rail per seller.
 
 ### 7.12 Performance
 
-- Showcase data fetched server-side in `app/page.tsx`.
+- Showcase data fetched server-side in `app/(platform)/page.tsx`.
 - Images lazy-loaded except first card per rail.
 - Empty `showcaseSections` → entire showcase stack omitted (no empty placeholder).
 

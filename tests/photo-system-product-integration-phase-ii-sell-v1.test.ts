@@ -171,7 +171,7 @@ describe("Photo System Product Integration — Phase II Sell canonical", () => {
   });
 
   it("edit listing host remains SellPage reuse (canonical flow)", () => {
-    const editPage = readSource("app/seller/listings/[id]/edit/page.tsx");
+    const editPage = readSource("app/(platform)/seller/listings/[id]/edit/page.tsx");
     expect(editPage).toMatch(/SellPage|sell/);
   });
 

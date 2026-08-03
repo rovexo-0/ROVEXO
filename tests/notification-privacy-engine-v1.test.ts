@@ -102,7 +102,7 @@ describe("Notification & Privacy Engine v1.0", () => {
     );
     const privacy = readSource("features/account/components/AccountPrivacyPage.tsx");
     const cookies = readSource("features/account/components/CookiePreferencesPage.tsx");
-    const prefsRoute = readSource("app/notifications/preferences/page.tsx");
+    const prefsRoute = readSource("app/(platform)/notifications/preferences/page.tsx");
     const migration = readSource(
       "supabase/migrations/20260730220000_notification_privacy_engine_v1.sql",
     );

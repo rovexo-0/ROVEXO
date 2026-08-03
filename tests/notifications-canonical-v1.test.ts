@@ -192,7 +192,7 @@ describe("Notifications canonical v1.0", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const settings = readSource("features/notifications/components/NotificationSettingsPage.tsx");
     const css = readSource("styles/rovexo/inbox-hub-v1.css");
-    const route = readSource("app/notifications/page.tsx");
+    const route = readSource("app/(platform)/notifications/page.tsx");
 
     expect(inbox).toContain("useRealtimeNotifications");
     expect(inbox).toContain("Mark all");

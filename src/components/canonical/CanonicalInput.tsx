@@ -1,12 +1,12 @@
 "use client";
 
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { cdsInputTypeAttr } from "./utils";
 import type { CanonicalInputType } from "./tokens";
 
 type SharedFieldProps = {
-  label?: string;
+  label?: ReactNode;
   hint?: string;
   error?: string;
   id?: string;

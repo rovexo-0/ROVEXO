@@ -1,0 +1,8 @@
+# Linux cron — ROVEXO Backup Engine v1.0
+# Install: crontab -e  → paste one line (adjust path)
+
+# Daily 02:15 — full backup
+15 2 * * * cd /ABS/PATH/TO/ROVEXO && npm run backup >> /ABS/PATH/TO/ROVEXO/.rovexo-backups/cron.log 2>&1
+
+# Optional: DB only every 6 hours
+# 0 */6 * * * cd /ABS/PATH/TO/ROVEXO && npm run backup:db >> /ABS/PATH/TO/ROVEXO/.rovexo-backups/cron.log 2>&1

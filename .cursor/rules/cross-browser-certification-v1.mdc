@@ -1,0 +1,49 @@
+# ROVEXO CROSS BROWSER CERTIFICATION ENGINE v1.0
+
+**STATUS: OWNER LOCK · MANDATORY BEFORE PREVIEW RELEASE**
+
+SSOT: `lib/cross-browser/cross-browser-certification-engine-v1.ts`  
+Runner: `scripts/run-cross-browser-certification.mjs`  
+Spec: `e2e/cross-browser-certification.spec.ts`  
+Projects: `scripts/playwright-cross-browser-projects.mjs`  
+Evidence: `test-results/cross-browser-certification-v1/`
+
+## Absolute
+
+```
+NO Cross Browser PASS = NO Preview Release
+SKIP ≠ PASS · UNVERIFIED ≠ PASS · Chromium-only ≠ PASS
+```
+
+## Supported matrix (required)
+
+**Desktop:** Chrome · Edge · Firefox · Safari (WebKit)  
+**Mobile:** Safari iOS · Chrome iOS · Chrome Android · Samsung Internet  
+**Tablets:** iPad Safari · Android Tablet Chrome  
+
+**Devices:** iPhone SE / 13 / 15 / 15 Pro Max / latest · Pixel · Samsung Galaxy · Foldables · iPad · Android Tablet · Desktop
+
+## Command
+
+```bash
+npm run test:e2e:cross-browser
+```
+
+Host: managed Playwright local server (mirrors `localhost:3000` product).  
+Official Owner phone approval remains `https://www.rovexo.co.uk` (separate gate).
+
+## Honesty
+
+- Desktop Chrome / Firefox / WebKit = native Playwright browsers when installed  
+- Edge = Chromium Desktop Edge (optional native `msedge` via `PLAYWRIGHT_EDGE_CHANNEL=1`)  
+- Mobile Safari / iPad = WebKit + device descriptors  
+- Chrome iOS / Samsung Internet = Chromium + UA (not real WKWebView / Samsung binary)  
+- Physical-device Owner visual ≠ this engine
+
+## Cursor must never
+
+- Claim Cross Browser PASS without `matrix.json` overall PASS  
+- Treat Chromium-only responsive smoke as Cross Browser Certification  
+- Skip Firefox / WebKit because “Chrome passed”  
+- Commit / push / deploy from this engine alone  
+- Invent Owner physical-device PASS from Playwright emulation

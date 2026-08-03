@@ -37,10 +37,23 @@ export function buildRecoveryDashboardWidgets(input: {
   const lastBackup = [...input.backups].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
   const failedBackups = input.backups.filter((b) => b.status === "failed").length;
 
+  const engineBackup = input.backups.find((b) => b.id.startsWith("backup-engine-"));
+  const sizeLabel = engineBackup?.sizeLabel ?? lastBackup?.sizeLabel ?? "—";
+  const verifyStatus = engineBackup?.status === "verified" || engineBackup?.status === "completed"
+    ? "healthy"
+    : engineBackup?.status === "failed"
+      ? "critical"
+      : lastBackup
+        ? "healthy"
+        : "warning";
+
   return [
     { id: "platform-status", label: "Platform Status", value: input.healthStatus, status: mapHealth(input.healthStatus) },
     { id: "readiness-score", label: "Recovery Readiness", value: "Calculated", status: failedBackups > 0 ? "warning" : "healthy" },
     { id: "last-backup", label: "Last Backup", value: lastBackup?.label ?? "None", status: lastBackup ? "healthy" : "warning" },
+    { id: "backup-status", label: "Status", value: lastBackup?.status ?? "none", status: verifyStatus },
+    { id: "backup-duration-size", label: "Duration / DB / Storage", value: sizeLabel, status: verifyStatus },
+    { id: "backup-verification", label: "Verification", value: engineBackup?.status === "verified" ? "PASS" : engineBackup ? engineBackup.status : "n/a", status: verifyStatus },
     { id: "backup-health", label: "Backup Health", value: failedBackups === 0 ? "Healthy" : `${failedBackups} failed`, status: failedBackups > 0 ? "critical" : "healthy" },
     { id: "disaster-recovery", label: "Disaster Recovery", value: input.safeMode.enabled ? "Safe Mode" : "Ready", status: input.safeMode.enabled ? "warning" : "healthy" },
     { id: "rollback", label: "Rollback Availability", value: input.backups.filter((b) => b.rollbackAvailable).length, status: "healthy" },

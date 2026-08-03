@@ -34,7 +34,7 @@ describe("smart suggestion engine", () => {
     expect(merged.color).toBeUndefined();
   });
 
-  it("allows prefill for unlocked fields only", () => {
+  it("never auto-prefills unlocked attribute fields (COD SÂNGE)", () => {
     const draft = createEmptyDraft();
     draft.title = "Apple iPhone 15 Pro Max 256GB";
     draft.userModified = markFieldsUserModified({}, ["colour"]);
@@ -43,12 +43,14 @@ describe("smart suggestion engine", () => {
     const patch = buildDeterministicPrefill(draft);
     const merged = applyPrefillRespectingLocks(draft, patch);
 
-    expect(merged.brand).toBe("Apple");
+    expect(patch).toEqual({});
+    expect(merged.brand).toBeUndefined();
     expect(merged.color).toBeUndefined();
   });
 
-  it("skips photo colour suggestion when colour is user-modified", () => {
+  it("never applies photo colour auto-select (COD SÂNGE)", () => {
     const draft = createEmptyDraft();
+    expect(shouldApplyPhotoColourSuggestion(draft)).toBe(false);
     draft.userModified = markFieldsUserModified({}, ["colour"]);
     expect(shouldApplyPhotoColourSuggestion(draft)).toBe(false);
   });

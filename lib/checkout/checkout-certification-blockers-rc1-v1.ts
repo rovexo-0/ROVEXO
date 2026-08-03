@@ -16,9 +16,11 @@ export const CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1 = {
     rootCause:
       "These are intentional Owner / Automatic Certification release metadata on Blood XXIII. resolveBloodXxiiiPermanentFreeze() requires verifiedAllPass + auditedAllPass + automaticCertificationPass + ownerCertificationPass + noRegressionPass + complete100 — all true. They are not derived from TypeScript/Vitest alone.",
     recommendation:
-      "Do not hardcode true. Flip only after Owner Certification PASS + Automatic Certification PASS + complete100 evidence. Until then keep NOT READY.",
+      "Do not invent. Flip only after Owner Certification PASS + Automatic Certification PASS + complete100 evidence.",
     artificialPassForbidden: true,
-    status: "OWNER_MANUAL_GATE",
+    status: "OWNER_PASS_CLOSED",
+    closedAt: "2026-08-03",
+    note: "Owner visually verified complete Checkout flow and permanently froze Checkout v1.0.",
   },
 
   blocker2EndToEnd: {
@@ -43,7 +45,8 @@ export const CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1 = {
 
   blocker3OwnerVisual: {
     id: "BLOCKER_3",
-    status: "PREPARED_FOR_OWNER_REVIEW",
+    status: "OWNER_PASS_CLOSED",
+    closedAt: "2026-08-03",
     checklist: [
       "Open http://localhost:3000/checkout/[slug]?cs=… after Buy Now",
       "Verify product card · address · delivery · payment · price summary · TOTAL PAY",
@@ -52,6 +55,7 @@ export const CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1 = {
       "data-checkout-freeze=CHECKOUT_UI_v1.0 preserved",
     ] as const,
     redesignForbidden: true,
+    note: "Owner written PASS 2026-08-03 — complete Checkout flow visually verified · Checkout v1.0 permanently frozen.",
   },
 
   blocker4RuntimeProof: {

@@ -35,7 +35,7 @@ If BUILD / CSS / TAILWIND / LAYOUT / PREVIEW fails → **the product does not ex
 
 - `styles/rovexo/index.css`  
 - `app/globals.css` (`@import "tailwindcss"`)  
-- `app/layout.tsx` (imports design system + globals)  
+- `app/(platform)/layout.tsx` (imports design system + globals)  
 - `postcss.config.mjs` (`@tailwindcss/postcss`)  
 
 ## Sprinters blocked until

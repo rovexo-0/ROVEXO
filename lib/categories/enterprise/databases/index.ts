@@ -6,6 +6,7 @@ export {
   MARKETPLACE_PATTERNS,
   FASHION_PATTERNS,
   HOME_PATTERNS,
+  PILLOW_PATTERNS,
   MARKETPLACE_PATTERNS_BY_VERTICAL,
 } from "@/lib/categories/enterprise/databases/patterns";
 
@@ -13,6 +14,7 @@ export {
   MARKETPLACE_STYLES,
   FASHION_STYLES,
   HOME_STYLES,
+  PILLOW_STYLES,
   MARKETPLACE_STYLES_BY_VERTICAL,
 } from "@/lib/categories/enterprise/databases/styles";
 

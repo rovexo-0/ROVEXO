@@ -37,7 +37,7 @@ describe("Canonical Edit Listing Engine v1.0", () => {
   });
 
   it("edit route is a thin SellPage loader — not a second form", () => {
-    const route = read("app/seller/listings/[id]/edit/page.tsx");
+    const route = read("app/(platform)/seller/listings/[id]/edit/page.tsx");
     expect(route).toContain("SellPage");
     expect(route).toContain("editListingId");
     expect(route).toContain("editListingSlug");
@@ -74,6 +74,8 @@ describe("Canonical Edit Listing Engine v1.0", () => {
 
   it("seller menu has Edit/Sold/Pause/Relist/Delete; buyer has Report/Block/Share", () => {
     const menu = read("features/product-detail/ProductListingActionsMenu.tsx");
+    const page = read("features/product-detail/ProductDetailPage.tsx");
+    const auth = read("features/auth/providers/AuthProvider.tsx");
     expect(menu).toContain("Edit Listing");
     expect(menu).toContain("Mark as Sold");
     expect(menu).toContain("Pause Listing");
@@ -84,6 +86,10 @@ describe("Canonical Edit Listing Engine v1.0", () => {
     expect(menu).toContain("Block Seller");
     expect(menu).toContain("Share");
     expect(menu).toContain('data-listing-actions-menu={isOwner ? "seller" : "buyer"}');
+    expect(page).toContain("viewerId === product.sellerId");
+    expect(page).toContain("isOwner={isOwnListing}");
+    expect(auth).toContain("invalidateAuthProfileCache");
+    expect(auth).toContain("loadProfileOnce(true)");
     expect(CANONICAL_EDIT_LISTING_ENGINE_V1.forbiddenSellerMenuActions).toContain(
       "report_listing",
     );

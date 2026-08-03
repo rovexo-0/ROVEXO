@@ -1,0 +1,26 @@
+browser launched
+cdp {
+   "Browser": "HeadlessChrome/149.0.7827.55",
+   "Protocol-Version": "1.3",
+   "User-Agent": "Mozilla/5.0 (X11; Linux 
+exit=0 login-perf AFTER-avif-login mobile
+exit=0 login-perf AFTER-avif-login desktop
+exit=0 lighthouse homepage mobile
+exit=0 lighthouse search mobile
+exit=0 lighthouse categories mobile
+exit=0 lighthouse category mobile
+exit=0 lighthouse listing mobile
+exit=0 lighthouse product mobile
+exit=0 lighthouse profile mobile
+exit=0 lighthouse sell mobile
+exit=0 lighthouse checkout mobile
+exit=0 lighthouse homepage desktop
+exit=0 lighthouse search desktop
+exit=0 lighthouse categories desktop
+exit=0 lighthouse category desktop
+exit=0 lighthouse listing desktop
+exit=0 lighthouse product desktop
+exit=0 lighthouse profile desktop
+exit=0 lighthouse sell desktop
+exit=0 lighthouse checkout desktop
+DONE_PW_LH

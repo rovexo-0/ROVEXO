@@ -16,6 +16,12 @@ import { generateInvoiceNumber } from "@/lib/invoices/receipt";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
+import {
+  isBundleCheckoutSnapshot,
+  type BundleCheckoutSnapshotV1,
+} from "@/lib/bundle/bundle-snapshot-v1";
+import { markBundlePaidAfterOrder } from "@/lib/bundle/bundle-lifecycle-v1";
+import { notifyBundlePurchased } from "@/lib/bundle/bundle-notification-matrix-v1";
 
 function primaryImage(
   images: Array<{ url: string; is_primary: boolean; sort_order: number }> | null | undefined,
@@ -61,6 +67,12 @@ export async function createOrderFromPaidCheckoutSession(input: {
   }
 
   const admin = createAdminClient();
+  const bundleSnapshot: BundleCheckoutSnapshotV1 | null = isBundleCheckoutSnapshot(
+    (session as CheckoutSessionRow).bundle_lines,
+  )
+    ? ((session as CheckoutSessionRow).bundle_lines as BundleCheckoutSnapshotV1)
+    : null;
+
   const { data: product } = await admin
     .from("products")
     .select(
@@ -69,7 +81,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
     .eq("id", session.listing_id)
     .maybeSingle();
 
-  if (!product) {
+  if (!product && !bundleSnapshot) {
     return { success: false, error: "Product not found." };
   }
 
@@ -79,7 +91,6 @@ export async function createOrderFromPaidCheckoutSession(input: {
   const total = Number(session.total);
   const { platformFee: feeCalc, sellerAmount } = calculateSellerNetAmount(itemPrice);
   const resolvedPlatformFee = Number.isFinite(platformFee) ? platformFee : feeCalc;
-  const imageUrl = primaryImage(product.product_images);
   const deliveryCarrier =
     input.deliveryCarrier?.trim() || getDeliveryCarrierFromQuote(null);
 
@@ -117,22 +128,54 @@ export async function createOrderFromPaidCheckoutSession(input: {
     return { success: false, error: "Unable to create order after payment." };
   }
 
-  await admin.from("order_items").insert({
-    order_id: orderRow.id,
-    product_id: product.id,
-    title: product.title,
-    slug: product.slug,
-    price: itemPrice,
-    image_url: imageUrl,
-    condition: product.condition,
-    quantity: 1,
-  });
+  if (bundleSnapshot) {
+    const orderItems = bundleSnapshot.lines.map((line) => ({
+      order_id: orderRow.id,
+      product_id: line.productId,
+      title: line.title,
+      slug: line.slug,
+      price: line.unitPrice,
+      image_url: line.imageUrl || PRODUCT_IMAGE_FALLBACK,
+      condition: line.condition || "good",
+      quantity: line.quantity,
+    }));
+    const { error: itemsError } = await admin.from("order_items").insert(orderItems);
+    if (itemsError) {
+      return { success: false, error: "Unable to create bundle order items." };
+    }
 
-  await admin
-    .from("cart_items")
-    .delete()
-    .eq("user_id", session.buyer_id)
-    .eq("product_id", product.id);
+    await admin
+      .from("cart_items")
+      .delete()
+      .eq("user_id", session.buyer_id)
+      .in(
+        "product_id",
+        bundleSnapshot.lines.map((line) => line.productId),
+      );
+
+    await markBundlePaidAfterOrder({
+      bundleId: bundleSnapshot.bundleId,
+      orderId: orderRow.id,
+    });
+  } else {
+    const imageUrl = primaryImage(product!.product_images);
+    await admin.from("order_items").insert({
+      order_id: orderRow.id,
+      product_id: product!.id,
+      title: product!.title,
+      slug: product!.slug,
+      price: itemPrice,
+      image_url: imageUrl,
+      condition: product!.condition,
+      quantity: 1,
+    });
+
+    await admin
+      .from("cart_items")
+      .delete()
+      .eq("user_id", session.buyer_id)
+      .eq("product_id", product!.id);
+  }
 
   if (shouldFulfill) {
     await CHECKOUT_SESSION_ENGINE_markPaid({
@@ -163,6 +206,16 @@ export async function createOrderFromPaidCheckoutSession(input: {
       })
       .eq("id", session.id)
       .eq("status", "open");
+  }
+
+  if (bundleSnapshot) {
+    void notifyBundlePurchased({
+      buyerId: session.buyer_id,
+      sellerId: session.seller_id,
+      snapshot: bundleSnapshot,
+      orderId: orderRow.id,
+      href: `/orders/${orderRow.id}`,
+    });
   }
 
   return { success: true, orderId: orderRow.id };

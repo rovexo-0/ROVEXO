@@ -15,6 +15,7 @@ import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
+import type { BundleCheckoutSnapshotV1 } from "@/lib/bundle/bundle-snapshot-v1";
 
 type CheckoutPageProps = {
   product: ProductDetail;
@@ -27,6 +28,7 @@ type CheckoutPageProps = {
   pendingOrderId?: string | null;
   /** Master Architecture — durable Checkout Session public_id. */
   checkoutSessionId?: string | null;
+  bundleSnapshot?: BundleCheckoutSnapshotV1 | null;
 };
 
 export function CheckoutPage({
@@ -38,6 +40,7 @@ export function CheckoutPage({
   acceptedOfferId = null,
   pendingOrderId = null,
   checkoutSessionId = null,
+  bundleSnapshot = null,
 }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -133,7 +136,7 @@ export function CheckoutPage({
         data-blood-code-xxiv="24.0"
         data-absolute-financial-law="1.0"
         data-checkout-sprint="VI"
-        data-checkout-sprint-status="IN-DEVELOPMENT"
+        data-checkout-sprint-status="PERMANENTLY-FROZEN"
         data-checkout-mode="EXECUTION"
       >
         {isSuccess && order ? (
@@ -157,6 +160,7 @@ export function CheckoutPage({
               form={form}
               buyerPhone={buyerPhone}
               initialStep={initialStep}
+              bundleSnapshot={bundleSnapshot}
             />
           </>
         )}

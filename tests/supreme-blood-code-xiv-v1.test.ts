@@ -84,7 +84,7 @@ describe("ROVEXO Supreme Blood Code XIV — Wallet Development Freeze Law", () =
     expect(isHomepageSearchBarRoute("/")).toBe(true);
     expect(isHomepageSearchBarRoute("/wallet")).toBe(false);
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    const route = readSource("app/wallet/page.tsx");
+    const route = readSource("app/(platform)/wallet/page.tsx");
     const config = readSource("next.config.ts");
     expect(hub).toContain("data-blood-code-xiv");
     expect(hub).toContain("data-blood-code-xiii");

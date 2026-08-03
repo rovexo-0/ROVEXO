@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { SellInlineError, SellNavRow } from "@/features/sell/ui/SellPrimitives";
 import { SellOptionPicker } from "@/features/sell/ui/SellOptionPicker";
+import { SizeSelector } from "@/features/size";
+import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
 import { CanonicalInput } from "@/src/components/canonical";
 import { useSellProgressiveFlow } from "@/features/sell/hooks/use-sell-progressive-flow";
 import { useSell } from "@/features/sell/context/SellProvider";
@@ -15,6 +17,7 @@ import {
 import { suggestionFieldFromAttributeId } from "@/lib/sell/suggestion-field-lock";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
 import type { SelectionOption } from "@/lib/sell/attribute-options";
+import { formatSizeForViewItem, resolveSizeEngineKind } from "@/lib/size";
 
 function parseMulti(raw: string): string[] {
   return raw
@@ -37,6 +40,9 @@ function resolveSuggestedOption(def: AttributeDef, suggestion: string | null): S
 
 function displayValue(def: AttributeDef, raw: string): string {
   if (!raw) return "";
+  if (def.id === "size") {
+    return formatSizeForViewItem(raw) ?? raw;
+  }
   if (def.input === "select-multi") {
     return formatMulti(
       parseMulti(raw).map((id) => def.options?.find((o) => o.id === id || o.label === id)?.label ?? id),
@@ -102,7 +108,7 @@ export function SellProgressiveAttributes() {
             <div key={def.id} id={fieldId} className="w-full max-w-none sell-aa-block">
               <CanonicalInput
                 id={`${fieldId}-input`}
-                label={def.label}
+                label={<ListingAttributeLabel>{def.label}</ListingAttributeLabel>}
                 value={raw}
                 inputMode={def.inputMode === "numeric" ? "numeric" : "text"}
                 onChange={(event) => {
@@ -142,7 +148,19 @@ export function SellProgressiveAttributes() {
         );
       })}
 
-      {activeDef ? (
+      {activeDef?.id === "size" ? (
+        <SizeSelector
+          key={`size-${readAttributeValue(draft, activeDef) || "empty"}-${draft.categoryPath?.pathLabel ?? ""}`}
+          kind={resolveSizeEngineKind(draft.categoryPath)}
+          value={readAttributeValue(draft, activeDef)}
+          onBack={() => setActiveId(null)}
+          onClose={() => setActiveId(null)}
+          onSelect={(storageValue) => {
+            writeValue(activeDef, storageValue);
+            setActiveId(null);
+          }}
+        />
+      ) : activeDef ? (
         <SellOptionPicker
           title={activeDef.label}
           attributeId={activeDef.id}

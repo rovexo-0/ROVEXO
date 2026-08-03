@@ -1,0 +1,28 @@
+=== LH login mobile ===
+exit=1 login mobile
+=== LH search mobile ===
+exit=1 search mobile
+=== LH homepage mobile ===
+exit=1 homepage mobile
+=== LH sell mobile ===
+exit=1 sell mobile
+=== LH checkout mobile ===
+exit=1 checkout mobile
+=== LH listing mobile ===
+exit=1 listing mobile
+=== LH product mobile ===
+exit=1 product mobile
+=== LH login desktop ===
+exit=1 login desktop
+=== LH search desktop ===
+exit=1 search desktop
+=== LH homepage desktop ===
+exit=1 homepage desktop
+=== LH sell desktop ===
+exit=1 sell desktop
+=== LH checkout desktop ===
+exit=1 checkout desktop
+=== LH listing desktop ===
+exit=1 listing desktop
+=== LH product desktop ===
+exit=1 product desktop

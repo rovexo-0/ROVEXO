@@ -61,8 +61,8 @@ describe("ROVEXO v1.0 — Social Media Removal + Marketplace Follow (XLVI)", () 
   });
 
   it("redirects legacy account/business followers routes to Profile", () => {
-    const account = readSource("app/account/followers/page.tsx");
-    const business = readSource("app/business/followers/page.tsx");
+    const account = readSource("app/(platform)/account/followers/page.tsx");
+    const business = readSource("app/(platform)/business/followers/page.tsx");
     expect(account).toContain('redirect("/account")');
     expect(business).toContain('redirect("/account")');
   });

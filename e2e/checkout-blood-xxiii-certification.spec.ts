@@ -56,17 +56,18 @@ test.describe.serial("Blood XXIII — Checkout certification journey", () => {
     buyerId = buyer.id;
     sellerId = seller.id;
 
+    /* Product SSOT uses status=published (not "active"). Prefer unsold stock for certification. */
     const { data: product } = await admin
       .from("products")
       .select("id, slug, title, status, stock, price")
       .eq("seller_id", sellerId)
-      .eq("status", "active")
+      .eq("status", "published")
       .gt("stock", 0)
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (!product?.slug) {
-      test.skip(true, "No active seller listing available for Checkout E2E.");
+      test.skip(true, "No published unsold seller listing available for Checkout E2E.");
     }
     productSlug = product!.slug;
     productTitle = product!.title;

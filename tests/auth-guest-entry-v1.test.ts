@@ -15,7 +15,7 @@ describe("AUTH guest entry v1 — Login (Welcome removed)", () => {
   it("wires middleware, logout, and signout to Login", () => {
     const middleware = readFileSync(join(process.cwd(), "lib/supabase/middleware.ts"), "utf8");
     const actions = readFileSync(join(process.cwd(), "lib/auth/actions.ts"), "utf8");
-    const signout = readFileSync(join(process.cwd(), "app/auth/signout/route.ts"), "utf8");
+    const signout = readFileSync(join(process.cwd(), "app/(platform)/auth/signout/route.ts"), "utf8");
     expect(middleware).toContain('loginUrl.pathname = "/login"');
     expect(actions).toContain('redirect("/login")');
     expect(signout).toContain('new URL("/login"');

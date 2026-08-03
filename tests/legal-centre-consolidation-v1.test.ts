@@ -37,7 +37,7 @@ describe("Legal Centre Consolidation v1.0", () => {
     expect(sections.flatMap((s) => s.rows.map((r) => r.title))).not.toContain("About ROVEXO");
 
     const aboutRoute = readFileSync(
-      join(process.cwd(), "app/account/settings/about/page.tsx"),
+      join(process.cwd(), "app/(platform)/account/settings/about/page.tsx"),
       "utf8",
     );
     expect(aboutRoute).toContain('redirect("/account/settings")');

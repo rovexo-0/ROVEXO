@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const REQUIRED_FILES = [
-  "app/buyer/page.tsx",
+  "app/(platform)/buyer/page.tsx",
   "components/buyer/BuyerDashboard.tsx",
   "components/buyer/BuyerHeader.tsx",
   "components/buyer/BuyerHero.tsx",
@@ -40,8 +40,8 @@ const REQUIRED_COMPONENT_FILES = [
 
 describe("Buying activity surface v1.0 — single source of truth", () => {
   it("uses the official Buying Master Menu hub", () => {
-    const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-    const buying = readFileSync(join(process.cwd(), "app/account/buying/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "app/(platform)/buyer/page.tsx"), "utf8");
+    const buying = readFileSync(join(process.cwd(), "app/(platform)/account/buying/page.tsx"), "utf8");
     expect(page).toContain('redirect("/account/buying")');
     expect(buying).toContain("BuyingHubPage");
     expect(page).not.toContain("BuyerDashboardV2");
@@ -68,8 +68,8 @@ describe("Buying activity surface v1.0 — single source of truth", () => {
   });
 
   it("loads buyer hub via /account/buying", () => {
-    const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-    const buying = readFileSync(join(process.cwd(), "app/account/buying/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "app/(platform)/buyer/page.tsx"), "utf8");
+    const buying = readFileSync(join(process.cwd(), "app/(platform)/account/buying/page.tsx"), "utf8");
     expect(page).toContain('redirect("/account/buying")');
     expect(buying).toContain("BuyingHubPage");
     expect(buying).toContain("getProfile");
@@ -81,6 +81,6 @@ describe("Buying activity surface v1.0 — single source of truth", () => {
     expect(homePage).toContain("CanonicalMarketplaceFeed");
     expect(homePage).toContain("CanonicalCategoryRail");
     expect(header).toContain('data-header-version="rovexo-v2"');
-    expect(existsSync(join(process.cwd(), "app/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/page.tsx"))).toBe(true);
   });
 });

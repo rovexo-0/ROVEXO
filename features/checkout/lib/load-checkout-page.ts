@@ -21,6 +21,10 @@ import {
   CHECKOUT_SESSION_ENGINE_getByPublicId,
   CHECKOUT_SESSION_ENGINE_isExpired,
 } from "@/lib/checkout/engines/checkout-session-engine-v1";
+import {
+  isBundleCheckoutSnapshot,
+  type BundleCheckoutSnapshotV1,
+} from "@/lib/bundle/bundle-snapshot-v1";
 
 export type CheckoutPagePropsOk = {
   kind: "ok";
@@ -34,6 +38,8 @@ export type CheckoutPagePropsOk = {
   orderId: string | null;
   transactionId: string | null;
   checkoutSessionId: string | null;
+  /** Locked bundle snapshot from checkout_sessions.bundle_lines — never reconstruct from listing. */
+  bundleSnapshot: BundleCheckoutSnapshotV1 | null;
 };
 
 export type CheckoutPagePropsBlocked = {
@@ -63,6 +69,7 @@ export async function loadCheckoutPageProps(
   const profile = await getProfile();
 
   let resolvedCsId: string | null = null;
+  let bundleSnapshot: BundleCheckoutSnapshotV1 | null = null;
 
   if (enforceBuyNowGuard) {
     await CHECKOUT_SESSION_ENGINE_expireAll();
@@ -104,6 +111,9 @@ export async function loadCheckoutPageProps(
         };
       }
       resolvedCsId = session.public_id;
+      if (isBundleCheckoutSnapshot(session.bundle_lines)) {
+        bundleSnapshot = session.bundle_lines;
+      }
     }
   }
 
@@ -164,11 +174,24 @@ export async function loadCheckoutPageProps(
 
   const listingPrice = resolveTransactionItemPrice({
     listingPrice: product.price,
-    acceptedOfferPrice: lockedOffer?.acceptedOfferPrice,
+    acceptedOfferPrice: lockedOffer?.acceptedOfferPrice ?? bundleSnapshot?.itemPrice,
   });
 
   const checkoutProduct =
-    lockedOffer != null ? { ...product, price: listingPrice } : product;
+    lockedOffer != null || bundleSnapshot != null
+      ? {
+          ...product,
+          price: bundleSnapshot?.itemPrice ?? listingPrice,
+          shippingPrice:
+            bundleSnapshot != null
+              ? bundleSnapshot.shipping
+              : product.shippingPrice,
+          title:
+            bundleSnapshot && bundleSnapshot.lines.length > 1
+              ? `Bundle · ${bundleSnapshot.lines.length} items`
+              : product.title,
+        }
+      : product;
 
   const admin = createAdminClient();
   const { data: phoneRow } = await admin
@@ -185,10 +208,12 @@ export async function loadCheckoutPageProps(
     initialDraft,
     liveShippingEnabled: isSendcloudConfigured(),
     buyerPhone: phoneRow?.phone ?? details?.phone ?? null,
-    acceptedOfferId: lockedOffer?.offerId ?? options?.offerId ?? null,
+    acceptedOfferId:
+      lockedOffer?.offerId ?? options?.offerId ?? bundleSnapshot?.offerId ?? null,
     listingPrice: product.price,
     orderId: null,
     transactionId: null,
     checkoutSessionId: resolvedCsId,
+    bundleSnapshot,
   };
 }

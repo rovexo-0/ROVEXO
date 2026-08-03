@@ -152,7 +152,7 @@ export const SUPREME_BLOOD_CODE_XIV_V1 = {
     doc: "docs/engineering/SUPREME_BLOOD_CODE_XIV_V1.md",
     parentStart: "lib/supreme-blood-code-xiii-v1.ts",
     page: "features/wallet/components/WalletHubV1.tsx",
-    route: "app/wallet/page.tsx",
+    route: "app/(platform)/wallet/page.tsx",
     routes: "lib/wallet/canonical-routes.ts",
   } as const,
 

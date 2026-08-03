@@ -28,8 +28,8 @@ describe("Wallet Master Menu SSOT — Balance hub v1.1", () => {
 
   it("matches Balance hub structure on Wallet engine components", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    const page = readSource("app/wallet/page.tsx");
-    const business = readSource("app/business/wallet/page.tsx");
+    const page = readSource("app/(platform)/wallet/page.tsx");
+    const business = readSource("app/(platform)/business/wallet/page.tsx");
 
     expect(hub).toContain('data-wallet-hub-version="v1.0-canonical"');
     expect(hub).toContain("wallet-v2__hero");
@@ -88,7 +88,7 @@ describe("Wallet Master Menu SSOT — Balance hub v1.1", () => {
   });
 
   it("legacy bank-account route redirects to bank-accounts hub", () => {
-    const legacy = readSource("app/wallet/bank-account/page.tsx");
+    const legacy = readSource("app/(platform)/wallet/bank-account/page.tsx");
     expect(legacy).toContain("WALLET_ROUTES.bankAccounts");
     expect(legacy).toContain("redirect");
   });

@@ -22,8 +22,8 @@ describe("Bring Your Item — Selling hub wiring (Absolute Final)", () => {
   });
 
   it("wires consumer import routes to live Master Menu pages", () => {
-    const byi = readSource("app/account/bring-your-item/page.tsx");
-    const connectors = readSource("app/seller/connectors/page.tsx");
+    const byi = readSource("app/(platform)/account/bring-your-item/page.tsx");
+    const connectors = readSource("app/(platform)/seller/connectors/page.tsx");
     expect(byi).toContain("MigrationCenterPage");
     expect(connectors).toContain("MarketplaceConnectorsPage");
     expect(byi).toContain("isStoreMigrationEnabled");
@@ -31,8 +31,8 @@ describe("Bring Your Item — Selling hub wiring (Absolute Final)", () => {
   });
 
   it("redirects legacy /import aliases to the account route constant", () => {
-    const legacyImport = readSource("app/import/page.tsx");
-    const legacyBring = readSource("app/bring-your-item/page.tsx");
+    const legacyImport = readSource("app/(platform)/import/page.tsx");
+    const legacyBring = readSource("app/(platform)/bring-your-item/page.tsx");
     expect(legacyImport).toContain("BRING_YOUR_ITEM_PATH");
     expect(legacyBring).toContain("BRING_YOUR_ITEM_PATH");
   });

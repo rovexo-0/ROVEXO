@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
 import { PrimaryButtonLink } from "@/src/components/canonical";
 import { OrdersListItem } from "@/features/orders/components/OrdersListItem";
 import { cn } from "@/lib/cn";
+import { subscribeOrdersRealtime } from "@/lib/orders/orders-realtime";
 import {
   ORDERS_UI_DOM,
   ORDERS_UI_VERSION,
@@ -13,7 +15,7 @@ import {
 } from "@/lib/orders/orders-v7-status";
 import { getMessageHref } from "@/lib/orders/status";
 import { SUPREME_BLOOD_CODE_XII_V1 } from "@/lib/supreme-blood-code-xii-v1";
-import type { Order } from "@/lib/orders/types";
+import type { Order, OrderStatus } from "@/lib/orders/types";
 import "@/styles/rovexo/orders-page-v1.css";
 
 type Tab = "sold" | "bought";
@@ -63,7 +65,7 @@ function detailHref(order: Order, tab: Tab): string {
 
 export function OrdersPageSkeleton() {
   return (
-    <div className="orders-page" aria-busy="true" aria-label="Loading orders">
+    <div className="orders-page" role="status" aria-busy="true" aria-label="Loading orders">
       <div className="orders-page__tabs">
         <div className="orders-page__skel orders-page__skel--tab" />
         <div className="orders-page__skel orders-page__skel--tab" />
@@ -95,11 +97,23 @@ function resolveOrdersTab(
 export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tab = resolveOrdersTab(
-    searchParams.get("tab"),
-    boughtOrders.length,
-    soldOrders.length,
-  );
+  const auth = useAuthOptional();
+  const userId = auth?.profile?.id ?? null;
+  const [bought, setBought] = useState(boughtOrders);
+  const [sold, setSold] = useState(soldOrders);
+  const [boughtSource, setBoughtSource] = useState(boughtOrders);
+  const [soldSource, setSoldSource] = useState(soldOrders);
+
+  /* Adjust local RT state when server props change — render-time sync (no effect setState). */
+  if (boughtOrders !== boughtSource) {
+    setBoughtSource(boughtOrders);
+    setBought(boughtOrders);
+  }
+  if (soldOrders !== soldSource) {
+    setSoldSource(soldOrders);
+    setSold(soldOrders);
+  }
+  const tab = resolveOrdersTab(searchParams.get("tab"), bought.length, sold.length);
   const statusParam = searchParams.get("status");
   const chip: Chip =
     statusParam === "in_progress" ||
@@ -108,7 +122,7 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
       ? statusParam
       : "all";
 
-  const orders = tab === "sold" ? soldOrders : boughtOrders;
+  const orders = tab === "sold" ? sold : bought;
   const visible = useMemo(
     () =>
       orders
@@ -116,6 +130,25 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
     [orders, chip],
   );
+
+  /* Realtime Certification v1.1 — patch in place. Forbidden: router.refresh / reload. */
+  useEffect(() => {
+    if (!userId) return;
+    const patch = (list: Order[], row: { id?: string; status?: string }): Order[] => {
+      const id = typeof row.id === "string" ? row.id : "";
+      if (!id) return list;
+      return list.map((order) =>
+        order.id === id && typeof row.status === "string"
+          ? { ...order, status: row.status as OrderStatus }
+          : order,
+      );
+    };
+    const sub = subscribeOrdersRealtime(userId, (row) => {
+      setBought((prev) => patch(prev, row));
+      setSold((prev) => patch(prev, row));
+    });
+    return () => sub.unsubscribe();
+  }, [userId]);
 
   /* Phase A1 — warm Conversation RSC payloads so Orders → Hub feels instant. */
   useEffect(() => {

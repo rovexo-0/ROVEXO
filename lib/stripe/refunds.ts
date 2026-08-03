@@ -1,6 +1,45 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { applyOrderRefundLifecycle } from "@/lib/orders/refund-lifecycle.server";
+import { mustUseVirtualPayments } from "@/lib/full-demo/security";
+
+function isVirtualPaymentIntentId(paymentIntentId: string | null | undefined): boolean {
+  if (!paymentIntentId) return false;
+  return (
+    paymentIntentId.startsWith("pi_virtual_") ||
+    paymentIntentId.startsWith("pi_dev_") ||
+    paymentIntentId.startsWith("demo_pay_") ||
+    paymentIntentId.startsWith("virtual_")
+  );
+}
+
+async function applyVirtualOrderRefund(
+  orderId: string,
+  amount: number,
+  options?: { notifySeller?: boolean },
+): Promise<{ refundId: string; refundedAmount: number; refundedAt?: string; skipped: true }> {
+  const admin = createAdminClient();
+  const refundId = `virtual-refund-${orderId}`;
+  await applyOrderRefundLifecycle({
+    orderId,
+    refundId,
+    amount,
+    stripeStatus: "succeeded",
+    paymentMethod: "Original payment method",
+    notifySeller: options?.notifySeller,
+  });
+  const { data: updated } = await admin
+    .from("orders")
+    .select("refund_completed_at")
+    .eq("id", orderId)
+    .maybeSingle();
+  return {
+    refundId,
+    refundedAmount: amount,
+    refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
+    skipped: true,
+  };
+}
 
 export async function createOrderStripeRefund(
   orderId: string,
@@ -28,47 +67,19 @@ export async function createOrderStripeRefund(
     };
   }
 
+  const amount = Number(order.total);
+  const virtualPi = isVirtualPaymentIntentId(order.stripe_payment_intent_id);
+
   if (!order.stripe_payment_intent_id) {
-    if (!isStripeConfigured()) {
-      const refundId = `dev-refund-${orderId}`;
-      const refundedAmount = Number(order.total);
-      await applyOrderRefundLifecycle({
-        orderId,
-        refundId,
-        amount: refundedAmount,
-        stripeStatus: "succeeded",
-        paymentMethod: "Original payment method",
-        notifySeller: options?.notifySeller,
-      });
-      const { data: updated } = await admin.from("orders").select("refund_completed_at").eq("id", orderId).maybeSingle();
-      return {
-        refundId,
-        refundedAmount,
-        refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
-        skipped: true,
-      };
+    if (!isStripeConfigured() || mustUseVirtualPayments()) {
+      return applyVirtualOrderRefund(orderId, amount, options);
     }
     return { error: "No payment intent found for this order." };
   }
 
-  if (!isStripeConfigured()) {
-    const refundId = `dev-refund-${orderId}`;
-    const refundedAmount = Number(order.total);
-    await applyOrderRefundLifecycle({
-      orderId,
-      refundId,
-      amount: refundedAmount,
-      stripeStatus: "succeeded",
-      paymentMethod: "Original payment method",
-      notifySeller: options?.notifySeller,
-    });
-    const { data: updated } = await admin.from("orders").select("refund_completed_at").eq("id", orderId).maybeSingle();
-    return {
-      refundId,
-      refundedAmount,
-      refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
-      skipped: true,
-    };
+  // Virtual / demo PIs must never hit live Stripe refunds.
+  if (virtualPi || mustUseVirtualPayments() || !isStripeConfigured()) {
+    return applyVirtualOrderRefund(orderId, amount, options);
   }
 
   const stripe = getStripeClient();

@@ -1,0 +1,13 @@
+/**
+ * ROVEXO Auth-route CSS entry — login/register/forgot/reset/verify/welcome/splash.
+ * RC7 — minimal auth-critical sheets only (auth-v1 owns compact/platform auth visuals).
+ * Marketplace sheets (universal-ui / compact-premium wallet rules / full-width / phone-width /
+ * layout / mobile-scroll) stay on platform `index.css` only — no visual redesign of auth.
+ */
+@import "../tokens.css";
+@import "./typography.css";
+@import "./forms.css";
+@import "./auth-v1.css";
+@import "./primary-button-v1.css";
+@import "./platform-canonical-ui.css";
+@import "./icon-standard-v1.css";

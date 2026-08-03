@@ -50,6 +50,7 @@ export async function CheckoutSlugPage({
       initialStep={initialStep}
       pendingOrderId={result.orderId}
       checkoutSessionId={result.checkoutSessionId}
+      bundleSnapshot={result.bundleSnapshot}
     />
   );
 }

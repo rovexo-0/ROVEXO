@@ -127,7 +127,7 @@ describe("AI category recovery bridge", () => {
     ],
   };
 
-  it("asks for confirmation below auto-select but above none when confidence is under 90%", () => {
+  it("asks for confirmation below auto-select but above none when confidence is under 95%", () => {
     const analysis = buildResultFromVisionPayload(visionPayload, "vision");
     const detection = categoryDetectionFromAiAnalysis(
       analysis,
@@ -140,7 +140,7 @@ describe("AI category recovery bridge", () => {
     expect(detection.tier).toBe("suggest");
   });
 
-  it("applies brand and condition without forcing category when confidence needs confirmation", () => {
+  it("never auto-applies brand/colour/size/condition from AI (COD SÂNGE)", () => {
     const analysis = buildResultFromVisionPayload(visionPayload, "vision");
     const patch = applyAiAnalysisFields(analysis, {
       title: "",
@@ -151,8 +151,10 @@ describe("AI category recovery bridge", () => {
       description: "",
     });
 
-    expect(patch.brand).toBe("Nike");
-    expect(patch.condition).toBe("Good");
+    expect(patch.brand).toBeUndefined();
+    expect(patch.color).toBeUndefined();
+    expect(patch.size).toBeUndefined();
+    expect(patch.condition).toBeUndefined();
     expect(patch.categoryPath).toBeUndefined();
   });
 

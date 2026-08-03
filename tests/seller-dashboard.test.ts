@@ -3,10 +3,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const REQUIRED_FILES = [
-  "app/seller/page.tsx",
-  "app/seller/layout.tsx",
-  "app/seller/loading.tsx",
-  "app/seller/error.tsx",
+  "app/(platform)/seller/page.tsx",
+  "app/(platform)/seller/layout.tsx",
+  "app/(platform)/seller/loading.tsx",
+  "app/(platform)/seller/error.tsx",
   "lib/account-center/selling-menu.ts",
   "features/account-center/components/SellingMenuSections.tsx",
   "components/seller/SellerSkeleton.tsx",
@@ -17,7 +17,7 @@ const REQUIRED_FILES = [
 
 describe("Selling workspace v1.0 — single source of truth", () => {
   it("uses the official /seller route with Account Center module", () => {
-    const page = readFileSync(join(process.cwd(), "app/seller/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "app/(platform)/seller/page.tsx"), "utf8");
     expect(page).toContain("AccountCenterModulePage");
     expect(page).toContain('moduleId="selling"');
     expect(page).not.toContain("SellerDashboardV2");
@@ -25,7 +25,7 @@ describe("Selling workspace v1.0 — single source of truth", () => {
   });
 
   it("redirects legacy /seller/dashboard", () => {
-    const legacy = readFileSync(join(process.cwd(), "app/seller/dashboard/page.tsx"), "utf8");
+    const legacy = readFileSync(join(process.cwd(), "app/(platform)/seller/dashboard/page.tsx"), "utf8");
     expect(legacy).toContain('redirect("/seller")');
   });
 

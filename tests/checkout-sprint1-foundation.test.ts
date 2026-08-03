@@ -8,16 +8,16 @@ function readSource(relativePath: string): string {
 
 describe("Checkout Sprint 1 foundation SSOT", () => {
   it("keeps one checkout URL; address/payment routes redirect", () => {
-    expect(existsSync(join(process.cwd(), "app/checkout/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/[slug]/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/[slug]/address/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/[slug]/payment/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/[slug]/review/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/[slug]/success/page.tsx"))).toBe(true);
-    expect(existsSync(join(process.cwd(), "app/checkout/success/page.tsx"))).toBe(true);
-    const address = readSource("app/checkout/[slug]/address/page.tsx");
-    const payment = readSource("app/checkout/[slug]/payment/page.tsx");
-    const review = readSource("app/checkout/[slug]/review/page.tsx");
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/[slug]/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/[slug]/address/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/[slug]/payment/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/[slug]/review/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/[slug]/success/page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "app/(platform)/checkout/success/page.tsx"))).toBe(true);
+    const address = readSource("app/(platform)/checkout/[slug]/address/page.tsx");
+    const payment = readSource("app/(platform)/checkout/[slug]/payment/page.tsx");
+    const review = readSource("app/(platform)/checkout/[slug]/review/page.tsx");
     expect(address).toContain("redirect");
     expect(payment).toContain("redirect");
     expect(review).toContain("redirect");

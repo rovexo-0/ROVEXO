@@ -15,6 +15,7 @@ import { closeSearchAndReturnHome } from "@/lib/navigation/homepage-scroll-resto
 import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 import { SEARCH_MIN_CHARS } from "@/features/search/types";
 import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
+import { subscribeSearchListingsRealtime } from "@/lib/realtime/search-listings-realtime";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 
@@ -74,6 +75,7 @@ export function SearchResultsView({
   const hasBrowseTarget = Boolean(query) || Boolean(category);
 
   const [items, setItems] = useState<Product[]>([]);
+  const [rtTick, setRtTick] = useState(0);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -125,6 +127,18 @@ export function SearchResultsView({
     return () => controller.abort();
   }, [hasBrowseTarget, loadPage, startTransition]);
 
+  /* Realtime Certification — listing publish/pause/delete updates results without F5. */
+  useEffect(() => {
+    if (!hasBrowseTarget) return;
+    const sub = subscribeSearchListingsRealtime(() => {
+      setRtTick((tick) => tick + 1);
+      startTransition(() => {
+        void loadPage(1, false);
+      });
+    });
+    return () => sub.unsubscribe();
+  }, [hasBrowseTarget, loadPage, startTransition]);
+
   useIntersectionWhenVisible(
     () => {
       startTransition(() => {
@@ -170,6 +184,7 @@ export function SearchResultsView({
         className="srch-results srch-results--empty"
         data-search-version="v1.0-final"
         data-empty-state="no-products-v1"
+        data-search-rt-tick={rtTick}
       >
         <div className="srch-results__empty-chrome">
           <button
@@ -209,7 +224,11 @@ export function SearchResultsView({
   }
 
   return (
-    <div className="srch-results" data-search-version="v1.0-final" data-ui-polish-phase1="search-v1">
+    <div className="srch-results"
+      data-search-version="v1.0-final"
+      data-ui-polish-phase1="search-v1"
+      data-search-rt-tick={rtTick}
+    >
       <div className="srch-results__top">
         <button
           type="button"

@@ -36,7 +36,7 @@ describe("ROVEXO Store SSOT — seller_id → store_id → store_slug", () => {
   });
 
   it("store route resolves via repository SSOT — not business-only username gate", () => {
-    const page = readSource("app/store/[slug]/page.tsx");
+    const page = readSource("app/(platform)/store/[slug]/page.tsx");
     expect(page).toContain("resolveStoreByRouteParam");
     expect(page).not.toContain("role !== \"business\"");
     expect(page).not.toContain("ILIKE");
@@ -44,7 +44,7 @@ describe("ROVEXO Store SSOT — seller_id → store_id → store_slug", () => {
   });
 
   it("user route loads store via same repository", () => {
-    const page = readSource("app/user/[username]/page.tsx");
+    const page = readSource("app/(platform)/user/[username]/page.tsx");
     expect(page).toContain("resolveStoreByRouteParam");
     expect(page).toContain("StoreUnavailablePage");
     expect(page).not.toContain("notFound(");

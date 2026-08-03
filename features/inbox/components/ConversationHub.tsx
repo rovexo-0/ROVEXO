@@ -380,6 +380,12 @@ export function ConversationHub({
             buyerId: string;
             fromRole?: "buyer" | "seller";
             parentOfferId?: string | null;
+            bundle?: {
+              bundleId: string | null;
+              itemCount: number;
+              listSubtotal: number;
+              quantitySum: number;
+            } | null;
           }>;
         }>(
           offersKey,
@@ -393,6 +399,12 @@ export function ConversationHub({
           buyerId: string;
           fromRole?: "buyer" | "seller";
           parentOfferId?: string | null;
+          bundle?: {
+            bundleId: string | null;
+            itemCount: number;
+            listSubtotal: number;
+            quantitySum: number;
+          } | null;
         }> })),
       ]);
 
@@ -421,6 +433,14 @@ export function ConversationHub({
           fromRole: offer.fromRole === "seller" || offer.fromRole === "buyer" ? offer.fromRole : "buyer",
           createdAt: offer.createdAt,
           parentOfferId: offer.parentOfferId ?? null,
+          bundle: offer.bundle
+            ? {
+                bundleId: offer.bundle.bundleId ?? null,
+                itemCount: offer.bundle.itemCount,
+                listSubtotal: offer.bundle.listSubtotal,
+                quantitySum: offer.bundle.quantitySum,
+              }
+            : null,
         })),
       );
 
@@ -635,6 +655,36 @@ export function ConversationHub({
     const sub = subscribeConversationRealtime(
       conversation.id,
       (event) => {
+        if (event.type === "message.created" && event.payload) {
+          const row = event.payload;
+          const id = String(row.id ?? "");
+          if (id) {
+            setConversation((current) => {
+              if (current.messages.some((message) => message.id === id)) return current;
+              const incoming: ChatMessage = {
+                id,
+                senderRole: (row.sender_role as ChatMessage["senderRole"]) ?? "buyer",
+                kind: (row.kind as ChatMessage["kind"]) ?? "text",
+                content: row.deleted_at ? "Message deleted" : String(row.content ?? ""),
+                sentAt: String(row.sent_at ?? new Date().toISOString()),
+                status: (row.status as ChatMessage["status"]) ?? "delivered",
+                replyToId: row.reply_to_id ? String(row.reply_to_id) : null,
+                editedAt: row.edited_at ? String(row.edited_at) : null,
+                deletedAt: row.deleted_at ? String(row.deleted_at) : null,
+                reactions: (row.reactions as Record<string, string[]>) ?? {},
+                moderationWarning: row.moderation_warning
+                  ? String(row.moderation_warning)
+                  : null,
+              };
+              return {
+                ...current,
+                messages: [...current.messages, incoming],
+                lastMessage: incoming.content,
+                lastMessageAt: incoming.sentAt,
+              };
+            });
+          }
+        }
         if (
           event.type === "badge.updated" ||
           event.type === "message.created" ||
@@ -1305,6 +1355,7 @@ export function ConversationHub({
         productSlug: conversation.product.slug,
         offerId: acceptedOffer?.id ?? null,
         conversationId: conversation.id,
+        bundleId: acceptedOffer?.bundle?.bundleId ?? null,
         onError: (message) => pushToast({ title: message, variant: "error" }),
       });
       if (!result.ok) return;
@@ -1891,6 +1942,12 @@ export function ConversationHub({
                             <p className="conv-hub__offer-list">{formatCurrency(listingPrice)}</p>
                           ) : null}
                         </div>
+                        {offer.bundle ? (
+                          <p className="conv-hub__offer-list">
+                            Bundle · {offer.bundle.itemCount} items · list{" "}
+                            {formatCurrency(offer.bundle.listSubtotal)}
+                          </p>
+                        ) : null}
                       </div>
                       {!fromBuyer ? (
                         <Avatar

@@ -191,7 +191,7 @@ export const SUPREME_BLOOD_CODE_XXI_V1 = {
     III: "LOCKED",
     IV: "LOCKED",
     V: "LOCKED",
-    VI: "IN_DEVELOPMENT",
+    VI: "LOCKED",
     VII: "FORBIDDEN_TO_START",
     VIII: "FORBIDDEN_TO_START",
   } as const,

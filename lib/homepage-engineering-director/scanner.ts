@@ -85,7 +85,9 @@ function scanComponentRegistry(
       sourceRef: "features/header/HeaderProvider.tsx",
       complete:
         header.includes('data-header-version="rovexo-v2"') &&
-        (readSource("app/layout.tsx").includes("HeaderProvider") ||
+        (readSource("components/layout/PlatformChromeProviders.tsx").includes(
+          "HeaderProvider",
+        ) ||
           page.includes("<RovexoHeaderV2") ||
           page.includes("RovexoHeaderV2")),
       message: "Canonical Header V2 with integrated search (HeaderProvider)",

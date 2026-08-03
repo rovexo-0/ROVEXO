@@ -1,9 +1,10 @@
-"use client";
-
-import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { CANONICAL_LOGO_ENGINE_V1 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
-import { OFFICIAL_BRAND_PRIMARY_EMBLEM } from "@/lib/brand/official-brand-application-v1";
+import {
+  OFFICIAL_BRAND_ASSET_REGISTRY,
+  OFFICIAL_BRAND_LEVEL,
+  OFFICIAL_BRAND_PRIMARY_EMBLEM,
+} from "@/lib/brand/official-brand-application-v1";
 
 type RovexoBrandLogoProps = {
   className?: string;
@@ -14,15 +15,19 @@ type RovexoBrandLogoProps = {
   variant?: "full" | "rx";
 };
 
+/** Level II PNG SSOT — AVIF sibling used for LCP byte weight (same artwork). */
+const PRIMARY_EMBLEM_LCP_SRC =
+  OFFICIAL_BRAND_ASSET_REGISTRY.levels[OFFICIAL_BRAND_LEVEL.II_PRIMARY_EMBLEM].avif;
+
 /**
  * Authentication brand mark — Absolute Blood Laws XXXVIII · XXXIX · XLI.
  * PRIMARY EMBLEM only (RX + Protective Hands).
- * Centered · certified scale · no stretch · no background · no CSS slogan.
- * Visual identity FINAL FREEZE under XLI until ROVEXO v2.0.
+ * RC7: plain <img> (no client image wrapper) for login LCP — same asset/size/appearance.
  */
 export function RovexoBrandLogo({ className, variant = "full" }: RovexoBrandLogoProps) {
   void CANONICAL_LOGO_ENGINE_V1.law;
   void variant;
+  void OFFICIAL_BRAND_PRIMARY_EMBLEM;
 
   return (
     <div
@@ -38,15 +43,15 @@ export function RovexoBrandLogo({ className, variant = "full" }: RovexoBrandLogo
       data-auth-experience-freeze="XLI"
       aria-label="ROVEXO"
     >
-      <SafeImage
-        src={OFFICIAL_BRAND_PRIMARY_EMBLEM}
+      {/* eslint-disable-next-line @next/next/no-img-element -- auth LCP: static AVIF, identical certified box */}
+      <img
+        src={PRIMARY_EMBLEM_LCP_SRC}
         alt="ROVEXO"
-        width={844}
-        height={644}
+        width={180}
+        height={137}
         className="rovexo-brand-logo__canonical-img"
-        priority
-        quality={100}
-        unoptimized
+        fetchPriority="high"
+        decoding="sync"
       />
     </div>
   );

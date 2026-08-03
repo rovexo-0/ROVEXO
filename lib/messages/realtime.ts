@@ -4,6 +4,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 export function subscribeToConversationMessages(
   conversationId: string,
   onInsert: (payload: Record<string, unknown>) => void,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel | null {
   const supabase = tryCreateClient();
   if (!supabase) return null;
@@ -22,7 +23,9 @@ export function subscribeToConversationMessages(
         onInsert(payload.new as Record<string, unknown>);
       },
     )
-    .subscribe();
+    .subscribe((status) => {
+      onStatus?.(status);
+    });
 }
 
 export function subscribeToConversationMeta(

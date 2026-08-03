@@ -23,6 +23,8 @@ const ALLOWLIST = new Set([
   "scripts/migrate-single-source-of-truth.mjs",
   "tests/ux-architecture.test.ts",
   "tests/single-source-of-truth.test.ts",
+  // Super Admin Command Centre header tokens (sa-premium-page-*) — not consumer marketplace UI.
+  "features/command-centre/SuperAdminPageHeader.tsx",
 ]);
 
 function walk(dir: string, files: string[] = []): string[] {
@@ -38,11 +40,14 @@ function walk(dir: string, files: string[] = []): string[] {
 
 describe("ROVEXO UX architecture — zero legacy presentation", () => {
   it("loads design system from a single rovexo entry in layout", () => {
-    const layout = readFileSync(join(process.cwd(), "app/layout.tsx"), "utf8");
-    expect(layout).toContain("@/styles/rovexo/index.css");
-    expect(layout).not.toContain("premium-2026");
-    expect(layout).not.toContain("locked-2026");
-    expect(layout).not.toContain("dashboard-v1");
+    const rootLayout = readFileSync(join(process.cwd(), "app/layout.tsx"), "utf8");
+    const platformLayout = readFileSync(join(process.cwd(), "app/(platform)/layout.tsx"), "utf8");
+    /* RC6 — full design system on platform group only (auth uses auth-entry). */
+    expect(platformLayout).toContain("@/styles/rovexo/index.css");
+    expect(rootLayout).not.toContain("@/styles/rovexo/index.css");
+    expect(rootLayout).not.toContain("premium-2026");
+    expect(rootLayout).not.toContain("locked-2026");
+    expect(rootLayout).not.toContain("dashboard-v1");
   });
 
   it("does not reference deleted legacy CSS files in source", () => {
@@ -54,6 +59,7 @@ describe("ROVEXO UX architecture — zero legacy presentation", () => {
         const rel = file.replace(process.cwd() + "\\", "").replace(process.cwd() + "/", "");
         if (ALLOWLIST.has(rel.replace(/\\/g, "/"))) continue;
         if (rel.replace(/\\/g, "/").startsWith("features/super-admin/")) continue;
+        if (rel.replace(/\\/g, "/").startsWith("features/command-centre/")) continue;
         const content = readFileSync(file, "utf8");
         for (const pattern of LEGACY_PATTERNS) {
           if (pattern.test(content)) {

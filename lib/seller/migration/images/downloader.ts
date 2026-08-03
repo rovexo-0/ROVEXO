@@ -5,6 +5,11 @@ import {
   MIGRATION_IMAGE_DOWNLOAD_RETRIES,
   MIGRATION_IMAGE_MAX_BYTES,
 } from "@/lib/seller/migration/images/config";
+import {
+  safeFetch,
+  SsrfBlockedError,
+  assertSafeOutboundUrlSync,
+} from "@/lib/security/ssrf-guard-v1";
 
 export class ImageDownloadError extends Error {
   readonly retryable: boolean;
@@ -21,9 +26,10 @@ export async function downloadImageBuffer(url: string): Promise<Buffer> {
 
   for (let attempt = 0; attempt < MIGRATION_IMAGE_DOWNLOAD_RETRIES; attempt += 1) {
     try {
-      const response = await fetch(url, {
+      const response = await safeFetch(url, {
         signal: AbortSignal.timeout(20_000),
         headers: { Accept: "image/*" },
+        ssrf: { allowHttp: true },
       });
 
       if (!response.ok) {
@@ -49,6 +55,9 @@ export async function downloadImageBuffer(url: string): Promise<Buffer> {
 
       return buffer;
     } catch (error) {
+      if (error instanceof SsrfBlockedError) {
+        throw new ImageDownloadError(error.message, false);
+      }
       lastError = error instanceof Error ? error : new Error("Image download failed.");
       if (error instanceof ImageDownloadError && !error.retryable) break;
       await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
@@ -63,6 +72,10 @@ export function hashImageBuffer(buffer: Buffer): string {
 }
 
 export function isValidImageUrl(url: string): boolean {
-  const trimmed = url.trim();
-  return trimmed.startsWith("http://") || trimmed.startsWith("https://");
+  try {
+    assertSafeOutboundUrlSync(url.trim(), { allowHttp: true });
+    return true;
+  } catch {
+    return false;
+  }
 }

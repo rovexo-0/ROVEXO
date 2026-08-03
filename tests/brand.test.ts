@@ -50,12 +50,22 @@ describe("Official ROVEXO canonical logo engine", () => {
     const layout = readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
     const manifest = readFileSync(path.join(process.cwd(), "app/manifest.ts"), "utf8");
     expect(layout).toContain("/brand/og-image.png");
-    expect(layout).toContain("/brand/canonical-rx/app-icon-v1.png");
+    expect(layout).toContain("/favicon.ico");
+    expect(layout).toContain("/icons/icon-192.png");
+    expect(layout).toContain("/icons/icon-512.png");
+    expect(layout).toContain("/apple-touch-icon.png");
     expect(layout).not.toContain("/brand/canonical-rx/rx-mark-v3.png");
     expect(manifest).toContain("CANONICAL_RX_PWA_SIZES");
     expect(manifest).toContain("CANONICAL_RX_APP_ICON");
     expect(manifest).toContain("icon-maskable-512.png");
     expect(CANONICAL_LOGO_ENGINE_V1.background).toBe("ABSOLUTE_TRANSPARENT");
     expect(CANONICAL_LOGO_ENGINE_V1.freezeLocked).toBe(true);
+  });
+
+  it("ships apple-touch-icon + required favicon matrix sizes", () => {
+    expect(existsSync(path.join(process.cwd(), "public/apple-touch-icon.png"))).toBe(true);
+    for (const size of [32, 48, 64, 192, 512]) {
+      expect(existsSync(path.join(process.cwd(), `public/icons/icon-${size}.png`))).toBe(true);
+    }
   });
 });

@@ -1,31 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { createEmptyDraft } from "@/features/sell/types";
-import { applyDeterministicPrefill, buildDeterministicPrefill } from "@/lib/sell/deterministic-prefill";
+import {
+  applyDeterministicPrefill,
+  buildDeterministicPrefill,
+  suggestBrandFromText,
+  suggestColourFromTitle,
+  suggestConditionFromText,
+} from "@/lib/sell/deterministic-prefill";
 
-describe("deterministic sell prefill", () => {
-  it("extracts brand and storage from iPhone title", () => {
+describe("deterministic sell prefill — COD SÂNGE manual attributes", () => {
+  it("never auto-writes brand, material, colour, condition, or storage into the draft", () => {
     const draft = createEmptyDraft();
     draft.title = "Apple iPhone 15 Pro Max 256GB Unlocked Like New";
     const patch = buildDeterministicPrefill(draft);
-    expect(patch.brand).toBe("Apple");
-    expect(patch.attributes?.storage).toBe("256GB");
-    expect(patch.condition).toBe("Like New");
+    expect(patch).toEqual({});
   });
 
-  it("extracts memory foam material from pillow title", () => {
+  it("never auto-writes memory foam material from pillow titles", () => {
     const draft = createEmptyDraft();
     draft.title = "Tempur memory foam pillow excellent condition";
-    const patch = buildDeterministicPrefill(draft);
-    expect(patch.brand).toBeUndefined();
-    expect(patch.material).toBe("Memory Foam");
-    expect(patch.condition).toBe("Very Good");
+    expect(buildDeterministicPrefill(draft)).toEqual({});
   });
 
-  it("never overwrites existing user values", () => {
+  it("keeps heuristics available as picker suggestions only", () => {
+    expect(suggestBrandFromText("Apple iPhone 15")).toBe("Apple");
+    expect(suggestColourFromTitle("Black travel pillow")).toBe("Black");
+    expect(suggestConditionFromText("Like New")).toBe("Like New");
+  });
+
+  it("applyDeterministicPrefill still respects non-empty user values when given a patch", () => {
     const draft = createEmptyDraft();
-    draft.title = "Samsung Galaxy S24";
     draft.brand = "Sony";
-    const merged = applyDeterministicPrefill(draft, buildDeterministicPrefill(draft));
+    const merged = applyDeterministicPrefill(draft, { brand: "Apple" });
     expect(merged.brand).toBeUndefined();
   });
 });

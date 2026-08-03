@@ -65,7 +65,7 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
     (!draft.categoryPath || live.betterSuggestionAvailable);
 
   return (
-    <section className="sell-category-flow" data-sell-category-block="v1.0" aria-label="Category">
+    <section className="sell-category-flow" data-sell-category-block="v1.0">
       {showSuggestion && live.suggestion ? (
         <SellCategorySuggestionCard
           suggestion={live.suggestion}
@@ -77,10 +77,10 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
       <div className="sell-category-flow__row">
         <SellNavRow
           label="Category"
-          value={draft.categoryPath?.pathLabel}
+          description={draft.categoryPath?.pathLabel}
           hasError={Boolean(categoryError)}
           onClick={() => setOpen(true)}
-          ariaLabel={draft.categoryPath ? "Change category" : "Category"}
+          ariaLabel={draft.categoryPath ? "Change category" : undefined}
           iconFieldId="category"
         />
         {draft.categoryPath ? (

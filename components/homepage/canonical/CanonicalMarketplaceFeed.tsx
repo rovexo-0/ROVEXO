@@ -49,7 +49,10 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
 
   const [items, setItems] = useState<Product[]>(seedItems);
   const [page, setPage] = useState(initialPage.page);
-  const [hasMore, setHasMore] = useState(initialPage.hasMore || seedItems.length > 0);
+  // SSOT: trust API `hasMore` only. Never force true from seed length —
+  // that mounted the infinite-scroll sentinel inside the CSS grid as a blank slot
+  // whenever the last page had any items (e.g. 5 cards → empty 6th cell).
+  const [hasMore, setHasMore] = useState(Boolean(initialPage.hasMore));
   // When SSR seeded zero items we intend to fetch page 1 immediately, so the
   // very first render must show the loading skeleton — never the empty state.
   const [loading, setLoading] = useState(seedItems.length === 0);
@@ -79,7 +82,7 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
 
         if (!response.ok) {
           feedDebugLog("fetch:error", { targetPage, status: response.status });
-          if (mode === "append") setHasMore(false);
+          setHasMore(false);
           return;
         }
 
@@ -114,7 +117,7 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
           return mergedItems;
         });
         setPage(payload.page);
-        setHasMore(payload.hasMore);
+        setHasMore(Boolean(payload.hasMore));
       } finally {
         fetchingRef.current = false;
         setLoading(false);
@@ -192,23 +195,21 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
         {showInitialSkeleton ? (
           <CanonicalFeedSkeletonGrid count={columnCount * 2} />
         ) : (
-          <>
-            {items.map((product, index) => (
-              <ListingCard
-                key={product.id}
-                product={product}
-                variant="grid"
-                priority={index < 2}
-                {...HP_CANONICAL_LISTING_PROPS}
-              />
-            ))}
-            {/* Sentinel MUST be after all cards — mid-grid span collapses the 2-col layout. */}
-            {hasMore ? (
-              <div ref={sentinelRef} className={css.feedSentinel} aria-hidden />
-            ) : null}
-          </>
+          items.map((product, index) => (
+            <ListingCard
+              key={product.id}
+              product={product}
+              variant="grid"
+              priority={index < 2}
+              {...HP_CANONICAL_LISTING_PROPS}
+            />
+          ))
         )}
       </div>
+      {/* Sentinel MUST stay outside the CSS grid — an in-grid child becomes a blank slot. */}
+      {hasMore && !showInitialSkeleton ? (
+        <div ref={sentinelRef} className={css.feedSentinel} aria-hidden />
+      ) : null}
       {loading && items.length > 0 ? (
         <p className={css.feedLoading} role="status" aria-live="polite">
           Loading more listings…

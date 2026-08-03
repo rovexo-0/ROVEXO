@@ -28,7 +28,7 @@ describe("ROVEXO Supreme Blood Code XI — Development Freeze Law", () => {
     expect(SUPREME_BLOOD_CODE_XI_V1.sprints.III.completion).toBe("100_COMPLETE");
     expect(SUPREME_BLOOD_CODE_XI_V1.sprints.IV.status).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XI_V1.sprints.V.status).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XI_V1.sprints.VI.status).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XI_V1.sprints.VI.status).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentSprint).toBe("VI");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentModule).toBe("CHECKOUT");
     expect(SUPREME_BLOOD_CODE_XI_V1.currentAllowedRoute).toBe("/checkout");

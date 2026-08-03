@@ -53,19 +53,19 @@ function scanDefectDiscovery(scan: MarketplaceCompletionScanResult): { checks: C
     if (check.includes("ui") || check.includes("ux")) pass = scan.globalUiPass;
     if (check.includes("form")) pass = hasUi;
     if (check.includes("validation") || check.includes("permission") || check.includes("authorization")) pass = fileExists("middleware.ts");
-    if (check.includes("search") || check.includes("filter")) pass = fileExists("app/search/page.tsx");
-    if (check.includes("categor")) pass = fileExists("app/categories/page.tsx");
-    if (check.includes("listing")) pass = fileExists("app/listing/[slug]/page.tsx");
-    if (check.includes("checkout")) pass = fileExists("app/checkout/[slug]/page.tsx");
-    if (check.includes("payment")) pass = fileExists("app/account/payment-methods/page.tsx");
-    if (check.includes("wallet")) pass = fileExists("app/wallet/page.tsx");
-    if (check.includes("shipping")) pass = fileExists("app/shipping/page.tsx");
-    if (check.includes("messag")) pass = fileExists("app/messages/page.tsx");
-    if (check.includes("notification")) pass = fileExists("app/notifications/page.tsx");
+    if (check.includes("search") || check.includes("filter")) pass = fileExists("app/(platform)/search/page.tsx");
+    if (check.includes("categor")) pass = fileExists("app/(platform)/categories/page.tsx");
+    if (check.includes("listing")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
+    if (check.includes("checkout")) pass = fileExists("app/(platform)/checkout/[slug]/page.tsx");
+    if (check.includes("payment")) pass = fileExists("app/(platform)/account/payment-methods/page.tsx");
+    if (check.includes("wallet")) pass = fileExists("app/(platform)/wallet/page.tsx");
+    if (check.includes("shipping")) pass = fileExists("app/(platform)/shipping/page.tsx");
+    if (check.includes("messag")) pass = fileExists("app/(platform)/messages/page.tsx");
+    if (check.includes("notification")) pass = fileExists("app/(platform)/notifications/page.tsx");
     if (check.includes("responsive")) pass = scan.globalUiPass && premiumStylesActive();
     if (check.includes("accessibility")) pass = scan.globalUiPass;
     if (check.includes("seo")) pass = scan.homepagePass;
-    if (check.includes("analytics")) pass = fileExists("app/seller/analytics/page.tsx");
+    if (check.includes("analytics")) pass = fileExists("app/(platform)/seller/analytics/page.tsx");
     if (check.includes("authentication")) pass = fileExists("lib/supabase/middleware.ts");
     if (check.includes("webhook") || check.includes("background")) pass = scan.launchReadinessPass;
     if (check === "broken-ui") pass = !homeContent.includes("CategoryGridSection") && scan.globalUiPass;
@@ -103,9 +103,9 @@ function scanQualityValidation(scan: MarketplaceCompletionScanResult): Completio
     "marketplace-rule": "middleware.ts",
     "business-rule": "middleware.ts",
     "role-permission": "middleware.ts",
-    notification: "app/notifications/page.tsx",
+    notification: "app/(platform)/notifications/page.tsx",
     email: ".env.example",
-    "push-notification": "app/notifications/page.tsx",
+    "push-notification": "app/(platform)/notifications/page.tsx",
     "scheduled-job": "middleware.ts",
   };
 
@@ -136,7 +136,7 @@ function buildZeroDefectGates(scan: MarketplaceCompletionScanResult, criticalCou
   const mapping: Partial<Record<(typeof ZERO_DEFECT_GATES)[number], boolean>> = {
     "critical-defects-zero": criticalCount === 0,
     "broken-checkout": scan.modules.find((m) => m.moduleId === "checkout")?.complete ?? false,
-    "broken-listing-publish": fileExists("app/sell/page.tsx"),
+    "broken-listing-publish": fileExists("app/(platform)/sell/page.tsx"),
     "broken-search": scan.modules.find((m) => m.moduleId === "search")?.complete ?? false,
     "broken-homepage": scan.homepagePass,
     "broken-categories": scan.modules.find((m) => m.moduleId === "categories")?.complete ?? false,

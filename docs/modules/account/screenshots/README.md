@@ -4,7 +4,7 @@ Attach visual-QA captures here at freeze time.
 
 Authoritative live reference:
 
-https://rovexo-git-develop-rovexo.vercel.app/account
+https://rovexo-git-develop-rovexo.vercel.app/(platform)/account
 
 Suggested filenames:
 

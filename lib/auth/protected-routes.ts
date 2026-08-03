@@ -48,6 +48,9 @@ export const AUTH_PUBLIC_PREFIXES = [
   "/reset-password",
 ] as const;
 
+/** MFA challenge surface — public relative to guest gate; requires AAL1 session. */
+export const AUTH_MFA_CHALLENGE_PATH = "/login/mfa" as const;
+
 export function isAuthProtectedPath(pathname: string): boolean {
   return AUTH_PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),

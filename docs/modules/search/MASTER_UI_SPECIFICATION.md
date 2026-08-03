@@ -32,7 +32,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/search/page.tsx` |
+| Route | `app/(platform)/search/page.tsx` |
 | Landing | `features/search/components/SearchLandingView.tsx` |
 | Results | `features/search/components/SearchResultsView.tsx` |
 | Typeahead | `features/search/components/SearchTypeaheadPanel.tsx` |

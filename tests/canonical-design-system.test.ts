@@ -137,7 +137,7 @@ describe("ROVEXO Canonical Design System v1.0", () => {
   });
 
   it("does not modify locked homepage or my account hub", () => {
-    const homepage = readSource("app/page.tsx");
+    const homepage = readSource("app/(platform)/page.tsx");
     const accountHub = readSource("features/account-center/components/AccountCenterHome.tsx");
     expect(homepage).not.toContain("src/components/canonical");
     expect(accountHub).not.toContain("src/components/canonical");

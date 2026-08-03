@@ -57,13 +57,16 @@ export const VIEW_ITEM_UI_UX_FREEZE_V1 = {
   stock: {
     onceUnderPrice: true,
     forbiddenInInformationTable: true,
+    /** Bundle Engine Master Spec — hide under-price status when stock == 1. */
+    statusOnlyWhenStockGreaterThan: 1,
     quantityOnlyWhenStockGreaterThan: 1,
   } as const,
 
   bundle: {
-    /** Deferred — ROVEXO Bundle Engine v1.0 (Owner Preview Certification excludes Bundle). */
-    deferredToBundleEngine: true,
-    includedInThisPreview: false,
+    deferredToBundleEngine: false,
+    includedInThisPreview: true,
+    engine: "lib/bundle/bundle-engine-v1.ts",
+    extensionsOnly: true,
   } as const,
 
   scroll: {

@@ -47,7 +47,7 @@ describe("Account + Cart canonical UI v1", () => {
   it("locks Personal Wallet Master Menu hub markers", () => {
     const wallet = readSource("features/wallet/components/WalletHubV1.tsx");
     const page = readSource("features/wallet/components/WalletPage.tsx");
-    const withdraw = readSource("app/wallet/withdraw/page.tsx");
+    const withdraw = readSource("app/(platform)/wallet/withdraw/page.tsx");
 
     expect(wallet).toContain('data-wallet-hub-version="v1.0-canonical"');
     expect(wallet).toContain("wallet-v2__hero");
@@ -81,9 +81,9 @@ describe("Account + Cart canonical UI v1", () => {
     const summary = readSource("features/checkout/components/OrderSummary.tsx");
     const price = readSource("features/checkout/components/CheckoutPriceSummary.tsx");
     const css = readSource("styles/rovexo/checkout-v1.css");
-    const address = readSource("app/checkout/[slug]/address/page.tsx");
-    const payment = readSource("app/checkout/[slug]/payment/page.tsx");
-    const review = readSource("app/checkout/[slug]/review/page.tsx");
+    const address = readSource("app/(platform)/checkout/[slug]/address/page.tsx");
+    const payment = readSource("app/(platform)/checkout/[slug]/payment/page.tsx");
+    const review = readSource("app/(platform)/checkout/[slug]/review/page.tsx");
 
     expect(wizard).toContain('data-checkout-version="v1.0"');
     expect(wizard).toContain('data-checkout-sprint="3-qa"');
@@ -117,7 +117,7 @@ describe("Account + Cart canonical UI v1", () => {
 describe("My Account module v1.0", () => {
   it("locks profile view markers", () => {
     const profile = readSource("features/account/components/ProfileEditPage.tsx");
-    const route = readSource("app/account/profile/page.tsx");
+    const route = readSource("app/(platform)/account/profile/page.tsx");
     expect(profile).toContain("MyAccountTemplate");
     expect(profile).toContain("Profile Photo");
     expect(route).toContain("ProfileEditPage");
@@ -125,15 +125,15 @@ describe("My Account module v1.0", () => {
   });
 
   it("locks listings orders saved settings v1 routes", () => {
-    const listingsRoute = readSource("app/seller/listings/page.tsx");
+    const listingsRoute = readSource("app/(platform)/seller/listings/page.tsx");
     expect(listingsRoute).toContain("SellerListingsV1");
     expect(listingsRoute).not.toContain("isSeller");
     expect(listingsRoute).toContain('dynamic = "force-dynamic"');
-    expect(readSource("app/orders/page.tsx")).toContain("<OrdersPage");
-    expect(readSource("app/saved/page.tsx")).toContain("SavedItemsV1");
-    expect(readSource("app/account/reviews/page.tsx")).toContain("ReviewsV1");
-    expect(readSource("app/account/settings/page.tsx")).toContain("SettingsV1");
-    expect(readSource("app/account/verification/page.tsx")).toContain("VerificationHubPage");
+    expect(readSource("app/(platform)/orders/page.tsx")).toContain("<OrdersPage");
+    expect(readSource("app/(platform)/saved/page.tsx")).toContain("SavedItemsV1");
+    expect(readSource("app/(platform)/account/reviews/page.tsx")).toContain("ReviewsV1");
+    expect(readSource("app/(platform)/account/settings/page.tsx")).toContain("SettingsV1");
+    expect(readSource("app/(platform)/account/verification/page.tsx")).toContain("VerificationHubPage");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-tabs");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-saved-grid");
   });

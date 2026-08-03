@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
   compress: true,
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
+  /**
+   * Force metadata into the initial HTML for all user-agents (incl. Lighthouse).
+   * Default Next bot-only blocking left listing/category meta-description audits at 0
+   * under Chrome streaming metadata (RC4 / Owner Acceptance A2).
+   */
+  htmlLimitedBots: /.*/,
   // Pin workspace root so Next.js does not pick up parent lockfiles on Windows.
   outputFileTracingRoot: projectRoot,
   /**

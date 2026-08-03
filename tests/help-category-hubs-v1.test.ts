@@ -63,7 +63,7 @@ describe("Help Centre category hubs v1.0", () => {
   });
 
   it("category route prefers hubs over placeholder decision trees", () => {
-    const page = readFileSync(join(process.cwd(), "app/help/category/[slug]/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "app/(platform)/help/category/[slug]/page.tsx"), "utf8");
     expect(page).toContain("HelpCategoryHubPage");
     expect(page).toContain("isHelpCategoryHubSlug");
   });

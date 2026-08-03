@@ -1,36 +1,37 @@
 /**
  * ROVEXO SUPREME BLOOD CODE XXIII
- * SPRINT VI — CHECKOUT · APPROVED TO START · EXECUTION MODE
- * 100% VERIFIED + 100% AUDITED = REQUIRED GATES (not invent PASS)
+ * SPRINT VI — CHECKOUT · OWNER CERTIFIED · PERMANENT FREEZE
+ * 100% VERIFIED + 100% AUDITED + OWNER VISUAL = REQUIRED GATES (not invent PASS)
  *
- * STATUS: APPROVED TO START · IN DEVELOPMENT · BLOOD CODE XXIII LOCKED · 2026-07-23
+ * STATUS: 100% COMPLETE · OWNER CERTIFIED · PERMANENT FREEZE · 2026-08-03
  * NEVER REMOVE
  *
- * Sprint VI may modify ONLY http://localhost:3000/checkout
+ * Sprint VI may modify ONLY http://localhost:3000/checkout (post-freeze: critical only)
  * One Checkout = one entry point = /checkout
- * Live: IN_DEVELOPMENT — NOT Owner-certified freeze until Owner Certification PASS.
+ * Live: LOCKED — Owner visually verified complete Checkout flow · Checkout v1.0 frozen.
  *
  * ONE CLICK = ONE PAYMENT = ONE ORDER = ONE TRANSACTION
  */
 
 export const SUPREME_BLOOD_CODE_XXIII_V1 = {
   version: "23.0",
-  codename: "SPRINT_VI_CHECKOUT_APPROVED_TO_START",
-  status: "APPROVED_TO_START",
+  codename: "SPRINT_VI_CHECKOUT_OWNER_CERTIFIED_PERMANENT_FREEZE",
+  status: "100_COMPLETE_OWNER_CERTIFIED_PERMANENT_FREEZE",
   sprint: "VI" as const,
   module: "CHECKOUT" as const,
-  developmentStatus: "IN_DEVELOPMENT" as const,
-  mode: "EXECUTION_MODE" as const,
+  developmentStatus: "PERMANENTLY_FROZEN" as const,
+  mode: "POST_FREEZE_CRITICAL_ONLY" as const,
   verifiedGateRequired: true,
   auditedGateRequired: true,
   approvedByOwner: true,
   bloodCodeLocked: true,
-  freezeLocked: false,
-  permanentlyFrozen: false,
-  complete100: false,
-  ownerCertified: false,
+  freezeLocked: true,
+  permanentlyFrozen: true,
+  complete100: true,
+  ownerCertified: true,
   neverRemove: true,
   approvedAt: "2026-07-23",
+  ownerCertifiedAt: "2026-08-03",
 
   absoluteScopeLaw: {
     mayModifyOnly: "http://localhost:3000/checkout",
@@ -274,7 +275,7 @@ export const SUPREME_BLOOD_CODE_XXIII_V1 = {
     III: "LOCKED",
     IV: "LOCKED",
     V: "LOCKED",
-    VI: "IN_DEVELOPMENT",
+    VI: "LOCKED",
     VII: "FORBIDDEN_TO_START",
     VIII: "FORBIDDEN_TO_START",
   } as const,

@@ -1,0 +1,21 @@
+browser launched
+cdp {
+   "Browser": "HeadlessChrome/149.0.7827.55",
+   "Protocol-Version": "1.3",
+   "User-Agent": "Mozilla/5.0 (X11; Linux 
+slug marketplace-refund-item-1785772486359-msdetxj2
+exit=0 login mobile
+exit=0 search mobile
+exit=0 homepage mobile
+exit=0 sell mobile
+exit=0 checkout mobile
+exit=0 listing mobile
+exit=0 product mobile
+exit=0 login desktop
+exit=0 search desktop
+exit=0 homepage desktop
+exit=0 sell desktop
+exit=0 checkout desktop
+exit=0 listing desktop
+exit=0 product desktop
+DONE_PW_LH

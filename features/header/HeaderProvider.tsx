@@ -1,15 +1,18 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 import { SEARCH_PRIORITY_FREEZE_V1 } from "@/lib/header/search-priority-freeze-v1";
 import {
   HOMEPAGE_SEARCH_BAR_ONLY_V1,
   isHomepageSearchBarRoute,
 } from "@/lib/header/homepage-search-bar-only-v1";
-import "@/styles/rovexo/header-v2.css";
+
+const RovexoHeaderV2 = dynamic(() => import("@/components/header/RovexoHeaderV2"), {
+  ssr: false,
+});
 
 type HeaderChrome = {
   showSearch: boolean;
@@ -30,6 +33,7 @@ function resolveHeaderChrome(pathname: string): HeaderChrome {
 /**
  * ONE ROVEXO Header — Search Bar mounts on Homepage only (permanent Owner freeze).
  * Off Homepage: component does not exist (unmounted, never CSS-hidden).
+ * RC6: header module + CSS load only when homepage chrome mounts (login LCP isolation).
  */
 export function HeaderProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "";

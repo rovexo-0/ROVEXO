@@ -90,14 +90,14 @@ const MODULE_PROBES: ModuleProbe[] = [
   {
     id: "admin",
     label: "Admin",
-    requiredPaths: ["app/admin/layout.tsx"],
-    requiredSnippets: [{ id: "noindex", path: "app/admin/layout.tsx", contains: "index: false" }],
+    requiredPaths: ["app/(platform)/admin/layout.tsx"],
+    requiredSnippets: [{ id: "noindex", path: "app/(platform)/admin/layout.tsx", contains: "index: false" }],
   },
   {
     id: "super_admin",
     label: "Super Admin",
-    requiredPaths: ["app/super-admin/layout.tsx"],
-    requiredSnippets: [{ id: "noindex", path: "app/super-admin/layout.tsx", contains: "index: false" }],
+    requiredPaths: ["app/(platform)/super-admin/layout.tsx"],
+    requiredSnippets: [{ id: "noindex", path: "app/(platform)/super-admin/layout.tsx", contains: "index: false" }],
   },
   {
     id: "seo",

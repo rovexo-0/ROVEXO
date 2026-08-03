@@ -181,7 +181,8 @@ describe("Transaction Mode — enterprise certification", () => {
     it("uses capability engine on listing page (one page, dynamic layout)", () => {
       const page = readSource("features/product-detail/ProductDetailPage.tsx");
       expect(page).toContain("getTransactionCapabilities");
-      expect(page).toContain("capabilities.shipping");
+      expect(page).toContain("capabilities.buyNow");
+      expect(page).toContain("capabilities.checkout");
       expect(page).toContain("transactionMode={product.transactionMode}");
       expect(page).toContain('data-pd-detail-version="cod-sange-v3.1"');
     });

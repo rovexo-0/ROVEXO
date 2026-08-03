@@ -13,7 +13,7 @@ function readSource(relativePath: string): string {
  */
 
 const WALLET_UI_FILES = [
-  "app/wallet/page.tsx",
+  "app/(platform)/wallet/page.tsx",
   "features/wallet/components/WalletHubV1.tsx",
   "features/wallet/components/WalletPage.tsx",
   "features/wallet/components/BankAccountForm.tsx",

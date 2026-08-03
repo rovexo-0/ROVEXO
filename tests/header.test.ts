@@ -57,11 +57,14 @@ describe("official header design", () => {
   });
 
   it("routes marketplace through HeaderProvider identical chrome (no per-page header)", () => {
-    const page = readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+    const page = readFileSync(path.join(process.cwd(), "app/(platform)/page.tsx"), "utf8");
     const header = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     const provider = readFileSync(path.join(process.cwd(), "features/header/HeaderProvider.tsx"), "utf8");
-    const layout = readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
-    expect(layout).toContain("HeaderProvider");
+    const chrome = readFileSync(
+      path.join(process.cwd(), "components/layout/PlatformChromeProviders.tsx"),
+      "utf8",
+    );
+    expect(chrome).toContain("HeaderProvider");
     expect(provider).toContain('layout="default"');
     expect(provider).toContain("SEARCH_PRIORITY_FREEZE_V1");
     expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);

@@ -145,7 +145,7 @@ describe("ROVEXO Absolute Financial Law v1.0 / Blood XXIV", () => {
     expect(ABSOLUTE_MASTER_FREEZE_V1.childFreezes).toMatchObject({
       supremeBloodCodeXxiv: "lib/supreme-blood-code-xxiv-v1.ts",
     });
-    expect(SUPREME_BLOOD_CODE_XXIII_V1.developmentStatus).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XXIII_V1.developmentStatus).toBe("PERMANENTLY_FROZEN");
   });
 
   it("persists rule and doc", () => {

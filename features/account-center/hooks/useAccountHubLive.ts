@@ -20,9 +20,12 @@ type UseAccountHubLiveInput = {
 type AccountHubLiveState = {
   snapshot: AccountHubSnapshot;
   wallet: WalletData | null;
+  rtTick: number;
 };
 
-async function fetchAccountHubLiveState(signal?: AbortSignal): Promise<AccountHubLiveState> {
+async function fetchAccountHubLiveState(
+  signal?: AbortSignal,
+): Promise<Omit<AccountHubLiveState, "rtTick">> {
   const response = await fetchDeduped("/api/account/snapshot", {
     cache: "no-store",
     signal,
@@ -33,7 +36,10 @@ async function fetchAccountHubLiveState(signal?: AbortSignal): Promise<AccountHu
     throw new Error("Unable to refresh account snapshot.");
   }
 
-  const payload = (await response.json()) as AccountHubLiveState;
+  const payload = (await response.json()) as {
+    snapshot: AccountHubSnapshot;
+    wallet?: WalletData | null;
+  };
   return {
     snapshot: payload.snapshot,
     wallet: payload.wallet ?? null,
@@ -48,17 +54,16 @@ export function useAccountHubLive({
   const [state, setState] = useState<AccountHubLiveState>({
     snapshot: initialSnapshot,
     wallet: initialWallet,
+    rtTick: 0,
   });
   const refreshTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(false);
 
-  const applyState = useCallback((next: AccountHubLiveState) => {
-    setState(next);
+  const applyState = useCallback((next: Omit<AccountHubLiveState, "rtTick">) => {
+    setState((prev) => ({ ...next, rtTick: prev.rtTick }));
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!isDocumentVisible()) return;
-
     try {
       const next = await fetchAccountHubLiveState();
       applyState(next);
@@ -69,7 +74,7 @@ export function useAccountHubLive({
   }, [applyState]);
 
   const scheduleRefresh = useCallback(() => {
-    if (!isDocumentVisible()) return;
+    setState((prev) => ({ ...prev, rtTick: prev.rtTick + 1 }));
     if (refreshTimerRef.current !== null) {
       window.clearTimeout(refreshTimerRef.current);
     }

@@ -34,7 +34,7 @@ export function AccountCenterHome({
   holidayModeEnabled = false,
 }: AccountCenterHomeProps) {
   void sellerPerformance;
-  const { snapshot: liveSnapshot, wallet: liveWallet } = useAccountHubLive({
+  const { snapshot: liveSnapshot, wallet: liveWallet, rtTick } = useAccountHubLive({
     userId: profile.id,
     snapshot,
     wallet,
@@ -51,6 +51,11 @@ export function AccountCenterHome({
       data-account-menu="profile-v1"
       data-account-version="v1.0"
       data-profile-scope="main-only"
+      data-hub-listings={liveSnapshot.listings}
+      data-hub-saved={liveSnapshot.saved}
+      data-hub-orders={liveSnapshot.orders}
+      data-hub-reviews={liveSnapshot.reviewCount}
+      data-hub-rt-tick={rtTick}
     >
       <AccountCanonicalProfile profile={profile} snapshot={liveSnapshot} />
       <AccountMenuSections

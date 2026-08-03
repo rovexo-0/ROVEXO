@@ -15,6 +15,7 @@
 /test-results/
 /playwright-report/
 .playwright-vercel-chromium.json
+.playwright-webkit-launchable
 
 # next.js
 /.next/
@@ -22,6 +23,10 @@
 
 # production
 /build
+
+# ROVEXO Backup Engine v1.0 artifacts (may contain DB dumps / env copies)
+.rovexo-backups/
+BACKUP_REPORT.md
 
 # misc
 .DS_Store
@@ -76,6 +81,7 @@ _wip/
 tmp/
 .local-chromium-libs/
 .local-chromium-deps/
+.local-webkit-libs/
 
 # Local package manager cache — never part of release
 .pnpm-store/

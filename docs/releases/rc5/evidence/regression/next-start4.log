@@ -1,0 +1,66 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.2.12
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 79ms
+⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/components_layout_platform-design-system-css_ts_0gr6h_2._.js from module 460752
+    at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:766:27)
+    at <unknown> (.next/server/chunks/ssr/_0yxbn3j._.js:1:7066)
+    at Array.map (<anonymous>)
+    at <unknown> (.next/server/chunks/ssr/_0yxbn3j._.js:1:7057)
+    at Context.asyncLoader [as A] (.next/server/chunks/ssr/[turbopack]_runtime.js:291:12)
+    at j (.next/server/chunks/ssr/[root-of-the-server]__1y5ku-1._.js:1:37748) {
+  digest: '2179590662',
+  [cause]: Error: Cannot find module '/home/mihai/ROVEXO/.next/server/chunks/ssr/components_layout_platform-design-system-css_ts_0gr6h_2._.js'
+  Require stack:
+  - /home/mihai/ROVEXO/.next/server/chunks/ssr/[turbopack]_runtime.js
+  - /home/mihai/ROVEXO/.next/server/app/(auth)/forgot-password/page.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/require.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next-server.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/lib/start-server.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/cli/next-start.js
+      at ignore-listed frames {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/home/mihai/ROVEXO/.next/server/chunks/ssr/[turbopack]_runtime.js',
+      '/home/mihai/ROVEXO/.next/server/app/(auth)/forgot-password/page.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/require.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next-server.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/lib/start-server.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/cli/next-start.js'
+    ]
+  }
+}
+⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/components_layout_platform-design-system-css_ts_0gr6h_2._.js from module 460752
+    at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:766:27)
+    at <unknown> (.next/server/chunks/ssr/_0yxbn3j._.js:1:7066)
+    at Array.map (<anonymous>)
+    at <unknown> (.next/server/chunks/ssr/_0yxbn3j._.js:1:7057)
+    at Context.asyncLoader [as A] (.next/server/chunks/ssr/[turbopack]_runtime.js:291:12)
+    at j (.next/server/chunks/ssr/[root-of-the-server]__1y5ku-1._.js:1:37748) {
+  digest: '2179590662',
+  [cause]: Error: Cannot find module '/home/mihai/ROVEXO/.next/server/chunks/ssr/components_layout_platform-design-system-css_ts_0gr6h_2._.js'
+  Require stack:
+  - /home/mihai/ROVEXO/.next/server/chunks/ssr/[turbopack]_runtime.js
+  - /home/mihai/ROVEXO/.next/server/app/(auth)/forgot-password/page.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/require.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next-server.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/lib/start-server.js
+  - /home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/cli/next-start.js
+      at ignore-listed frames {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/home/mihai/ROVEXO/.next/server/chunks/ssr/[turbopack]_runtime.js',
+      '/home/mihai/ROVEXO/.next/server/app/(auth)/forgot-password/page.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/require.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next-server.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/next.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/lib/start-server.js',
+      '/home/mihai/ROVEXO/node_modules/.pnpm/next@16.2.12_@babel+core@7.29.7_@playwright+test@1.61.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/cli/next-start.js'
+    ]
+  }
+}
+Killed

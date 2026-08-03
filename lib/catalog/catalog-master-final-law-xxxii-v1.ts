@@ -198,9 +198,13 @@ export function certifyCatalogMasterProductionRelease(
     "Colour database must match Law XXXII compact list",
   );
 
-  const sampleSlug =
-    CATALOG_SECTORS[0]?.departments[0]?.items?.[0]?.[1] ?? "generic";
-  const brands = getBrandsForProductType(sampleSlug);
+  const sampleSector = CATALOG_SECTORS[0];
+  const sampleDept = sampleSector?.departments[0];
+  const sampleSlug = sampleDept?.items?.[0]?.[1] ?? "generic";
+  const brands = getBrandsForProductType(sampleSlug, {
+    rootSlug: sampleSector?.slug ?? "womens-fashion",
+    subcategorySlug: sampleDept?.slug ?? "clothing",
+  });
   add(
     "curated-brands",
     "Curated Brand Database",

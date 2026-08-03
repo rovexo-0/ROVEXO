@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { chromium, devices, firefox, webkit } from "@playwright/test";
+import { buildCrossBrowserCertificationProjects } from "./playwright-cross-browser-projects.mjs";
+import { buildMobileDeviceCertificationProjects } from "./playwright-mobile-device-projects.mjs";
+import { buildAccessibilityCertificationProjects } from "./playwright-accessibility-projects.mjs";
+import { buildRealtimeCertificationProjects } from "./playwright-realtime-projects.mjs";
+
+const IGNORE_CERT_SPECS =
+  /sell-android\.spec\.ts|cross-browser-certification\.spec\.ts|mobile-device-certification\.spec\.ts|accessibility-certification\.spec\.ts|realtime-certification\.spec\.ts|account-android\.spec\.ts/;
 
 function hasVercelChromiumOverride() {
   if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) return true;
@@ -15,8 +22,8 @@ function isBrowserInstalled(browserType) {
     return true;
   }
   try {
-    browserType.executablePath();
-    return true;
+    const executablePath = browserType.executablePath();
+    return typeof executablePath === "string" && fs.existsSync(executablePath);
   } catch {
     return false;
   }
@@ -63,7 +70,7 @@ export function buildDesktopProjects() {
 
   return installed.map(({ name, device }) => ({
     name,
-    testIgnore: /sell-android\.spec\.ts/,
+    testIgnore: IGNORE_CERT_SPECS,
     use: { ...device },
   }));
 }
@@ -99,17 +106,17 @@ export function buildAllProjects() {
     mobileAndTablet.push(
       {
         name: "edge-chromium",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: { ...devices["Desktop Edge"] },
       },
       {
         name: "iphone-safari",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: { ...devices["iPhone 14"] },
       },
       {
         name: "iphone-chrome",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: {
           ...devices["iPhone 14"],
           userAgent:
@@ -124,7 +131,7 @@ export function buildAllProjects() {
       },
       {
         name: "samsung-internet",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: {
           ...devices["Galaxy S9+"],
           userAgent:
@@ -133,19 +140,19 @@ export function buildAllProjects() {
       },
       {
         name: "tablet-ipad-portrait",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: { ...devices["iPad Pro 11"] },
       },
       {
         name: "tablet-ipad-landscape",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: {
           ...devices["iPad Pro 11 landscape"],
         },
       },
       {
         name: "desktop-wide",
-        testIgnore: /sell-android\.spec\.ts/,
+        testIgnore: IGNORE_CERT_SPECS,
         use: {
           viewport: { width: 1440, height: 900 },
           userAgent: devices["Desktop Chrome"].userAgent,
@@ -154,5 +161,13 @@ export function buildAllProjects() {
     );
   }
 
-  return [...desktop, ...mobileAndTablet, buildAndroidSellProject()];
+  return [
+    ...desktop,
+    ...mobileAndTablet,
+    buildAndroidSellProject(),
+    ...buildCrossBrowserCertificationProjects(),
+    ...buildMobileDeviceCertificationProjects(),
+    ...buildAccessibilityCertificationProjects(),
+    ...buildRealtimeCertificationProjects(),
+  ];
 }

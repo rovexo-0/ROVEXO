@@ -106,7 +106,7 @@ describe("Cluster 9 Reviews, Ratings & Reputation Scope Lock", () => {
     expect(lock.exclusions.trustReview.canonicalRuntime).toBe(false);
     expect(lock.exclusions.withdrawReviewStep.canonicalRuntime).toBe(false);
 
-    const superAdminReviews = readSource("app/super-admin/reviews/page.tsx");
+    const superAdminReviews = readSource("app/(platform)/super-admin/reviews/page.tsx");
     expect(superAdminReviews).toMatch(/rolling out|next platform release/i);
   });
 

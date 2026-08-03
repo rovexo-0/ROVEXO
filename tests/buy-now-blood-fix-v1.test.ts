@@ -90,7 +90,7 @@ describe("Buy Now BLOOD FIX v1.0 / Root Cause Detection", () => {
     const product = readSource("features/product-detail/ProductDetailPage.tsx");
     const conversationHub = readSource("features/inbox/components/ConversationHub.tsx");
     const form = readSource("features/checkout/hooks/use-checkout-form.ts");
-    const error = readSource("app/checkout/error.tsx");
+    const error = readSource("app/(platform)/checkout/error.tsx");
 
     expect(product).toContain("executeBuyNow");
     expect(product).toContain("buildBuyNowCheckoutHref");

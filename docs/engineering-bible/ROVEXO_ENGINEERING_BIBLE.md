@@ -645,7 +645,7 @@ Checkout **logic** (totals, tax, Stripe session, order creation) is frozen. This
 ### Canonical references
 
 - `features/checkout/`
-- `app/checkout/`
+- `app/(platform)/checkout/`
 
 ---
 
@@ -1020,7 +1020,7 @@ styles/        → global CSS and tokens
 | Hook | camelCase with `use` prefix | `use-header-badges.ts` |
 | Utility | kebab-case or camelCase | `normalize-avatar-url.ts` |
 | CSS module | Match component | `ListingCard.module.css` |
-| Route folder | kebab-case | `app/account/wallet/` |
+| Route folder | kebab-case | `app/(platform)/account/wallet/` |
 | Types file | `types.ts` | `lib/products/types.ts` |
 
 ### Code

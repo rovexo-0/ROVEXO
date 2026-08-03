@@ -11,7 +11,7 @@
 | Piece | Location | Status |
 |-------|----------|--------|
 | OAuth start | `lib/auth/actions.ts` → `signInWithOAuthProvider` | READY |
-| Callback | `app/auth/callback/route.ts` (PKCE `code` exchange) | READY |
+| Callback | `app/(platform)/auth/callback/route.ts` (PKCE `code` exchange) | READY |
 | Redirect sanitizer | `lib/auth/redirects.ts` → `sanitizeNextPath` | READY |
 | Middleware bypass | `lib/supabase/middleware.ts` → `/auth/callback` | READY |
 | Session cookies | `@supabase/ssr` browser + server + middleware | READY |

@@ -3,7 +3,7 @@
 **Agent:** AGENT 1 — Blocker Elimination  
 **SSOT:** `lib/checkout/checkout-certification-rc1-v1.ts`  
 **Blockers SSOT:** `lib/checkout/checkout-certification-blockers-rc1-v1.ts`  
-**Final verdict:** **NOT READY** (no artificial PASS + FREEZE)
+**Final verdict:** **PASS+FREEZE** (Owner visual PASS 2026-08-03 · Checkout v1.0 permanently frozen)
 
 ---
 
@@ -43,7 +43,7 @@ Vitest Checkout/runtime suite maintained green after CKT-002.
 | Root cause | Intentional release metadata. `resolveBloodXxiiiPermanentFreeze` requires Owner + Automatic + complete100 — not Vitest alone. |
 | Fix | **None (correct).** Do not hardcode `ownerCertified` / `permanentlyFrozen` / `complete100`. |
 | Recommendation | Flip only after Owner Certification PASS. |
-| Status | OWNER_MANUAL_GATE — remains open |
+| Status | OWNER_PASS_CLOSED — Owner flipped flags 2026-08-03 after visual verification |
 
 ### BLOCKER 2 — End-to-end Buy flow
 | | |
@@ -59,7 +59,7 @@ Vitest Checkout/runtime suite maintained green after CKT-002.
 | Root cause | Owner product visual gate — cannot be auto-passed. |
 | Prep | CHECKOUT_UI_v1.0 freeze surface; no redesign. Checklist in blockers SSOT. |
 | Owner URL | After Buy Now: `/checkout/[slug]?cs=…` on https://www.rovexo.co.uk (Owner) / `http://localhost:3000` (agent). |
-| Status | PREPARED_FOR_OWNER_REVIEW |
+| Status | OWNER_PASS_CLOSED — Owner visual PASS 2026-08-03 |
 
 ### BLOCKER 4 — Runtime proof
 | Behaviour | Expected | Observed | Status |
@@ -96,10 +96,16 @@ Vitest Checkout/runtime suite maintained green after CKT-002.
 
 ## Remaining for PASS + FREEZE
 
-1. Obtain non-skipped Playwright Blood XXIII journey (resolve precondition skip — likely no active Full Demo listing or worker env)  
-2. Owner visual sign-off on frozen Checkout UI  
-3. Owner flips Blood XXIII flags after Automatic Certification  
+**CLOSED 2026-08-03** — Owner visually verified the complete Checkout flow and permanently froze Checkout v1.0.
 
-**PASS + FREEZE:** **NO**  
-**INFRA-001:** resolved (does not alone unlock PASS + FREEZE)  
-**HMRC:** unaffected by INFRA-001; RC1 sequencing still Owner-controlled
+| Gate | Status |
+|------|--------|
+| Blood XXIII engineering | **6/6 PASS** (RC5) |
+| Owner visual | **OWNER_PASS** |
+| `ownerCertified` | **true** |
+| `permanentlyFrozen` | **true** |
+| `masterGate` | **PASS+FREEZE** |
+
+**PASS + FREEZE:** **YES**  
+**INFRA-001:** resolved  
+**HMRC:** unaffected; sequencing remains Owner-controlled for tax modules

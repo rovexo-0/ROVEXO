@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { CanonicalInput } from "@/src/components/canonical";
+import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { INVENTORY_MAX, INVENTORY_MIN, parseInventoryInput } from "@/lib/sell/inventory";
@@ -29,7 +30,7 @@ export function SellStockQuantityBlock() {
         <div className="sell-price-with-icon__field min-w-0 flex-1">
           <CanonicalInput
             id={quantityId}
-            label="Quantity (Stock)"
+            label={<ListingAttributeLabel>Quantity (Stock)</ListingAttributeLabel>}
             inputType="text"
             enterKeyHint="done"
             autoComplete="off"

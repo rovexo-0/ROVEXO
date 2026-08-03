@@ -1,10 +1,10 @@
 /* ROVEXO Premium Button System v1.0 — Visit Store + Follow equal pair */
 
 .root {
-  --pb-h: 34px;
+  --pb-h: 44px;
   --pb-w: 112px;
-  --pb-px: 8px;
-  --pb-fs: 11.5px;
+  --pb-px: 10px;
+  --pb-fs: 12px;
   --pb-radius: 20px;
 
   position: relative;
@@ -53,18 +53,18 @@
   animation: none !important;
 }
 
-/* Keep CURRENT height (34px sm / 40px md). Equal width for Visit + Follow. */
+/* Touch Absolute: min 44×44. Equal width for Visit Store family. */
 .sm {
-  --pb-h: 34px;
+  --pb-h: 44px;
   --pb-w: 112px;
-  --pb-px: 8px;
-  --pb-fs: 11.5px;
+  --pb-px: 10px;
+  --pb-fs: 12px;
 }
 
 .md {
-  --pb-h: 40px;
+  --pb-h: 44px;
   --pb-w: 128px;
-  --pb-px: 10px;
+  --pb-px: 12px;
   --pb-fs: 13px;
 }
 

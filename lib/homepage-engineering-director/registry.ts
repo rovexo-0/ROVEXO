@@ -96,7 +96,7 @@ export const LEGACY_HOME_IMPORTS = [
 ] as const;
 
 export const HOMEPAGE_SOURCE_FILES = {
-  page: "app/page.tsx",
+  page: "app/(platform)/page.tsx",
   homeContent: "components/homepage/canonical/CanonicalHomepage.tsx",
   categoryRail: "components/homepage/canonical/CanonicalCategoryRail.tsx",
   header: "components/header/RovexoHeaderV2.tsx",

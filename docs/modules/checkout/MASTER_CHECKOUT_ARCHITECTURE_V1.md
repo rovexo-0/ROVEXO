@@ -170,7 +170,7 @@ BUY NOW
 - `features/checkout/components/CheckoutPage.tsx`
 - `features/checkout/components/CheckoutWizardV1.tsx` *(query: session, not order)*
 - `features/checkout/components/CheckoutSuccessView.tsx`
-- `app/checkout/[slug]/page.tsx` / success pages
+- `app/(platform)/checkout/[slug]/page.tsx` / success pages
 - Inbox / Conversation Hub entry after paid only (verify callers)
 
 ### Database

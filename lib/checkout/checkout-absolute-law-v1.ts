@@ -123,7 +123,7 @@ export const CHECKOUT_ABSOLUTE_LAW_V1 = {
     doneGate: "lib/checkout/done-readiness-gate-v1.ts",
     doneReadyApi: "app/api/checkout/done-ready/route.ts",
     successView: "features/checkout/components/CheckoutSuccessView.tsx",
-    successRoute: "app/checkout/[slug]/success/page.tsx",
+    successRoute: "app/(platform)/checkout/[slug]/success/page.tsx",
     conversationHub: "features/inbox/components/ConversationHub.tsx",
   } as const,
 } as const;

@@ -1,0 +1,29 @@
+{
+  "mode": "offline_artifact_restore_verify",
+  "productionDbWrite": false,
+  "artifact": ".rovexo-backups/run-20260802-232248/backup-20260802-232248.sql.gz",
+  "gunzipOk": true,
+  "shaMatch": true,
+  "bytesUncompressed": 336139,
+  "markerHits": {
+    "listings": true,
+    "orders": true,
+    "messages": true,
+    "wallets": true,
+    "transactions": true,
+    "rls_policies": true,
+    "functions": true,
+    "constraints": true,
+    "indexes": true,
+    "auth_schema": true,
+    "storage_objects": false
+  },
+  "requiredMarkers": [
+    "listings",
+    "orders",
+    "rls_policies",
+    "functions",
+    "constraints"
+  ],
+  "result": "PASS"
+}

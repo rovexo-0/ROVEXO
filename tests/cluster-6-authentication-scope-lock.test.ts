@@ -64,11 +64,11 @@ describe("Cluster 6 Authentication Scope Lock", () => {
     expect(sessionMw).toContain("AUTH_PROTECTED_PREFIXES");
     expect(sessionMw).toContain("/auth/callback");
 
-    const callbackFiles = readdirSync(join(process.cwd(), "app/auth/callback"));
+    const callbackFiles = readdirSync(join(process.cwd(), "app/(platform)/auth/callback"));
     expect(callbackFiles).toContain("route.ts");
     expect(callbackFiles.filter((f) => f.endsWith("route.ts"))).toHaveLength(1);
 
-    const callback = readSource("app/auth/callback/route.ts");
+    const callback = readSource("app/(platform)/auth/callback/route.ts");
     expect(callback).toContain("exchangeCodeForSession");
     expect(callback).toContain("syncAutoVerifiedProfile");
 

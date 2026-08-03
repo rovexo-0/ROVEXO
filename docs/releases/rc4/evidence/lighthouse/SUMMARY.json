@@ -1,0 +1,651 @@
+{
+  "rows": [
+    {
+      "file": "categories-desktop.report.json",
+      "url": "http://127.0.0.1:3000/categories",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "lcp_ms": 301,
+      "cls": 0,
+      "ttfb_ms": 9,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/categories",
+          "transferSize": 13687
+        },
+        {
+          "url": "http://127.0.0.1:3000/search?_rsc=Td38jybtvjTATd3V",
+          "transferSize": 4085
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/collectibles?_rsc=_FV9Ln_gqUK5rOqQ",
+          "transferSize": 4023
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/home-garden?_rsc=p8b7MfwwKWbLMjzL",
+          "transferSize": 4017
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/vehicle-parts?_rsc=yleg9AftHBDSVqSl",
+          "transferSize": 3161
+        }
+      ]
+    },
+    {
+      "file": "categories-mobile.report.json",
+      "url": "http://127.0.0.1:3000/categories",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "lcp_ms": 1061,
+      "cls": 0,
+      "ttfb_ms": 8,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/categories",
+          "transferSize": 13687
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/16gieyz84utae.js",
+          "transferSize": 10292
+        },
+        {
+          "url": "http://127.0.0.1:3000/search?_rsc=Td38jybtvjTATd3V",
+          "transferSize": 4085
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/books?_rsc=QAqgveIBDd9XRNG3",
+          "transferSize": 4006
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/mens-fashion?_rsc=KIn3EKlkUeNwatv7",
+          "transferSize": 3243
+        }
+      ]
+    },
+    {
+      "file": "category-desktop.report.json",
+      "url": "http://127.0.0.1:3000/category/womens-fashion",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 91,
+      "lcp_ms": 436,
+      "cls": 0,
+      "ttfb_ms": 11,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/category/womens-fashion",
+          "transferSize": 15769
+        },
+        {
+          "url": "http://127.0.0.1:3000/search?_rsc=Xf8SkQ5pO4KrTBBT",
+          "transferSize": 3044
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=xn8eS9MT247Itpka",
+          "transferSize": 2983
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount&_rsc=VQBCsBz6M24yNNzI",
+          "transferSize": 2568
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fsell&_rsc=xn8eS9MT247Itpka",
+          "transferSize": 2202
+        }
+      ]
+    },
+    {
+      "file": "category-mobile.report.json",
+      "url": "http://127.0.0.1:3000/category/womens-fashion",
+      "err": null,
+      "perf": 78,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 91,
+      "lcp_ms": 6021,
+      "cls": 0,
+      "ttfb_ms": 8,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/assets/teddy/teddy-shrug.png",
+          "transferSize": 803317
+        },
+        {
+          "url": "http://127.0.0.1:3000/category/womens-fashion",
+          "transferSize": 15769
+        },
+        {
+          "url": "http://127.0.0.1:3000/search?_rsc=Xf8SkQ5pO4KrTBBT",
+          "transferSize": 3044
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount&_rsc=VQBCsBz6M24yNNzI",
+          "transferSize": 2572
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/2m13u6oa68wlu.css",
+          "transferSize": 2318
+        }
+      ]
+    },
+    {
+      "file": "checkout-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Fcheckout",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 248,
+      "cls": 0,
+      "ttfb_ms": 5,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fcheckout",
+          "transferSize": 11443
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2179
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 1879
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    },
+    {
+      "file": "checkout-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Fcheckout",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 1011,
+      "cls": 0,
+      "ttfb_ms": 7,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fcheckout",
+          "transferSize": 11443
+        },
+        {
+          "url": "http://127.0.0.1:3000/forgot-password?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2974
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2015
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 1877
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        }
+      ]
+    },
+    {
+      "file": "homepage-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 246,
+      "cls": 0,
+      "ttfb_ms": 7,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login",
+          "transferSize": 11392
+        },
+        {
+          "url": "http://127.0.0.1:3000/forgot-password?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2978
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2968
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2007
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        }
+      ]
+    },
+    {
+      "file": "homepage-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 965,
+      "cls": 0,
+      "ttfb_ms": 7,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login",
+          "transferSize": 11392
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2171
+        },
+        {
+          "url": "http://127.0.0.1:3000/forgot-password?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2019
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 1868
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    },
+    {
+      "file": "listing-desktop.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 92,
+      "lcp_ms": 337,
+      "cls": 0,
+      "ttfb_ms": 9,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+          "transferSize": 19263
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=N68pnL-nKhnh0gze",
+          "transferSize": 2981
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/image?url=https%3A%2F%2Fapi.dicebear.com%2F7.x%2Fshapes%2Fpng%",
+          "transferSize": 1510
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=0slYRRHYMxE2Lq7z",
+          "transferSize": 1415
+        },
+        {
+          "url": "http://127.0.0.1:3000/api/bundle",
+          "transferSize": 1358
+        }
+      ]
+    },
+    {
+      "file": "listing-mobile.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 92,
+      "lcp_ms": 1516,
+      "cls": 0.0,
+      "ttfb_ms": 8,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/0-adj-jzqjbmx.js",
+          "transferSize": 29382
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/0war5r45k1f_5.js",
+          "transferSize": 20252
+        },
+        {
+          "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+          "transferSize": 19262
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/1-z9f47yxwk-_.js",
+          "transferSize": 14481
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/38l7gdj-a3_52.js",
+          "transferSize": 6026
+        }
+      ]
+    },
+    {
+      "file": "product-desktop.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 92,
+      "lcp_ms": 339,
+      "cls": 0,
+      "ttfb_ms": 8,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+          "transferSize": 19255
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=N68pnL-nKhnh0gze",
+          "transferSize": 2983
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=0slYRRHYMxE2Lq7z",
+          "transferSize": 1606
+        },
+        {
+          "url": "http://127.0.0.1:3000/api/views",
+          "transferSize": 1361
+        },
+        {
+          "url": "http://127.0.0.1:3000/api/bundle",
+          "transferSize": 1358
+        }
+      ]
+    },
+    {
+      "file": "product-mobile.report.json",
+      "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 92,
+      "lcp_ms": 1264,
+      "cls": 0,
+      "ttfb_ms": 9,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/listing/marketplace-refund-item-1785774719350-msdg5shg",
+          "transferSize": 19263
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=N68pnL-nKhnh0gze",
+          "transferSize": 2979
+        },
+        {
+          "url": "http://127.0.0.1:3000/user/rovexo_live_seller?_rsc=Cbt4cUCTCKW1GgKb",
+          "transferSize": 2565
+        },
+        {
+          "url": "http://127.0.0.1:3000/search?category=f5ca3e13-e929-4c94-8b18-32fb2da95d84&_rsc=PRgT2J9pVf",
+          "transferSize": 2473
+        },
+        {
+          "url": "http://127.0.0.1:3000/store/rovexo_live_seller?_rsc=N68pnL-nKhnh0gze",
+          "transferSize": 2009
+        }
+      ]
+    },
+    {
+      "file": "profile-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Faccount",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 344,
+      "cls": 0,
+      "ttfb_ms": 6,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount",
+          "transferSize": 12865
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2982
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2012
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    },
+    {
+      "file": "profile-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Faccount",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 1359,
+      "cls": 0,
+      "ttfb_ms": 6,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount",
+          "transferSize": 12865
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2983
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2180
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    },
+    {
+      "file": "search-desktop.report.json",
+      "url": "http://127.0.0.1:3000/search",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "lcp_ms": 303,
+      "cls": 0,
+      "ttfb_ms": 10,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/search",
+          "transferSize": 14322
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount&_rsc=E8uF0R4HNwtMB4rL",
+          "transferSize": 2571
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fwallet&_rsc=MnWTrh3l-09yAlSG",
+          "transferSize": 2205
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?_rsc=MnWTrh3l-09yAlSG",
+          "transferSize": 2179
+        },
+        {
+          "url": "http://127.0.0.1:3000/browse?_rsc=MnWTrh3l-09yAlSG",
+          "transferSize": 2152
+        }
+      ]
+    },
+    {
+      "file": "search-mobile.report.json",
+      "url": "http://127.0.0.1:3000/search",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 100,
+      "lcp_ms": 1366,
+      "cls": 0,
+      "ttfb_ms": 12,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/2q3bgst_-ukfx.js",
+          "transferSize": 15998
+        },
+        {
+          "url": "http://127.0.0.1:3000/search",
+          "transferSize": 14322
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/1m_3_am-1oalw.css",
+          "transferSize": 4334
+        },
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Faccount&_rsc=E8uF0R4HNwtMB4rL",
+          "transferSize": 2569
+        },
+        {
+          "url": "http://127.0.0.1:3000/_next/static/chunks/0qddrfgz276ai.css",
+          "transferSize": 2543
+        }
+      ]
+    },
+    {
+      "file": "sell-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Fsell",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 246,
+      "cls": 0,
+      "ttfb_ms": 5,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fsell",
+          "transferSize": 11435
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2013
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 1877
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1606
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    },
+    {
+      "file": "sell-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login?next=%2Fsell",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 1018,
+      "cls": 0,
+      "ttfb_ms": 7,
+      "inp_ms": null,
+      "largest_assets": [
+        {
+          "url": "http://127.0.0.1:3000/login?next=%2Fsell",
+          "transferSize": 11435
+        },
+        {
+          "url": "http://127.0.0.1:3000/forgot-password?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2978
+        },
+        {
+          "url": "http://127.0.0.1:3000/register?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2179
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=sW2A7HEmFQnSVIMx",
+          "transferSize": 2006
+        },
+        {
+          "url": "http://127.0.0.1:3000/legal/cookie-policy?_rsc=_H_fFy2_Q06N8BA7",
+          "transferSize": 1415
+        }
+      ]
+    }
+  ],
+  "gate_fails": [
+    "category-desktop.report.json seo=91<100",
+    "category-mobile.report.json perf=78<95",
+    "category-mobile.report.json seo=91<100",
+    "checkout-desktop.report.json seo=69<100",
+    "checkout-mobile.report.json seo=69<100",
+    "homepage-desktop.report.json seo=69<100",
+    "homepage-mobile.report.json seo=69<100",
+    "listing-desktop.report.json seo=92<100",
+    "listing-mobile.report.json seo=92<100",
+    "product-desktop.report.json seo=92<100",
+    "product-mobile.report.json seo=92<100",
+    "profile-desktop.report.json seo=69<100",
+    "profile-mobile.report.json seo=69<100",
+    "sell-desktop.report.json seo=69<100",
+    "sell-mobile.report.json seo=69<100"
+  ]
+}

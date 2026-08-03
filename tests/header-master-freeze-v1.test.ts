@@ -44,11 +44,17 @@ describe("Header Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(gates.searchBarMaxWidth).toBe("PASS");
   });
 
-  it("mounts HeaderProvider once in root layout", () => {
-    const layout = readSource("app/layout.tsx");
-    expect(layout).toContain("HeaderProvider");
-    expect(layout.match(/<HeaderProvider>/g)?.length).toBe(1);
-    expect(layout.match(/<SearchProvider>/g)?.length).toBe(1);
+  it("mounts HeaderProvider once in platform chrome (not auth root)", () => {
+    const root = readSource("app/layout.tsx");
+    const platform = readSource("app/(platform)/layout.tsx");
+    const chrome = readSource("components/layout/PlatformChromeProviders.tsx");
+    expect(root).not.toContain("HeaderProvider");
+    expect(root).not.toContain("SearchProvider");
+    expect(platform).toContain("PlatformChromeProviders");
+    expect(chrome).toContain("HeaderProvider");
+    expect(chrome).toContain("SearchProvider");
+    expect(chrome.match(/<HeaderProvider>/g)?.length).toBe(1);
+    expect(chrome.match(/<SearchProvider>/g)?.length).toBe(1);
   });
 
   it("RovexoHeaderV2 has no notification, avatar, or badges", () => {
@@ -64,9 +70,9 @@ describe("Header Master Freeze v1.0 — OWNER LOCKED", () => {
   });
 
   it("results and search pages do not mount a second RovexoHeaderV2", () => {
-    const results = readSource("app/search/image/results/page.tsx");
-    const search = readSource("app/search/page.tsx");
-    const home = readSource("app/page.tsx");
+    const results = readSource("app/(platform)/search/image/results/page.tsx");
+    const search = readSource("app/(platform)/search/page.tsx");
+    const home = readSource("app/(platform)/page.tsx");
     const discovery = readSource("components/layout/DiscoveryPageShell.tsx");
 
     expect(results).not.toMatch(/<RovexoHeaderV2[\s/>]/);

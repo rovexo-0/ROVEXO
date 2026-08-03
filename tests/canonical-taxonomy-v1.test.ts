@@ -58,7 +58,8 @@ describe("Catalog Master taxonomy v1.0", () => {
   it("loads category-scoped materials for pillows", () => {
     const pillowPath = resolveCategoryPathBySlugs(["home-garden", "bedding", "pillows"]);
     const scoped = loadCategoryScopedTaxonomy(pillowPath);
-    expect(scoped!.materials).toContain("Memory foam");
+    // Canonical Material Registry V4 official name (aliases include "Memory foam").
+    expect(scoped!.materials).toContain("Memory Foam");
   });
 
   it("loads electronics brands for phones", () => {

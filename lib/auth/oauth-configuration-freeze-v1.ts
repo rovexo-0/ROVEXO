@@ -171,7 +171,7 @@ export const OAUTH_CONFIGURATION_FREEZE_V1 = {
     goldenLaw: "lib/rovexo-golden-law-v1.ts",
     absoluteFreeze: "lib/absolute-master-freeze-v1.ts",
     actions: "lib/auth/actions.ts",
-    callback: "app/auth/callback/route.ts",
+    callback: "app/(platform)/auth/callback/route.ts",
   } as const,
 } as const;
 

@@ -32,7 +32,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/sell/page.tsx` |
+| Route | `app/(platform)/sell/page.tsx` |
 | Page | `features/sell/ui/SellPage.tsx` |
 | Attributes | `SellProgressiveAttributes.tsx` · `SellOptionPicker.tsx` |
 | Price | `SellPricingBlock.tsx` |

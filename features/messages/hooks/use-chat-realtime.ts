@@ -62,10 +62,26 @@ export function useChatRealtime(
   const visible = useDocumentVisible();
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      if (typeof document !== "undefined") {
+        document.documentElement.setAttribute("data-realtime-messages-status", "DISABLED");
+        const root = document.querySelector<HTMLElement>("[data-conversation-realtime='live']");
+        root?.setAttribute("data-realtime-messages-status", "DISABLED");
+      }
+      return;
+    }
 
     const channels: RealtimeChannel[] = [];
     let cancelled = false;
+
+    const stampStatus = (status: string) => {
+      if (typeof document === "undefined") return;
+      const root = document.querySelector<HTMLElement>("[data-conversation-realtime='live']");
+      if (root) root.setAttribute("data-realtime-messages-status", status);
+      document.documentElement.setAttribute("data-realtime-messages-status", status);
+    };
+
+    stampStatus("INIT");
 
     const applyIncoming = (incomingRaw: ChatMessage) => {
       setConversation((current) => {
@@ -104,10 +120,20 @@ export function useChatRealtime(
       }
     };
 
-    const messageChannel = subscribeToConversationMessages(conversationId, (row) => {
-      applyIncoming(mapRealtimeMessage(row));
-    });
-    if (messageChannel) channels.push(messageChannel);
+    const messageChannel = subscribeToConversationMessages(
+      conversationId,
+      (row) => {
+        applyIncoming(mapRealtimeMessage(row));
+      },
+      (status) => {
+        stampStatus(status);
+      },
+    );
+    if (!messageChannel) {
+      stampStatus("NO_CLIENT");
+    } else {
+      channels.push(messageChannel);
+    }
 
     const metaChannel = subscribeToConversationMeta(conversationId, (row) => {
       setConversation((current) => ({

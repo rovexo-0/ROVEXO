@@ -97,7 +97,7 @@ function buildDatabaseChecks(): PerformanceCheck[] {
 
 function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
-  const homePage = readProjectFile("app/page.tsx");
+  const homePage = readProjectFile("app/(platform)/page.tsx");
   const homeContent =
     readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
     readProjectFile("components/home/RovexoHomePage.tsx");

@@ -32,7 +32,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/account/addresses/page.tsx` |
+| Route | `app/(platform)/account/addresses/page.tsx` |
 | Page | `features/account/components/addresses/AddressesPage.tsx` |
 | Labels / type map | `lib/addresses/canonical.ts` |
 | UK lookup | `lib/addresses/uk-lookup.ts` · `app/api/addresses/lookup/route.ts` |

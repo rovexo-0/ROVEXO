@@ -1,0 +1,14 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:ci
+> vitest run --exclude tests/supabase.integration.test.ts --exclude tests/category-detection-step7.test.ts --exclude tests/suggest-category-from-title.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+
+ Test Files  592 passed (592)
+      Tests  4611 passed (4611)
+   Start at  19:50:30
+   Duration  171.43s (transform 9.56s, setup 1.68s, import 24.14s, tests 97.03s, environment 671ms)
+

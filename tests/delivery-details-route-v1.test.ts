@@ -35,7 +35,7 @@ describe("Delivery Details route — fail-closed (no 404)", () => {
   });
 
   it("help/[slug] redirects legacy Delivery slugs instead of notFound", () => {
-    const route = readSource("app/help/[slug]/page.tsx");
+    const route = readSource("app/(platform)/help/[slug]/page.tsx");
     expect(route).toContain("HELP_DELIVERY_ALIASES");
     expect(route).toContain("PRODUCT_DELIVERY_DETAILS_HREF");
     for (const slug of PRODUCT_DELIVERY_LEGACY_HELP_SLUGS) {

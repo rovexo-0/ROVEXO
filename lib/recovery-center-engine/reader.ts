@@ -11,6 +11,7 @@ import { getProductionOperationsSnapshot } from "@/lib/ops/production-status";
 import { getOperationsIncidents, getOperationsMaintenanceState } from "@/lib/operations-center-engine/engine";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAutomationControls } from "@/lib/super-admin/insights";
+import { mergeBackupEngineIntoRecoveryBackups } from "@/lib/backup-engine-v1/recovery-bridge";
 import {
   getRecoveryBackups,
   getRecoveryCenterEngineSnapshotForAdmin,
@@ -56,16 +57,17 @@ export async function getRecoveryCenterEngineSnapshot(): Promise<RecoveryEngineS
     getAutomationControls(),
   ]);
 
+  const backupsMerged = mergeBackupEngineIntoRecoveryBackups(backups);
   const rollbackTargets = getRollbackTargets(live);
   const alerts = buildRecoveryAlerts({
-    backups,
+    backups: backupsMerged,
     safeMode,
     healthStatus: health.status,
     automationEnabled: automation.automaticBackups,
   });
   const dashboard = buildRecoveryDashboard({
     config: live,
-    backups,
+    backups: backupsMerged,
     history,
     safeMode,
     incidents: incidents.length > 0 ? incidents : opsIncidents.map((i) => ({
@@ -84,15 +86,19 @@ export async function getRecoveryCenterEngineSnapshot(): Promise<RecoveryEngineS
     healthStatus: health.status,
   });
   const widgets = buildRecoveryDashboardWidgets({
-    backups,
+    backups: backupsMerged,
     history,
     safeMode,
     incidents,
     maintenanceEnabled: maintenance.enabled,
     healthStatus: health.status,
   });
-  const businessContinuity = buildBusinessContinuity({ backups, healthStatus: health.status, operations });
-  const monitor = buildRecoveryMonitor({ backups, history });
+  const businessContinuity = buildBusinessContinuity({
+    backups: backupsMerged,
+    healthStatus: health.status,
+    operations,
+  });
+  const monitor = buildRecoveryMonitor({ backups: backupsMerged, history });
   const automationActions = getRecoveryAutomationActions(live);
 
   return {
@@ -100,7 +106,7 @@ export async function getRecoveryCenterEngineSnapshot(): Promise<RecoveryEngineS
     platformStatus: health.status === "healthy" ? "healthy" : health.status === "degraded" ? "warning" : "critical",
     dashboard,
     widgets,
-    backups,
+    backups: backupsMerged,
     history,
     rollbackTargets,
     alerts,

@@ -37,6 +37,15 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(homepage).toContain('data-listing-card="rovexo"');
   });
 
+  it("does not stretch the last odd ListingCard to full row width", () => {
+    const homepage = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
+
+    expect(homepage).not.toContain(":last-child:nth-child(odd)");
+    expect(homepage).not.toMatch(
+      /\[data-listing-card="rovexo"\]:last-child[^\{]*\{[^}]*grid-column:\s*1\s*\/\s*-1/s,
+    );
+  });
+
   it("uses purple category chips on homepage", () => {
     const homepage = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
 
@@ -121,6 +130,21 @@ describe("Official Listing Card — homepage grid lock", () => {
     }
   });
 
+  it("never mounts infinite-scroll sentinel inside the CSS listing grid", () => {
+    const feed = readSource("components/homepage/canonical/CanonicalMarketplaceFeed.tsx");
+    const css = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
+
+    // Forced hasMore from seed length created a phantom blank grid cell.
+    expect(feed).not.toContain("initialPage.hasMore || seedItems.length > 0");
+    expect(feed).toContain("Boolean(initialPage.hasMore)");
+    // Sentinel must be a sibling of the grid, not a grid child.
+    expect(feed).toContain("Sentinel MUST stay outside the CSS grid");
+    expect(feed.indexOf("feedSentinel")).toBeGreaterThan(feed.lastIndexOf("feedGrid"));
+    expect(css).toContain(".feedSentinel");
+    expect(css).toContain("visibility: hidden");
+    expect(css).not.toMatch(/\.feedSentinel\s*\{[^}]*grid-column/s);
+  });
+
   it("uses canonical featured store with ListingCard carousel", () => {
     const store = readSource("components/homepage/canonical/featured-store/FeaturedStoreSection.tsx");
     const css = readSource("components/homepage/canonical/featured-store/FeaturedStore.module.css");
@@ -157,7 +181,7 @@ describe("Official Listing Card — homepage grid lock", () => {
 
   it("uses canonical homepage bottom navigation labels", () => {
     const nav = readSource("lib/homepage/canonical-nav.ts");
-    const page = readSource("app/page.tsx");
+    const page = readSource("app/(platform)/page.tsx");
 
     expect(nav).toContain('label: "Browse"');
     expect(nav).toContain('label: "Inbox"');
@@ -181,7 +205,7 @@ describe("Official Listing Card — homepage grid lock", () => {
 
   it("uses canonical homepage stack only", () => {
     const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
-    const page = readSource("app/page.tsx");
+    const page = readSource("app/(platform)/page.tsx");
 
     expect(page).toContain("CanonicalHomepage");
     expect(homePage).toContain("FeaturedStoreSection");

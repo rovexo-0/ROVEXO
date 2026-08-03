@@ -77,9 +77,9 @@ export const SELL_UI_V1_FREEZE = {
   ] as const,
 
   premiumPickerStandard: {
-    brand: "logo-or-monogram-list-no-search-deduped",
-    material: "glyph-list-no-search",
-    condition: "tone-icon-title-description-list",
+    brand: "logo-or-monogram-list-local-search-deduped",
+    material: "glyph-list-local-search",
+    condition: "tone-icon-title-description-list-no-search",
     colours: "compact-4-col-swatch-grid-no-search",
     category: "premium-search-hierarchy",
     parcel: "premium-shipping-cards-no-search",
@@ -90,8 +90,8 @@ export const SELL_UI_V1_FREEZE = {
     "Official brand logos where available",
     "Brand duplicate elimination",
     "Colours compact single-page grid without Search",
-    "Material without Search",
-    "Brand without Search",
+    "Material with local Search (COD SÂNGE V1.0)",
+    "Brand with local Search (COD SÂNGE V1.0)",
     "Parcel premium cards without Search",
   ] as const,
 
@@ -117,6 +117,7 @@ export const SELL_UI_V1_FREEZE = {
     absoluteAuthority: "lib/sell/sell-absolute-authority-freeze-v1.ts",
     premiumPickers: "lib/sell/sell-premium-picker-freeze-v1.ts",
     sellUiV1: "lib/sell/sell-ui-v1-freeze.ts",
+    categoryRowV1: "lib/sell/category-row-v1-freeze.ts",
   } as const,
 } as const;
 

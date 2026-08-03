@@ -69,6 +69,10 @@ const usableServiceRole =
     : "";
 
 const webServerEnvObj: Record<string, string> = {
+  /* Playwright `env` replaces process.env — inherit host env so Next client gets real NEXT_PUBLIC_*. */
+  ...Object.fromEntries(
+    Object.entries(process.env).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  ),
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY:

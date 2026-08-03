@@ -24,18 +24,35 @@ function required(label: string, value: string | undefined): string {
   return value;
 }
 
-/** Canonical public Supabase URL (browser + server). */
-const SUPABASE_URL_KEYS = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL"] as const;
+/**
+ * Next.js only inlines NEXT_PUBLIC_* when accessed as static property paths.
+ * Dynamic `process.env[name]` is undefined in the browser bundle → Realtime NO_CLIENT.
+ */
+function readPublicSupabaseUrlRaw(): string | undefined {
+  const fromPublic = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (fromPublic && !isUnusableSecret(fromPublic)) return fromPublic;
+  const fromAlias = process.env.SUPABASE_URL?.trim();
+  if (fromAlias && !isUnusableSecret(fromAlias)) return fromAlias;
+  return undefined;
+}
 
-/** Canonical public anon/publishable key (browser + server). */
-const SUPABASE_ANON_KEYS = [
-  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-  "SUPABASE_ANON_KEY",
-] as const;
+function readPublicSupabaseAnonKeyRaw(): string | undefined {
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  if (anon && !isUnusableSecret(anon)) return anon;
+  const publishable = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+  if (publishable && !isUnusableSecret(publishable)) return publishable;
+  const alias = process.env.SUPABASE_ANON_KEY?.trim();
+  if (alias && !isUnusableSecret(alias)) return alias;
+  return undefined;
+}
 
-/** Canonical server-only service role key. */
-const SUPABASE_SERVICE_ROLE_KEYS = ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"] as const;
+function readServiceRoleKeyRaw(): string | undefined {
+  const primary = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (primary && !isUnusableSecret(primary)) return primary;
+  const secret = process.env.SUPABASE_SECRET_KEY?.trim();
+  if (secret && !isUnusableSecret(secret)) return secret;
+  return undefined;
+}
 
 /**
  * Invalid hostnames caused by an extra "n" when copying the project ref into Vercel.
@@ -85,7 +102,7 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
 }
 
 export function tryGetSupabaseUrl(): string | null {
-  const raw = readFirstEnv(...SUPABASE_URL_KEYS);
+  const raw = readPublicSupabaseUrlRaw();
   if (!raw) return null;
   try {
     return normalizeSupabaseUrl(raw);
@@ -95,11 +112,11 @@ export function tryGetSupabaseUrl(): string | null {
 }
 
 export function tryGetSupabaseAnonKey(): string | null {
-  return readFirstEnv(...SUPABASE_ANON_KEYS) ?? null;
+  return readPublicSupabaseAnonKeyRaw() ?? null;
 }
 
 export function tryGetSupabaseServiceRoleKey(): string | undefined {
-  return readFirstEnv(...SUPABASE_SERVICE_ROLE_KEYS);
+  return readServiceRoleKeyRaw();
 }
 
 /** True when public Supabase client credentials are available. */
@@ -116,7 +133,7 @@ export function getSupabaseUrl(): string {
   return normalizeSupabaseUrl(
     required(
       "NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL alias)",
-      readFirstEnv(...SUPABASE_URL_KEYS),
+      readPublicSupabaseUrlRaw(),
     ),
   );
 }
@@ -124,14 +141,14 @@ export function getSupabaseUrl(): string {
 export function getSupabaseAnonKey(): string {
   return required(
     "NEXT_PUBLIC_SUPABASE_ANON_KEY (or supported alias)",
-    readFirstEnv(...SUPABASE_ANON_KEYS),
+    readPublicSupabaseAnonKeyRaw(),
   );
 }
 
 export function getSupabaseServiceRoleKey(): string {
   return required(
     "SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY alias)",
-    readFirstEnv(...SUPABASE_SERVICE_ROLE_KEYS),
+    readServiceRoleKeyRaw(),
   );
 }
 

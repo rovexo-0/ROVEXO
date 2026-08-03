@@ -11,7 +11,7 @@ describe("order checkout success redirect", () => {
   });
 
   it("confirms Stripe payment on the checkout success page", () => {
-    const success = readFileSync("app/checkout/[slug]/success/page.tsx", "utf8");
+    const success = readFileSync("app/(platform)/checkout/[slug]/success/page.tsx", "utf8");
     expect(success).toContain("confirmOrderCheckoutSession");
     expect(success).toContain("session_id");
     expect(success).toContain("SUCCESS_ORDER_STATUSES");

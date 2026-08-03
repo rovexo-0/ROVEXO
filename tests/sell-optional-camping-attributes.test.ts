@@ -91,7 +91,7 @@ describe("Sell Publish — Temperature / Season / Length OPTIONAL", () => {
     }
   });
 
-  it("Brand and Condition still block Publish when empty", () => {
+  it("Brand still blocks Publish when empty; Condition is optional (core-6)", () => {
     const noBrand = sleepingBagDraft({ brand: "" });
     expect(
       getFirstSellValidationIssue(noBrand, {
@@ -105,7 +105,7 @@ describe("Sell Publish — Temperature / Season / Length OPTIONAL", () => {
       getFirstSellValidationIssue(noCondition, {
         title: noCondition.title,
         description: noCondition.description,
-      })?.field,
-    ).toBe("condition");
+      }),
+    ).toBeNull();
   });
 });

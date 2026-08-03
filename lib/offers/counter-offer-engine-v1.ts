@@ -7,6 +7,11 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  mergeBundleIntoOfferMessage,
+  parseBundleMessageMeta,
+} from "@/lib/bundle/bundle-payload-v1";
+import { appendBundleEvent } from "@/lib/bundle/bundle-events-v1";
 
 export const COUNTER_OFFER_ENGINE_V1 = {
   version: "1.0",
@@ -235,21 +240,23 @@ export async function executeCounterOffer(
     return fail("PERMISSION_DENIED");
   }
 
-  // Amount must be positive and below listing price (same create-offer rule).
-  const listingPrice = Number(listing.price);
+  // Amount must be positive and below ceiling:
+  // Bundle offers → listSubtotal; single listing → listing price.
+  const { bundle } = parseBundleMessageMeta(offer.message);
+  const ceiling = bundle?.listSubtotal ?? Number(listing.price);
   if (
-    !Number.isFinite(listingPrice) ||
-    input.amount >= listingPrice ||
+    !Number.isFinite(ceiling) ||
+    ceiling <= 0 ||
+    input.amount >= ceiling ||
     input.amount === Number(offer.amount)
   ) {
     return fail("OFFER_AMOUNT_INVALID");
   }
 
   const fromRole: CounterOfferActorRole = isSeller ? "seller" : "buyer";
-  const counterMessage = encodeCounterOfferMessageMeta(
-    fromRole,
-    offer.id,
-    input.message ?? null,
+  const counterMessage = mergeBundleIntoOfferMessage(
+    offer.message,
+    encodeCounterOfferMessageMeta(fromRole, offer.id, input.message ?? null),
   );
 
   // Optimistic lock: cancel only while still pending.
@@ -288,6 +295,19 @@ export async function executeCounterOffer(
       .eq("id", offer.id)
       .eq("status", "cancelled");
     return fail("DATABASE_UPDATE_FAILED");
+  }
+
+  if (bundle?.bundleId) {
+    await appendBundleEvent({
+      bundleId: bundle.bundleId,
+      actorId: input.actorUserId,
+      eventType: "bundle.offer_countered",
+      payload: {
+        offerId: counter.id,
+        parentOfferId: offer.id,
+        amount: Number(counter.amount),
+      },
+    });
   }
 
   return {

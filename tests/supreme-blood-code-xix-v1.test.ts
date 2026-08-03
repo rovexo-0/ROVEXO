@@ -89,7 +89,7 @@ describe("ROVEXO Supreme Blood Code XIX — Sprint IV Waiting Owner Certificatio
   it("aligns live roadmap with XV/XVIII/XX — IV LOCKED", () => {
     expect(SUPREME_BLOOD_CODE_XIX_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XIX_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XIX_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XIX_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XIV_V1.developmentStatus).toBe("LOCKED");

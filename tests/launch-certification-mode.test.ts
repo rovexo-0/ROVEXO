@@ -87,7 +87,7 @@ describe("LAUNCH_CERTIFICATION_MASTER_SPEC Document 2", () => {
 
   it("ships super-admin certification dashboard", () => {
     const page = readFileSync(
-      join(process.cwd(), "app/super-admin/launch-certification/page.tsx"),
+      join(process.cwd(), "app/(platform)/super-admin/launch-certification/page.tsx"),
       "utf8",
     );
     const api = readFileSync(

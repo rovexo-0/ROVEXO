@@ -52,7 +52,7 @@ describe("Payment Methods v5.0 — Absolute Authority + Fail Closed v2 empty", (
   });
 
   it("route error soft-renders Empty State without Retry/Home FailClosedPanel", () => {
-    const errorPage = readSource("app/wallet/payment-methods/error.tsx");
+    const errorPage = readSource("app/(platform)/wallet/payment-methods/error.tsx");
     expect(errorPage).toContain("No payment methods added yet.");
     expect(errorPage).toContain("Add Card");
     expect(errorPage).toContain("AccountCanonicalShell");

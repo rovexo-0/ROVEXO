@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel } from "@/features/sell/ui/sell-classes";
-import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
+import { SellFlowHeader } from "@/features/sell/ui/SellPrimitives";
 import { SellPickerSectionLabel } from "@/features/sell/ui/SellPickerLeadingMark";
 import { CanonicalMenuRow, CanonicalInput } from "@/src/components/canonical";
 import { SearchLineIcon } from "@/components/icons/RvxLineIcons";
@@ -150,7 +150,7 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
       lockScroll={false}
     >
       <div className={cn(sellPanel, "sell-compact-picker flex min-h-0 flex-1 flex-col")}>
-        <SellPanelHeader title={headerTitle} onBack={handleBack} />
+        <SellFlowHeader title={headerTitle} onBack={handleBack} />
 
         <div className="sell-option-picker__search shrink-0 border-b border-border">
           <span className="sell-option-picker__search-icon" aria-hidden>

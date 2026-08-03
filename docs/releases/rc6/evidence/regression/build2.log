@@ -1,0 +1,162 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 prebuild
+> npm run verify:assets && npm run typecheck && npm run lint && npm run test:full-demo-contracts && npm run certify:full-demo
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 verify:assets
+> npx tsx scripts/validate-production-assets.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✅ Premium assets verified
+✅ Production assets only
+✅ No placeholder graphics
+✅ Homepage approved
+✅ Production deployment allowed
+
+Summary: 564 premium assets · 684 total raster assets · 0 blocking issues
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 lint
+> eslint
+
+
+/home/mihai/ROVEXO/components/Header.tsx
+  23:3  warning  'compact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/mobile-device.ts
+  1:10  warning  'expect' is defined but never used                           @typescript-eslint/no-unused-vars
+  3:3   warning  'MOBILE_DEVICE_INTERNAL_PAD_X_PX' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/realtime-certification.ts
+  83:10  warning  'sendMessageButton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/features/notifications/components/RealtimeNotificationProvider.tsx
+  20:24  warning  'invalidateShareInflight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-launch-readiness-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/consistency.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/modernization.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scan-utils.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/full-demo/deploy-gate.ts
+  8:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/homepage-engineering-director/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/dashboard-scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/ops/repo-path.ts
+  2:10  warning  'workspacePath' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/security/ssrf-guard-v1.ts
+  201:45  warning  '_ignored' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/operations/recommendations.ts
+  3:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/premium-design/inventory.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts
+  14:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts
+  23:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxvii-official-brand-emblem-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts
+  15:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/scripts/assert-catalog-runtime-fingerprint.ts
+  49:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  63:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  67:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  73:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  82:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+
+/home/mihai/ROVEXO/scripts/remove-two-demo-listings.mjs
+  283:9  warning  'allTargetsAccounted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 31 problems (0 errors, 31 warnings)
+  0 errors and 5 warnings potentially fixable with the `--fix` option.
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:full-demo-contracts
+> vitest run tests/full-demo-certification.test.ts tests/auth-startup-canonical.test.ts tests/auth-guest-entry-v1.test.ts tests/auth-splash-v1.test.ts tests/auth-welcome-v1.test.ts tests/launch-certification-master.test.ts tests/launch-certification-mode.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+ ❯ tests/launch-certification-master.test.ts (8 tests | 1 failed) 17ms
+     × wires private mode into robots and root layout 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/launch-certification-master.test.ts > launch certification production wiring > wires private mode into robots and root layout
+AssertionError: expected '/**\n * Platform (non-auth) design-sy…' to contain 'resolveLaunchPrivateModeRobots'
+
+- Expected
++ Received
+
+- resolveLaunchPrivateModeRobots
++ /**
++  * Platform (non-auth) design-system CSS — RC6 login performance isolation.
++  * Auth routes under app/(auth) load auth-entry.css only.
++  */
++ import "@/styles/rovexo/index.css";
++
++ export default function PlatformGroupLayout({ children }: { children: React.ReactNode }) {
++   return children;
++ }
++
+
+ ❯ tests/launch-certification-master.test.ts:120:26
+    118|     const layoutSource = readFileSync(join(process.cwd(), "app/(platfo…
+    119|     expect(robotsSource).toContain("isLaunchPrivateMode");
+    120|     expect(layoutSource).toContain("resolveLaunchPrivateModeRobots");
+       |                          ^
+    121|   });
+    122| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 41 passed (42)
+   Start at  20:09:43
+   Duration  1.23s (transform 290ms, setup 35ms, import 485ms, tests 85ms, environment 0ms)
+

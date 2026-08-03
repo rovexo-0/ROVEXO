@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<!--
+  Windows Task Scheduler — import or recreate:
+  Action: Start a program
+  Program: npm
+  Arguments: run backup
+  Start in: C:\ABS\PATH\TO\ROVEXO
+  Trigger: Daily
+-->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>ROVEXO Backup Engine v1.0</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-08-02T02:15:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Actions>
+    <Exec>
+      <Command>npm</Command>
+      <Arguments>run backup</Arguments>
+      <WorkingDirectory>C:\ABS\PATH\TO\ROVEXO</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

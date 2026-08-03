@@ -1,0 +1,157 @@
+=== TESTCI RERUN 2026-08-03T18:36:25+01:00 ===
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:ci
+> vitest run --exclude tests/supabase.integration.test.ts --exclude tests/category-detection-step7.test.ts --exclude tests/suggest-category-from-title.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+
+ Test Files  592 passed (592)
+      Tests  4611 passed (4611)
+   Start at  18:36:25
+   Duration  189.13s (transform 9.84s, setup 1.71s, import 24.68s, tests 114.15s, environment 375ms)
+
+TESTCI2_EXIT=0
+=== FULL DEMO RERUN 2026-08-03T18:39:27+01:00 ===
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Chromium browser binary…
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[playwright] Chromium install complete.
+[playwright] Using workspace Chromium libs: /home/mihai/ROVEXO/.local-chromium-libs/lib
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 29116 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 25 tests using 1 worker
+
+(node:421085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/full-demo-certification.spec.ts:92:7 › Full Demo — mandatory deployment certification › 01 BUYER LOGIN (751ms)
+  ✓   2 [chromium] › e2e/full-demo-certification.spec.ts:97:7 › Full Demo — mandatory deployment certification › 02 SELLER LOGIN (2.5s)
+  ✓   3 [chromium] › e2e/full-demo-certification.spec.ts:102:7 › Full Demo — mandatory deployment certification › 03 CREATE PRODUCT (16.6s)
+  ✓   4 [chromium] › e2e/full-demo-certification.spec.ts:156:7 › Full Demo — mandatory deployment certification › 04 PRODUCT APPEARS ON HOMEPAGE (563ms)
+  ✓   5 [chromium] › e2e/full-demo-certification.spec.ts:168:7 › Full Demo — mandatory deployment certification › 05 BUYER SEARCHES PRODUCT (314ms)
+  ✓   6 [chromium] › e2e/full-demo-certification.spec.ts:177:7 › Full Demo — mandatory deployment certification › 06 BUY NOW (588ms)
+  ✓   7 [chromium] › e2e/full-demo-certification.spec.ts:182:7 › Full Demo — mandatory deployment certification › 07 CHECKOUT (11.7s)
+  ✓   8 [chromium] › e2e/full-demo-certification.spec.ts:239:7 › Full Demo — mandatory deployment certification › 08 PAYMENT SUCCESS (VIRTUAL) (137ms)
+  ✓   9 [chromium] › e2e/full-demo-certification.spec.ts:248:7 › Full Demo — mandatory deployment certification › 09 ORDER CREATED (56ms)
+  ✓  10 [chromium] › e2e/full-demo-certification.spec.ts:258:7 › Full Demo — mandatory deployment certification › 10 SELLER RECEIVES ORDER (547ms)
+  ✓  11 [chromium] › e2e/full-demo-certification.spec.ts:269:7 › Full Demo — mandatory deployment certification › 11 ACCEPT ORDER (39ms)
+[WebServer] ⨯ upstream image response failed for https://pklotmwxtnnepaitedic.supabase.co/storage/v1/object/public/products/8346d7b6-19e9-4e93-a60a-fb93452a19ad/8915c510-4a53-4f0e-94ba-90d609a22f45/full-demo-refund-1785680137786.jpg 400
+  ✓  12 [chromium] › e2e/full-demo-certification.spec.ts:274:7 › Full Demo — mandatory deployment certification › 12 GENERATE VIRTUAL LABEL (2.4s)
+  ✓  13 [chromium] › e2e/full-demo-certification.spec.ts:281:7 › Full Demo — mandatory deployment certification › 13 TRACKING GENERATED (242ms)
+  ✓  14 [chromium] › e2e/full-demo-certification.spec.ts:288:7 › Full Demo — mandatory deployment certification › 14 PARCEL CREATED (131ms)
+  ✓  15 [chromium] › e2e/full-demo-certification.spec.ts:304:7 › Full Demo — mandatory deployment certification › 15 SHIPPED (185ms)
+  ✓  16 [chromium] › e2e/full-demo-certification.spec.ts:313:7 › Full Demo — mandatory deployment certification › 16 DELIVERED (107ms)
+  ✓  17 [chromium] › e2e/full-demo-certification.spec.ts:322:7 › Full Demo — mandatory deployment certification › 17 COMPLETED (45ms)
+  ✓  18 [chromium] › e2e/full-demo-certification.spec.ts:342:7 › Full Demo — mandatory deployment certification › 18 REVIEW CREATED (176ms)
+  ✓  19 [chromium] › e2e/full-demo-certification.spec.ts:356:7 › Full Demo — mandatory deployment certification › 19 WALLET UPDATED (259ms)
+  ✓  20 [chromium] › e2e/full-demo-certification.spec.ts:371:7 › Full Demo — mandatory deployment certification › 20 NOTIFICATIONS VERIFIED (155ms)
+  ✓  21 [chromium] › e2e/full-demo-certification.spec.ts:379:7 › Full Demo — mandatory deployment certification › 21 MESSAGES VERIFIED (205ms)
+  ✓  22 [chromium] › e2e/full-demo-certification.spec.ts:386:7 › Full Demo — mandatory deployment certification › 22 REFUND VERIFIED (13.6s)
+[WebServer] [seller-performance] event enqueue failed {
+[WebServer]   code: 'PGRST205',
+[WebServer]   details: null,
+[WebServer]   hint: "Perhaps you meant the table 'public.seller_profiles'",
+[WebServer]   message: "Could not find the table 'public.seller_performance_event_queue' in the schema cache"
+[WebServer] }
+  ✓  23 [chromium] › e2e/full-demo-certification.spec.ts:495:7 › Full Demo — mandatory deployment certification › 23 CANCEL VERIFIED (2.5s)
+  ✓  24 [chromium] › e2e/full-demo-certification.spec.ts:586:7 › Full Demo — mandatory deployment certification › 24 LOGOUT VERIFIED (388ms)
+  ✓  25 [chromium] › e2e/full-demo-certification.spec.ts:591:7 › Full Demo — mandatory deployment certification › 25 LOGIN AGAIN VERIFIED (640ms)
+
+  25 passed (2.3m)
+FULLDEMO2_EXIT=0

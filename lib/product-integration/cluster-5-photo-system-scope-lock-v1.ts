@@ -97,7 +97,7 @@ export const CLUSTER_5_PHOTO_SYSTEM_SCOPE_LOCK = {
       "features/sell/ui/SellPage.tsx → SellPhotoRail → SellPhotoFileInput",
       "features/sell/context/SellProvider.tsx → intakeSellPhotoFromCanonicalEntry",
       "features/sell/context/SellProvider.tsx → uploadSellListingPhoto",
-      "app/seller/listings/[id]/edit → SellPage reuse",
+      "app/(platform)/seller/listings/[id]/edit → SellPage reuse",
       "Draft restore via Product Integration draft storage",
     ] as const,
     redirectOnly: ["/sell/camera", "/sell/new"] as const,

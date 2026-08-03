@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
 describe("OrdersPage single source of truth", () => {
   it("uses only OrdersPage and deletes legacy Orders UI modules", () => {
     const ui = readSource("features/orders/components/OrdersPage.tsx");
-    const route = readSource("app/orders/page.tsx");
+    const route = readSource("app/(platform)/orders/page.tsx");
     const css = readSource("styles/rovexo/orders-page-v1.css");
     const indexCss = readSource("styles/rovexo/index.css");
 
@@ -35,7 +35,7 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).not.toContain("orders-page__notify");
     expect(ui).not.toContain("Total Sales");
     expect(css).toContain(".orders-page");
-    expect(css).toContain("min-height: 52px");
+    expect(css).toContain("min-height: 44px");
     expect(css).toContain("width: 40px");
     expect(css).toContain("max-width: none");
     expect(css).not.toContain("orders-page__notify");

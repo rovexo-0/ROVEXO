@@ -44,7 +44,7 @@ describe("Canonical light theme only — dark theme removed", () => {
   });
 
   it("redirects legacy appearance route to settings", () => {
-    const page = readSource("app/account/preferences/appearance/page.tsx");
+    const page = readSource("app/(platform)/account/preferences/appearance/page.tsx");
     expect(page).toContain('redirect("/account/settings")');
   });
 });

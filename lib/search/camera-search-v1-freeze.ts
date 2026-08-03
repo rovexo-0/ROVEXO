@@ -102,7 +102,7 @@ export const CAMERA_SEARCH_V1 = {
     camera: "features/search/components/SearchInputActions.tsx",
     pipeline: "lib/search/image-pipeline.ts",
     corpusApi: "app/api/search/image-corpus/route.ts",
-    resultsPage: "app/search/image/results/page.tsx",
+    resultsPage: "app/(platform)/search/image/results/page.tsx",
   },
 } as const;
 

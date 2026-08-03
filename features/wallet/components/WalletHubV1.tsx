@@ -13,6 +13,7 @@ import { SUPREME_BLOOD_CODE_XIV_V1 } from "@/lib/supreme-blood-code-xiv-v1";
 import { SUPREME_BLOOD_CODE_XIX_V1 } from "@/lib/supreme-blood-code-xix-v1";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
+import { useWalletLive } from "@/features/wallet/hooks/use-wallet-live";
 import {
   ChevronRightLineIcon,
   InfoLineIcon,
@@ -22,6 +23,7 @@ import "@/styles/rovexo/wallet-hub-v1.css";
 
 type WalletHubV1Props = {
   data: WalletData;
+  userId: string;
   backHref?: string;
   connectMessage?: string;
   /** Presentation only — same Wallet Production UI. */
@@ -126,13 +128,15 @@ function BalanceMetricCard({
 }
 
 export function WalletHubV1({
-  data,
+  data: initialData,
+  userId,
   backHref = "/account",
   connectMessage,
   variant = "personal",
   isBusinessVerified = false,
 }: WalletHubV1Props) {
   void isBusinessVerified;
+  const { data, rtTick } = useWalletLive(userId, initialData);
   const isBusiness = variant === "business";
   const withdrawable = resolveManualWithdrawableBalance(data);
   const { withdrawalSummary } = data;
@@ -163,6 +167,8 @@ export function WalletHubV1({
         data-blood-code-xix={SUPREME_BLOOD_CODE_XIX_V1.version}
         data-wallet-sprint="IV"
         data-wallet-freeze="LOCKED"
+        data-wallet-rt-tick={rtTick}
+        data-wallet-available={data.availableBalance}
         data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}

@@ -38,7 +38,13 @@ function walkTsFiles(dir: string, out: string[] = []): string[] {
       entry === ".next" ||
       entry === "dist" ||
       entry === "coverage" ||
-      entry === "test-results"
+      entry === "test-results" ||
+      entry === ".local" ||
+      entry === ".local-chromium-deps" ||
+      entry === ".local-chromium-libs" ||
+      entry === ".local-webkit-libs" ||
+      entry === ".git" ||
+      entry === ".pnpm-store"
     ) {
       continue;
     }

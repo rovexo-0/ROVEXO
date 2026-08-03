@@ -68,6 +68,13 @@ export type ConversationOfferView = {
   expiresAt?: string | null;
   /** Set when this pending offer is a counter of a parent offer (Blood XLIII). */
   parentOfferId?: string | null;
+  /** Bundle Engine — parsed from offer message meta when present. */
+  bundle?: {
+    bundleId: string | null;
+    itemCount: number;
+    listSubtotal: number;
+    quantitySum: number;
+  } | null;
 };
 
 export type ConversationTrackingView = {

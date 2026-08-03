@@ -95,7 +95,7 @@ export const SELL_PHOTO_CANONICAL_ENTRIES = {
   },
   editListingPhoto: {
     source: "edit_listing_photo" as const,
-    host: "app/seller/listings/[id]/edit/page.tsx",
+    host: "app/(platform)/seller/listings/[id]/edit/page.tsx",
     ownership: "PRODUCT_INTEGRATION_VIA_SELL",
   },
 } as const;

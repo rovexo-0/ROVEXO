@@ -15,7 +15,8 @@
   --cds-color-divider: rgb(15 23 42 / 0.06);
   --cds-color-text-primary: #111111;
   --cds-color-text-secondary: #64748b;
-  --cds-color-text-muted: #94a3b8;
+  /* #64748b on #fff ≈ 4.76:1 WCAG AA (was #94a3b8 ≈ 2.56:1 FAIL on menu subtitles) */
+  --cds-color-text-muted: #64748b;
   --cds-color-info: #2563eb;
   --cds-color-info-bg: rgb(37 99 235 / 0.08);
   --cds-color-success: #059669;

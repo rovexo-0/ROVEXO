@@ -96,8 +96,10 @@ export function applyPrefillRespectingLocks(
   return merged;
 }
 
-export function shouldApplyPhotoColourSuggestion(draft: SellListingDraft): boolean {
-  return !isFieldUserModified(draft.userModified, "colour") && !draft.color.trim();
+export function shouldApplyPhotoColourSuggestion(_draft: SellListingDraft): boolean {
+  // COD SÂNGE — never auto-select Colour from photos. Suggestions may still surface in picker UI.
+  void _draft;
+  return false;
 }
 
 /** Restore locks for drafts saved before userModified existed. */

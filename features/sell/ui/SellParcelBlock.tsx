@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
-import { SellInlineError, SellNavRow, SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
+import { SellInlineError, SellNavRow, SellFlowHeader } from "@/features/sell/ui/SellPrimitives";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors, PARCEL_SIZE_OPTIONS, type ParcelSize } from "@/features/sell/types";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
@@ -73,7 +73,7 @@ function ParcelPicker({
       lockScroll={false}
     >
       <div className={cn(sellPanel, "sell-compact-picker flex min-h-0 flex-1 flex-col")}>
-        <SellPanelHeader title="Parcel Size" onBack={onClose} />
+        <SellFlowHeader title="Parcel Size" onBack={onClose} />
 
         <div className={cn(RX_MODAL_BODY, "sell-option-picker__body min-h-0 flex-1 overflow-y-auto overscroll-contain pt-ds-2")}>
           <ul className="sell-parcel-picker flex flex-col" role="radiogroup" aria-label="Parcel size">

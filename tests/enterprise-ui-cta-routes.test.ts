@@ -41,7 +41,7 @@ describe("Enterprise UI — seller CTA routes", () => {
 
 describe("Enterprise UI — legal pages remain reachable", () => {
   it("keeps legal routes available outside the removed global footer", () => {
-    const legalPage = readFileSync(join(process.cwd(), "app/legal/page.tsx"), "utf8");
+    const legalPage = readFileSync(join(process.cwd(), "app/(platform)/legal/page.tsx"), "utf8");
     expect(legalPage.length).toBeGreaterThan(0);
   });
 });

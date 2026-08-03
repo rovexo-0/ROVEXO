@@ -367,8 +367,14 @@ async function runCompletePaidOrderFulfillment(input: {
   await ensureOrderShippingPipeline(row);
 
   // Inventory Engine v1.0 — SOLD only after payment success (never on Buy Now reserve).
-  if (item.product_id) {
-    const sold = await markProductSold(item.product_id);
+  // Bundle: mark EVERY line sold with its quantity (atomic order — all or throw).
+  const soldLines = (row.order_items ?? []).filter((line) => line.product_id);
+  if (soldLines.length === 0) {
+    return { success: false, error: "Order item missing." };
+  }
+  for (const line of soldLines) {
+    const qty = Math.max(1, Number(line.quantity) || 1);
+    const sold = await markProductSold(line.product_id!, qty);
     if (!sold.success) {
       console.error("[orders/post-payment] mark_product_sold failed:", sold.error);
       throw new Error(sold.error ?? "Failed to mark listing sold after payment.");

@@ -53,7 +53,7 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
     expect(readSource("public/sw.js")).toContain("rovexo-static-v15");
     expect(readSource("public/sw.js")).toContain("/offline");
     expect(readSource("public/sw.js")).toContain("push");
-    expect(exists("app/offline/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/offline/page.tsx")).toBe(true);
     expect(exists("components/pwa/PwaProvider.tsx")).toBe(true);
     expect(readSource("components/pwa/PwaProvider.tsx")).toContain("beforeinstallprompt");
     expect(readSource("components/pwa/PwaProvider.tsx")).toContain("/sw.js");
@@ -97,7 +97,7 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
     expect(listHelpPolicies().length).toBe(listLegalDocuments().length);
     expect(listHelpPolicies().every((p) => p.href.startsWith("/legal/"))).toBe(true);
     expect(exists("features/help/components/HelpCentrePage.tsx")).toBe(true);
-    expect(exists("app/help/policies/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/help/policies/page.tsx")).toBe(true);
   });
 
   it("certifies email service · official from · password reset queue", () => {
@@ -127,15 +127,15 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
   it("certifies critical production flow surfaces exist", () => {
     const surfaces = PHASE_D_PRODUCTION_PREPARATION_V1.surfaces;
     expect(exists("app/(auth)/login/page.tsx") || exists("app/login/page.tsx")).toBe(true);
-    expect(exists("app/account/page.tsx")).toBe(true);
-    expect(exists("app/wallet/page.tsx") || exists("app/balance/page.tsx")).toBe(true);
-    expect(exists("app/sell/page.tsx")).toBe(true);
-    expect(exists("app/inbox/(list)/page.tsx") || exists("app/inbox/page.tsx")).toBe(true);
-    expect(exists("app/orders/page.tsx")).toBe(true);
-    expect(exists("app/checkout/page.tsx")).toBe(true);
-    expect(exists("app/search/page.tsx")).toBe(true);
-    expect(exists("app/legal/page.tsx")).toBe(true);
-    expect(exists("app/help/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/account/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/wallet/page.tsx") || exists("app/(platform)/balance/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/sell/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/inbox/(list)/page.tsx") || exists("app/(platform)/inbox/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/orders/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/checkout/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/search/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/legal/page.tsx")).toBe(true);
+    expect(exists("app/(platform)/help/page.tsx")).toBe(true);
     expect(surfaces.messages).toContain("/inbox");
     expect(surfaces.hmrc).toContain("/seller/compliance");
   });

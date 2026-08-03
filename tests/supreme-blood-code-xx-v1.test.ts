@@ -50,7 +50,7 @@ describe("ROVEXO Supreme Blood Code XX — Sprint V Sell Execution Mode", () => 
   it("live roadmap: I–IV LOCKED · V permanent freeze · VI approved", () => {
     expect(SUPREME_BLOOD_CODE_XX_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XX_V1.liveSprintStatus.V).toBe("LOCKED");
-    expect(SUPREME_BLOOD_CODE_XX_V1.liveSprintStatus.VI).toBe("IN_DEVELOPMENT");
+    expect(SUPREME_BLOOD_CODE_XX_V1.liveSprintStatus.VI).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.IV).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XV_V1.liveSprintStatus.V).toBe("LOCKED");
     expect(SUPREME_BLOOD_CODE_XVIII_V1.liveSprintStatus.IV).toBe("LOCKED");

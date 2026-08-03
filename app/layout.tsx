@@ -1,35 +1,40 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import "@/styles/rovexo/index.css";
+/**
+ * RC6/RC7 — design-system CSS is route-split:
+ * - Auth: `styles/rovexo/auth-entry.css` via `app/(auth)/layout.tsx`
+ * - Platform: `styles/rovexo/index.css` via `app/(platform)/layout.tsx`
+ * Root keeps globals + auth/session providers only (login LCP isolation).
+ * Search/Header mount under `app/(platform)` via PlatformChromeProviders.
+ */
 import "./globals.css";
-import { SearchProvider } from "@/features/search/client";
 import { AuthProvider } from "@/features/auth/providers/AuthProvider";
 import { AvatarProvider } from "@/features/auth/providers/AvatarProvider";
-import { HeaderProvider } from "@/features/header/HeaderProvider";
 import { AppShellLayout } from "@/components/layout/AppShellLayout";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
-import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
-import { PushSubscriptionManager } from "@/features/notifications/components/PushSubscriptionManager";
 import { ToastProvider } from "@/components/ui/Toast";
 import { organizationJsonLd } from "@/lib/seo/metadata";
 import { getAppUrl } from "@/lib/supabase/env";
 import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
+import { AuthChromeDeferred } from "@/components/layout/AuthChromeDeferred";
 
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
@@ -75,15 +80,22 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/brand/canonical-rx/app-icon-v1.png", type: "image/png" },
+      { url: "/favicon.ico" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
     shortcut: [{ url: "/favicon.ico" }],
   },
   other: {
@@ -116,24 +128,17 @@ export default function RootLayout({
         <PageVisibilityProvider>
           <LocaleProvider>
             <PwaProvider>
-              <PushSubscriptionManager />
               <ToastProvider>
                 <AuthProvider>
                   <AvatarProvider>
-                    <SearchProvider>
-                      <HeaderProvider>
-                        <AppShellLayout>{children}</AppShellLayout>
-                      </HeaderProvider>
-                    </SearchProvider>
+                    <AppShellLayout>{children}</AppShellLayout>
                   </AvatarProvider>
                 </AuthProvider>
               </ToastProvider>
             </PwaProvider>
           </LocaleProvider>
         </PageVisibilityProvider>
-        <GoogleAnalytics />
-        <CookieConsentBanner />
-        <VisitorPresenceBeacon />
+        <AuthChromeDeferred mode="platform-chrome" />
       </body>
     </html>
   );

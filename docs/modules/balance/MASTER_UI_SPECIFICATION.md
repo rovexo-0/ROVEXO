@@ -32,7 +32,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/wallet/page.tsx` · `app/wallet/withdraw/page.tsx` (unchanged URLs) |
+| Route | `app/(platform)/wallet/page.tsx` · `app/(platform)/wallet/withdraw/page.tsx` (unchanged URLs) |
 | Hub | `features/wallet/components/WalletHubV1.tsx` |
 | Withdraw | `features/wallet/components/withdraw/WithdrawPage.tsx` |
 | Profile row | `lib/account-center/canonical-menu.ts` + Account menu render |

@@ -1,15 +1,19 @@
 /**
- * Builds Product Information rows for View Item (FINAL PRODUCT INFORMATION CERTIFICATION).
+ * Builds Product Information rows for View Item (Attribute Engine v1.0).
  *
- * Dynamic field engine — configurable map, render only when populated.
- * Order locked by PRODUCT_INFORMATION_FIELD_MAP_V1.
- * Stock lives only under price (ProductStockStatus) — never duplicated here.
+ * Rows come from Category Attribute Schema + platform fields (Category, Uploaded).
+ * Never hardcode Size / Brand / Material. Missing value → skip. Unsupported → skip.
  */
 import { formatInboxRelativeTime } from "@/lib/messages/utils";
 import type { ProductDetail } from "@/lib/products/types";
 import type { ProductInfoRow } from "@/features/product-detail/ProductInformationRows";
-import { PRODUCT_INFORMATION_FIELD_MAP_V1 } from "@/lib/product-detail/product-information-field-map-v1";
 import { resolveProductInformationValuesV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
+import {
+  leafSlugFromCategoryBreadcrumbs,
+  orderedViewItemSchemaFields,
+} from "@/lib/product-detail/view-item-attribute-engine-v1";
+import { formatSizeForViewItem } from "@/lib/size";
+import type { ProductInformationFieldId } from "@/lib/product-detail/product-information-field-map-v1";
 
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
@@ -17,6 +21,9 @@ function nonEmpty(value: string | null | undefined): string | null {
 }
 
 export function buildProductInformationRows(product: ProductDetail): ProductInfoRow[] {
+  const leafSlug = leafSlugFromCategoryBreadcrumbs(product.categoryBreadcrumbs);
+  const schemaFields = orderedViewItemSchemaFields(leafSlug);
+
   const attrs = resolveProductInformationValuesV1({
     colour: product.colour,
     material: product.material,
@@ -32,13 +39,13 @@ export function buildProductInformationRows(product: ProductDetail): ProductInfo
     ? product.categoryBreadcrumbs.map((crumb) => crumb.name).join(" · ")
     : null;
 
-  const values: Record<string, string | null> = {
+  const values: Partial<Record<ProductInformationFieldId, string | null>> = {
     category: nonEmpty(categoryLabel),
     brand: nonEmpty(product.brand),
     condition: nonEmpty(product.condition),
     material: nonEmpty(attrs.material),
     colour: nonEmpty(attrs.colour),
-    size: nonEmpty(attrs.size),
+    size: nonEmpty(formatSizeForViewItem(attrs.size) ?? attrs.size),
     storage: nonEmpty(attrs.storage),
     network: nonEmpty(attrs.network),
     season: nonEmpty(attrs.season),
@@ -48,26 +55,26 @@ export function buildProductInformationRows(product: ProductDetail): ProductInfo
 
   const rows: ProductInfoRow[] = [];
 
-  for (const field of PRODUCT_INFORMATION_FIELD_MAP_V1) {
-    const value = values[field.id];
+  const categoryValue = values.category;
+  if (categoryValue) {
+    rows.push({
+      id: "category",
+      label: "Category",
+      value: categoryValue,
+      href: product.categoryId
+        ? `/search?category=${encodeURIComponent(product.categoryId)}`
+        : null,
+      valueTone: product.categoryId ? "primary" : "default",
+    });
+  }
+
+  for (const field of schemaFields) {
+    const value = values[field.fieldId];
     if (!value) continue;
 
-    if (field.id === "category") {
+    if (field.fieldId === "brand") {
       rows.push({
-        id: field.id,
-        label: field.label,
-        value,
-        href: product.categoryId
-          ? `/search?category=${encodeURIComponent(product.categoryId)}`
-          : null,
-        valueTone: product.categoryId ? "primary" : "default",
-      });
-      continue;
-    }
-
-    if (field.id === "brand") {
-      rows.push({
-        id: field.id,
+        id: field.fieldId,
         label: field.label,
         value,
         href: `/search?q=${encodeURIComponent(value)}`,
@@ -77,9 +84,18 @@ export function buildProductInformationRows(product: ProductDetail): ProductInfo
     }
 
     rows.push({
-      id: field.id,
+      id: field.fieldId,
       label: field.label,
       value,
+    });
+  }
+
+  const uploadedValue = values.uploaded;
+  if (uploadedValue) {
+    rows.push({
+      id: "uploaded",
+      label: "Uploaded",
+      value: uploadedValue,
     });
   }
 

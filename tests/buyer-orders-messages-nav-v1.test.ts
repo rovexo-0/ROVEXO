@@ -42,9 +42,9 @@ describe("Buyer Orders → Messages Hub navigation adaptation", () => {
 
 describe("Order direct conversation routing Phase I", () => {
   it("order detail routes redirect to Conversation Hub", () => {
-    const buyer = readSource("app/orders/[id]/page.tsx");
-    const seller = readSource("app/seller/orders/[id]/page.tsx");
-    const tracking = readSource("app/orders/[id]/tracking/page.tsx");
+    const buyer = readSource("app/(platform)/orders/[id]/page.tsx");
+    const seller = readSource("app/(platform)/seller/orders/[id]/page.tsx");
+    const tracking = readSource("app/(platform)/orders/[id]/tracking/page.tsx");
     expect(buyer).toContain("resolveOrderConversationHrefForUser");
     expect(buyer).toContain("redirect(");
     expect(buyer).not.toContain("OrderDetailPageShell");

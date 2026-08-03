@@ -283,7 +283,7 @@ describe("sell photo picker (Android / Samsung / iOS)", () => {
   });
 
   it("routes auction sell bookmarks to canonical Sell", () => {
-    const route = readSource("app/sell/auction/page.tsx");
+    const route = readSource("app/(platform)/sell/auction/page.tsx");
     expect(route).toContain('redirect("/sell")');
     expect(
       existsSync(path.join(process.cwd(), "features/auctions/sell/AuctionSellPage.tsx")),

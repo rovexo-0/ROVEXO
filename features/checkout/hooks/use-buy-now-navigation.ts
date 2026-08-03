@@ -41,6 +41,7 @@ export function useBuyNowNavigation() {
   const executeBuyNow = useCallback(
     async (input: {
       productSlug: string;
+      bundleId?: string | null;
       offerId?: string | null;
       conversationId?: string | null;
       onError?: (message: string) => void;
@@ -56,15 +57,18 @@ export function useBuyNowNavigation() {
       RVX_LOG("BUY NOW STARTED");
 
       try {
-        const storedKey = readStoredIdempotency(input.productSlug);
+        const idemKey = input.bundleId
+          ? readStoredIdempotency(`bundle:${input.bundleId}`)
+          : readStoredIdempotency(input.productSlug);
         const response = await fetch("/api/checkout/buy-now", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             productSlug: input.productSlug,
+            bundleId: input.bundleId ?? null,
             offerId: input.offerId ?? null,
             conversationId: input.conversationId ?? null,
-            idempotencyKey: storedKey,
+            idempotencyKey: idemKey,
           }),
         });
 
@@ -84,7 +88,12 @@ export function useBuyNowNavigation() {
               ? (rawCode as RvxClassifiedCode)
               : RVX_UNCLASSIFIED;
           RVX_LOG_CODE(code);
-          const error = toBuyNowPublicMessage(code);
+          const error =
+            typeof payload.error === "string" && payload.error.trim()
+              ? (payload.error.includes("\n")
+                  ? (payload.error.split("\n").pop() ?? toBuyNowPublicMessage(code))
+                  : payload.error)
+              : toBuyNowPublicMessage(code);
           RVX_LOG("CHECKOUT BLOCKED");
           RVX_LOG("PAYMENT BLOCKED");
           RVX_LOG("FINISHED");
@@ -93,7 +102,10 @@ export function useBuyNowNavigation() {
         }
 
         if (payload.idempotencyKey) {
-          storeIdempotency(input.productSlug, payload.idempotencyKey);
+          storeIdempotency(
+            input.bundleId ? `bundle:${input.bundleId}` : input.productSlug,
+            payload.idempotencyKey,
+          );
         }
 
         return {

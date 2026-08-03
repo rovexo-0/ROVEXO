@@ -78,8 +78,9 @@
 .orders-page {
   --orders-purple: #9333ea;
   --orders-purple-deep: #7c3aed;
-  --orders-green: #059669;
-  --orders-orange: #ea580c;
+  /* Darkened for WCAG 2.2 AA on white (was #059669≈3.8 / #ea580c≈3.6) */
+  --orders-green: #047857;
+  --orders-orange: #c2410c;
   --orders-red: #dc2626;
   --orders-yellow: #ca8a04;
   --orders-muted: #64748b;

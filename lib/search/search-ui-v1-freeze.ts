@@ -100,7 +100,7 @@ export const SEARCH_UI_V1_FREEZE = {
     css: "styles/rovexo/search-landing-v1.css",
     heroes: "lib/search/search-category-heroes-v1.ts",
     heroAssets: "public/search/categories/",
-    page: "app/search/page.tsx",
+    page: "app/(platform)/search/page.tsx",
   } as const,
 
   /** Owner-approved visual baseline (Blood XXVII–XXXI). Do not change without Owner. */

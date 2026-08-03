@@ -78,9 +78,9 @@ function scoreChecks(checks: ProductionOptimizationCheck[]): number {
 
 function buildInfrastructureChecks(): ProductionOptimizationCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
-  const homePage = readProjectFile("app/page.tsx");
-  const categoriesPage = readProjectFile("app/categories/page.tsx");
-  const categorySlugPage = readProjectFile("app/category/[...slug]/page.tsx");
+  const homePage = readProjectFile("app/(platform)/page.tsx");
+  const categoriesPage = readProjectFile("app/(platform)/categories/page.tsx");
+  const categorySlugPage = readProjectFile("app/(platform)/category/[...slug]/page.tsx");
   const homeContent = readProjectFile("components/home/HomeContent.tsx");
 
   return [
@@ -150,8 +150,8 @@ function buildDatabaseChecks(): ProductionOptimizationCheck[] {
 
 function buildSeoChecks(): ProductionOptimizationCheck[] {
   const layout = readProjectFile("app/layout.tsx");
-  const categoriesPage = readProjectFile("app/categories/page.tsx");
-  const listingPage = readProjectFile("app/listing/[slug]/page.tsx");
+  const categoriesPage = readProjectFile("app/(platform)/categories/page.tsx");
+  const listingPage = readProjectFile("app/(platform)/listing/[slug]/page.tsx");
 
   return [
     {

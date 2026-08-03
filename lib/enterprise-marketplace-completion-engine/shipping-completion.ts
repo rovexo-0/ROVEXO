@@ -31,7 +31,7 @@ function scanGlobalDomains(): ShippingDomainScanResult[] {
 
 function shippingFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/shipping/page.tsx") &&
+    fileExists("app/(platform)/shipping/page.tsx") &&
     fileExists("lib/shipping/service.ts") &&
     scan.orderCompletionPass
   );
@@ -56,7 +56,7 @@ function scanPlatform(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check === "delivery-estimates") pass = carriers.includes("estimateDeliveryDate");
     if (check === "shipping-zones") pass = shippingDefaults.includes("zones");
     if (check === "shipping-prices") pass = sellerSettings.includes("baseShippingCost");
-    if (check === "buyer-protection-shipping") pass = fileExists("app/protection/page.tsx");
+    if (check === "buyer-protection-shipping") pass = fileExists("app/(platform)/protection/page.tsx");
     if (check === "lost-parcel-workflow") pass = protection.includes("lost-shipment");
     if (check === "damaged-parcel-workflow") pass = protection.includes("item-damaged");
     if (check === "returns-workflow") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
@@ -157,7 +157,7 @@ function buildPassConditions(
   checksPass: boolean,
 ): ShippingPassConditionResult[] {
   const mapping: Record<(typeof SHIPPING_PASS_CONDITIONS)[number], boolean> = {
-    "shipping-pass": fileExists("app/shipping/page.tsx") && fileExists("lib/shipping/service.ts"),
+    "shipping-pass": fileExists("app/(platform)/shipping/page.tsx") && fileExists("lib/shipping/service.ts"),
     "tracking-pass": fileExists("features/commerce-ui/views/TrackingView.tsx"),
     "returns-pass": fileExists("features/orders/components/IssueResolutionLink.tsx"),
     "carrier-pass": fileExists("lib/shipping/carriers.ts"),

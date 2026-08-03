@@ -4,10 +4,11 @@
 
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import { leafSlugFromFlatPath } from "@/lib/categories/types";
+import { CATALOG_NO_BRAND } from "@/lib/catalog/brands";
+import { getBrandsForProductType } from "@/lib/catalog/brands-by-product-type";
+import { getMaterialsForProductType } from "@/lib/catalog/product-type-material-database-v1";
 import {
   MARKETPLACE_BRANDS,
-  POPULAR_BRAND_IDS,
-  getBrandsForVertical,
 } from "@/lib/brands";
 import {
   MARKETPLACE_COLOURS,
@@ -16,7 +17,6 @@ import {
 } from "@/lib/colours";
 import {
   MARKETPLACE_MATERIALS,
-  getMaterialsForVertical,
 } from "@/lib/materials";
 import {
   MARKETPLACE_CONDITIONS_BY_VERTICAL,
@@ -55,6 +55,12 @@ import {
   DUVET_SIZES,
 } from "@/lib/categories/enterprise/databases/dimensions";
 import { loadProductTypesForGroup } from "@/lib/product-types";
+import { resolveLeafAttributeOverride } from "@/lib/catalog/leaf-category-attribute-overrides-v1";
+import {
+  canonicalizeAttributeList,
+  resolveCanonicalPatternName,
+  resolveCanonicalStyleName,
+} from "@/lib/catalog/canonical-attribute-registry-v4";
 
 export type TaxonomyScope = {
   rootSlug: string;
@@ -99,6 +105,14 @@ function resolveVertical(scope: TaxonomyScope): string {
   const leaf = productFamilySlug ?? productTypeSlug ?? subcategorySlug ?? rootSlug;
 
   if (allSlugs.has("pillows") || (leaf && leaf.includes("pillow"))) return "pillows";
+  // Decorative / seat / outdoor cushions share pillow attribute vertical for applicable attrs.
+  if (
+    allSlugs.has("pillows-cushions") ||
+    allSlugs.has("cushions") ||
+    (leaf && leaf.includes("cushion"))
+  ) {
+    return "pillows";
+  }
   if ([...BEDDING_SLUGS].some((s) => allSlugs.has(s))) return "bedding";
   if (FASHION_ROOTS.has(rootSlug)) return "fashion";
   if (ELECTRONICS_ROOTS.has(rootSlug)) return "electronics";
@@ -130,7 +144,9 @@ function resolveColours(vertical: string): readonly MarketplaceColour[] {
   return MARKETPLACE_COLOURS_BY_SCOPE[scope] ?? MARKETPLACE_COLOURS;
 }
 
-function resolveSizes(scope: TaxonomyScope): readonly string[] {
+function resolveSizes(scope: TaxonomyScope, leafSlug: string): readonly string[] {
+  const leafAttrs = resolveLeafAttributeOverride(leafSlug);
+  if (leafAttrs?.sizes?.length) return leafAttrs.sizes;
   if (scope.vertical === "pillows") return PILLOW_SIZES;
   if (scope.vertical === "bedding") return DUVET_SIZES;
   if (scope.vertical === "fashion") return MARKETPLACE_SIZE_SYSTEMS.fashionAlpha;
@@ -140,9 +156,24 @@ function resolveSizes(scope: TaxonomyScope): readonly string[] {
   return MARKETPLACE_DEFAULT_SIZES;
 }
 
+/**
+ * COD SÂNGE brand order:
+ * 1. No Brand · 2. Other · 3. Official brands (alphabetical)
+ */
+export function orderSellBrandDatabase(brands: readonly string[]): readonly string[] {
+  const OTHER = "Other";
+  const set = new Set(brands.filter(Boolean));
+  set.add(CATALOG_NO_BRAND);
+  set.add(OTHER);
+  const official = [...set]
+    .filter((b) => b !== CATALOG_NO_BRAND && b !== OTHER)
+    .sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+  return [CATALOG_NO_BRAND, OTHER, ...official];
+}
+
 export function loadCategoryScopedTaxonomy(categoryPath: FlatCategoryPath | null): CategoryScopedTaxonomy | null {
   const scope = resolveTaxonomyScope(categoryPath);
-  if (!scope) return null;
+  if (!scope || !categoryPath) return null;
 
   const vertical = scope.vertical;
   const groupSlug = scope.productTypeSlug ?? scope.subcategorySlug ?? "";
@@ -150,21 +181,58 @@ export function loadCategoryScopedTaxonomy(categoryPath: FlatCategoryPath | null
     ? loadProductTypesForGroup(groupSlug).map((p) => p.name)
     : [];
 
-  const brandVertical = vertical === "bedding" ? "home" : vertical === "default" ? "home" : vertical;
+  const leafSlug =
+    leafSlugFromFlatPath(categoryPath) ||
+    scope.productFamilySlug ||
+    scope.productTypeSlug ||
+    scope.subcategorySlug ||
+    scope.rootSlug;
+
+  const productTypeBrands = leafSlug
+    ? getBrandsForProductType(leafSlug, {
+        rootSlug: scope.rootSlug,
+        subcategorySlug: scope.subcategorySlug ?? "",
+      })
+    : [];
+  // Dedicated product-type Brand DB only — never fall back to a generic vertical list.
+  const brands = orderSellBrandDatabase(
+    productTypeBrands.length > 0 ? productTypeBrands : [CATALOG_NO_BRAND, "Other"],
+  );
+
+  const productTypeMaterials = leafSlug
+    ? getMaterialsForProductType(leafSlug, {
+        rootSlug: scope.rootSlug,
+        subcategorySlug: scope.subcategorySlug ?? "",
+      })
+    : [];
+  // Dedicated product-type Material DB only — never fall back to a generic vertical list.
+  const materials =
+    productTypeMaterials.length > 0 ? productTypeMaterials : ["Other"];
+
+  const leafAttrs = resolveLeafAttributeOverride(leafSlug);
+
+  const rawPatterns =
+    leafAttrs?.patterns ??
+    MARKETPLACE_PATTERNS_BY_VERTICAL[vertical as keyof typeof MARKETPLACE_PATTERNS_BY_VERTICAL] ??
+    MARKETPLACE_PATTERNS_BY_VERTICAL.default;
+  const rawStyles =
+    leafAttrs?.styles ??
+    MARKETPLACE_STYLES_BY_VERTICAL[vertical as keyof typeof MARKETPLACE_STYLES_BY_VERTICAL] ??
+    MARKETPLACE_STYLES_BY_VERTICAL.default;
 
   return {
     scope,
-    brands: getBrandsForVertical(brandVertical),
-    popularBrandIds: POPULAR_BRAND_IDS,
-    materials: getMaterialsForVertical(vertical),
+    brands,
+    popularBrandIds: [CATALOG_NO_BRAND, "Other"] as const,
+    materials,
     colours: [...resolveColours(vertical)],
-    sizes: resolveSizes(scope),
-    patterns: MARKETPLACE_PATTERNS_BY_VERTICAL[vertical as keyof typeof MARKETPLACE_PATTERNS_BY_VERTICAL]
-      ?? MARKETPLACE_PATTERNS_BY_VERTICAL.default,
-    styles: MARKETPLACE_STYLES_BY_VERTICAL[vertical as keyof typeof MARKETPLACE_STYLES_BY_VERTICAL]
-      ?? MARKETPLACE_STYLES_BY_VERTICAL.default,
-    features: MARKETPLACE_FEATURES_BY_SCOPE[vertical as keyof typeof MARKETPLACE_FEATURES_BY_SCOPE]
-      ?? MARKETPLACE_FEATURES_BY_SCOPE.default,
+    sizes: resolveSizes(scope, leafSlug),
+    patterns: canonicalizeAttributeList(rawPatterns, resolveCanonicalPatternName),
+    styles: canonicalizeAttributeList(rawStyles, resolveCanonicalStyleName),
+    features:
+      leafAttrs?.features ??
+      MARKETPLACE_FEATURES_BY_SCOPE[vertical as keyof typeof MARKETPLACE_FEATURES_BY_SCOPE] ??
+      MARKETPLACE_FEATURES_BY_SCOPE.default,
     storage: MARKETPLACE_STORAGE_BY_SCOPE[vertical as keyof typeof MARKETPLACE_STORAGE_BY_SCOPE]
       ?? MARKETPLACE_STORAGE_BY_SCOPE.default,
     ram: RAM_CAPACITIES,

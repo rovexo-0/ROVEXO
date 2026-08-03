@@ -36,7 +36,7 @@ import { mapOfferDbStatus } from "@/lib/inbox/conversation-view";
 /**
  * Canonical certification file targets — one object, no duplicated path strings.
  * Inbox sync certifies ConversationHub → InboxPage → RealtimeNotificationProvider.
- * Never certify app/inbox/page.tsx or BadgeProvider (deleted / thin route only).
+ * Never certify app/(platform)/inbox/page.tsx or BadgeProvider (deleted / thin route only).
  */
 export const CERTIFICATION_TARGETS = {
   conversationHub: "features/inbox/components/ConversationHub.tsx",

@@ -1,9 +1,16 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { safeFetch, SsrfBlockedError } from "@/lib/security/ssrf-guard-v1";
 
 const LABEL_BUCKET = "shipping-labels";
 const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7;
+const LABEL_URL_ALLOWLIST = [
+  "sendcloud.sc",
+  "sendcloud.com",
+  "supabase.co",
+  "rovexo.co.uk",
+] as const;
 
 export type PersistedShippingLabel = {
   storagePath: string;
@@ -21,15 +28,17 @@ export async function persistShippingLabelPdf(input: {
   let buffer: Buffer;
   let contentType = "application/pdf";
   try {
-    const response = await fetch(input.labelUrl, {
+    const response = await safeFetch(input.labelUrl, {
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
+      ssrf: { allowedHostSuffixes: LABEL_URL_ALLOWLIST },
     });
     if (!response.ok) return null;
     contentType = response.headers.get("content-type") ?? "application/pdf";
     buffer = Buffer.from(await response.arrayBuffer());
     if (buffer.byteLength === 0) return null;
-  } catch {
+  } catch (error) {
+    if (error instanceof SsrfBlockedError) return null;
     return null;
   }
 

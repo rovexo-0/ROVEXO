@@ -1,0 +1,21 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.2.12
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 75ms
+⨯ Error: Invalid Supabase URL hostname ""https". Expected https://<project-ref>.supabase.co
+    at h (.next/server/chunks/ssr/_0frbiwb._.js:1:1533)
+    at <unknown> (.next/server/chunks/ssr/_0frbiwb._.js:1:2810)
+    at t (.next/server/chunks/ssr/_1pky0o-._.js:23:5420)
+    at async h (.next/server/chunks/ssr/[root-of-the-server]__0arig8z._.js:1:4308)
+    at async g (.next/server/chunks/ssr/[root-of-the-server]__079-eaf._.js:1:7869) {
+  digest: '332004100'
+}
+⨯ Error: Invalid Supabase URL hostname ""https". Expected https://<project-ref>.supabase.co
+    at h (.next/server/chunks/ssr/_0frbiwb._.js:1:1533)
+    at <unknown> (.next/server/chunks/ssr/_0frbiwb._.js:1:2810)
+    at t (.next/server/chunks/ssr/_1pky0o-._.js:23:5420)
+    at async h (.next/server/chunks/ssr/[root-of-the-server]__0arig8z._.js:1:4308)
+    at async g (.next/server/chunks/ssr/[root-of-the-server]__079-eaf._.js:1:7869) {
+  digest: '332004100'
+}

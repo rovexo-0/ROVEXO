@@ -60,14 +60,14 @@ describe("Inbox Hub Master Implementation — UI LOCK", () => {
   });
 
   it("locks legacy notification route and Messages Transaction Hub entry", () => {
-    const messagesHub = readSource("app/messages/page.tsx");
+    const messagesHub = readSource("app/(platform)/messages/page.tsx");
     const messagesMenu = readSource("lib/account-center/messages-menu.ts");
     expect(messagesHub).toContain("INBOX_ROUTES.messagesTab");
     expect(messagesHub).toContain("redirect(");
     expect(messagesMenu).toContain("Transaction hub.");
     expect(messagesMenu).toContain("buildMessagesMenuSections");
-    expect(readSource("app/messages/[id]/page.tsx")).toContain("INBOX_ROUTES.conversation");
-    expect(readSource("app/notifications/page.tsx")).toContain("INBOX_ROUTES.notificationsTab");
+    expect(readSource("app/(platform)/messages/[id]/page.tsx")).toContain("INBOX_ROUTES.conversation");
+    expect(readSource("app/(platform)/notifications/page.tsx")).toContain("INBOX_ROUTES.notificationsTab");
     expect(readSource("lib/homepage/canonical-nav.ts")).toContain('href: "/inbox"');
   });
 

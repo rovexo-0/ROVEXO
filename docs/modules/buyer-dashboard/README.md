@@ -8,7 +8,7 @@ Official ROVEXO buyer account hub — single source of truth for buyer-facing da
 |-------|--------|
 | **Phase** | 4 — **Frozen** |
 | **Route** | `/buyer` |
-| **Entry** | `app/buyer/page.tsx` → `BuyerDashboard` |
+| **Entry** | `app/(platform)/buyer/page.tsx` → `BuyerDashboard` |
 | **Component root** | `components/buyer/` |
 | **Styles** | `styles/rovexo-buyer-dashboard.css` |
 | **Frozen** | Yes — 2026-06-26 ([certificate](./FREEZE_CERTIFICATE.md)) |

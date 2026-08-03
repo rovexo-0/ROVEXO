@@ -22,6 +22,7 @@ import { validateResetPasswordStrength } from "@/lib/auth/password-strength";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
+import { mfaChallengeHref, readMfaAssurance } from "@/lib/auth/mfa";
 
 /** Canonical Register consent = Terms (mandatory) + Marketing (optional). GDPR UI permanently removed (AUTH UI v1.2). */
 const registerSchema = z
@@ -296,11 +297,18 @@ export async function signIn(
 
   await queueGaEvents([{ name: "login", params: { method: "email" } }]);
 
+  const nextPath = formData.get("next")?.toString();
+  const mfaAssurance = await readMfaAssurance(supabase);
+  if (mfaAssurance.requiresChallenge) {
+    console.info(`[${loginTraceId}] MFA challenge required — redirecting`);
+    redirect(mfaChallengeHref(nextPath));
+  }
+
   const role = (profile?.role ?? "buyer") as UserRole;
   const redirectT0 = Date.now();
   console.info(`[${loginTraceId}] redirectAfterSignIn START`);
   try {
-    redirectAfterSignIn(role, formData.get("next")?.toString());
+    redirectAfterSignIn(role, nextPath);
   } finally {
     // redirectAfterSignIn throws NEXT_REDIRECT — finish is throw time
     console.info(`[${loginTraceId}] redirectAfterSignIn ${Date.now() - redirectT0}ms`);

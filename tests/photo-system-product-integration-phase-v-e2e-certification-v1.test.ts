@@ -286,14 +286,14 @@ describe("Photo System Product Integration — Phase V E2E Certification", () =>
     expect(draftStorage).toContain("clearSellDraftPhotosViaProductIntegration");
     expect(provider).toContain("clearSellDraft");
 
-    const edit = readSource("app/seller/listings/[id]/edit/page.tsx");
+    const edit = readSource("app/(platform)/seller/listings/[id]/edit/page.tsx");
     expect(edit).toContain("SellPage");
   });
 
-  it("bypass scan: features/sell and app/sell never import forbidden owners", () => {
+  it("bypass scan: features/sell and app/(platform)/sell never import forbidden owners", () => {
     const roots = [
       path.join(process.cwd(), "features/sell"),
-      path.join(process.cwd(), "app/sell"),
+      path.join(process.cwd(), "app/(platform)/sell"),
     ];
     const forbidden = [
       "@/lib/listings/upload-client",

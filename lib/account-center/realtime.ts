@@ -8,55 +8,77 @@ type SubscribeOptions = {
   onStatus?: (status: AccountHubRealtimeStatus) => void;
 };
 
-function attachTableListener(
-  channel: RealtimeChannel,
-  table: string,
-  filter: string,
-  onChange: () => void,
-): RealtimeChannel {
-  return channel.on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table,
-      filter,
-    },
-    () => {
-      onChange();
-    },
-  );
-}
-
+/**
+ * Account Hub / Wallet live stats.
+ * One channel per table — multi-filter single channels drop events under load.
+ */
 export function subscribeToAccountHubStats(
   userId: string,
   options: SubscribeOptions,
 ): RealtimeChannel | null {
   const supabase = tryCreateClient();
-  if (!supabase) {
+  if (!supabase || !userId) {
     return null;
   }
 
   const { onChange, onStatus } = options;
+  const channels: RealtimeChannel[] = [];
 
-  const channel = supabase.channel(`account-hub:${userId}`);
+  const attach = (name: string, table: string, filter?: string) => {
+    const channel = supabase.channel(name);
+    const spec: {
+      event: "*";
+      schema: "public";
+      table: string;
+      filter?: string;
+    } = {
+      event: "*",
+      schema: "public",
+      table,
+    };
+    if (filter) {
+      spec.filter = filter;
+    }
+    channel
+      .on("postgres_changes", spec, () => {
+        onChange();
+      })
+      .subscribe((status) => {
+        onStatus?.(status);
+      });
+    channels.push(channel);
+  };
 
-  attachTableListener(channel, "products", `seller_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "saved_items", `user_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "orders", `buyer_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "orders", `seller_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "seller_profiles", `id=eq.${userId}`, onChange);
-  attachTableListener(channel, "reviews", `reviewee_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "wallets", `user_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "wallet_transactions", `user_id=eq.${userId}`, onChange);
+  attach(`account-hub-products:${userId}`, "products", `seller_id=eq.${userId}`);
+  /*
+   * saved_items: RLS-scoped subscribe without server filter.
+   * Filtered postgres_changes needs REPLICA IDENTITY FULL; RLS still limits
+   * events to the caller's own rows.
+   */
+  attach(`account-hub-saved:${userId}`, "saved_items");
+  attach(`account-hub-orders-buyer:${userId}`, "orders", `buyer_id=eq.${userId}`);
+  attach(`account-hub-orders-seller:${userId}`, "orders", `seller_id=eq.${userId}`);
+  attach(`account-hub-seller-profiles:${userId}`, "seller_profiles", `id=eq.${userId}`);
+  attach(`account-hub-reviews:${userId}`, "reviews", `reviewee_id=eq.${userId}`);
+  attach(`account-hub-wallets:${userId}`, "wallets", `user_id=eq.${userId}`);
+  attach(`account-hub-wallet-tx:${userId}`, "wallet_transactions", `user_id=eq.${userId}`);
 
-  return channel.subscribe((status) => {
-    onStatus?.(status);
-  });
+  /* Primary channel handle for teardown — removeAccountHubChannel walks topic prefix. */
+  const primary = channels[0] ?? null;
+  if (primary) {
+    (primary as RealtimeChannel & { __rovexoAccountHubChannels?: RealtimeChannel[] }).__rovexoAccountHubChannels =
+      channels;
+  }
+  return primary;
 }
 
 export function removeAccountHubChannel(channel: RealtimeChannel): void {
   const supabase = tryCreateClient();
   if (!supabase) return;
-  void supabase.removeChannel(channel);
+  const group =
+    (channel as RealtimeChannel & { __rovexoAccountHubChannels?: RealtimeChannel[] })
+      .__rovexoAccountHubChannels ?? [channel];
+  for (const entry of group) {
+    void supabase.removeChannel(entry);
+  }
 }

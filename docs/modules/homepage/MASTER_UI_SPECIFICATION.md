@@ -32,7 +32,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/page.tsx` |
+| Route | `app/(platform)/page.tsx` |
 | Page | `components/homepage/canonical/CanonicalHomepage.tsx` |
 | Category rail | `components/homepage/canonical/CanonicalCategoryRail.tsx` |
 | Featured | `components/homepage/canonical/featured-store/FeaturedStoreSection.tsx` |

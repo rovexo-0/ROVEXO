@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { invalidateAuthProfileCache } from "@/features/auth/providers/AuthProvider";
 import { signOut } from "@/lib/auth/actions";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -13,7 +14,12 @@ export function AccountCenterLogoutButton() {
       type="button"
       disabled={pending}
       className={cn("account-center-logout", focusRing)}
-      onClick={() => startTransition(() => void signOut())}
+      onClick={() =>
+        startTransition(() => {
+          invalidateAuthProfileCache();
+          void signOut();
+        })
+      }
     >
       {pending ? "Signing out…" : "Log out"}
     </button>

@@ -58,7 +58,7 @@ describe("Bring Your Item — Phase 1 UX certification", () => {
   });
 
   it("keeps job detail on the inline import route", () => {
-    const jobPage = readSource("app/import/[id]/page.tsx");
+    const jobPage = readSource("app/(platform)/import/[id]/page.tsx");
     expect(jobPage).toContain("?job=");
     expect(jobPage).not.toContain("MigrationJobDetailPage");
   });
@@ -161,8 +161,8 @@ describe("Bring Your Item — Phase 4 SSOT certification", () => {
     expect(BRING_YOUR_ITEM_PATH).toBe(IMPORT_WIZARD_PATH);
     expect(IMPORT_WIZARD_PATH).toBe("/account/bring-your-item");
 
-    const legacyPage = readSource("app/seller/migration/page.tsx");
-    const legacyJob = readSource("app/import/[id]/page.tsx");
+    const legacyPage = readSource("app/(platform)/seller/migration/page.tsx");
+    const legacyJob = readSource("app/(platform)/import/[id]/page.tsx");
     expect(legacyPage).toContain(`redirect(MIGRATION_CENTER_PATH)`);
     expect(legacyJob).toContain("BRING_YOUR_ITEM_PATH");
     expect(LEGACY_MIGRATION_CENTER_PATH).toBe("/seller/migration");
@@ -201,7 +201,7 @@ describe("Bring Your Item — error recovery", () => {
 describe("Bring Your Item — full module wiring", () => {
   it("wires header CTA and account route to live import surfaces", () => {
     const cta = readSource("components/header/HeaderBringYourItemCta.tsx");
-    const byi = readSource("app/account/bring-your-item/page.tsx");
+    const byi = readSource("app/(platform)/account/bring-your-item/page.tsx");
     expect(cta).toContain("BRING_YOUR_ITEM_PATH");
     expect(byi).toContain("MigrationCenterPage");
   });

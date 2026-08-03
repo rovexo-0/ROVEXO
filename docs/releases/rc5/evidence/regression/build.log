@@ -1,0 +1,1790 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 prebuild
+> npm run verify:assets && npm run typecheck && npm run lint && npm run test:full-demo-contracts && npm run certify:full-demo
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 verify:assets
+> npx tsx scripts/validate-production-assets.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✅ Premium assets verified
+✅ Production assets only
+✅ No placeholder graphics
+✅ Homepage approved
+✅ Production deployment allowed
+
+Summary: 564 premium assets · 684 total raster assets · 0 blocking issues
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 lint
+> eslint
+
+
+/home/mihai/ROVEXO/components/Header.tsx
+  23:3  warning  'compact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/mobile-device.ts
+  1:10  warning  'expect' is defined but never used                           @typescript-eslint/no-unused-vars
+  3:3   warning  'MOBILE_DEVICE_INTERNAL_PAD_X_PX' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/e2e/helpers/realtime-certification.ts
+  83:10  warning  'sendMessageButton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/features/notifications/components/RealtimeNotificationProvider.tsx
+  20:24  warning  'invalidateShareInflight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-launch-readiness-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/consistency.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/modernization.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scan-utils.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/enterprise-marketplace-completion-engine/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/full-demo/deploy-gate.ts
+  8:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/homepage-engineering-director/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/dashboard-scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/launch-certification/scanner.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/ops/repo-path.ts
+  2:10  warning  'workspacePath' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/security/ssrf-guard-v1.ts
+  201:45  warning  '_ignored' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/operations/recommendations.ts
+  3:10  warning  'join' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/super-admin/premium-design/inventory.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts
+  14:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts
+  23:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts
+  16:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxvii-official-brand-emblem-v1.ts
+  18:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts
+  15:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/mihai/ROVEXO/scripts/assert-catalog-runtime-fingerprint.ts
+  49:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  63:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  67:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  73:5  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+  82:3  warning  Unused eslint-disable directive (no problems were reported from 'no-console')
+
+/home/mihai/ROVEXO/scripts/remove-two-demo-listings.mjs
+  283:9  warning  'allTargetsAccounted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 31 problems (0 errors, 31 warnings)
+  0 errors and 5 warnings potentially fixable with the `--fix` option.
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:full-demo-contracts
+> vitest run tests/full-demo-certification.test.ts tests/auth-startup-canonical.test.ts tests/auth-guest-entry-v1.test.ts tests/auth-splash-v1.test.ts tests/auth-welcome-v1.test.ts tests/launch-certification-master.test.ts tests/launch-certification-mode.test.ts
+
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+
+ Test Files  7 passed (7)
+      Tests  42 passed (42)
+   Start at  18:50:56
+   Duration  1.07s (transform 280ms, setup 35ms, import 431ms, tests 54ms, environment 0ms)
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 certify:full-demo
+> npx tsx scripts/certify-full-demo.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "version": "v1.0",
+  "generatedAt": "2026-08-03T17:50:59.548Z",
+  "passed": true,
+  "deploymentBlocked": false,
+  "checks": [
+    {
+      "id": "demo_accounts_permanent",
+      "pass": true,
+      "detail": "ROVEXO LIVE BUYER + LIVE SELLER permanence contract locked"
+    },
+    {
+      "id": "demo_virtual_funds",
+      "pass": true,
+      "detail": "Both accounts require £50,000 virtual balance"
+    },
+    {
+      "id": "demo_buyer_quotas",
+      "pass": true,
+      "detail": "Buyer inventory quotas locked (100/50/50/50/50)"
+    },
+    {
+      "id": "demo_seller_quotas",
+      "pass": true,
+      "detail": "Seller quotas: Absolute Law v5.0 products=0 (real only) + sales/offers/promotions floors"
+    },
+    {
+      "id": "authentication_passed",
+      "pass": true,
+      "detail": "Authentication screens present (Login + Register frozen)"
+    },
+    {
+      "id": "orders_passed",
+      "pass": true,
+      "detail": "Orders path + Full Demo order seed present"
+    },
+    {
+      "id": "wallet_passed",
+      "pass": true,
+      "detail": "Virtual wallet / escrow payout path wired"
+    },
+    {
+      "id": "tracking_passed",
+      "pass": true,
+      "detail": "Demo shipping + tracking history seed wired"
+    },
+    {
+      "id": "checkout_passed",
+      "pass": true,
+      "detail": "Virtual checkout path wired (no real Stripe in demo mode)"
+    },
+    {
+      "id": "responsive_passed",
+      "pass": true,
+      "detail": "Certification surfaces include marketplace + responsive targets"
+    },
+    {
+      "id": "performance_passed",
+      "pass": true,
+      "detail": "Launch certification dashboard at 100%"
+    },
+    {
+      "id": "permanence_guards",
+      "pass": true,
+      "detail": "Delete/suspend/reset/cleanup/migration/E2E paths refuse Full Demo Accounts"
+    },
+    {
+      "id": "deploy_action_gate",
+      "pass": true,
+      "detail": "Super Admin deploy API requires MFA + Full Demo + Deployment certification + no-override"
+    },
+    {
+      "id": "mandatory_e2e_wired",
+      "pass": true,
+      "detail": "All 25 runtime E2E steps and fail-closed pre-deployment command are wired"
+    },
+    {
+      "id": "buyer_flow_defined",
+      "pass": true,
+      "detail": "Buyer cert flow: login → … → completed"
+    },
+    {
+      "id": "seller_flow_defined",
+      "pass": true,
+      "detail": "Seller cert flow: login → … → wallet_payout → completed"
+    },
+    {
+      "id": "product_target",
+      "pass": true,
+      "detail": "Absolute Law v5.0: LIVE SELLER uses real products only (no seeded catalogue)"
+    },
+    {
+      "id": "permanence_contract",
+      "pass": true,
+      "detail": "Permanence contract: never expire / delete / reset"
+    },
+    {
+      "id": "release_demo_certification_passed",
+      "pass": true,
+      "detail": "Release requirement: demo_certification_passed"
+    },
+    {
+      "id": "release_authentication_passed",
+      "pass": true,
+      "detail": "Release requirement: authentication_passed"
+    },
+    {
+      "id": "release_orders_passed",
+      "pass": true,
+      "detail": "Release requirement: orders_passed"
+    },
+    {
+      "id": "release_wallet_passed",
+      "pass": true,
+      "detail": "Release requirement: wallet_passed"
+    },
+    {
+      "id": "release_tracking_passed",
+      "pass": true,
+      "detail": "Release requirement: tracking_passed"
+    },
+    {
+      "id": "release_checkout_passed",
+      "pass": true,
+      "detail": "Release requirement: checkout_passed"
+    },
+    {
+      "id": "release_responsive_passed",
+      "pass": true,
+      "detail": "Release requirement: responsive_passed"
+    },
+    {
+      "id": "release_performance_passed",
+      "pass": true,
+      "detail": "Release requirement: performance_passed"
+    }
+  ],
+  "buyerFlow": [
+    "login",
+    "buy",
+    "checkout",
+    "wallet",
+    "tracking",
+    "delivered",
+    "review",
+    "completed"
+  ],
+  "sellerFlow": [
+    "login",
+    "receive_offer",
+    "accept_offer",
+    "generate_label",
+    "tracking",
+    "delivered",
+    "wallet_payout",
+    "completed"
+  ],
+  "releaseRequirements": [
+    "demo_certification_passed",
+    "authentication_passed",
+    "orders_passed",
+    "wallet_passed",
+    "tracking_passed",
+    "checkout_passed",
+    "responsive_passed",
+    "performance_passed"
+  ],
+  "surfaces": [
+    "Homepage",
+    "Search",
+    "Categories",
+    "Product page",
+    "Buy now",
+    "Cart",
+    "Checkout",
+    "Wallet",
+    "Orders",
+    "Inbox Hub",
+    "Tracking",
+    "Notifications",
+    "Reviews",
+    "Refunds",
+    "Business Dashboard",
+    "Seller Dashboard",
+    "Settings",
+    "Trust Centre",
+    "Business Verification",
+    "Promotions",
+    "Analytics"
+  ],
+  "quotas": {
+    "buyer": {
+      "virtualBalanceGbp": 50000,
+      "completedOrders": 100,
+      "cancelledOrders": 50,
+      "refundedOrders": 50,
+      "deliveredOrders": 50,
+      "disputes": 50,
+      "notifications": 20,
+      "reviews": 100,
+      "messages": 40,
+      "trackingHistoryOrders": 100
+    },
+    "seller": {
+      "virtualBalanceGbp": 50000,
+      "products": 0,
+      "completedSales": 100,
+      "cancelledSales": 50,
+      "refundedSales": 50,
+      "offers": 40,
+      "counterOffers": 20,
+      "disputes": 50,
+      "notifications": 20,
+      "messages": 40,
+      "promotions": 10,
+      "analyticsEvents": 50
+    }
+  }
+}
+
+✓ FULL DEMO STATIC CONTRACT PASSED — run certify:predeploy for deployment eligibility.
+
+
+> rovexo@1.0.0-rc.1 build
+> npm run assert:catalog-fingerprint && next build
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 assert:catalog-fingerprint
+> npx tsx scripts/assert-catalog-runtime-fingerprint.ts
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[catalog-fingerprint] live revision=uk-960-rc2b-2026-08-01 treeHash=33dfeed10261b00fbcb3edb8597196979351d345aabec3b18be33d13ce96ed54 nodes=1044 leaves=960
+[catalog-fingerprint] lock revision=uk-960-rc2b-2026-08-01 treeHash=33dfeed10261b00fbcb3edb8597196979351d345aabec3b18be33d13ce96ed54 nodes=1044 leaves=960
+[catalog-fingerprint] PASS — Localhost ≡ Preview ≡ Production fingerprint lock
+▲ Next.js 16.2.12 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · staticGenerationMaxConcurrency: 2
+  · staticGenerationRetryCount: 3
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Turbopack build encountered 4 warnings:
+./app/api/super-admin/premium-design/route.ts:20:22
+The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 29134 files in [project]/
+  [90m18 |[0m
+  [90m19 |[0m [36masync[0m [36mfunction[0m runNodeScript(scriptRelativePath: string) {
+[31m[1m>[0m [90m20 |[0m   [36mconst[0m scriptPath = path.join([33mROOT[0m, scriptRelativePath);
+  [90m   |[0m                      [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m21 |[0m   [36mconst[0m { stdout, stderr } = [36mawait[0m execFileAsync(process.execPath, [scriptPath], {
+  [90m22 |[0m     cwd: [33mROOT[0m,
+  [90m23 |[0m     maxBuffer: [35m12[0m * [35m1024[0m * [35m1024[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import trace:
+  App Route:
+    ./app/api/super-admin/premium-design/route.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+
+./lib/design-studio-v1/asset-scanner.ts:25:24
+The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+  [90m23 |[0m     [36mwhile[0m ((match = [33mPUBLIC_REF_PATTERN[0m.exec(content)) !== [36mnull[0m) {
+  [90m24 |[0m       [36mconst[0m assetPath = [32m`/[0m${match[[35m1[0m][32m}`[0m;
+[31m[1m>[0m [90m25 |[0m       [36mconst[0m diskPath = join(publicDir, match[[35m1[0m].replace([35m/^\//[0m, [32m""[0m));
+  [90m   |[0m                        [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m26 |[0m       [36mif[0m (!existsSync(diskPath)) {
+  [90m27 |[0m         findings.push({
+  [90m28 |[0m           id: [32m`broken-[0m${rel[32m}-[0m${match.index[32m}`[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+  #2 [App Route]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./lib/design-studio-v1/design-audit.ts
+    ./app/api/super-admin/design-studio/route.ts
+
+  #3 [Server Component]:
+    ./lib/design-studio-v1/asset-scanner.ts
+    ./lib/design-studio-v1/snapshot.ts
+    ./app/super-admin/experience/page.tsx
+
+
+./lib/design-studio-v1/icon-scanner.ts:52:22
+The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+  [90m50 |[0m
+  [90m51 |[0m   [36mfor[0m ([36mconst[0m entry [36mof[0m collectRegisteredIcons()) {
+[31m[1m>[0m [90m52 |[0m     [36mconst[0m diskPath = join(publicDir, entry.path.replace([35m/^\//[0m, [32m""[0m));
+  [90m   |[0m                      [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m53 |[0m     [36mif[0m (!existsSync(diskPath)) {
+  [90m54 |[0m       findings.push({
+  [90m55 |[0m         id: [32m`missing-[0m${entry.key[32m}`[0m,
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+  #2 [App Route]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./lib/design-studio-v1/design-audit.ts
+    ./app/api/super-admin/design-studio/route.ts
+
+  #3 [Server Component]:
+    ./lib/design-studio-v1/icon-scanner.ts
+    ./lib/design-studio-v1/snapshot.ts
+    ./app/super-admin/experience/page.tsx
+
+
+./next.config.ts
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Import trace:
+  App Route:
+    ./next.config.ts
+    ./app/api/super-admin/premium-design/route.ts
+
+
+✓ Compiled successfully in 27.6s
+  Running TypeScript ...
+  Finished TypeScript in 28.3s ...
+  Collecting page data using 31 workers ...
+  Generating static pages using 31 workers (0/857) ...
+  Generating static pages using 31 workers (214/857) 
+  Generating static pages using 31 workers (428/857) 
+  Generating static pages using 31 workers (642/857) 
+✓ Generating static pages using 31 workers (857/857) in 868ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /403
+├ ƒ /about
+├ ƒ /acceptable-use
+├ ƒ /accessibility
+├ ƒ /account
+├ ƒ /account-suspension
+├ ƒ /account/addresses
+├ ƒ /account/blocked-users
+├ ƒ /account/bring-your-item
+├ ƒ /account/buyer/preferences
+├ ƒ /account/buying
+├ ƒ /account/edit
+├ ƒ /account/edit-profile
+├ ƒ /account/followers
+├ ƒ /account/ideas
+├ ƒ /account/offers
+├ ƒ /account/orders
+├ ƒ /account/payment-methods
+├ ƒ /account/preferences/appearance
+├ ƒ /account/preferences/currency
+├ ƒ /account/preferences/language
+├ ƒ /account/preferences/timezone
+├ ƒ /account/privacy
+├ ƒ /account/privacy/cookies
+├ ƒ /account/profile
+├ ƒ /account/profile/avatar
+├ ƒ /account/profile/bio
+├ ƒ /account/profile/edit
+├ ƒ /account/promotion-tools
+├ ƒ /account/promotion-tools/[entry]
+├ ƒ /account/recently-viewed
+├ ƒ /account/reviews
+├ ƒ /account/security
+├ ƒ /account/security/devices
+├ ƒ /account/security/reset-via-email
+├ ƒ /account/security/sessions
+├ ƒ /account/security/two-factor
+├ ƒ /account/seller/shipping
+├ ƒ /account/settings
+├ ƒ /account/settings/about
+├ ƒ /account/settings/bank-account
+├ ƒ /account/settings/payment-methods
+├ ƒ /account/verification
+├ ƒ /account/wallet
+├ ƒ /admin
+├ ƒ /admin/analytics
+├ ƒ /admin/business
+├ ƒ /admin/categories
+├ ƒ /admin/help
+├ ƒ /admin/moderation
+├ ƒ /admin/monetization
+├ ƒ /admin/operations
+├ ƒ /admin/orders
+├ ƒ /admin/promotions
+├ ƒ /admin/protection
+├ ƒ /admin/seo
+├ ƒ /admin/trust
+├ ƒ /admin/wholesale
+├ ƒ /ai
+├ ƒ /analytics
+├ ƒ /api/account/blocked-users
+├ ƒ /api/account/blocked-users/[id]
+├ ƒ /api/account/buyer-preferences
+├ ƒ /api/account/delete
+├ ƒ /api/account/ideas
+├ ƒ /api/account/ideas/[id]/comments
+├ ƒ /api/account/ideas/[id]/follow
+├ ƒ /api/account/ideas/[id]/vote
+├ ƒ /api/account/privacy
+├ ƒ /api/account/privacy/cookies
+├ ƒ /api/account/profile-gate
+├ ƒ /api/account/security
+├ ƒ /api/account/seller-shipping
+├ ƒ /api/account/sessions
+├ ƒ /api/account/snapshot
+├ ƒ /api/addresses
+├ ƒ /api/addresses/[id]
+├ ƒ /api/addresses/lookup
+├ ƒ /api/admin/badges
+├ ƒ /api/admin/categories
+├ ƒ /api/admin/categories/[id]
+├ ƒ /api/admin/categories/sync
+├ ƒ /api/admin/help
+├ ƒ /api/admin/marketplace-intelligence
+├ ƒ /api/admin/marketplace-os
+├ ƒ /api/admin/moderation
+├ ƒ /api/admin/moderation/[id]
+├ ƒ /api/admin/moderation/cases/[id]
+├ ƒ /api/admin/operations
+├ ƒ /api/admin/orders/[id]
+├ ƒ /api/admin/organic-growth
+├ ƒ /api/admin/promotions
+├ ƒ /api/admin/promotions/[id]
+├ ƒ /api/admin/protection
+├ ƒ /api/admin/seller-performance
+├ ƒ /api/admin/seo/analytics
+├ ƒ /api/admin/seo/audit
+├ ƒ /api/admin/seo/health
+├ ƒ /api/admin/seo/regression
+├ ƒ /api/admin/trust
+├ ƒ /api/ai-engine
+├ ƒ /api/ai/camera/analyze
+├ ƒ /api/analytics
+├ ƒ /api/analytics-engine
+├ ƒ /api/analytics/live-center
+├ ƒ /api/analytics/live-countries
+├ ƒ /api/analytics/live-presence
+├ ƒ /api/assistant
+├ ƒ /api/auctions
+├ ƒ /api/auctions/notify
+├ ƒ /api/auth/mfa/challenge
+├ ƒ /api/auth/mfa/disable
+├ ƒ /api/auth/mfa/enroll
+├ ƒ /api/auth/mfa/factors
+├ ƒ /api/auth/mfa/recovery/regenerate
+├ ƒ /api/auth/mfa/status
+├ ƒ /api/auth/mfa/unenroll
+├ ƒ /api/auth/mfa/verify
+├ ƒ /api/auth/mfa/verify-enrollment
+├ ƒ /api/badges/[userId]
+├ ƒ /api/bundle
+├ ƒ /api/cart
+├ ƒ /api/categories/tree
+├ ƒ /api/checkout/buy-now
+├ ƒ /api/checkout/done-ready
+├ ƒ /api/checkout/shipping-address
+├ ƒ /api/checkout/shipping-quotes
+├ ƒ /api/cron/maintenance
+├ ƒ /api/cron/migration/process
+├ ƒ /api/cron/migration/publish
+├ ƒ /api/cron/orders/cleanup
+├ ƒ /api/cron/shipping/tracking
+├ ƒ /api/follow-notifications
+├ ƒ /api/follows
+├ ƒ /api/full-demo/session
+├ ƒ /api/health
+├ ƒ /api/health/diagnostics
+├ ƒ /api/health/diagnostics.disabled
+├ ƒ /api/health/live
+├ ƒ /api/help/analytics
+├ ƒ /api/help/assistant
+├ ƒ /api/homepage/feed
+├ ƒ /api/homepage/following-feed
+├ ƒ /api/inbox/badge
+├ ƒ /api/integrations-engine
+├ ƒ /api/listings
+├ ƒ /api/listings/[id]
+├ ƒ /api/listings/[id]/duplicate
+├ ƒ /api/listings/[id]/status
+├ ƒ /api/listings/bump
+├ ƒ /api/listings/feature
+├ ƒ /api/listings/report
+├ ƒ /api/listings/upload
+├ ƒ /api/marketplace-intelligence/zero-results
+├ ƒ /api/marketplace-os/alerts
+├ ƒ /api/marketplace-os/audit
+├ ƒ /api/marketplace-os/health
+├ ƒ /api/marketplace-os/status
+├ ƒ /api/messages
+├ ƒ /api/messages-engine
+├ ƒ /api/messages/[id]
+├ ƒ /api/messages/[id]/photo
+├ ƒ /api/messages/[id]/report
+├ ƒ /api/messages/presence
+├ ƒ /api/messages/search
+├ ƒ /api/monetization/checkout
+├ ƒ /api/monetization/plans
+├ ƒ /api/monetization/subscription
+├ ƒ /api/notifications
+├ ƒ /api/notifications-engine
+├ ƒ /api/notifications/badge-counts
+├ ƒ /api/notifications/count
+├ ƒ /api/notifications/preferences
+├ ƒ /api/notifications/settings
+├ ƒ /api/offers
+├ ƒ /api/offers/[id]
+├ ƒ /api/orders
+├ ƒ /api/orders-engine
+├ ƒ /api/orders/[id]
+├ ƒ /api/orders/[id]/receipt
+├ ƒ /api/orders/[id]/shipment
+├ ƒ /api/orders/[id]/shipment/parcels
+├ ƒ /api/orders/[id]/shipment/parcels/[parcelId]
+├ ƒ /api/orders/[id]/shipment/parcels/[parcelId]/operations
+├ ƒ /api/orders/checkout
+├ ƒ /api/orders/confirm
+├ ƒ /api/organic-growth/zero-results
+├ ƒ /api/payment-methods
+├ ƒ /api/payment-methods/[id]
+├ ƒ /api/payments-engine
+├ ƒ /api/platform-analytics
+├ ƒ /api/products
+├ ƒ /api/profile
+├ ƒ /api/profile/avatar
+├ ƒ /api/profile/email
+├ ƒ /api/profile/password
+├ ƒ /api/profile/username
+├ ƒ /api/profile/verify-email
+├ ƒ /api/promotions/analytics
+├ ƒ /api/promotions/cancel
+├ ƒ /api/promotions/catalog
+├ ƒ /api/promotions/checkout
+├ ƒ /api/promotions/confirm
+├ ƒ /api/promotions/payment-options
+├ ƒ /api/promotions/pricing
+├ ƒ /api/promotions/seller-checkout
+├ ƒ /api/protection-engine
+├ ƒ /api/protection/cases
+├ ƒ /api/protection/cases/[id]
+├ ƒ /api/push/subscribe
+├ ƒ /api/push/vapid-public-key
+├ ƒ /api/recently-viewed
+├ ƒ /api/recommendations
+├ ƒ /api/reputation/[userId]
+├ ƒ /api/reviews
+├ ƒ /api/saved
+├ ƒ /api/saved-searches
+├ ƒ /api/search
+├ ƒ /api/search-engine
+├ ƒ /api/search/image-corpus
+├ ƒ /api/search/results
+├ ƒ /api/security-engine
+├ ƒ /api/sell/category-feedback
+├ ƒ /api/sell/draft
+├ ƒ /api/seller/compliance/documents/[kind]
+├ ƒ /api/seller/marketplace/connectors
+├ ƒ /api/seller/marketplace/connectors/[platform]
+├ ƒ /api/seller/marketplace/oauth/[platform]/authorize
+├ ƒ /api/seller/marketplace/oauth/[platform]/callback
+├ ƒ /api/seller/marketplace/oauth/status
+├ ƒ /api/seller/migration
+├ ƒ /api/seller/migration/[id]
+├ ƒ /api/seller/migration/[id]/items
+├ ƒ /api/seller/migration/[id]/items/[itemId]
+├ ƒ /api/seller/migration/[id]/publish
+├ ƒ /api/seller/migration/[id]/report.csv
+├ ƒ /api/seller/migration/[id]/report.json
+├ ƒ /api/seller/migration/connectors
+├ ƒ /api/seller/migration/connectors/[platform]
+├ ƒ /api/seller/migration/connectors/csv/mapping
+├ ƒ /api/seller/migration/connectors/csv/preview
+├ ƒ /api/seller/migration/connectors/xlsx/mapping
+├ ƒ /api/seller/migration/connectors/xlsx/preview
+├ ƒ /api/seller/migration/connectors/xml/mapping
+├ ƒ /api/seller/migration/connectors/xml/preview
+├ ƒ /api/seller/migration/estimate
+├ ƒ /api/seller/migration/summary
+├ ƒ /api/seller/performance
+├ ƒ /api/seller/performance/[userId]
+├ ƒ /api/seller/review-center
+├ ƒ /api/seller/review-center/[id]
+├ ƒ /api/seller/review-center/[id]/respond
+├ ƒ /api/seller/tax
+├ ƒ /api/seo/og
+├ ƒ /api/seo/sitemap-index
+├ ƒ /api/settings
+├ ƒ /api/shipping
+├ ƒ /api/shipping/demo-label
+├ ƒ /api/shipping/health
+├ ƒ /api/shipping/labels
+├ ƒ /api/shipping/quotes
+├ ƒ /api/shipping/sendcloud/health
+├ ƒ /api/shipping/sendcloud/tracking
+├ ƒ /api/shipping/service-points
+├ ƒ /api/shipping/service-points/select
+├ ƒ /api/staff-enterprise
+├ ƒ /api/staff-enterprise/action
+├ ƒ /api/staff-enterprise/calls
+├ ƒ /api/staff-enterprise/files
+├ ƒ /api/staff-enterprise/messages
+├ ƒ /api/staff-enterprise/offline
+├ ƒ /api/staff-enterprise/push
+├ ƒ /api/stripe/webhook
+├ ƒ /api/super-admin/ai
+├ ƒ /api/super-admin/ai-engine
+├ ƒ /api/super-admin/ai/action
+├ ƒ /api/super-admin/ai/approve-repair
+├ ƒ /api/super-admin/ai/cancel-repair
+├ ƒ /api/super-admin/ai/create-repair-plan
+├ ƒ /api/super-admin/ai/history
+├ ƒ /api/super-admin/ai/incidents
+├ ƒ /api/super-admin/ai/models
+├ ƒ /api/super-admin/ai/omega
+├ ƒ /api/super-admin/ai/predictions
+├ ƒ /api/super-admin/ai/recommendations
+├ ƒ /api/super-admin/ai/run-analysis
+├ ƒ /api/super-admin/ai/run-scan
+├ ƒ /api/super-admin/ai/scan
+├ ƒ /api/super-admin/ai/sentinel
+├ ƒ /api/super-admin/analytics-engine
+├ ƒ /api/super-admin/app-studio
+├ ƒ /api/super-admin/assets
+├ ƒ /api/super-admin/assets/history
+├ ƒ /api/super-admin/assets/publish
+├ ƒ /api/super-admin/assets/rollback
+├ ƒ /api/super-admin/assets/usage
+├ ƒ /api/super-admin/audit
+├ ƒ /api/super-admin/audit/compliance
+├ ƒ /api/super-admin/audit/export
+├ ƒ /api/super-admin/audit/history
+├ ƒ /api/super-admin/audit/reports
+├ ƒ /api/super-admin/audit/run
+├ ƒ /api/super-admin/audit/schedule
+├ ƒ /api/super-admin/audit/timeline
+├ ƒ /api/super-admin/automation
+├ ƒ /api/super-admin/automation/action
+├ ƒ /api/super-admin/automation/disable
+├ ƒ /api/super-admin/automation/enable
+├ ƒ /api/super-admin/automation/export
+├ ƒ /api/super-admin/automation/import
+├ ƒ /api/super-admin/automation/pause
+├ ƒ /api/super-admin/automation/publish
+├ ƒ /api/super-admin/automation/rollback
+├ ƒ /api/super-admin/automation/run
+├ ƒ /api/super-admin/automation/stop
+├ ƒ /api/super-admin/autonomous-execution
+├ ƒ /api/super-admin/autonomous-execution/action
+├ ƒ /api/super-admin/autonomous-execution/approve
+├ ƒ /api/super-admin/autonomous-execution/execute
+├ ƒ /api/super-admin/autonomous-execution/export
+├ ƒ /api/super-admin/autonomous-execution/orchestrate
+├ ƒ /api/super-admin/autonomous-execution/prioritize
+├ ƒ /api/super-admin/autonomous-execution/recover
+├ ƒ /api/super-admin/business-intelligence
+├ ƒ /api/super-admin/business-intelligence/action
+├ ƒ /api/super-admin/business-intelligence/calculate
+├ ƒ /api/super-admin/business-intelligence/export
+├ ƒ /api/super-admin/business-intelligence/forecast
+├ ƒ /api/super-admin/business-intelligence/import
+├ ƒ /api/super-admin/business-intelligence/refresh
+├ ƒ /api/super-admin/categories/[id]/transaction-mode
+├ ƒ /api/super-admin/category-management
+├ ƒ /api/super-admin/category-management/action
+├ ƒ /api/super-admin/category-management/export
+├ ƒ /api/super-admin/category-management/sync
+├ ƒ /api/super-admin/category-management/validate
+├ ƒ /api/super-admin/certification
+├ ƒ /api/super-admin/certification/approve
+├ ƒ /api/super-admin/certification/export
+├ ƒ /api/super-admin/certification/history
+├ ƒ /api/super-admin/certification/report
+├ ƒ /api/super-admin/certification/revoke
+├ ƒ /api/super-admin/certification/run
+├ ƒ /api/super-admin/command
+├ ƒ /api/super-admin/command-center
+├ ƒ /api/super-admin/command-os
+├ ƒ /api/super-admin/compliance
+├ ƒ /api/super-admin/compliance/action
+├ ƒ /api/super-admin/database
+├ ƒ /api/super-admin/deployment
+├ ƒ /api/super-admin/deployment/action
+├ ƒ /api/super-admin/deployment/approve
+├ ƒ /api/super-admin/deployment/build
+├ ƒ /api/super-admin/deployment/cancel
+├ ƒ /api/super-admin/deployment/deploy
+├ ƒ /api/super-admin/deployment/environments
+├ ƒ /api/super-admin/deployment/history
+├ ƒ /api/super-admin/deployment/reject
+├ ƒ /api/super-admin/deployment/releases
+├ ƒ /api/super-admin/deployment/rollback
+├ ƒ /api/super-admin/deployment/validate
+├ ƒ /api/super-admin/design-studio
+├ ƒ /api/super-admin/development
+├ ƒ /api/super-admin/development-director
+├ ƒ /api/super-admin/development-director/action
+├ ƒ /api/super-admin/development-director/analyze
+├ ƒ /api/super-admin/development-director/discover
+├ ƒ /api/super-admin/development-director/export
+├ ƒ /api/super-admin/development-director/prioritize
+├ ƒ /api/super-admin/development-director/repair
+├ ƒ /api/super-admin/development/action
+├ ƒ /api/super-admin/development/apis
+├ ƒ /api/super-admin/development/architecture
+├ ƒ /api/super-admin/development/builds
+├ ƒ /api/super-admin/development/dashboard
+├ ƒ /api/super-admin/development/database
+├ ƒ /api/super-admin/development/debt
+├ ƒ /api/super-admin/development/dependencies
+├ ƒ /api/super-admin/development/deployments
+├ ƒ /api/super-admin/development/export
+├ ƒ /api/super-admin/development/history
+├ ƒ /api/super-admin/development/modules
+├ ƒ /api/super-admin/development/performance
+├ ƒ /api/super-admin/development/projects
+├ ƒ /api/super-admin/development/quality
+├ ƒ /api/super-admin/development/registry
+├ ƒ /api/super-admin/development/storage
+├ ƒ /api/super-admin/development/validate
+├ ƒ /api/super-admin/e2e-validation
+├ ƒ /api/super-admin/e2e-validation/action
+├ ƒ /api/super-admin/e2e-validation/analyze
+├ ƒ /api/super-admin/e2e-validation/export
+├ ƒ /api/super-admin/e2e-validation/regression
+├ ƒ /api/super-admin/e2e-validation/validate
+├ ƒ /api/super-admin/enterprise-core
+├ ƒ /api/super-admin/experience
+├ ƒ /api/super-admin/global-ui-integrity
+├ ƒ /api/super-admin/global-ui-integrity/action
+├ ƒ /api/super-admin/global-ui-integrity/certify
+├ ƒ /api/super-admin/global-ui-integrity/export
+├ ƒ /api/super-admin/global-ui-integrity/repair
+├ ƒ /api/super-admin/global-ui-integrity/validate
+├ ƒ /api/super-admin/governance
+├ ƒ /api/super-admin/governance/action
+├ ƒ /api/super-admin/governance/audit
+├ ƒ /api/super-admin/governance/certify
+├ ƒ /api/super-admin/governance/debt
+├ ƒ /api/super-admin/governance/export
+├ ƒ /api/super-admin/governance/history
+├ ƒ /api/super-admin/governance/report
+├ ƒ /api/super-admin/governance/rules
+├ ƒ /api/super-admin/governance/scan
+├ ƒ /api/super-admin/governance/score
+├ ƒ /api/super-admin/governance/validate
+├ ƒ /api/super-admin/grants
+├ ƒ /api/super-admin/homepage-builder
+├ ƒ /api/super-admin/homepage-builder/action
+├ ƒ /api/super-admin/homepage-builder/assets
+├ ƒ /api/super-admin/homepage-builder/clone
+├ ƒ /api/super-admin/homepage-builder/compare
+├ ƒ /api/super-admin/homepage-builder/duplicate
+├ ƒ /api/super-admin/homepage-builder/export
+├ ƒ /api/super-admin/homepage-builder/history
+├ ƒ /api/super-admin/homepage-builder/import
+├ ƒ /api/super-admin/homepage-builder/preview
+├ ƒ /api/super-admin/homepage-builder/publish
+├ ƒ /api/super-admin/homepage-builder/rollback
+├ ƒ /api/super-admin/homepage-builder/schedule
+├ ƒ /api/super-admin/homepage-builder/validate
+├ ƒ /api/super-admin/homepage-certification
+├ ƒ /api/super-admin/homepage-certification/action
+├ ƒ /api/super-admin/homepage-certification/analyze
+├ ƒ /api/super-admin/homepage-certification/certify
+├ ƒ /api/super-admin/homepage-certification/export
+├ ƒ /api/super-admin/homepage-certification/validate
+├ ƒ /api/super-admin/incidents
+├ ƒ /api/super-admin/incidents/acknowledge
+├ ƒ /api/super-admin/incidents/action
+├ ƒ /api/super-admin/incidents/escalate
+├ ƒ /api/super-admin/incidents/export
+├ ƒ /api/super-admin/incidents/import
+├ ƒ /api/super-admin/incidents/reopen
+├ ƒ /api/super-admin/incidents/resolve
+├ ƒ /api/super-admin/incidents/rollback
+├ ƒ /api/super-admin/incidents/timeline
+├ ƒ /api/super-admin/incidents/timeline/action
+├ ƒ /api/super-admin/integrations-engine
+├ ƒ /api/super-admin/launch-certification
+├ ƒ /api/super-admin/launch-readiness
+├ ƒ /api/super-admin/launch-readiness/action
+├ ƒ /api/super-admin/launch-readiness/certify
+├ ƒ /api/super-admin/launch-readiness/export
+├ ƒ /api/super-admin/launch-readiness/repair
+├ ƒ /api/super-admin/launch-readiness/validate
+├ ƒ /api/super-admin/marketplace-completion
+├ ƒ /api/super-admin/marketplace-completion/action
+├ ƒ /api/super-admin/marketplace-completion/certify
+├ ƒ /api/super-admin/marketplace-completion/export
+├ ƒ /api/super-admin/marketplace-completion/repair
+├ ƒ /api/super-admin/marketplace-completion/validate
+├ ƒ /api/super-admin/marketplace-oauth
+├ ƒ /api/super-admin/marketplace/delete-all-listings
+├ ƒ /api/super-admin/menu-builder
+├ ƒ /api/super-admin/messages-engine
+├ ƒ /api/super-admin/mission-control
+├ ƒ /api/super-admin/mission-control-engine
+├ ƒ /api/super-admin/mobile
+├ ƒ /api/super-admin/mobile-distribution
+├ ƒ /api/super-admin/mobile-distribution/device
+├ ƒ /api/super-admin/mobile-distribution/devices
+├ ƒ /api/super-admin/mobile-distribution/devices/action
+├ ƒ /api/super-admin/mobile-distribution/export
+├ ƒ /api/super-admin/mobile-distribution/language
+├ ƒ /api/super-admin/mobile-distribution/qr
+├ ƒ /api/super-admin/mobile/action
+├ ƒ /api/super-admin/mobile/build
+├ ƒ /api/super-admin/mobile/builds
+├ ƒ /api/super-admin/mobile/create-ota
+├ ƒ /api/super-admin/mobile/devices
+├ ƒ /api/super-admin/mobile/disable-device
+├ ƒ /api/super-admin/mobile/downloads
+├ ƒ /api/super-admin/mobile/incidents
+├ ƒ /api/super-admin/mobile/incidents/action
+├ ƒ /api/super-admin/mobile/omega
+├ ƒ /api/super-admin/mobile/omega/action
+├ ƒ /api/super-admin/mobile/omega/executive-command
+├ ƒ /api/super-admin/mobile/omega/executive-command/action
+├ ƒ /api/super-admin/mobile/publish
+├ ƒ /api/super-admin/mobile/releases
+├ ƒ /api/super-admin/mobile/remote-logout
+├ ƒ /api/super-admin/mobile/rollback
+├ ƒ /api/super-admin/mobile/send-push
+├ ƒ /api/super-admin/moderation/cases/[id]
+├ ƒ /api/super-admin/module-registry
+├ ƒ /api/super-admin/module-registry/dependencies
+├ ƒ /api/super-admin/module-registry/export
+├ ƒ /api/super-admin/module-registry/health
+├ ƒ /api/super-admin/module-registry/history
+├ ƒ /api/super-admin/module-registry/import
+├ ƒ /api/super-admin/module-registry/modules
+├ ƒ /api/super-admin/module-registry/publish
+├ ƒ /api/super-admin/module-registry/register
+├ ƒ /api/super-admin/module-registry/rollback
+├ ƒ /api/super-admin/module-registry/search
+├ ƒ /api/super-admin/module-registry/validate
+├ ƒ /api/super-admin/notifications-engine
+├ ƒ /api/super-admin/notifications/stats
+├ ƒ /api/super-admin/observability
+├ ƒ /api/super-admin/observability/action
+├ ƒ /api/super-admin/observability/alerts
+├ ƒ /api/super-admin/observability/diagnose
+├ ƒ /api/super-admin/observability/export
+├ ƒ /api/super-admin/observability/monitor
+├ ƒ /api/super-admin/observability/sync-omega
+├ ƒ /api/super-admin/observability/telemetry
+├ ƒ /api/super-admin/omega
+├ ƒ /api/super-admin/omega/action
+├ ƒ /api/super-admin/omega/cancel
+├ ƒ /api/super-admin/omega/deep-scan
+├ ƒ /api/super-admin/omega/deploy
+├ ƒ /api/super-admin/omega/diagnostics
+├ ƒ /api/super-admin/omega/export
+├ ƒ /api/super-admin/omega/history
+├ ƒ /api/super-admin/omega/logs
+├ ƒ /api/super-admin/omega/pause
+├ ƒ /api/super-admin/omega/quick-scan
+├ ƒ /api/super-admin/omega/repair
+├ ƒ /api/super-admin/omega/report
+├ ƒ /api/super-admin/omega/resume
+├ ƒ /api/super-admin/omega/rollback
+├ ƒ /api/super-admin/omega/run-scan
+├ ƒ /api/super-admin/operations
+├ ƒ /api/super-admin/operations/actions
+├ ƒ /api/super-admin/operations/alerts
+├ ƒ /api/super-admin/operations/assistant
+├ ƒ /api/super-admin/operations/emergency
+├ ƒ /api/super-admin/operations/health
+├ ƒ /api/super-admin/operations/incidents
+├ ƒ /api/super-admin/operations/logs
+├ ƒ /api/super-admin/operations/maintenance
+├ ƒ /api/super-admin/operations/recovery
+├ ƒ /api/super-admin/operations/repairs
+├ ƒ /api/super-admin/operations/scan
+├ ƒ /api/super-admin/operations/settings
+├ ƒ /api/super-admin/orders-engine
+├ ƒ /api/super-admin/payments-engine
+├ ƒ /api/super-admin/platform-studio
+├ ƒ /api/super-admin/platform-visual
+├ ƒ /api/super-admin/platform/environment
+├ ƒ /api/super-admin/platform/performance
+├ ƒ /api/super-admin/platform/production
+├ ƒ /api/super-admin/preferred-marketplace-stores
+├ ƒ /api/super-admin/premium-design
+├ ƒ /api/super-admin/premium/omega-status
+├ ƒ /api/super-admin/production-assets
+├ ƒ /api/super-admin/promotion-management/actions
+├ ƒ /api/super-admin/promotion-management/audit
+├ ƒ /api/super-admin/promotion-management/search
+├ ƒ /api/super-admin/promotion-management/users/[userId]
+├ ƒ /api/super-admin/protection-engine
+├ ƒ /api/super-admin/publish-theme
+├ ƒ /api/super-admin/quality-assurance
+├ ƒ /api/super-admin/quality-assurance/action
+├ ƒ /api/super-admin/quality-assurance/certify
+├ ƒ /api/super-admin/quality-assurance/export
+├ ƒ /api/super-admin/quality-assurance/fix
+├ ƒ /api/super-admin/quality-assurance/priority
+├ ƒ /api/super-admin/quality-assurance/scan
+├ ƒ /api/super-admin/quality-assurance/validate
+├ ƒ /api/super-admin/quick-listing
+├ ƒ /api/super-admin/recovery
+├ ƒ /api/super-admin/recovery/backup
+├ ƒ /api/super-admin/recovery/backups
+├ ƒ /api/super-admin/recovery/history
+├ ƒ /api/super-admin/recovery/incidents
+├ ƒ /api/super-admin/recovery/restore
+├ ƒ /api/super-admin/recovery/rollback
+├ ƒ /api/super-admin/recovery/safe-mode
+├ ƒ /api/super-admin/rollback-theme
+├ ƒ /api/super-admin/rovexo-ideas
+├ ƒ /api/super-admin/search
+├ ƒ /api/super-admin/search-engine
+├ ƒ /api/super-admin/security
+├ ƒ /api/super-admin/security-engine
+├ ƒ /api/super-admin/security/action
+├ ƒ /api/super-admin/security/block
+├ ƒ /api/super-admin/security/export
+├ ƒ /api/super-admin/security/import
+├ ƒ /api/super-admin/security/isolate
+├ ƒ /api/super-admin/security/quarantine
+├ ƒ /api/super-admin/security/revoke
+├ ƒ /api/super-admin/security/rotate
+├ ƒ /api/super-admin/security/scan
+├ ƒ /api/super-admin/security/unblock
+├ ƒ /api/super-admin/settings
+├ ƒ /api/super-admin/shipping-engine
+├ ƒ /api/super-admin/shipping-providers
+├ ƒ /api/super-admin/staff
+├ ƒ /api/super-admin/staff/[staffId]
+├ ƒ /api/super-admin/theme-history
+├ ƒ /api/super-admin/users
+├ ƒ /api/super-admin/visual-cms
+├ ƒ /api/super-admin/wallet-engine
+├ ƒ /api/super-admin/workflows
+├ ƒ /api/super-admin/workflows/action
+├ ƒ /api/support
+├ ƒ /api/support/upload
+├ ƒ /api/transaction-hub/checkout
+├ ƒ /api/trust
+├ ƒ /api/trust/[userId]
+├ ƒ /api/trust/verification
+├ ƒ /api/users/report
+├ ƒ /api/v1/super-admin/ai
+├ ƒ /api/v1/super-admin/automation
+├ ƒ /api/v1/super-admin/autonomous-execution
+├ ƒ /api/v1/super-admin/business-intelligence
+├ ƒ /api/v1/super-admin/category-management
+├ ƒ /api/v1/super-admin/compliance
+├ ƒ /api/v1/super-admin/compliance/action
+├ ƒ /api/v1/super-admin/deployment
+├ ƒ /api/v1/super-admin/development
+├ ƒ /api/v1/super-admin/development-director
+├ ƒ /api/v1/super-admin/e2e-validation
+├ ƒ /api/v1/super-admin/global-ui-integrity
+├ ƒ /api/v1/super-admin/governance
+├ ƒ /api/v1/super-admin/homepage-builder
+├ ƒ /api/v1/super-admin/homepage-certification
+├ ƒ /api/v1/super-admin/incidents
+├ ƒ /api/v1/super-admin/incidents/timeline
+├ ƒ /api/v1/super-admin/incidents/timeline/action
+├ ƒ /api/v1/super-admin/launch-readiness
+├ ƒ /api/v1/super-admin/marketplace-completion
+├ ƒ /api/v1/super-admin/mobile
+├ ƒ /api/v1/super-admin/mobile/incidents
+├ ƒ /api/v1/super-admin/mobile/incidents/action
+├ ƒ /api/v1/super-admin/module-registry
+├ ƒ /api/v1/super-admin/observability
+├ ƒ /api/v1/super-admin/omega
+├ ƒ /api/v1/super-admin/quality-assurance
+├ ƒ /api/v1/super-admin/security
+├ ƒ /api/v1/workflows
+├ ƒ /api/v1/workflows/action
+├ ƒ /api/views
+├ ƒ /api/wallet-engine
+├ ƒ /api/wallet/bank-account
+├ ƒ /api/wallet/connect
+├ ƒ /api/wallet/withdraw
+├ ƒ /api/webhooks/sendcloud
+├ ƒ /api/webhooks/stripe
+├ ƒ /api/wholesale/pricing
+├ ƒ /api/wholesale/rfq
+├ ƒ /api/workflows
+├ ƒ /api/workflows/export
+├ ƒ /api/workflows/history
+├ ƒ /api/workflows/import
+├ ƒ /api/workflows/publish
+├ ƒ /api/workflows/rollback
+├ ƒ /api/workflows/run
+├ ƒ /api/workflows/templates
+├ ○ /apple-icon.png
+├ ƒ /assistant
+├ ƒ /auctions
+├ ƒ /auth/callback
+├ ƒ /auth/signout
+├ ƒ /balance
+├ ƒ /brand/[slug]
+├ ƒ /bring-your-item
+├ ƒ /browse
+├ ƒ /browse/[...segments]
+├ ƒ /bundle/review
+├ ƒ /business
+├ ƒ /business/analytics
+├ ƒ /business/center
+├ ƒ /business/dashboard
+├ ƒ /business/directory
+├ ƒ /business/followers
+├ ƒ /business/inventory
+├ ƒ /business/orders
+├ ƒ /business/policies
+├ ƒ /business/promotions
+├ ƒ /business/reports
+├ ƒ /business/returns
+├ ƒ /business/reviews
+├ ƒ /business/shipping
+├ ƒ /business/tax
+├ ƒ /business/verification
+├ ƒ /business/wallet
+├ ƒ /buyer
+├ ƒ /buyer-rules
+├ ƒ /cart
+├ ƒ /categories
+├ ƒ /category/[...slug]
+├ ƒ /checkout
+├ ƒ /checkout/[slug]
+├ ƒ /checkout/[slug]/address
+├ ƒ /checkout/[slug]/payment
+├ ƒ /checkout/[slug]/review
+├ ƒ /checkout/[slug]/success
+├ ƒ /checkout/success
+├ ƒ /collections/[slug]
+├ ƒ /community
+├ ƒ /contact
+├ ƒ /cookie-policy
+├ ƒ /cookies
+├ ƒ /copyright
+├ ƒ /dashboard/admin
+├ ƒ /dashboard/super-admin
+├ ƒ /data-protection
+├ ƒ /data-retention
+├ ƒ /delivery-policy
+├ ƒ /discover/[slug]
+├ ƒ /disputes-policy
+├ ƒ /dmca
+├ ƒ /fees
+├ ƒ /fluency-3d-preview
+├ ƒ /forgot-password
+├ ƒ /gdpr
+├ ƒ /help
+├ ƒ /help/[slug]
+├ ƒ /help/category/[slug]
+├ ƒ /help/faq
+├ ƒ /help/policies
+├ ○ /icon.png
+├ ƒ /import
+├ ƒ /import-wizard
+├ ƒ /import/[id]
+├ ƒ /inbox
+├ ƒ /inbox/conversation/[conversationId]
+├ ƒ /integrations
+├ ƒ /l/[location]
+├ ● /l/[location]/[...category]
+├ ƒ /legal
+├ ƒ /legal/[slug]
+├ ƒ /listing/[slug]
+├ ƒ /login
+├ ƒ /login/mfa
+├ ○ /manifest.webmanifest
+├ ƒ /messages
+├ ƒ /messages/[id]
+├ ƒ /notice-and-takedown
+├ ƒ /notifications
+├ ƒ /notifications/[id]
+├ ƒ /notifications/preferences
+├ ƒ /notifications/settings
+├ ƒ /offline
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /orders/[id]/tracking
+├ ƒ /payment-terms
+├ ƒ /payments
+├ ƒ /plans
+├ ƒ /preview/exit
+├ ƒ /preview/exit-internal
+├ ƒ /preview/ui-12px
+├ ƒ /preview/ui-24px
+├ ƒ /preview/ui-internal-16px
+├ ƒ /preview/ui-internal-24px
+├ ƒ /privacy
+├ ƒ /privacy-policy
+├ ƒ /prohibited-items
+├ ƒ /promote
+├ ƒ /protection
+├ ƒ /refunds
+├ ƒ /register
+├ ƒ /reset-password
+├ ƒ /resolution
+├ ƒ /resolution/[id]
+├ ƒ /returns
+├ ○ /robots.txt
+├ ƒ /saved
+├ ƒ /search
+├ ƒ /search/image/results
+├ ƒ /security
+├ ƒ /sell
+├ ƒ /sell/auction
+├ ƒ /sell/camera
+├ ƒ /sell/new
+├ ƒ /seller
+├ ƒ /seller-rules
+├ ƒ /seller/analytics
+├ ƒ /seller/compliance
+├ ƒ /seller/connectors
+├ ƒ /seller/dashboard
+├ ƒ /seller/listings
+├ ƒ /seller/listings/[id]/edit
+├ ƒ /seller/migration
+├ ƒ /seller/migration/[id]
+├ ƒ /seller/orders
+├ ƒ /seller/orders/[id]
+├ ƒ /seller/performance
+├ ƒ /seller/promotions
+├ ƒ /seller/review-center
+├ ƒ /seller/review-center/[id]
+├ ƒ /seller/shipping
+├ ƒ /seller/tax
+├ ƒ /seller/trust
+├ ƒ /seller/wallet
+├ ƒ /seller/wallet/transactions/[id]
+├ ƒ /seller/wallet/withdraw
+├ ƒ /settings
+├ ƒ /shipping
+├ ƒ /shipping-policy
+├ ● /sitemap/[__metadata_id__]
+│ ├ /sitemap/static.xml
+│ ├ /sitemap/categories.xml
+│ ├ /sitemap/locations.xml
+│ └ [+9 more paths]
+├ ƒ /splash
+├ ƒ /staff
+├ ƒ /staff/calls
+├ ƒ /staff/directory
+├ ƒ /staff/messages
+├ ƒ /store/[slug]
+├ ƒ /super-admin
+├ ƒ /super-admin/activity
+├ ƒ /super-admin/ai
+├ ƒ /super-admin/ai-engine
+├ ƒ /super-admin/ai-manager
+├ ƒ /super-admin/ai/atlas
+├ ƒ /super-admin/ai/guardian
+├ ƒ /super-admin/ai/history
+├ ƒ /super-admin/ai/logs
+├ ƒ /super-admin/ai/omega
+├ ƒ /super-admin/ai/oracle
+├ ƒ /super-admin/ai/phoenix
+├ ƒ /super-admin/ai/predictions
+├ ƒ /super-admin/ai/repairs
+├ ƒ /super-admin/ai/scan
+├ ƒ /super-admin/ai/sentinel
+├ ƒ /super-admin/ai/titan
+├ ƒ /super-admin/analytics
+├ ƒ /super-admin/analytics-engine
+├ ƒ /super-admin/app-studio
+├ ƒ /super-admin/assets
+├ ƒ /super-admin/assets/brand-kit
+├ ƒ /super-admin/assets/history
+├ ƒ /super-admin/assets/library
+├ ƒ /super-admin/assets/storage
+├ ƒ /super-admin/assets/usage
+├ ƒ /super-admin/auctions
+├ ƒ /super-admin/audit
+├ ƒ /super-admin/audit/certification
+├ ƒ /super-admin/audit/compliance
+├ ƒ /super-admin/audit/history
+├ ƒ /super-admin/audit/logs
+├ ƒ /super-admin/audit/reports
+├ ƒ /super-admin/automation
+├ ƒ /super-admin/automation/approvals
+├ ƒ /super-admin/automation/dashboard
+├ ƒ /super-admin/automation/events
+├ ƒ /super-admin/automation/history
+├ ƒ /super-admin/automation/monitoring
+├ ƒ /super-admin/automation/rules
+├ ƒ /super-admin/automation/schedules
+├ ƒ /super-admin/automation/settings
+├ ƒ /super-admin/automation/templates
+├ ƒ /super-admin/automation/versions
+├ ƒ /super-admin/automation/workflows
+├ ƒ /super-admin/autonomous-execution
+├ ƒ /super-admin/autonomous-execution/approvals
+├ ƒ /super-admin/autonomous-execution/decisions
+├ ƒ /super-admin/autonomous-execution/orchestration
+├ ƒ /super-admin/autonomous-execution/pipeline
+├ ƒ /super-admin/autonomous-execution/priority
+├ ƒ /super-admin/autonomous-execution/recovery
+├ ƒ /super-admin/autonomous-execution/reports
+├ ƒ /super-admin/autonomous-execution/tasks
+├ ƒ /super-admin/autonomous-execution/workflows
+├ ƒ /super-admin/backups
+├ ƒ /super-admin/banners
+├ ƒ /super-admin/bumps
+├ ƒ /super-admin/business-intelligence
+├ ƒ /super-admin/business-intelligence/dashboard
+├ ƒ /super-admin/business-intelligence/export
+├ ƒ /super-admin/business-intelligence/forecasting
+├ ƒ /super-admin/business-intelligence/kpis
+├ ƒ /super-admin/business-intelligence/orders
+├ ƒ /super-admin/business-intelligence/products
+├ ƒ /super-admin/business-intelligence/reports
+├ ƒ /super-admin/business-intelligence/revenue
+├ ƒ /super-admin/business-intelligence/sellers
+├ ƒ /super-admin/business-intelligence/settings
+├ ƒ /super-admin/business-intelligence/users
+├ ƒ /super-admin/businesses
+├ ƒ /super-admin/categories
+├ ƒ /super-admin/category-management
+├ ƒ /super-admin/category-management/ai
+├ ƒ /super-admin/category-management/analytics
+├ ƒ /super-admin/category-management/certification
+├ ƒ /super-admin/category-management/editor
+├ ƒ /super-admin/category-management/import-export
+├ ƒ /super-admin/category-management/reports
+├ ƒ /super-admin/category-management/tree
+├ ƒ /super-admin/category-management/validation
+├ ƒ /super-admin/category-management/versions
+├ ƒ /super-admin/certification
+├ ƒ /super-admin/certification/history
+├ ƒ /super-admin/certification/releases
+├ ƒ /super-admin/certification/report
+├ ƒ /super-admin/certification/settings
+├ ƒ /super-admin/command
+├ ƒ /super-admin/command-os
+├ ƒ /super-admin/compliance
+├ ƒ /super-admin/compliance/audit-timeline
+├ ƒ /super-admin/compliance/certifications
+├ ƒ /super-admin/compliance/change-timeline
+├ ƒ /super-admin/compliance/compliance-timeline
+├ ƒ /super-admin/compliance/dashboard
+├ ƒ /super-admin/compliance/evidence
+├ ƒ /super-admin/compliance/evidence-vault
+├ ƒ /super-admin/compliance/gap-analysis
+├ ƒ /super-admin/compliance/history
+├ ƒ /super-admin/compliance/integrity
+├ ƒ /super-admin/compliance/policies
+├ ƒ /super-admin/compliance/pre-audit
+├ ƒ /super-admin/compliance/readiness
+├ ƒ /super-admin/compliance/remediation
+├ ƒ /super-admin/compliance/reports
+├ ƒ /super-admin/compliance/retention
+├ ƒ /super-admin/compliance/settings
+├ ƒ /super-admin/coupons
+├ ƒ /super-admin/database
+├ ƒ /super-admin/deployment
+├ ƒ /super-admin/deployment/builds
+├ ƒ /super-admin/deployment/environments
+├ ƒ /super-admin/deployment/releases
+├ ƒ /super-admin/deployment/rollback
+├ ƒ /super-admin/design-studio
+├ ƒ /super-admin/developer
+├ ƒ /super-admin/development
+├ ƒ /super-admin/development-director
+├ ƒ /super-admin/development-director/analysis
+├ ƒ /super-admin/development-director/coordination
+├ ƒ /super-admin/development-director/dependencies
+├ ƒ /super-admin/development-director/discovery
+├ ƒ /super-admin/development-director/insights
+├ ƒ /super-admin/development-director/pipeline
+├ ƒ /super-admin/development-director/repair
+├ ƒ /super-admin/development-director/reports
+├ ƒ /super-admin/development-director/roadmap
+├ ƒ /super-admin/development-director/status
+├ ƒ /super-admin/development/ai-integration
+├ ƒ /super-admin/development/api-studio
+├ ƒ /super-admin/development/architecture-studio
+├ ƒ /super-admin/development/build-center
+├ ƒ /super-admin/development/bundle-analyzer
+├ ƒ /super-admin/development/database-studio
+├ ƒ /super-admin/development/dependency-graph
+├ ƒ /super-admin/development/devsecops
+├ ƒ /super-admin/development/documentation
+├ ƒ /super-admin/development/environment-center
+├ ƒ /super-admin/development/module-explorer
+├ ƒ /super-admin/development/performance
+├ ƒ /super-admin/development/project-explorer
+├ ƒ /super-admin/development/registry-explorer
+├ ƒ /super-admin/development/release-pipeline
+├ ƒ /super-admin/development/search
+├ ƒ /super-admin/development/settings
+├ ƒ /super-admin/development/storage-studio
+├ ƒ /super-admin/development/technical-debt
+├ ƒ /super-admin/e2e-validation
+├ ƒ /super-admin/e2e-validation/api
+├ ƒ /super-admin/e2e-validation/business
+├ ƒ /super-admin/e2e-validation/buyer
+├ ƒ /super-admin/e2e-validation/company
+├ ƒ /super-admin/e2e-validation/database
+├ ƒ /super-admin/e2e-validation/failures
+├ ƒ /super-admin/e2e-validation/regression
+├ ƒ /super-admin/e2e-validation/reports
+├ ƒ /super-admin/e2e-validation/routes
+├ ƒ /super-admin/e2e-validation/seller
+├ ƒ /super-admin/e2e-validation/super-admin
+├ ƒ /super-admin/e2e-validation/ui
+├ ƒ /super-admin/email
+├ ƒ /super-admin/enterprise-core
+├ ƒ /super-admin/experience
+├ ƒ /super-admin/featured
+├ ƒ /super-admin/features
+├ ƒ /super-admin/fraud
+├ ƒ /super-admin/global-ui-integrity
+├ ƒ /super-admin/global-ui-integrity/auto-repair
+├ ƒ /super-admin/global-ui-integrity/categories
+├ ƒ /super-admin/global-ui-integrity/certification
+├ ƒ /super-admin/global-ui-integrity/layout
+├ ƒ /super-admin/global-ui-integrity/navigation
+├ ƒ /super-admin/global-ui-integrity/reports
+├ ƒ /super-admin/global-ui-integrity/screens
+├ ƒ /super-admin/global-ui-integrity/ui-validation
+├ ƒ /super-admin/global-ui-integrity/ux-validation
+├ ƒ /super-admin/governance
+├ ƒ /super-admin/governance/architecture
+├ ƒ /super-admin/governance/audit
+├ ƒ /super-admin/governance/certification
+├ ƒ /super-admin/governance/compliance
+├ ƒ /super-admin/governance/constitution
+├ ƒ /super-admin/governance/enterprise-rules
+├ ƒ /super-admin/governance/enterprise-score
+├ ƒ /super-admin/governance/reports
+├ ƒ /super-admin/governance/technical-debt
+├ ƒ /super-admin/governance/validation
+├ ƒ /super-admin/grants
+├ ƒ /super-admin/hmrc
+├ ƒ /super-admin/homepage-builder
+├ ƒ /super-admin/homepage-builder/components
+├ ƒ /super-admin/homepage-builder/editor
+├ ƒ /super-admin/homepage-builder/history
+├ ƒ /super-admin/homepage-builder/preview
+├ ƒ /super-admin/homepage-builder/schedule
+├ ƒ /super-admin/homepage-builder/settings
+├ ƒ /super-admin/homepage-certification
+├ ƒ /super-admin/homepage-certification/accessibility
+├ ƒ /super-admin/homepage-certification/buttons
+├ ƒ /super-admin/homepage-certification/categories
+├ ƒ /super-admin/homepage-certification/integrity
+├ ƒ /super-admin/homepage-certification/listings
+├ ƒ /super-admin/homepage-certification/performance
+├ ƒ /super-admin/homepage-certification/reports
+├ ƒ /super-admin/homepage-certification/responsive
+├ ƒ /super-admin/homepage-certification/search
+├ ƒ /super-admin/homepage-certification/sections
+├ ƒ /super-admin/homepage-certification/seo
+├ ƒ /super-admin/incidents
+├ ƒ /super-admin/incidents/critical
+├ ƒ /super-admin/incidents/history
+├ ƒ /super-admin/incidents/live
+├ ƒ /super-admin/incidents/playbooks
+├ ƒ /super-admin/incidents/postmortem
+├ ƒ /super-admin/incidents/root-cause
+├ ƒ /super-admin/incidents/settings
+├ ƒ /super-admin/incidents/timeline
+├ ƒ /super-admin/incidents/timeline/export
+├ ƒ /super-admin/incidents/timeline/history
+├ ƒ /super-admin/incidents/timeline/live
+├ ƒ /super-admin/incidents/timeline/search
+├ ƒ /super-admin/integrations-engine
+├ ƒ /super-admin/launch-certification
+├ ƒ /super-admin/launch-readiness
+├ ƒ /super-admin/launch-readiness/cron
+├ ƒ /super-admin/launch-readiness/deployment
+├ ƒ /super-admin/launch-readiness/email
+├ ƒ /super-admin/launch-readiness/health
+├ ƒ /super-admin/launch-readiness/infrastructure
+├ ƒ /super-admin/launch-readiness/launch-gate
+├ ƒ /super-admin/launch-readiness/marketplace
+├ ƒ /super-admin/launch-readiness/performance
+├ ƒ /super-admin/launch-readiness/push
+├ ƒ /super-admin/launch-readiness/pwa
+├ ƒ /super-admin/launch-readiness/queue
+├ ƒ /super-admin/launch-readiness/reports
+├ ƒ /super-admin/launch-readiness/security
+├ ƒ /super-admin/listings
+├ ƒ /super-admin/live-preview
+├ ƒ /super-admin/marketplace-completion
+├ ƒ /super-admin/marketplace-completion/buttons
+├ ƒ /super-admin/marketplace-completion/buyer-completion
+├ ƒ /super-admin/marketplace-completion/buyer-journey
+├ ƒ /super-admin/marketplace-completion/categories
+├ ƒ /super-admin/marketplace-completion/category-completion
+├ ƒ /super-admin/marketplace-completion/certification
+├ ƒ /super-admin/marketplace-completion/certification-gate
+├ ƒ /super-admin/marketplace-completion/checkout-completion
+├ ƒ /super-admin/marketplace-completion/cleanup
+├ ƒ /super-admin/marketplace-completion/communication-completion
+├ ƒ /super-admin/marketplace-completion/company-journey
+├ ƒ /super-admin/marketplace-completion/components
+├ ƒ /super-admin/marketplace-completion/consistency
+├ ƒ /super-admin/marketplace-completion/continuous-improvement
+├ ƒ /super-admin/marketplace-completion/director
+├ ƒ /super-admin/marketplace-completion/enterprise-delivery
+├ ƒ /super-admin/marketplace-completion/execution-mode
+├ ƒ /super-admin/marketplace-completion/execution-release
+├ ƒ /super-admin/marketplace-completion/health-scores
+├ ƒ /super-admin/marketplace-completion/homepage
+├ ƒ /super-admin/marketplace-completion/homepage-completion
+├ ƒ /super-admin/marketplace-completion/improvements
+├ ƒ /super-admin/marketplace-completion/infrastructure
+├ ƒ /super-admin/marketplace-completion/intelligence
+├ ƒ /super-admin/marketplace-completion/launch-gate
+├ ƒ /super-admin/marketplace-completion/launch-mode
+├ ƒ /super-admin/marketplace-completion/listing-completion
+├ ƒ /super-admin/marketplace-completion/listings
+├ ƒ /super-admin/marketplace-completion/modernization
+├ ƒ /super-admin/marketplace-completion/modules
+├ ƒ /super-admin/marketplace-completion/order-completion
+├ ƒ /super-admin/marketplace-completion/premium
+├ ƒ /super-admin/marketplace-completion/reports
+├ ƒ /super-admin/marketplace-completion/routes
+├ ƒ /super-admin/marketplace-completion/search
+├ ƒ /super-admin/marketplace-completion/search-completion
+├ ƒ /super-admin/marketplace-completion/seller-journey
+├ ƒ /super-admin/marketplace-completion/shipping-completion
+├ ƒ /super-admin/marketplace-completion/ui-integrity
+├ ƒ /super-admin/marketplace-completion/workflows
+├ ƒ /super-admin/marketplace-completion/zero-defect
+├ ƒ /super-admin/marketplace-intelligence
+├ ƒ /super-admin/marketplace-os
+├ ƒ /super-admin/marketplace/delete-all-listings
+├ ƒ /super-admin/menu-builder
+├ ƒ /super-admin/messages-engine
+├ ƒ /super-admin/mission-control-engine
+├ ƒ /super-admin/mobile
+├ ƒ /super-admin/mobile-distribution
+├ ƒ /super-admin/mobile-distribution/analytics
+├ ƒ /super-admin/mobile-distribution/compliance
+├ ƒ /super-admin/mobile-distribution/devices
+├ ƒ /super-admin/mobile-distribution/devices/device
+├ ƒ /super-admin/mobile-distribution/devices/health
+├ ƒ /super-admin/mobile-distribution/devices/history
+├ ƒ /super-admin/mobile-distribution/devices/list
+├ ƒ /super-admin/mobile-distribution/devices/logs
+├ ƒ /super-admin/mobile-distribution/devices/recovery
+├ ƒ /super-admin/mobile-distribution/devices/security
+├ ƒ /super-admin/mobile-distribution/devices/settings
+├ ƒ /super-admin/mobile-distribution/devices/trust
+├ ƒ /super-admin/mobile-distribution/notifications
+├ ƒ /super-admin/mobile-distribution/security
+├ ƒ /super-admin/mobile-distribution/settings
+├ ƒ /super-admin/mobile-distribution/versions
+├ ƒ /super-admin/mobile/android
+├ ƒ /super-admin/mobile/builds
+├ ƒ /super-admin/mobile/devices
+├ ƒ /super-admin/mobile/downloads
+├ ƒ /super-admin/mobile/incidents
+├ ƒ /super-admin/mobile/incidents/compliance
+├ ƒ /super-admin/mobile/incidents/critical
+├ ƒ /super-admin/mobile/incidents/dashboard
+├ ƒ /super-admin/mobile/incidents/emergency
+├ ƒ /super-admin/mobile/incidents/history
+├ ƒ /super-admin/mobile/incidents/identity
+├ ƒ /super-admin/mobile/incidents/infrastructure
+├ ƒ /super-admin/mobile/incidents/live
+├ ƒ /super-admin/mobile/incidents/payments
+├ ƒ /super-admin/mobile/incidents/reports
+├ ƒ /super-admin/mobile/incidents/security
+├ ƒ /super-admin/mobile/incidents/settings
+├ ƒ /super-admin/mobile/incidents/wallet
+├ ƒ /super-admin/mobile/ios
+├ ƒ /super-admin/mobile/omega
+├ ƒ /super-admin/mobile/omega/alerts
+├ ƒ /super-admin/mobile/omega/analytics
+├ ƒ /super-admin/mobile/omega/certifications
+├ ƒ /super-admin/mobile/omega/dashboard
+├ ƒ /super-admin/mobile/omega/executive-command
+├ ƒ /super-admin/mobile/omega/health
+├ ƒ /super-admin/mobile/omega/infrastructure
+├ ƒ /super-admin/mobile/omega/live
+├ ƒ /super-admin/mobile/omega/performance
+├ ƒ /super-admin/mobile/omega/releases
+├ ƒ /super-admin/mobile/omega/reports
+├ ƒ /super-admin/mobile/omega/scans
+├ ƒ /super-admin/mobile/omega/security
+├ ƒ /super-admin/mobile/omega/settings
+├ ƒ /super-admin/mobile/ota
+├ ƒ /super-admin/mobile/push
+├ ƒ /super-admin/moderation
+├ ƒ /super-admin/module-registry
+├ ƒ /super-admin/module-registry/dependencies
+├ ƒ /super-admin/module-registry/health
+├ ƒ /super-admin/module-registry/history
+├ ƒ /super-admin/module-registry/modules
+├ ƒ /super-admin/module-registry/search
+├ ƒ /super-admin/monitoring
+├ ƒ /super-admin/notifications
+├ ƒ /super-admin/notifications-engine
+├ ƒ /super-admin/observability
+├ ƒ /super-admin/observability/alerts
+├ ƒ /super-admin/observability/capacity
+├ ƒ /super-admin/observability/diagnostics
+├ ƒ /super-admin/observability/monitoring
+├ ƒ /super-admin/observability/omega
+├ ƒ /super-admin/observability/reports
+├ ƒ /super-admin/observability/telemetry
+├ ƒ /super-admin/observability/timeline
+├ ƒ /super-admin/observability/topology
+├ ƒ /super-admin/omega
+├ ƒ /super-admin/operations
+├ ƒ /super-admin/operations/ai
+├ ƒ /super-admin/operations/alerts
+├ ƒ /super-admin/operations/health
+├ ƒ /super-admin/operations/incidents
+├ ƒ /super-admin/operations/logs
+├ ƒ /super-admin/operations/maintenance
+├ ƒ /super-admin/operations/recovery
+├ ƒ /super-admin/orders
+├ ƒ /super-admin/orders-engine
+├ ƒ /super-admin/organic-growth
+├ ƒ /super-admin/owner-demo-mode
+├ ƒ /super-admin/payments
+├ ƒ /super-admin/payments-engine
+├ ƒ /super-admin/platform
+├ ƒ /super-admin/platform-studio
+├ ƒ /super-admin/preferred-marketplace-stores
+├ ƒ /super-admin/premium-design
+├ ƒ /super-admin/pricing
+├ ƒ /super-admin/production-assets
+├ ƒ /super-admin/promotion-catalog
+├ ƒ /super-admin/promotion-management
+├ ƒ /super-admin/promotions
+├ ƒ /super-admin/protection-engine
+├ ƒ /super-admin/quality-assurance
+├ ƒ /super-admin/quality-assurance/ai
+├ ƒ /super-admin/quality-assurance/buttons
+├ ƒ /super-admin/quality-assurance/certification
+├ ƒ /super-admin/quality-assurance/coverage
+├ ƒ /super-admin/quality-assurance/fix
+├ ƒ /super-admin/quality-assurance/flows
+├ ƒ /super-admin/quality-assurance/modules
+├ ƒ /super-admin/quality-assurance/platform
+├ ƒ /super-admin/quality-assurance/priority
+├ ƒ /super-admin/quality-assurance/reports
+├ ƒ /super-admin/quick-listing
+├ ƒ /super-admin/recovery
+├ ƒ /super-admin/recovery/backups
+├ ƒ /super-admin/recovery/history
+├ ƒ /super-admin/recovery/incidents
+├ ƒ /super-admin/recovery/rollback
+├ ƒ /super-admin/recovery/safe-mode
+├ ƒ /super-admin/reports
+├ ƒ /super-admin/resolution-engine
+├ ƒ /super-admin/revenue
+├ ƒ /super-admin/reviews
+├ ƒ /super-admin/rovexo-ideas
+├ ƒ /super-admin/search
+├ ƒ /super-admin/search-engine
+├ ƒ /super-admin/security
+├ ƒ /super-admin/security-engine
+├ ƒ /super-admin/security/audit
+├ ƒ /super-admin/security/compliance
+├ ƒ /super-admin/security/dashboard
+├ ƒ /super-admin/security/devices
+├ ƒ /super-admin/security/firewall
+├ ƒ /super-admin/security/live
+├ ƒ /super-admin/security/scanner
+├ ƒ /super-admin/security/sessions
+├ ƒ /super-admin/security/settings
+├ ƒ /super-admin/security/threats
+├ ƒ /super-admin/security/vulnerabilities
+├ ƒ /super-admin/seller-performance
+├ ƒ /super-admin/seo
+├ ƒ /super-admin/shipping-engine
+├ ƒ /super-admin/staff
+├ ƒ /super-admin/subscriptions
+├ ƒ /super-admin/support
+├ ƒ /super-admin/theme-history
+├ ƒ /super-admin/theme-manager
+├ ƒ /super-admin/theme-studio
+├ ƒ /super-admin/trust
+├ ƒ /super-admin/users
+├ ƒ /super-admin/verification
+├ ƒ /super-admin/visitors
+├ ƒ /super-admin/visual-cms
+├ ƒ /super-admin/wallet
+├ ƒ /super-admin/wallet-engine
+├ ƒ /super-admin/workflows
+├ ƒ /super-admin/workflows/analytics
+├ ƒ /super-admin/workflows/approvals
+├ ƒ /super-admin/workflows/builder
+├ ƒ /super-admin/workflows/executions
+├ ƒ /super-admin/workflows/history
+├ ƒ /super-admin/workflows/list
+├ ƒ /super-admin/workflows/scheduler
+├ ƒ /super-admin/workflows/settings
+├ ƒ /super-admin/workflows/templates
+├ ƒ /super-admin/workflows/versions
+├ ƒ /support
+├ ƒ /support/success
+├ ƒ /takedown
+├ ƒ /terms
+├ ƒ /terms-of-sale
+├ ƒ /terms-of-service
+├ ƒ /trends/[slug]
+├ ƒ /trust
+├ ƒ /trust-center
+├ ƒ /ui-lock/commerce
+├ ƒ /user/[username]
+├ ƒ /user/[username]/followers
+├ ƒ /user/[username]/following
+├ ƒ /verification-policy
+├ ƒ /verify-email
+├ ƒ /wallet
+├ ƒ /wallet-terms
+├ ƒ /wallet/bank-account
+├ ƒ /wallet/bank-accounts
+├ ƒ /wallet/locked
+├ ƒ /wallet/payment-methods
+├ ƒ /wallet/payouts
+├ ƒ /wallet/pending
+├ ƒ /wallet/processing
+├ ƒ /wallet/statements
+├ ƒ /wallet/statements/[period]
+├ ƒ /wallet/statements/annual
+├ ƒ /wallet/statements/annual/[year]
+├ ƒ /wallet/transactions
+├ ƒ /wallet/transactions/[id]
+├ ƒ /wallet/withdraw
+├ ƒ /welcome
+└ ƒ /wholesale
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

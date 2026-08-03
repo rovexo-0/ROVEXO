@@ -1,0 +1,11 @@
+RC7 auth CSS isolation (built chunks)
+auth-login CSS chunk: 3ts711bu36wob.css size=80001
+wallet-v2 count in auth chunk: 0
+auth-login count: 317
+platform index chunk 2mb0vdux0xjt1.css still ~795KB (not on login HTML)
+
+BEFORE mobile CSS xfer: 60429
+FINAL mobile CSS xfer: 46867
+DELTA CSS xfer: 13562
+BEFORE unused CSS: ~21 KiB
+FINAL unused CSS: none (audit empty)

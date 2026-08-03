@@ -1,0 +1,495 @@
+---
+pid: 327636
+cwd: "/home/mihai/ROVEXO"
+command: "export LD_LIBRARY_PATH=\"/home/mihai/ROVEXO/.local/playwright-libs/usr/lib/x86_64-linux-gnu:/home/mihai/ROVEXO/.local-chromium-libs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}\"\ncd /home/mihai/ROVEXO\nmkdir -p test-results/rc3-playwright\n# Verify chromium via playwright first (short smoke)\nnode -e \"\nconst { chromium } = require('@playwright/test');\n(async () => {\n  const b = await chromium.launch({ headless: true, args: ['--no-sandbox','--disable-dev-shm-usage'] });\n  const p = await b.newPage();\n  await p.goto('about:blank');\n  console.log('PLAYWRIGHT_CHROMIUM_LAUNCH=PASS');\n  await b.close();\n})().catch(e => { console.error('PLAYWRIGHT_CHROMIUM_LAUNCH=FAIL', e); process.exit(1); });\n\" 2>&1 | tee test-results/rc3-playwright/chromium-smoke.log\n\n# Core certification suite (chromium only) — long running\nnpm run test:e2e:certification:core 2>&1 | tee test-results/rc3-playwright/certification-core.log\necho CORE_EXIT=${PIPESTATUS[0]} | tee -a test-results/rc3-playwright/certification-core.log\n\n# Blood XXIII checkout journey\nnode scripts/run-playwright.mjs e2e/checkout-blood-xxiii-certification.spec.ts --project=chromium 2>&1 | tee test-results/rc3-playwright/checkout-blood-xxiii.log\necho XXIII_EXIT=${PIPESTATUS[0]} | tee -a test-results/rc3-playwright/checkout-blood-xxiii.log\n\n# Responsive + accessibility for mobile/desktop evidence\nnode scripts/run-playwright.mjs e2e/responsive.spec.ts e2e/accessibility.spec.ts --project=chromium 2>&1 | tee test-results/rc3-playwright/responsive-a11y.log\necho RESP_EXIT=${PIPESTATUS[0]} | tee -a test-results/rc3-playwright/responsive-a11y.log\n"
+title: "Smoke Chromium then run Playwright certification suites"
+status: succeeded
+started_at: 2026-08-03T15:52:41.941Z
+running_for_ms: 324565   
+---
+PLAYWRIGHT_CHROMIUM_LAUNCH=PASS
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> rovexo@1.0.0-rc.1 test:e2e:certification:core
+> node scripts/run-playwright.mjs e2e/full-demo-certification.spec.ts e2e/accessibility.spec.ts e2e/commerce-canonical.spec.ts e2e/messages-notifications-v1.spec.ts e2e/listing-lifecycle-certification.spec.ts --project=chromium
+
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Chromium browser binary…
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[playwright] Chromium install complete.
+[playwright] Using workspace Chromium libs: /home/mihai/ROVEXO/.local-chromium-libs/lib
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 27456 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 63 tests using 11 workers
+
+(node:330289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330290) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:330357) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Login (1.1s)
+  ✓   4 [chromium] › e2e/commerce-canonical.spec.ts:8:7 › canonical commerce Absolute Final freeze › legacy ui-lock commerce redirects into the product (1.1s)
+  ✓   5 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Categories (1.2s)
+  ✓   2 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Register (1.3s)
+  ✓   8 [chromium] › e2e/commerce-canonical.spec.ts:13:7 › canonical commerce Absolute Final freeze › checkout address/payment/review hops redirect to single checkout URL (1.3s)
+  ✓   6 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Search results (1.7s)
+  ✓  10 [chromium] › e2e/full-demo-certification.spec.ts:92:7 › Full Demo — mandatory deployment certification › 01 BUYER LOGIN (581ms)
+  ✓   1 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Homepage (2.4s)
+  ✓  11 [chromium] › e2e/messages-notifications-v1.spec.ts:115:7 › Inbox Hub v1.1 — Messages + Notifications › inbox messages tab renders canonical v1.1 layout (1.6s)
+  ✓  12 [chromium] › e2e/full-demo-certification.spec.ts:97:7 › Full Demo — mandatory deployment certification › 02 SELLER LOGIN (1.3s)
+  ✓   7 [chromium] › e2e/accessibility.spec.ts:105:5 › touch targets meet minimum size on frozen search-priority header (6.8s)
+  ✓  13 [chromium] › e2e/messages-notifications-v1.spec.ts:123:7 › Inbox Hub v1.1 — Messages + Notifications › legacy /messages redirects into inbox hub (5.6s)
+  ✓  15 [chromium] › e2e/messages-notifications-v1.spec.ts:131:7 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications tab renders canonical v1.1 layout (4.7s)
+  ✓  14 [chromium] › e2e/full-demo-certification.spec.ts:102:7 › Full Demo — mandatory deployment certification › 03 CREATE PRODUCT (10.5s)
+  ✓  16 [chromium] › e2e/messages-notifications-v1.spec.ts:139:7 › Inbox Hub v1.1 — Messages + Notifications › legacy /notifications redirects into inbox notifications (1.4s)
+  ✓  17 [chromium] › e2e/full-demo-certification.spec.ts:156:7 › Full Demo — mandatory deployment certification › 04 PRODUCT APPEARS ON HOMEPAGE (445ms)
+  ✓   9 [chromium] › e2e/listing-lifecycle-certification.spec.ts:170:7 › listing lifecycle certification › PUBLISH — new listing persists with image + published status (13.5s)
+  ✓  19 [chromium] › e2e/full-demo-certification.spec.ts:168:7 › Full Demo — mandatory deployment certification › 05 BUYER SEARCHES PRODUCT (609ms)
+  ✓  18 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at iphone-se (917ms)
+  ✓  21 [chromium] › e2e/full-demo-certification.spec.ts:177:7 › Full Demo — mandatory deployment certification › 06 BUY NOW (467ms)
+  ✓  22 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at iphone-se (942ms)
+  ✓  20 [chromium] › e2e/listing-lifecycle-certification.spec.ts:246:7 › listing lifecycle certification › HOMEPAGE — listing appears in feed API and rendered grid (2.4s)
+  ✓  25 [chromium] › e2e/listing-lifecycle-certification.spec.ts:290:7 › listing lifecycle certification › SEARCH — listing appears in search results with same slug (1.3s)
+  ✓  24 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at iphone-13 (2.5s)
+  ✓  26 [chromium] › e2e/listing-lifecycle-certification.spec.ts:314:7 › listing lifecycle certification › CATEGORY — listing appears on its category page (458ms)
+  ✓  27 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at iphone-13 (497ms)
+  ✓  29 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at iphone-15 (522ms)
+  ✓  28 [chromium] › e2e/listing-lifecycle-certification.spec.ts:327:7 › listing lifecycle certification › SELLER STORE — listing appears on the seller store (784ms)
+  ✓  31 [chromium] › e2e/listing-lifecycle-certification.spec.ts:354:7 › listing lifecycle certification › PRODUCT DETAILS — page renders with images loaded (no broken icons) (774ms)
+  ✓  30 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at iphone-15 (1.1s)
+  ✓  32 [chromium] › e2e/listing-lifecycle-certification.spec.ts:367:7 › listing lifecycle certification › MY LISTINGS — listing appears for the owner (952ms)
+  ✓  33 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at iphone-17-pro-max (980ms)
+  ✓  35 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at iphone-17-pro-max (773ms)
+  ✓  34 [chromium] › e2e/listing-lifecycle-certification.spec.ts:375:7 › listing lifecycle certification › FAVORITE — item can be saved and appears in Saved (1.4s)
+  ✓  36 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at android (612ms)
+  ✓  38 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at android (544ms)
+  ✓  39 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at tablet (555ms)
+  ✓  40 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at tablet (557ms)
+  ✓  37 [chromium] › e2e/listing-lifecycle-certification.spec.ts:404:7 › listing lifecycle certification › EDIT — price update propagates to DB and product page (1.9s)
+  ✓  41 [chromium] › e2e/messages-notifications-v1.spec.ts:148:9 › Inbox Hub v1.1 — Messages + Notifications › inbox messages responsive at desktop (517ms)
+  ✓  43 [chromium] › e2e/messages-notifications-v1.spec.ts:156:9 › Inbox Hub v1.1 — Messages + Notifications › inbox notifications responsive at desktop (544ms)
+  ✓  42 [chromium] › e2e/listing-lifecycle-certification.spec.ts:425:7 › listing lifecycle certification › PAUSE — listing is removed from public surfaces (2.4s)
+  ✓  23 [chromium] › e2e/full-demo-certification.spec.ts:182:7 › Full Demo — mandatory deployment certification › 07 CHECKOUT (12.2s)
+  ✓  45 [chromium] › e2e/full-demo-certification.spec.ts:239:7 › Full Demo — mandatory deployment certification › 08 PAYMENT SUCCESS (VIRTUAL) (98ms)
+  ✓  46 [chromium] › e2e/full-demo-certification.spec.ts:248:7 › Full Demo — mandatory deployment certification › 09 ORDER CREATED (38ms)
+  ✓  47 [chromium] › e2e/full-demo-certification.spec.ts:258:7 › Full Demo — mandatory deployment certification › 10 SELLER RECEIVES ORDER (470ms)
+  ✓  48 [chromium] › e2e/full-demo-certification.spec.ts:269:7 › Full Demo — mandatory deployment certification › 11 ACCEPT ORDER (52ms)
+[WebServer] ⨯ upstream image response failed for https://pklotmwxtnnepaitedic.supabase.co/storage/v1/object/public/products/8346d7b6-19e9-4e93-a60a-fb93452a19ad/8915c510-4a53-4f0e-94ba-90d609a22f45/full-demo-refund-1785680137786.jpg 400
+  ✓  44 [chromium] › e2e/listing-lifecycle-certification.spec.ts:452:7 › listing lifecycle certification › ACTIVATE — reactivated listing returns to public surfaces (1.4s)
+  ✓  49 [chromium] › e2e/full-demo-certification.spec.ts:274:7 › Full Demo — mandatory deployment certification › 12 GENERATE VIRTUAL LABEL (2.7s)
+  ✓  51 [chromium] › e2e/full-demo-certification.spec.ts:281:7 › Full Demo — mandatory deployment certification › 13 TRACKING GENERATED (184ms)
+  ✓  52 [chromium] › e2e/full-demo-certification.spec.ts:288:7 › Full Demo — mandatory deployment certification › 14 PARCEL CREATED (160ms)
+  ✓  53 [chromium] › e2e/full-demo-certification.spec.ts:304:7 › Full Demo — mandatory deployment certification › 15 SHIPPED (206ms)
+  ✓  54 [chromium] › e2e/full-demo-certification.spec.ts:313:7 › Full Demo — mandatory deployment certification › 16 DELIVERED (98ms)
+  ✓  55 [chromium] › e2e/full-demo-certification.spec.ts:322:7 › Full Demo — mandatory deployment certification › 17 COMPLETED (40ms)
+  ✓  56 [chromium] › e2e/full-demo-certification.spec.ts:342:7 › Full Demo — mandatory deployment certification › 18 REVIEW CREATED (92ms)
+  ✓  57 [chromium] › e2e/full-demo-certification.spec.ts:356:7 › Full Demo — mandatory deployment certification › 19 WALLET UPDATED (77ms)
+  ✓  58 [chromium] › e2e/full-demo-certification.spec.ts:371:7 › Full Demo — mandatory deployment certification › 20 NOTIFICATIONS VERIFIED (34ms)
+  ✓  59 [chromium] › e2e/full-demo-certification.spec.ts:379:7 › Full Demo — mandatory deployment certification › 21 MESSAGES VERIFIED (76ms)
+  ✓  50 [chromium] › e2e/listing-lifecycle-certification.spec.ts:474:7 › listing lifecycle certification › DELETE — listing is removed everywhere via My Listings UI (2.7s)
+  ✓  60 [chromium] › e2e/full-demo-certification.spec.ts:386:7 › Full Demo — mandatory deployment certification › 22 REFUND VERIFIED (16.5s)
+[WebServer] [seller-performance] event enqueue failed {
+[WebServer]   code: 'PGRST205',
+[WebServer]   details: null,
+[WebServer]   hint: "Perhaps you meant the table 'public.seller_profiles'",
+[WebServer]   message: "Could not find the table 'public.seller_performance_event_queue' in the schema cache"
+[WebServer] }
+  ✓  61 [chromium] › e2e/full-demo-certification.spec.ts:495:7 › Full Demo — mandatory deployment certification › 23 CANCEL VERIFIED (2.7s)
+  ✓  62 [chromium] › e2e/full-demo-certification.spec.ts:586:7 › Full Demo — mandatory deployment certification › 24 LOGOUT VERIFIED (265ms)
+  ✓  63 [chromium] › e2e/full-demo-certification.spec.ts:591:7 › Full Demo — mandatory deployment certification › 25 LOGIN AGAIN VERIFIED (700ms)
+
+  63 passed (2.5m)
+tee: test-results/rc3-playwright/certification-core.log: No such file or directory
+CORE_EXIT=0
+tee: test-results/rc3-playwright/checkout-blood-xxiii.log: No such file or directory
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Chromium browser binary…
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[playwright] Chromium install complete.
+[playwright] Using workspace Chromium libs: /home/mihai/ROVEXO/.local-chromium-libs/lib
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 27568 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 6 tests using 1 worker
+
+(node:339034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  1 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:79:7 › Blood XXIII — Checkout certification journey › 01 Product page exposes Buy Now
+  -  2 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:87:7 › Blood XXIII — Checkout certification journey › 02 Buy Now creates checkout session (no order yet)
+  -  3 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:104:7 › Blood XXIII — Checkout certification journey › 03 Checkout page loads with cs binding
+  -  4 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:113:7 › Blood XXIII — Checkout certification journey › 04 Confirm & Pay (virtual) creates order
+  -  5 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:160:7 › Blood XXIII — Checkout certification journey › 05 Duplicate Confirm & Pay returns same order (no second payment)
+  -  6 [chromium] › e2e/checkout-blood-xxiii-certification.spec.ts:186:7 › Blood XXIII — Checkout certification journey › 06 DONE readiness exposes conversation Hub id when ready
+
+  6 skipped
+tee: test-results/rc3-playwright/checkout-blood-xxiii.log: No such file or directory
+XXIII_EXIT=0
+tee: test-results/rc3-playwright/responsive-a11y.log: No such file or directory
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Chromium browser binary…
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[playwright] Chromium install complete.
+[playwright] Using workspace Chromium libs: /home/mihai/ROVEXO/.local-chromium-libs/lib
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Turbopack build encountered 4 warnings:
+[WebServer] ./app/api/super-admin/premium-design/route.ts:20:22
+[WebServer] The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 28020 files in [project]/
+[WebServer]   18 |
+[WebServer]   19 | async function runNodeScript(scriptRelativePath: string) {
+[WebServer] > 20 |   const scriptPath = path.join(ROOT, scriptRelativePath);
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   21 |   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
+[WebServer]   22 |     cwd: ROOT,
+[WebServer]   23 |     maxBuffer: 12 * 1024 * 1024,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/asset-scanner.ts:25:24
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   23 |     while ((match = PUBLIC_REF_PATTERN.exec(content)) !== null) {
+[WebServer]   24 |       const assetPath = `/${match[1]}`;
+[WebServer] > 25 |       const diskPath = join(publicDir, match[1].replace(/^\//, ""));
+[WebServer]      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   26 |       if (!existsSync(diskPath)) {
+[WebServer]   27 |         findings.push({
+[WebServer]   28 |           id: `broken-${rel}-${match.index}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/asset-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./lib/design-studio-v1/icon-scanner.ts:52:22
+[WebServer] The file pattern (<dynamic> '/public/' <dynamic> | <dynamic> 'public/' <dynamic> | <dynamic> '/public' <dynamic> | <dynamic> 'public' <dynamic>) matches 10248 files in [project]/
+[WebServer]   50 |
+[WebServer]   51 |   for (const entry of collectRegisteredIcons()) {
+[WebServer] > 52 |     const diskPath = join(publicDir, entry.path.replace(/^\//, ""));
+[WebServer]      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   53 |     if (!existsSync(diskPath)) {
+[WebServer]   54 |       findings.push({
+[WebServer]   55 |         id: `missing-${entry.key}`,
+[WebServer] 
+[WebServer] Overly broad patterns can lead to build performance issues and over bundling.
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer]   #2 [App Route]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/design-audit.ts
+[WebServer]     ./app/api/super-admin/design-studio/route.ts
+[WebServer] 
+[WebServer]   #3 [Server Component]:
+[WebServer]     ./lib/design-studio-v1/icon-scanner.ts
+[WebServer]     ./lib/design-studio-v1/snapshot.ts
+[WebServer]     ./app/super-admin/experience/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./next.config.ts
+[WebServer] Encountered unexpected file in NFT list
+[WebServer] A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+[WebServer] - filesystem operations (like path.join, path.resolve or fs.readFile), or
+[WebServer] - very dynamic requires (like require('./' + foo)).
+[WebServer] To resolve this, you can
+[WebServer] - remove them if possible, or
+[WebServer] - only use them in development, or
+[WebServer] - make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+[WebServer] - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   App Route:
+[WebServer]     ./next.config.ts
+[WebServer]     ./app/api/super-admin/premium-design/route.ts
+[WebServer] 
+[WebServer] 
+
+Running 20 tests using 16 workers
+
+(node:342016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342062) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342083) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:342084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Categories (950ms)
+  ✓   4 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Login (4.7s)
+  ✓   6 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Register (4.7s)
+  ✓  19 [chromium] › e2e/responsive.spec.ts:90:5 › search page is usable on mobile (3.6s)
+  ✓   3 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Search results (8.7s)
+  ✓  11 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Foldable (10.2s)
+  ✓  15 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Pixel 7 (10.2s)
+  ✓  10 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Android Small (10.5s)
+  ✓  14 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at iPhone Pro Max (10.5s)
+  ✓   7 [chromium] › e2e/accessibility.spec.ts:63:7 › WCAG audit: Homepage (10.8s)
+  ✓  13 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Desktop (11.0s)
+  ✓   2 [chromium] › e2e/accessibility.spec.ts:105:5 › touch targets meet minimum size on frozen search-priority header (12.3s)
+  ✓  20 [chromium] › e2e/responsive.spec.ts:96:5 › listing page renders on tablet (4.4s)
+  ✓   5 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at iPhone 15 (12.9s)
+  ✓  12 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Laptop (13.3s)
+  ✓   9 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at iPhone SE (14.0s)
+  ✓  17 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at UltraWide (13.4s)
+  ✓   8 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at Android Large (14.4s)
+  ✓  18 [chromium] › e2e/responsive.spec.ts:60:5 › homepage has no unexpected console errors on load (10.5s)
+  ✓  16 [chromium] › e2e/responsive.spec.ts:29:7 › homepage layout at iPad (15.2s)
+
+  20 passed (1.7m)
+RESP_EXIT=0
+
+---
+exit_code: 0
+elapsed_ms: 324565
+ended_at: 2026-08-03T15:58:06.506Z
+---

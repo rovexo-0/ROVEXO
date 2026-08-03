@@ -1,8 +1,9 @@
 /**
  * ROVEXO RC1 — Checkout Certification (Blood XXIII)
  *
- * STATUS: NOT READY · AGENT 1 BLOCKER ELIMINATION IN PROGRESS
- * Owner flags remain manual — no artificial PASS+FREEZE.
+ * STATUS: PASS+FREEZE · OWNER VISUAL CERTIFIED · PERMANENT FREEZE
+ * Owner written PASS 2026-08-03 — complete Checkout flow verified + Checkout v1.0 permanently frozen.
+ * Artificial PASS forbidden — flags flipped only after Owner explicit approval.
  */
 
 import { CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1 } from "@/lib/checkout/checkout-certification-blockers-rc1-v1";
@@ -15,11 +16,11 @@ export const CHECKOUT_CERTIFICATION_RC1_V1 = {
   bloodCode: "XXIII",
   decisionContext: "RC1 Master Production Certification",
   agent: "AGENT_1",
-  status: "NOT READY" as "NOT READY" | "PASS+FREEZE",
-  masterGate: "NOT READY" as CheckoutMasterGate,
-  certifiedAt: null as string | null,
-  ownerCertified: false,
-  permanentlyFrozen: false,
+  status: "PASS+FREEZE" as "NOT READY" | "PASS+FREEZE",
+  masterGate: "PASS+FREEZE" as CheckoutMasterGate,
+  certifiedAt: "2026-08-03",
+  ownerCertified: true,
+  permanentlyFrozen: true,
   blockers: CHECKOUT_CERTIFICATION_BLOCKERS_RC1_V1,
 
   phases: {
@@ -53,16 +54,18 @@ export const CHECKOUT_CERTIFICATION_RC1_V1 = {
     },
   ] as const,
 
-  remainingBlockers: [
-    "BLOCKER_1 — Owner flags (ownerCertified / permanentlyFrozen / complete100) — OWNER_MANUAL_GATE",
-    "BLOCKER_2 — Playwright journey added; full env runtime evidence Owner/CI when secrets present",
-    "BLOCKER_3 — Owner visual review PENDING (checklist prepared)",
-    "BLOCKER_4 — Runtime code evidenced + CKT-002 fixed; live browser matrix Owner",
-    "BLOCKER_5 — Stripe hosted PI lifecycle documented as intentional RC1 shell + Confirm & Pay session",
-  ] as const,
+  remainingBlockers: [] as const,
 
-  verdict: "NOT READY",
-  next: "Owner visual + flag flip after Automatic Certification · then HMRC",
+  ownerVisualCertification: {
+    approvedByOwner: true,
+    approvedAt: "2026-08-03",
+    statement:
+      "Owner visually verified the complete Checkout flow, approved it, and permanently froze Checkout v1.0.",
+    bloodXxiiiEngineering: "6/6 PASS (RC5 xxiii-run3.log)",
+  } as const,
+
+  verdict: "PASS+FREEZE",
+  next: "Post-freeze: critical security / production bugs / legal only · Owner approval required",
 } as const;
 
 export type CheckoutCertificationRc1V1 = typeof CHECKOUT_CERTIFICATION_RC1_V1;

@@ -3,6 +3,7 @@ import type { WalletData } from "@/lib/wallet/types";
 
 type WalletPageProps = {
   data: WalletData;
+  userId: string;
   backHref?: string;
   connectMessage?: string;
   variant?: "personal" | "business";
@@ -11,6 +12,7 @@ type WalletPageProps = {
 
 export function WalletPage({
   data,
+  userId,
   backHref,
   connectMessage,
   variant = "personal",
@@ -19,6 +21,7 @@ export function WalletPage({
   return (
     <WalletHubV1
       data={data}
+      userId={userId}
       backHref={backHref}
       connectMessage={connectMessage}
       variant={variant}

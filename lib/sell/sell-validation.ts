@@ -5,7 +5,6 @@ import { validateListingTitle } from "@/lib/sell/listing-title";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
-import { categorySupportsCondition } from "@/lib/sell/aa-quick-sell-attributes";
 
 export type SellValidationFieldId =
   | "photos"
@@ -102,13 +101,8 @@ export function getFirstSellValidationIssue(
     };
   }
 
-  if (categorySupportsCondition(draft.categoryPath) && !draft.condition.trim()) {
-    return {
-      field: "condition",
-      message: "Select a condition.",
-      fieldDomId: sellFieldDomId("condition"),
-    };
-  }
+  // Condition is OPTIONAL for publish (Sell Absolute Authority core-6).
+  // Progressive UI may still prompt for it; it must never block Publish.
 
   if (!hasValidPrice(draft)) {
     return {

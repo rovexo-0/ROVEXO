@@ -20,9 +20,9 @@ The only seller dashboard implementation on the platform. Production-ready, mobi
 
 | Layer | Path |
 |-------|------|
-| Page | `app/seller/page.tsx` |
-| Layout / loading / error | `app/seller/layout.tsx`, `loading.tsx`, `error.tsx` |
-| Legacy redirect | `app/seller/dashboard/page.tsx` → `/seller` |
+| Page | `app/(platform)/seller/page.tsx` |
+| Layout / loading / error | `app/(platform)/seller/layout.tsx`, `loading.tsx`, `error.tsx` |
+| Legacy redirect | `app/(platform)/seller/dashboard/page.tsx` → `/seller` |
 | Component | `components/seller/SellerDashboard.tsx` |
 | Hooks | `hooks/seller/` |
 | Services | `lib/seller/repository.ts`, `lib/seller/queries.ts` |

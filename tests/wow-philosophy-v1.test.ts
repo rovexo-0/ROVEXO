@@ -57,7 +57,7 @@ describe("WOW Philosophy Freeze v1.0", () => {
   });
 
   it("messages redirects to inbox (Transaction Hub — zero legacy chat chrome entry)", () => {
-    const messages = read("app/messages/page.tsx");
+    const messages = read("app/(platform)/messages/page.tsx");
     expect(messages).toContain("redirect");
     expect(messages).toMatch(/inbox/i);
   });

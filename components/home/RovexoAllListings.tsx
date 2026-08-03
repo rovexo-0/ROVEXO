@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HOMEPAGE_LISTING_CARD_PROPS } from "@/components/home/constants";
 import { HomeListingCardSkeletonGrid } from "@/components/home/HomeListingCardSkeleton";
@@ -29,17 +29,12 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 }: RovexoAllListingsProps) {
   const [items, setItems] = useState<Product[]>(initialPage.items);
   const [page, setPage] = useState(initialPage.page);
-  const [hasMore, setHasMore] = useState(initialPage.hasMore);
+  const [hasMore, setHasMore] = useState(Boolean(initialPage.hasMore));
   const [loading, setLoading] = useState(initialPage.items.length === 0);
   const [bootstrapped, setBootstrapped] = useState(initialPage.items.length > 0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const columnCount = useMarketplaceFeedColumns();
-
-  const loadTriggerIndex = useMemo(
-    () => Math.max(0, Math.floor(items.length * 0.75) - 1),
-    [items.length],
-  );
 
   const loadMore = useCallback(async () => {
     if (loading) return;
@@ -67,7 +62,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
       setItems((current) => mergeUniqueProducts(current, payload.items));
       setPage(payload.page);
-      setHasMore(payload.hasMore);
+      setHasMore(Boolean(payload.hasMore));
       setBootstrapped(true);
     } finally {
       setLoading(false);
@@ -88,7 +83,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node || !bootstrapped) return;
+    if (!node || !bootstrapped || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -101,7 +96,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [bootstrapped, items.length, loadTriggerIndex, loadMore]);
+  }, [bootstrapped, hasMore, items.length, loadMore]);
 
   if (!loading && items.length === 0 && bootstrapped) {
     return null;
@@ -118,21 +113,20 @@ export const RovexoAllListings = memo(function RovexoAllListings({
           <HomeListingCardSkeletonGrid count={4} />
         ) : (
           items.map((product, index) => (
-            <Fragment key={product.id}>
-              <ListingCard
-                product={product}
-                variant="grid"
-                priority={index < 2}
-                {...HOMEPAGE_LISTING_CARD_PROPS}
-              />
-              {index === loadTriggerIndex ? (
-                <div ref={sentinelRef} className={gridStyles.sentinel} aria-hidden />
-              ) : null}
-            </Fragment>
+            <ListingCard
+              key={product.id}
+              product={product}
+              variant="grid"
+              priority={index < 2}
+              {...HOMEPAGE_LISTING_CARD_PROPS}
+            />
           ))
         )}
-        {loading && items.length > 0 ? <HomeListingCardSkeletonGrid count={2} /> : null}
       </RovexoAllListingsGrid>
+      {/* Sentinel outside the CSS grid — mid-grid sentinel creates a blank slot. */}
+      {bootstrapped && hasMore ? (
+        <div ref={sentinelRef} className={gridStyles.sentinel} aria-hidden />
+      ) : null}
     </section>
   );
 });

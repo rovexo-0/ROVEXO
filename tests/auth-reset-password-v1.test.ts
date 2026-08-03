@@ -98,7 +98,7 @@ describe("AUTH_MASTER_SPEC v1.0 — reset password screen", () => {
   });
 
   it("routes invalid and expired recovery tokens to reset screen", () => {
-    const callback = readSource("app/auth/callback/route.ts");
+    const callback = readSource("app/(platform)/auth/callback/route.ts");
     expect(callback).toContain("/reset-password?error=");
     expect(readSource("lib/supabase/middleware.ts")).not.toContain("reset_session_required");
   });

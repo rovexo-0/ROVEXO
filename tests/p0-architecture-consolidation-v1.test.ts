@@ -49,7 +49,7 @@ describe("P0 Architecture Consolidation v1.0", () => {
   });
 
   it("seller performance page reads public badges from Badge Engine", () => {
-    const page = readSource("app/seller/performance/page.tsx");
+    const page = readSource("app/(platform)/seller/performance/page.tsx");
     expect(page).toContain("getPublicBadges");
     expect(existsSync(join(process.cwd(), "lib/badge/store.ts"))).toBe(true);
   });

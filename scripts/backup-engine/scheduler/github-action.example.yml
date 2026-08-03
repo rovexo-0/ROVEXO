@@ -1,0 +1,36 @@
+# Future GitHub Action — ROVEXO Backup Engine v1.0
+# Not enabled by default (no .github workflows required for Free Plan local backups).
+# Owner may copy to .github/workflows/rovexo-backup.yml when ready.
+#
+# name: rovexo-backup
+# on:
+#   schedule:
+#     - cron: "15 2 * * *"
+#   workflow_dispatch:
+# jobs:
+#   backup:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: "20"
+#       - run: npm ci
+#       - run: npm run backup
+#         env:
+#           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+#           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+#           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+#       - uses: actions/upload-artifact@v4
+#         with:
+#           name: rovexo-backup
+#           path: .rovexo-backups/latest.json
+
+name: rovexo-backup-placeholder
+on:
+  workflow_dispatch:
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Copy this file into .github/workflows when Owner enables CI backups."

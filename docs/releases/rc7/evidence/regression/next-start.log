@@ -1,0 +1,5 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.2.12
+- Local:         http://localhost:3000
+- Network:       http://10.255.255.254:3000
+✓ Ready in 79ms

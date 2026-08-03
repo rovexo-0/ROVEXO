@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types/database";
-import { AUTHENTICATED_HOME } from "@/lib/auth/redirects";
+import { AUTHENTICATED_HOME, sanitizeNextPath } from "@/lib/auth/redirects";
 import {
   AUTH_PROTECTED_PREFIXES,
   AUTH_ADMIN_PREFIXES,
@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/protected-routes";
 import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
+import { isMfaPendingAllowedPath, MFA_TOTP_V1 } from "@/lib/auth/mfa/ssot";
 
 const AUTH_BYPASS_PREFIXES = ["/auth/callback", "/auth/signout"];
 
@@ -148,6 +149,46 @@ export async function updateSession(request: NextRequest) {
 
     if (isAuthBypass) {
       return applyPendingCookies(supabaseResponse, pendingCookies);
+    }
+
+    // MFA enforcement: AAL1 sessions with verified TOTP must complete challenge
+    // before entering the application. Refresh tokens alone cannot bypass this.
+    if (user) {
+      const onMfaAllowlist = isMfaPendingAllowedPath(pathname);
+      if (!onMfaAllowlist) {
+        try {
+          const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (aal?.currentLevel === "aal1" && aal?.nextLevel === "aal2") {
+            if (isApiRoute) {
+              return NextResponse.json(
+                { error: "MFA challenge required.", code: "mfa_required" },
+                { status: 403 },
+              );
+            }
+            const mfaUrl = request.nextUrl.clone();
+            mfaUrl.pathname = MFA_TOTP_V1.challengePath;
+            mfaUrl.search = "";
+            const nextPath = sanitizeNextPath(`${pathname}${request.nextUrl.search || ""}`);
+            if (nextPath !== "/") {
+              mfaUrl.searchParams.set("next", nextPath);
+            }
+            return applyPendingCookies(NextResponse.redirect(mfaUrl), pendingCookies);
+          }
+        } catch (mfaError) {
+          // Fail closed: never allow app entry when assurance cannot be verified.
+          console.error("[middleware] MFA assurance check failed:", mfaError);
+          if (isApiRoute) {
+            return NextResponse.json(
+              { error: "MFA challenge required.", code: "mfa_required" },
+              { status: 403 },
+            );
+          }
+          const mfaUrl = request.nextUrl.clone();
+          mfaUrl.pathname = MFA_TOTP_V1.challengePath;
+          mfaUrl.search = "";
+          return applyPendingCookies(NextResponse.redirect(mfaUrl), pendingCookies);
+        }
+      }
     }
 
     if (!user && isProtected && !isApiRoute) {

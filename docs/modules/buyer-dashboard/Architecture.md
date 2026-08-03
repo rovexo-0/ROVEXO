@@ -9,7 +9,7 @@ The Buyer Dashboard is a server-rendered Next.js page with a client composition 
 ```mermaid
 flowchart TB
   subgraph server [Server]
-    Page["app/buyer/page.tsx"]
+    Page["app/(platform)/buyer/page.tsx"]
     Queries["lib/buyer/queries.ts"]
     Repo["lib/buyer/repository.ts"]
   end
@@ -59,7 +59,7 @@ flowchart TB
 
 ## Error boundary
 
-`app/buyer/error.tsx` renders `BuyerErrorState` with retry via Next.js error boundary reset.
+`app/(platform)/buyer/error.tsx` renders `BuyerErrorState` with retry via Next.js error boundary reset.
 
 ## Styling
 

@@ -51,7 +51,7 @@ describe("Preferred Marketplace Stores Engine v1.0", () => {
     expect(PREFERRED_MARKETPLACE_STORES_ENGINE_V1.forbiddenUiLabels).toEqual(
       expect.arrayContaining(["Admin", "Platform", "Official", "Owner"]),
     );
-    const homepage = read("app/page.tsx");
+    const homepage = read("app/(platform)/page.tsx");
     expect(homepage).not.toMatch(/palademihaita88@gmail\.com/);
     expect(homepage).toContain("listActivePreferredMarketplaceStores");
   });
@@ -100,7 +100,7 @@ describe("Preferred Marketplace Stores Engine v1.0", () => {
   });
 
   it("wires Super Admin route + API + migration", () => {
-    expect(read("app/super-admin/preferred-marketplace-stores/page.tsx")).toContain(
+    expect(read("app/(platform)/super-admin/preferred-marketplace-stores/page.tsx")).toContain(
       "PreferredMarketplaceStoresPanel",
     );
     expect(read("app/api/super-admin/preferred-marketplace-stores/route.ts")).toContain(

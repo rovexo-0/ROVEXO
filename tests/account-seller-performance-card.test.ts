@@ -15,7 +15,7 @@ function readSource(relativePath: string): string {
 describe("My Account Seller Performance card", () => {
   it("keeps seller performance off My Account hub; card is Master Menu rows", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
-    const page = readSource("app/account/page.tsx");
+    const page = readSource("app/(platform)/account/page.tsx");
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
 
     expect(home).not.toContain("AccountSellerPerformanceCard");

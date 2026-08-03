@@ -29,7 +29,7 @@ describe("Staff Enterprise Platform", () => {
   });
 
   it("ships staff portal, API, and enterprise descriptor", () => {
-    expect(readSource("app/staff/page.tsx")).toContain("StaffEnterpriseShell");
+    expect(readSource("app/(platform)/staff/page.tsx")).toContain("StaffEnterpriseShell");
     expect(readSource("app/api/staff-enterprise/route.ts")).toContain("requireApiStaff");
     expect(readSource("lib/staff-enterprise/descriptor.ts")).toContain("staff-enterprise");
     expect(readSource("lib/enterprise-architecture/registry.ts")).toContain("STAFF_ENTERPRISE_MODULE_DESCRIPTOR");

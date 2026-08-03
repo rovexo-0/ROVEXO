@@ -96,7 +96,7 @@ Every ROVEXO account can browse, buy, sell, chat, save products, use wallet, rec
 
 | Registration | `lib/auth/actions.ts`, `features/auth/components/RegisterFields.tsx` |
 
-| Verification hub | `app/account/verification/page.tsx` |
+| Verification hub | `app/(platform)/account/verification/page.tsx` |
 
 | Delete account | `features/account-module/components/DeleteAccountFlow.tsx`, `lib/account/deletion-eligibility.ts` |
 

@@ -44,9 +44,9 @@ describe("Command Centre Unified White Theme RC1", () => {
     const layout = readSource("features/command-centre/CommandCentreLayout.tsx");
     const adminShell = readSource("features/command-centre/AdminCommandCentreShell.tsx");
     const superShell = readSource("features/super-admin/components/SuperAdminShell.tsx");
-    const adminLayout = readSource("app/admin/layout.tsx");
-    const superLayout = readSource("app/super-admin/layout.tsx");
-    const adminCategories = readSource("app/admin/categories/page.tsx");
+    const adminLayout = readSource("app/(platform)/admin/layout.tsx");
+    const superLayout = readSource("app/(platform)/super-admin/layout.tsx");
+    const adminCategories = readSource("app/(platform)/admin/categories/page.tsx");
     const css = readSource("styles/rovexo/command-centre-unified-v1.css");
 
     expect(layout).toContain("data-command-centre=\"unified-v1\"");

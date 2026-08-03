@@ -56,20 +56,15 @@ export function applyAiAnalysisFields(
   const top = analysis.predictions[0];
   const patch: ReturnType<typeof applyAiAnalysisFields> = {};
 
+  // COD SÂNGE — Category Attribute Database: never auto-select Brand / Colour /
+  // Size / Condition from AI. Attributes are manual seller selections only.
+  void analysis.brand;
+  void analysis.color;
+  void analysis.size;
+  void analysis.condition;
+
   if (!draft.title.trim() && top?.title) {
     patch.title = top.title;
-  }
-  if (!draft.brand.trim() && analysis.brand?.value) {
-    patch.brand = analysis.brand.value;
-  }
-  if (!draft.color.trim() && analysis.color?.value) {
-    patch.color = analysis.color.value;
-  }
-  if (!draft.size.trim() && analysis.size?.value) {
-    patch.size = analysis.size.value;
-  }
-  if (!draft.condition && analysis.condition?.value) {
-    patch.condition = analysis.condition.value;
   }
   if (!draft.description.trim() && top?.description) {
     patch.description = top.description;

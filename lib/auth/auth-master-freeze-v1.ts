@@ -172,7 +172,7 @@ export const AUTH_MASTER_FREEZE_V1 = {
     freeze: "lib/auth/auth-master-freeze-v1.ts",
     masterSpec: "lib/auth/master-spec.ts",
     actions: "lib/auth/actions.ts",
-    callback: "app/auth/callback/route.ts",
+    callback: "app/(platform)/auth/callback/route.ts",
     sessionCookies: "lib/auth/session-cookies.ts",
     middleware: "lib/supabase/middleware.ts",
     loginUi: "features/auth/components/LoginScreen.tsx",

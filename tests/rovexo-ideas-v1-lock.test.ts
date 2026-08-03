@@ -61,7 +61,7 @@ describe("Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0", () => {
 
   it("implements Owner community mockup on single page", () => {
     const page = readSource("features/account-module/components/RovexoIdeasPage.tsx");
-    const route = readSource("app/account/ideas/page.tsx");
+    const route = readSource("app/(platform)/account/ideas/page.tsx");
     const css = readSource("styles/rovexo/rovexo-ideas-v1.css");
     const indexCss = readSource("styles/rovexo/index.css");
 

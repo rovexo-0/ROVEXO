@@ -84,7 +84,7 @@ export const PHOTO_SYSTEM_PRODUCT_ENTRY_POINTS = {
   },
   editListing: {
     route: "/seller/listings/[id]/edit",
-    host: "app/seller/listings/[id]/edit/page.tsx",
+    host: "app/(platform)/seller/listings/[id]/edit/page.tsx",
     reuses: "SellPage",
     role: "CANONICAL_PRODUCT_HOST_VIA_SELL",
   },

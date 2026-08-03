@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP4_LISTING_CARD_PROPS } from "@/components/homepage-v4/constants";
 import { HomepageV4SkeletonGrid } from "@/components/homepage-v4/HomepageV4Skeleton";
@@ -40,16 +40,11 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
 
   const [items, setItems] = useState<Product[]>(seedItems);
   const [page, setPage] = useState(initialPage.page);
-  const [hasMore, setHasMore] = useState(initialPage.hasMore || seedItems.length > 0);
+  const [hasMore, setHasMore] = useState(Boolean(initialPage.hasMore));
   const [loading, setLoading] = useState(false);
   const fetchingRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const columnCount = useMarketplaceFeedColumns();
-
-  const loadTriggerIndex = useMemo(
-    () => Math.max(0, Math.floor(items.length * 0.75) - 1),
-    [items.length],
-  );
 
   const loadMore = useCallback(async () => {
     if (fetchingRef.current) return;
@@ -75,7 +70,7 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
 
       setItems((current) => mergeUniqueProducts(current, payload.items, reserved));
       setPage(payload.page);
-      setHasMore(payload.hasMore);
+      setHasMore(Boolean(payload.hasMore));
     } finally {
       fetchingRef.current = false;
       setLoading(false);
@@ -94,7 +89,7 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node || items.length === 0) return;
+    if (!node || items.length === 0 || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -107,7 +102,7 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [items.length, loadTriggerIndex, loadMore]);
+  }, [items.length, hasMore, loadMore]);
 
   if (items.length === 0 && !loading) {
     return null;
@@ -126,20 +121,19 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
           <HomepageV4SkeletonGrid count={columnCount * 2} />
         ) : (
           items.map((product, index) => (
-            <Fragment key={product.id}>
-              <ListingCard
-                product={product}
-                variant="grid"
-                priority={index < 2}
-                {...HP4_LISTING_CARD_PROPS}
-              />
-              {index === loadTriggerIndex ? (
-                <div ref={sentinelRef} className="rx4-feed__sentinel" aria-hidden />
-              ) : null}
-            </Fragment>
+            <ListingCard
+              key={product.id}
+              product={product}
+              variant="grid"
+              priority={index < 2}
+              {...HP4_LISTING_CARD_PROPS}
+            />
           ))
         )}
       </div>
+      {hasMore && !showInitialSkeleton ? (
+        <div ref={sentinelRef} className="rx4-feed__sentinel" aria-hidden />
+      ) : null}
     </section>
   );
 });

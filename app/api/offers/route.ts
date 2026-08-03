@@ -10,12 +10,38 @@ import {
   parseCounterOfferMessageMeta,
   resolveOfferFromRole,
 } from "@/lib/offers/counter-offer-engine-v1";
+import { createBundleOffer } from "@/lib/bundle/bundle-offer-engine-v1";
+import { parseBundleMessageMeta } from "@/lib/bundle/bundle-payload-v1";
 
 const createOfferSchema = z.object({
   productSlug: z.string().min(1),
   amount: z.number().positive(),
   message: z.string().max(500).optional(),
   conversationId: z.string().uuid().optional(),
+});
+
+const bundleOfferSchema = z.object({
+  amount: z.number().positive(),
+  message: z.string().max(500).optional(),
+  bundle: z.object({
+    bundleId: z.string().uuid().optional(),
+    sellerId: z.string().uuid(),
+    sellerName: z.string().max(120).optional(),
+    currency: z.string().length(3).optional(),
+    lines: z
+      .array(
+        z.object({
+          productId: z.string().uuid(),
+          slug: z.string().min(1),
+          title: z.string().min(1),
+          imageUrl: z.string(),
+          unitPrice: z.number().nonnegative(),
+          quantity: z.number().int().positive(),
+          maxStock: z.number().int().positive(),
+        }),
+      )
+      .min(1),
+  }),
 });
 
 export async function GET(request: Request) {
@@ -45,6 +71,7 @@ export async function GET(request: Request) {
         const product = offer.products as { title?: string } | { title?: string }[] | null;
         const productTitle = Array.isArray(product) ? product[0]?.title : product?.title;
         const meta = parseCounterOfferMessageMeta(offer.message);
+        const { bundle } = parseBundleMessageMeta(offer.message);
         return {
           id: offer.id,
           amount: Number(offer.amount),
@@ -59,6 +86,18 @@ export async function GET(request: Request) {
             message: offer.message,
           }),
           parentOfferId: meta.parentOfferId,
+          bundle: bundle
+            ? {
+                bundleId: bundle.bundleId ?? null,
+                itemCount: bundle.itemCount,
+                quantitySum: bundle.quantitySum,
+                listSubtotal: bundle.listSubtotal,
+                currency: bundle.currency ?? "GBP",
+                sellerId: bundle.sellerId,
+                buyerId: bundle.buyerId ?? null,
+                lines: bundle.lines,
+              }
+            : null,
         };
       }),
     });
@@ -88,6 +127,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     offers: (offers ?? []).map((offer) => {
       const meta = parseCounterOfferMessageMeta(offer.message);
+      const { bundle } = parseBundleMessageMeta(offer.message);
       return {
         id: offer.id,
         amount: Number(offer.amount),
@@ -101,6 +141,18 @@ export async function GET(request: Request) {
           message: offer.message,
         }),
         parentOfferId: meta.parentOfferId,
+        bundle: bundle
+          ? {
+              bundleId: bundle.bundleId ?? null,
+              itemCount: bundle.itemCount,
+              quantitySum: bundle.quantitySum,
+              listSubtotal: bundle.listSubtotal,
+              currency: bundle.currency ?? "GBP",
+              sellerId: bundle.sellerId,
+              buyerId: bundle.buyerId ?? null,
+              lines: bundle.lines,
+            }
+          : null,
       };
     }),
   });
@@ -114,6 +166,31 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json({ success: false, error: "Invalid request." }, { status: 400 });
+  }
+
+  const bundleParsed = bundleOfferSchema.safeParse(body);
+  if (bundleParsed.success) {
+    const result = await createBundleOffer({
+      buyerId: user.id,
+      amount: bundleParsed.data.amount,
+      message: bundleParsed.data.message,
+      sellerId: bundleParsed.data.bundle.sellerId,
+      sellerName: bundleParsed.data.bundle.sellerName?.trim() || "Seller",
+      bundleId: bundleParsed.data.bundle.bundleId,
+      currency: bundleParsed.data.bundle.currency,
+      lines: bundleParsed.data.bundle.lines,
+    });
+    if (!result.ok) {
+      return NextResponse.json({ success: false, error: result.error }, { status: result.httpStatus });
+    }
+    return NextResponse.json({
+      success: true,
+      offerId: result.offerId,
+      conversationId: result.conversationId,
+      href: result.href,
+      productSlug: result.productSlug,
+      bundle: true,
+    });
   }
 
   const parsed = createOfferSchema.safeParse(body);

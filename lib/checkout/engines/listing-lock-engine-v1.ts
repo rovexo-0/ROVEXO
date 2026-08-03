@@ -10,12 +10,18 @@ export async function LISTING_LOCK_ENGINE(input: {
   productId: string;
   stock: number;
   status: string;
+  quantity?: number;
 }): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const quantity = Math.max(1, Math.floor(input.quantity ?? 1));
   if (!isPurchasable(input.stock, input.status)) {
     FINANCIAL_LOGGER("LOCK FAILED", "not purchasable");
     return { ok: false, reason: "Listing not purchasable." };
   }
-  const reserved = await reserveProductInventory(input.productId, 1);
+  if (input.stock < quantity) {
+    FINANCIAL_LOGGER("LOCK FAILED", "insufficient stock");
+    return { ok: false, reason: "Insufficient stock." };
+  }
+  const reserved = await reserveProductInventory(input.productId, quantity);
   if (!reserved.success) {
     FINANCIAL_LOGGER("LOCK FAILED", reserved.error);
     return { ok: false, reason: reserved.error ?? "Unable to lock listing." };

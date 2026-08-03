@@ -148,7 +148,7 @@ Phase 2.1 replaces all seller listing placeholders and mock flows with a product
 - `lib/storage/server-images.ts`, `client-images.ts`
 - `lib/seller/listings-queries.ts`, `lib/saved/check.ts`
 - `features/seller/listings/components/SellerListingsPage.tsx`
-- `app/api/listings/**`, `app/seller/listings/**`
+- `app/api/listings/**`, `app/(platform)/seller/listings/**`
 
 ### Modified
 - Sell wizard, photo section, product detail, search server

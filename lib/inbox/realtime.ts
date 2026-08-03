@@ -23,6 +23,7 @@ export type InboxRealtimeEvent = {
   conversationId?: string;
   notificationId?: string;
   unread?: UnreadCounter;
+  payload?: Record<string, unknown>;
 };
 
 export type InboxRealtimeHandler = (event: InboxRealtimeEvent) => void;
@@ -35,11 +36,17 @@ export type InboxRealtimeContext = {
   userId?: string | null;
 };
 
-function emit(handler: InboxRealtimeHandler, type: InboxRealtimeEventType, conversationId?: string) {
+function emit(
+  handler: InboxRealtimeHandler,
+  type: InboxRealtimeEventType,
+  conversationId?: string,
+  payload?: Record<string, unknown>,
+) {
   handler({
     type,
     occurredAt: new Date().toISOString(),
     conversationId,
+    payload,
   });
 }
 
@@ -59,6 +66,11 @@ export function subscribeInboxRealtime(
 
   const attachForUser = (userId: string) => {
     if (cancelled || !userId) return;
+    /* Supabase reuses topic names — adding .on() after subscribe() throws. */
+    while (channels.length > 0) {
+      const existing = channels.pop();
+      if (existing) void supabase.removeChannel(existing);
+    }
 
     const buyerConv = supabase
       .channel(`inbox-rt-conv-buyer:${userId}`)
@@ -71,9 +83,9 @@ export function subscribeInboxRealtime(
           filter: `buyer_id=eq.${userId}`,
         },
         (payload) => {
-          const row = (payload.new ?? payload.old) as { id?: string };
-          emit(handler, "conversation.updated", row.id);
-          emit(handler, "badge.updated", row.id);
+          const row = (payload.new ?? payload.old) as Record<string, unknown> & { id?: string };
+          emit(handler, "conversation.updated", row.id, row);
+          emit(handler, "badge.updated", row.id, row);
         },
       )
       .subscribe();
@@ -90,9 +102,9 @@ export function subscribeInboxRealtime(
           filter: `seller_id=eq.${userId}`,
         },
         (payload) => {
-          const row = (payload.new ?? payload.old) as { id?: string };
-          emit(handler, "conversation.updated", row.id);
-          emit(handler, "badge.updated", row.id);
+          const row = (payload.new ?? payload.old) as Record<string, unknown> & { id?: string };
+          emit(handler, "conversation.updated", row.id, row);
+          emit(handler, "badge.updated", row.id, row);
         },
       )
       .subscribe();

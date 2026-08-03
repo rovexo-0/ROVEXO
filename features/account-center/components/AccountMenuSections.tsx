@@ -14,6 +14,7 @@ import {
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
+import { invalidateAuthProfileCache } from "@/features/auth/providers/AuthProvider";
 import { signOut } from "@/lib/auth/actions";
 import type { UserProfile } from "@/lib/profile/types";
 import { CanonicalMenuRow } from "@/src/components/canonical";
@@ -109,7 +110,10 @@ export function AccountMenuSections({
         onClose={() => setSignOutOpen(false)}
         onConfirm={() => {
           setSignOutOpen(false);
-          startTransition(() => void signOut());
+          startTransition(() => {
+            invalidateAuthProfileCache();
+            void signOut();
+          });
         }}
         title="Sign Out?"
         confirmLabel="Sign Out"

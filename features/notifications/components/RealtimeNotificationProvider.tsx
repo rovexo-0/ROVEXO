@@ -17,7 +17,7 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { flushOfflineNotificationQueue } from "@/lib/notifications/offline-sync";
 import { createClient } from "@/lib/supabase/client";
-import { fetchDeduped } from "@/lib/performance/fetch";
+import { fetchDeduped, invalidateShareInflight } from "@/lib/performance/fetch";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import type { Notification } from "@/lib/notifications/types";
 import type { DashboardBadgeCounts } from "@/lib/notifications/badge-counts";
@@ -233,8 +233,15 @@ export function RealtimeNotificationProvider({
 
       disconnect();
 
+      let lastInboxSyncAt = 0;
       const onRealtimeChange = () => {
-        if (isDocumentVisible()) void refresh();
+        if (!isDocumentVisible()) return;
+        void refresh();
+        const now = Date.now();
+        // Debounced bridge so Inbox list refreshes when unread RT fires (no storm).
+        if (now - lastInboxSyncAt < 400) return;
+        lastInboxSyncAt = now;
+        window.dispatchEvent(new CustomEvent("rovexo:inbox-sync"));
       };
 
       channel = subscribeToUserNotifications(user.id, {

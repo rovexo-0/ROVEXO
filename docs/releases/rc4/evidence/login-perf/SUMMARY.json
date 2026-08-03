@@ -1,0 +1,108 @@
+{
+  "rows": [
+    {
+      "file": "AFTER-avif-login-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 215,
+      "cls": 0
+    },
+    {
+      "file": "AFTER-avif-login-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 81,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 4821,
+      "cls": 0
+    },
+    {
+      "file": "AFTER-avif20k-login-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 214,
+      "cls": 0
+    },
+    {
+      "file": "AFTER-avif20k-login-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 83,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 4516,
+      "cls": 0
+    },
+    {
+      "file": "BEFORE-rc3-login-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 71,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 9013,
+      "cls": 0.106
+    },
+    {
+      "file": "login-desktop.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 100,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 192,
+      "cls": 0
+    },
+    {
+      "file": "login-mobile.report.json",
+      "url": "http://127.0.0.1:3000/login",
+      "err": null,
+      "perf": 77,
+      "a11y": 100,
+      "bp": 96,
+      "seo": 69,
+      "lcp_ms": 5021,
+      "cls": 0.106
+    }
+  ],
+  "gate_fails": [
+    "AFTER-avif-login-desktop.report.json seo=69<100",
+    "AFTER-avif-login-mobile.report.json perf=81<95",
+    "AFTER-avif-login-mobile.report.json seo=69<100",
+    "AFTER-avif20k-login-desktop.report.json seo=69<100",
+    "AFTER-avif20k-login-mobile.report.json perf=83<95",
+    "AFTER-avif20k-login-mobile.report.json seo=69<100",
+    "BEFORE-rc3-login-mobile.report.json perf=71<95",
+    "BEFORE-rc3-login-mobile.report.json seo=69<100",
+    "login-desktop.report.json seo=69<100",
+    "login-mobile.report.json perf=77<95",
+    "login-mobile.report.json seo=69<100"
+  ],
+  "before_after": {
+    "BEFORE": {
+      "perf": 71,
+      "lcp_ms": 9013,
+      "cls": 0.106,
+      "emblem_bytes": 991923
+    },
+    "AFTER_avif20k": {
+      "perf": 83,
+      "lcp_ms": 4516,
+      "cls": 0,
+      "emblem_bytes": 22104
+    }
+  }
+}

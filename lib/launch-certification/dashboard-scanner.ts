@@ -35,12 +35,12 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
   {
     id: "homepage",
     label: "Homepage",
-    requiredPaths: ["lib/homepage/config.ts", "app/page.tsx"],
+    requiredPaths: ["lib/homepage/config.ts", "app/(platform)/page.tsx"],
   },
   {
     id: "search",
     label: "Search",
-    requiredPaths: ["features/search/components/SearchResultsView.tsx", "app/search/page.tsx"],
+    requiredPaths: ["features/search/components/SearchResultsView.tsx", "app/(platform)/search/page.tsx"],
   },
   {
     id: "product",
@@ -53,7 +53,7 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
   {
     id: "messages",
     label: "Messages",
-    requiredPaths: ["features/inbox/components/ConversationHub.tsx", "app/inbox/(list)/page.tsx"],
+    requiredPaths: ["features/inbox/components/ConversationHub.tsx", "app/(platform)/inbox/(list)/page.tsx"],
   },
   {
     id: "transaction_hub",
@@ -109,14 +109,14 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
   {
     id: "admin",
     label: "Admin",
-    requiredPaths: ["app/admin/layout.tsx"],
+    requiredPaths: ["app/(platform)/admin/layout.tsx"],
   },
   {
     id: "super_admin",
     label: "Super Admin",
     requiredPaths: [
-      "app/super-admin/layout.tsx",
-      "app/super-admin/launch-certification/page.tsx",
+      "app/(platform)/super-admin/layout.tsx",
+      "app/(platform)/super-admin/launch-certification/page.tsx",
       "features/super-admin/launch-certification/CertificationDashboard.tsx",
     ],
   },

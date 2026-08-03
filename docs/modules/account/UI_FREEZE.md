@@ -18,7 +18,7 @@
 
 Authoritative live preview (develop):
 
-- https://rovexo-git-develop-rovexo.vercel.app/account
+- https://rovexo-git-develop-rovexo.vercel.app/(platform)/account
 
 Visual QA must match this deployment for:
 

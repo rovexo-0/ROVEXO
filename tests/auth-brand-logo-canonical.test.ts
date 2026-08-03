@@ -10,9 +10,11 @@ describe("AUTH brand logo canonical — Primary Emblem (XXXVIII)", () => {
     );
     expect(brand).toContain("OFFICIAL_BRAND_PRIMARY_EMBLEM");
     expect(brand).toContain("canonical");
-    expect(brand).toContain("SafeImage");
+    expect(brand).toContain("<img");
+    expect(brand).toContain('fetchPriority="high"');
     expect(brand).toContain('data-blood-law="XXXVIII"');
     expect(brand).toContain("II_PRIMARY_EMBLEM");
+    expect(brand).not.toContain("SafeImage");
     expect(brand).not.toContain("RovexoAppIconMark");
     expect(brand).not.toContain("rovexo-brand-logo__tagline");
   });

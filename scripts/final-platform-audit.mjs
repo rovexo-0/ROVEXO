@@ -29,7 +29,7 @@ const canonicalFiles = [
   "components/brand/RovexoLogo.tsx",
   "components/brand/RovexoAppIconMark.tsx",
   "lib/promotions/marketplace-pricing.ts",
-  "app/super-admin/pricing/page.tsx",
+  "app/(platform)/super-admin/pricing/page.tsx",
   "app/api/promotions/pricing/route.ts",
   "components/home/RovexoShowcaseSection.tsx",
   "components/home/RovexoShowcaseRails.tsx",

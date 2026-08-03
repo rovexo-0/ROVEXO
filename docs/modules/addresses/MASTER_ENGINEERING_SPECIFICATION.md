@@ -4,7 +4,7 @@
 
 | Layer | Path |
 |-------|------|
-| Route | `app/account/addresses/page.tsx` |
+| Route | `app/(platform)/account/addresses/page.tsx` |
 | UI | `features/account/components/addresses/AddressesPage.tsx` |
 | Labels / map | `lib/addresses/canonical.ts` |
 | UK lookup | `lib/addresses/uk-lookup.ts` · `GET /api/addresses/lookup` |

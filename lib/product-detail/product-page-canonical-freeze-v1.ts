@@ -72,7 +72,7 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   actions: {
     buyNow: true,
     makeOffer: true,
-    addToBundle: false,
+    addToBundle: true,
     addToCart: false,
   } as const,
   removedForever: [

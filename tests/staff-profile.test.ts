@@ -51,7 +51,7 @@ describe("Staff Profile & Activity Audit", () => {
   });
 
   it("ships super-admin staff routes and migration", () => {
-    expect(readSource("app/super-admin/staff/page.tsx")).toContain("StaffProfileAdmin");
+    expect(readSource("app/(platform)/super-admin/staff/page.tsx")).toContain("StaffProfileAdmin");
     expect(readSource("app/api/super-admin/staff/route.ts")).toContain("requireApiSuperAdmin");
     expect(readSource("supabase/migrations/20250724000001_staff_profile_activity_audit.sql")).toContain(
       "staff_activity_logs_immutable",

@@ -74,7 +74,7 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
   preservedInfrastructure: {
     oauthAction: "lib/auth/actions.ts → signInWithOAuthProvider",
     oauthButtons: "features/auth/components/AuthOAuthButtons.tsx",
-    callback: "app/auth/callback/route.ts",
+    callback: "app/(platform)/auth/callback/route.ts",
     availabilityProbe: "lib/auth/oauth-provider-availability.server.ts",
     authFormOptIn: "features/auth/components/AuthForm.tsx → showOAuth default false",
   } as const,

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
-import { cn } from "@/lib/cn";
+import { ListingAttributeValue } from "@/components/listing/ListingAttributeValue";
 
 export type ProductInfoRow = {
   id: string;
@@ -18,7 +18,8 @@ type Props = {
 
 /**
  * Product Information — 56px rows, 1px dividers.
- * Category / Brand may be links; other rows read-only.
+ * Values use ListingAttributeValue (Attribute Engine typography SSOT).
+ * Category / Brand may be links; value typography stays identical.
  */
 export function ProductInformationRows({ rows }: Props) {
   if (rows.length === 0) return null;
@@ -28,18 +29,12 @@ export function ProductInformationRows({ rows }: Props) {
       <ul className="pd-v1__info-list">
         {rows.map((row) => {
           const clickable = Boolean(row.href);
-          const valueClass = cn(
-            "pd-v1__info-value",
-            row.valueTone === "primary" && "pd-v1__info-value--primary",
-            row.valueTone === "success" && "pd-v1__info-value--success",
-            clickable && "pd-v1__info-value--link",
-          );
 
           const inner = (
             <>
               <span className="pd-v1__info-label">{row.label}</span>
               <span className="pd-v1__info-trailing">
-                <span className={valueClass}>{row.value}</span>
+                <ListingAttributeValue>{row.value}</ListingAttributeValue>
                 {clickable ? (
                   <span className="pd-v1__info-chevron" aria-hidden>
                     <ChevronRightLineIcon />

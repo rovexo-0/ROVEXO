@@ -51,7 +51,7 @@ describe("Camera Search v1.0 — Master Freeze", () => {
     const state = readSource("features/search/hooks/use-search-overlay-state.ts");
     const camera = readSource("components/home/ImageSearchCamera.tsx");
     const search = readSource("components/home/HomepageSearchField.tsx");
-    const layout = readSource("app/layout.tsx");
+    const chrome = readSource("components/layout/PlatformChromeProviders.tsx");
 
     expect(search).not.toContain("ImageSearchCamera");
     expect(camera).toContain("NativeImageFileInput");
@@ -74,17 +74,17 @@ describe("Camera Search v1.0 — Master Freeze", () => {
     expect(state).toContain("setImageSearchResults");
     expect(provider).toContain("useSearchOverlayState");
     expect(provider).toContain("handleOverlayDismiss");
-    expect(layout).toContain("<SearchProvider>");
-    // ONE provider only in root layout
-    expect(layout.match(/<SearchProvider/g)?.length).toBe(1);
+    expect(chrome).toContain("<SearchProvider>");
+    // ONE provider only in platform chrome (auth root excluded)
+    expect(chrome.match(/<SearchProvider/g)?.length).toBe(1);
   });
 
   it("engine uses Promise.all find* channels and one corpus request", () => {
     const engine = readSource("lib/image-search/search.ts");
     const corpus = readSource("lib/image-search/corpus.ts");
     const api = readSource("app/api/search/image-corpus/route.ts");
-    const page = readSource("app/search/image/results/page.tsx");
-    const legacy = readSource("app/search/page.tsx");
+    const page = readSource("app/(platform)/search/image/results/page.tsx");
+    const legacy = readSource("app/(platform)/search/page.tsx");
     const view = readSource("features/search/components/ImageSearchView.tsx");
 
     expect(engine).toContain("findExactProducts");

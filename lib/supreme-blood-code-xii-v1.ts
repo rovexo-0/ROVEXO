@@ -187,7 +187,7 @@ export const SUPREME_BLOOD_CODE_XII_V1 = {
     page: "features/orders/components/OrdersPage.tsx",
     css: "styles/rovexo/orders-page-v1.css",
     status: "lib/orders/orders-v7-status.ts",
-    route: "app/orders/page.tsx",
+    route: "app/(platform)/orders/page.tsx",
   } as const,
 
   parentLaws: {

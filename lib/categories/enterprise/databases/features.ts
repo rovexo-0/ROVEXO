@@ -33,6 +33,19 @@ export const PILLOW_FEATURES = [
   "Waterproof",
   "Aromatherapy",
   "Weighted",
+  "Pregnancy Support",
+  "Nursing Support",
+  "Belly Support",
+  "Knee Support",
+  "Carry Bag Included",
+  "Seat Strap",
+  "Packable",
+  "Lightweight",
+  "Machine Washable",
+  "Non-Slip",
+  "UV-Resistant",
+  "Water-Resistant",
+  "Quick-Dry",
 ] as const;
 
 export const BEDDING_FEATURES = [

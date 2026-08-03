@@ -35,8 +35,8 @@ function scanGlobalDomains(): OrderDomainScanResult[] {
 
 function orderFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/account/orders/page.tsx") &&
-    fileExists("app/seller/orders/page.tsx") &&
+    fileExists("app/(platform)/account/orders/page.tsx") &&
+    fileExists("app/(platform)/seller/orders/page.tsx") &&
     fileExists("lib/orders/store.ts") &&
     scan.checkoutCompletionPass
   );
@@ -66,11 +66,11 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
 function scanBuyer(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return ORDER_BUYER_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
-    if (check === "order-history") pass = fileExists("app/account/orders/page.tsx");
+    if (check === "order-history") pass = fileExists("app/(platform)/account/orders/page.tsx");
     if (check === "tracking") pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check === "invoices") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "returns" || check === "refund-requests") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
-    if (check === "buyer-protection") pass = fileExists("app/protection/page.tsx");
+    if (check === "buyer-protection") pass = fileExists("app/(platform)/protection/page.tsx");
     if (check === "notifications") pass = fileExists("lib/orders/notifications.ts");
     return createCheck("order-buyer", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -79,7 +79,7 @@ function scanBuyer(scan: MarketplaceCompletionScanResult): CompletionValidationI
 function scanSeller(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return ORDER_SELLER_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
-    if (check === "order-queue") pass = fileExists("app/seller/orders/page.tsx");
+    if (check === "order-queue") pass = fileExists("app/(platform)/seller/orders/page.tsx");
     if (check === "packing") pass = fileExists("features/orders/components/SellerFulfillmentCard.tsx");
     if (check === "dispatch") pass = fileExists("features/shipping/components/ShipmentWizard.tsx");
     if (check === "tracking-update") pass = fileExists("features/shipping/components/ParcelCard.tsx");
@@ -92,8 +92,8 @@ function scanSeller(scan: MarketplaceCompletionScanResult): CompletionValidation
 function scanCompany(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return ORDER_COMPANY_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
-    if (check === "bulk-orders" || check === "bulk-dispatch") pass = fileExists("app/business/dashboard/page.tsx");
-    if (check === "analytics") pass = fileExists("app/super-admin/business-intelligence/orders/page.tsx");
+    if (check === "bulk-orders" || check === "bulk-dispatch") pass = fileExists("app/(platform)/business/dashboard/page.tsx");
+    if (check === "analytics") pass = fileExists("app/(platform)/super-admin/business-intelligence/orders/page.tsx");
     if (check === "exports") pass = fileExists("lib/orders/queries.ts");
     if (check === "accounting-integration") pass = fileExists("lib/integrations-engine/defaults.ts");
     return createCheck("order-company", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);

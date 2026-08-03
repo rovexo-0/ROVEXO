@@ -33,7 +33,7 @@ describe("Cluster 5 Photo System Scope Lock", () => {
     expect(lock.multiCamera.uiGate).toBe("ACTIVE");
     expect(lock.multiCamera.productionRuntimeDependsOnUi).toBe(false);
     expect(lock.multiCamera.removingUiDoesNotAffectCanonicalUpload).toBe(true);
-    expect(readSource("app/sell/camera/page.tsx")).toContain('redirect("/sell")');
+    expect(readSource("app/(platform)/sell/camera/page.tsx")).toContain('redirect("/sell")');
   });
 
   it("Sell runtime uses Product Integration only for photo upload", () => {

@@ -18,9 +18,11 @@ type ProductActionBarV1Props = {
   transactionMode: TransactionMode;
   onBuy?: () => void;
   onMakeOffer?: () => void;
+  onAddToBundle?: () => void;
   onContact?: () => void;
   buyDisabled?: boolean;
   offerDisabled?: boolean;
+  addToBundleDisabled?: boolean;
   buyState?: "idle" | "loading";
   outOfStock?: boolean;
   /** Canonical SOLD PDP — hide commerce CTAs; show discovery actions only. */
@@ -111,9 +113,11 @@ export function ProductActionBarV1({
   transactionMode,
   onBuy,
   onMakeOffer,
+  onAddToBundle,
   onContact,
   buyDisabled = false,
   offerDisabled = false,
+  addToBundleDisabled = false,
   buyState = "idle",
   outOfStock = false,
   sold = false,
@@ -317,6 +321,21 @@ export function ProductActionBarV1({
           );
         })}
       </div>
+      {onAddToBundle ? (
+        <button
+          type="button"
+          className="pd-v1__add-to-bundle"
+          disabled={addToBundleDisabled || buyDisabled}
+          onClick={onAddToBundle}
+          aria-label="Add to Bundle"
+          data-bundle-cta="add"
+        >
+          <span className="pd-v1__add-to-bundle-icon" aria-hidden>
+            +
+          </span>
+          <span className="pd-v1__add-to-bundle-label">Add to Bundle</span>
+        </button>
+      ) : null}
     </div>
   );
 }

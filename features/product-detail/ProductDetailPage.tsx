@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
@@ -14,6 +14,11 @@ import { ProductPageChrome } from "@/features/product-detail/ProductPageChrome";
 import { ProductQuantityStepper } from "@/features/product-detail/ProductQuantityStepper";
 import { ProductStockStatus } from "@/features/product-detail/ProductStockStatus";
 import { ProductStoreSection } from "@/features/product-detail/ProductStoreSection";
+import {
+  AddToBundleSheet,
+  BundleSellerConflictDialog,
+} from "@/features/product-detail/AddToBundleSheet";
+import { StickyBundleBar } from "@/features/bundle/StickyBundleBar";
 import { buildProductInformationRows } from "@/features/product-detail/build-product-information-rows";
 import { useProductOfferNegotiation } from "@/features/product-detail/use-product-offer-negotiation";
 import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
@@ -36,6 +41,15 @@ import {
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
 import { clampStockLevel } from "@/lib/sell/inventory";
+import {
+  readBundleMirror,
+  rehydrateBundleMirrorFromServer,
+  writeBundleMirror,
+  type BundleLineItemV1,
+  type BundleSnapshotV1,
+} from "@/lib/bundle/bundle-mirror-v1";
+import { mergeLineIntoBundle } from "@/lib/bundle/bundle-domain-v1";
+import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
@@ -45,15 +59,19 @@ type ProductDetailPageProps = {
 
 /**
  * ROVEXO View Item v1.0 — OWNER UI/UX FREEZE.
- * Product Information dynamic field map · stock once under price · document scroll.
- * Bundle Engine excluded from Preview Certification (Owner scope).
+ * Bundle Engine extends only: stock>1 status, qty, Add to Bundle sheet/bar.
  */
 export function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { pushToast } = useToast();
   const { executeBuyNow } = useBuyNowNavigation();
   const [offerOpen, setOfferOpen] = useState(false);
   const [buyNowError, setBuyNowError] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [conflictOpen, setConflictOpen] = useState(false);
+  const [sheetBundle, setSheetBundle] = useState<BundleSnapshotV1 | null>(null);
+  const [sheetLine, setSheetLine] = useState<BundleLineItemV1 | null>(null);
   const stockQty = clampStockLevel(product.stock);
   const [qtyState, setQtyState] = useState({ productId: product.id, quantity: 1 });
   const quantity = qtyState.productId === product.id ? qtyState.quantity : 1;
@@ -149,6 +167,86 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
     onMakeOffer: () => setOfferOpen(true),
   });
 
+  const buildLine = (): BundleLineItemV1 => ({
+    productId: product.id,
+    slug: product.slug,
+    title: product.title,
+    imageUrl: product.images[0] ?? "",
+    unitPrice: amount,
+    quantity,
+    maxStock: stockQty,
+  });
+
+  const persistAddToBundle = async (line: BundleLineItemV1) => {
+    // Domain pre-check only (no mirror write) — server is sole authority.
+    const preview = mergeLineIntoBundle({
+      current: readBundleMirror(),
+      sellerId: product.sellerId,
+      sellerName: product.sellerName || "Seller",
+      line,
+    });
+    if (!preview.ok) {
+      if (preview.reason === "other_seller") {
+        setConflictOpen(true);
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/bundle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          action: "add",
+          productId: line.productId,
+          sellerId: product.sellerId,
+          sellerName: product.sellerName || "Seller",
+          quantity: line.quantity,
+          slug: line.slug,
+          title: line.title,
+          imageUrl: line.imageUrl,
+          unitPrice: line.unitPrice,
+          maxStock: line.maxStock,
+        }),
+      });
+      const payload = (await res.json()) as {
+        ok?: boolean;
+        reason?: string;
+        bundle?: BundleSnapshotV1 | null;
+        error?: string;
+      };
+      if (res.status === 401) {
+        await rehydrateBundleMirrorFromServer();
+        pushToast({ title: "Sign in to add items to your bundle.", variant: "error" });
+        router.push(`/login?next=${encodeURIComponent(pathname || "/")}`);
+        return;
+      }
+      if (res.status === 409 || payload.reason === "other_seller") {
+        await rehydrateBundleMirrorFromServer();
+        setConflictOpen(true);
+        return;
+      }
+      if (!res.ok || !payload.ok || !payload.bundle) {
+        await rehydrateBundleMirrorFromServer();
+        pushToast({ title: payload.error ?? "Unable to add to bundle.", variant: "error" });
+        return;
+      }
+      writeBundleMirror(payload.bundle);
+      setSheetBundle(payload.bundle);
+      setSheetLine(line);
+      setSheetOpen(true);
+    } catch {
+      await rehydrateBundleMirrorFromServer();
+      pushToast({ title: "Unable to add to bundle.", variant: "error" });
+    }
+  };
+
+  const handleAddToBundle = () => {
+    if (!isPurchasable || isOwnListing) return;
+    void persistAddToBundle(buildLine());
+  };
+
   useEffect(() => {
     const { currency } = getActiveMarket();
     trackGaEvent("view_item", {
@@ -174,6 +272,7 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
       data-product-page-freeze="FROZEN"
       data-view-item-ui-lock="FROZEN"
       data-view-item-version="1.0"
+      data-bundle-engine={BUNDLE_ENGINE_V1.version}
       data-add-to-cart="removed-forever"
       data-dynamic-offer-action="v1.0"
       data-listing-sold={isSold ? "true" : "false"}
@@ -266,12 +365,35 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
           }}
           onBuy={handleBuyNow}
           onMakeOffer={handleMakeOffer}
+          onAddToBundle={
+            isPurchasable && !isOwnListing ? handleAddToBundle : undefined
+          }
+          addToBundleDisabled={!isPurchasable || isOwnListing}
           onCancelOffer={() => {
             if (!negotiationView.offerId) return;
             void negotiation.cancel(negotiationView.offerId);
           }}
         />
       ) : null}
+      {!isSold && !sellerOnHoliday ? (
+        <StickyBundleBar hostOnProductPage />
+      ) : null}
+      {sheetOpen && sheetBundle && sheetLine ? (
+        <AddToBundleSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          bundle={sheetBundle}
+          line={sheetLine}
+        />
+      ) : null}
+      <BundleSellerConflictDialog
+        open={conflictOpen}
+        onCancel={() => setConflictOpen(false)}
+        onContinue={() => {
+          setConflictOpen(false);
+          router.push(BUNDLE_ENGINE_V1.ssot.reviewRoute);
+        }}
+      />
       {!isSold && !sellerOnHoliday ? (
         <OfferComposerSheet
           open={offerOpen}

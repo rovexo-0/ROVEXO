@@ -88,7 +88,7 @@ describe("protected route prefixes", () => {
 
   it("writes cleared auth cookies onto the signout redirect response", async () => {
     const source = await import("node:fs/promises").then((fs) =>
-      fs.readFile("app/auth/signout/route.ts", "utf8"),
+      fs.readFile("app/(platform)/auth/signout/route.ts", "utf8"),
     );
     expect(source).toContain("response.cookies.set");
     expect(source).toContain("createServerClient");

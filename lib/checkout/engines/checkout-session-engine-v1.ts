@@ -14,6 +14,12 @@ import { CHECKOUT_SESSION_TTL_SECONDS } from "@/lib/checkout/engines/status-map-
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { isStripeRequired } from "@/lib/stripe/server";
 import { mustUseVirtualPayments } from "@/lib/full-demo/security";
+import {
+  isBundleCheckoutSnapshot,
+  type BundleCheckoutSnapshotV1,
+} from "@/lib/bundle/bundle-snapshot-v1";
+import { releaseBundleLinesFromSnapshot } from "@/lib/bundle/bundle-reservation-engine-v1";
+import { restoreBundleAfterCheckoutCancel } from "@/lib/bundle/bundle-lifecycle-v1";
 
 export type CheckoutSessionStatus = "open" | "expired" | "cancelled" | "paid";
 
@@ -38,6 +44,8 @@ export type CheckoutSessionRow = {
   expires_at: string;
   created_at: string;
   paid_at: string | null;
+  /** Bundle Engine Phase 1 — immutable snapshot when multi-item. */
+  bundle_lines?: BundleCheckoutSnapshotV1 | null;
 };
 
 export type PaymentIntentShell = {
@@ -70,29 +78,37 @@ export async function CHECKOUT_SESSION_ENGINE_create(input: {
   total: number;
   offerId?: string | null;
   conversationId?: string | null;
+  /** Bundle Engine — immutable checkout snapshot (multi-item). */
+  bundleLines?: BundleCheckoutSnapshotV1 | null;
 }): Promise<{ ok: true; session: CheckoutSessionRow } | { ok: false; reason: string }> {
   const admin = createAdminClient();
   const publicId = mintCheckoutSessionPublicId();
   const expiresAt = expiresAtIso();
 
+  const insertPayload: Record<string, unknown> = {
+    public_id: publicId,
+    buyer_id: input.buyerId,
+    seller_id: input.sellerId,
+    listing_id: input.listingId,
+    product_slug: input.productSlug,
+    currency: input.currency,
+    item_price: input.itemPrice,
+    platform_fee: input.platformFee,
+    shipping: input.shipping,
+    total: input.total,
+    offer_id: input.offerId ?? null,
+    conversation_id: input.conversationId ?? null,
+    status: "open",
+    expires_at: expiresAt,
+  };
+
+  if (input.bundleLines) {
+    insertPayload.bundle_lines = input.bundleLines;
+  }
+
   const { data, error } = await admin
     .from("checkout_sessions")
-    .insert({
-      public_id: publicId,
-      buyer_id: input.buyerId,
-      seller_id: input.sellerId,
-      listing_id: input.listingId,
-      product_slug: input.productSlug,
-      currency: input.currency,
-      item_price: input.itemPrice,
-      platform_fee: input.platformFee,
-      shipping: input.shipping,
-      total: input.total,
-      offer_id: input.offerId ?? null,
-      conversation_id: input.conversationId ?? null,
-      status: "open",
-      expires_at: expiresAt,
-    })
+    .insert(insertPayload as never)
     .select("*")
     .single();
 
@@ -158,7 +174,16 @@ export async function CHECKOUT_SESSION_ENGINE_destroy(input: {
     }
   }
 
-  await releaseProductInventory(session.listing_id, 1);
+  const bundleSnapshot = isBundleCheckoutSnapshot(session.bundle_lines)
+    ? session.bundle_lines
+    : null;
+
+  if (bundleSnapshot) {
+    await releaseBundleLinesFromSnapshot(bundleSnapshot);
+    await restoreBundleAfterCheckoutCancel(bundleSnapshot);
+  } else {
+    await releaseProductInventory(session.listing_id, 1);
+  }
 
   await admin
     .from("checkout_sessions")

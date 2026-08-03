@@ -72,7 +72,7 @@ describe("ROVEXO v1.0 — Absolute Authority View Engine Lock", () => {
   });
 
   it("listing page never auto-increments views", () => {
-    const page = readSource("app/listing/[slug]/page.tsx");
+    const page = readSource("app/(platform)/listing/[slug]/page.tsx");
     expect(page).not.toContain("recordProductView");
     expect(page).not.toContain("incrementProductViews");
   });

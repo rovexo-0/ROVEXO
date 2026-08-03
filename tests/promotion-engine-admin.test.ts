@@ -42,7 +42,7 @@ describe("promotion engine canonical", () => {
 describe("promotion engine admin surface", () => {
   it("exposes super admin user promotions route", () => {
     const page = readFileSync(
-      join(process.cwd(), "app/super-admin/promotion-management/page.tsx"),
+      join(process.cwd(), "app/(platform)/super-admin/promotion-management/page.tsx"),
       "utf8",
     );
     expect(page).toContain("UserPromotionsAdmin");

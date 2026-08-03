@@ -42,7 +42,7 @@ export function buildAiRecommendations(input: {
     category: "Code splitting",
     estimatedGain: "10–18% smaller initial bundle",
     difficulty: "low",
-    filesAffected: ["app/super-admin/**/page.tsx", "features/super-admin/components/*"],
+    filesAffected: ["app/(platform)/super-admin/**/page.tsx", "features/super-admin/components/*"],
     detail: "Keep heavy Super Admin panels in client islands loaded on demand.",
   });
 
