@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { HelpArticlePage } from "@/features/help/components/HelpArticlePage";
 import { getHelpArticle } from "@/lib/help/content/articles";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import {
   PRODUCT_DELIVERY_DETAILS_HREF,
   PRODUCT_DELIVERY_LEGACY_HELP_SLUGS,
@@ -34,13 +35,14 @@ export async function generateMetadata({ params }: HelpArticleRouteProps): Promi
   }
   const article = getHelpArticle(slug);
   if (!article) {
-    return { title: "Help | ROVEXO" };
+    return { title: "Help | ROVEXO", robots: { index: false, follow: true } };
   }
 
-  return {
+  return buildPageMetadata({
     title: `${article.title} | ROVEXO Help`,
     description: article.summary,
-  };
+    path: `/help/${slug}`,
+  });
 }
 
 export default async function HelpArticleRoute({ params }: HelpArticleRouteProps) {

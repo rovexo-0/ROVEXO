@@ -1500,6 +1500,9 @@
   font-weight: 500;
   letter-spacing: -0.011em;
   color: #09090b;
+  /* Mobile Scroll Standard — keep focused auth fields visible above keyboard */
+  scroll-margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 1rem);
 }
 
 .auth-login.auth-login--premium .auth-icon-field__input::placeholder {

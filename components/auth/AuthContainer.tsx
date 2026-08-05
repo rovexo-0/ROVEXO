@@ -6,5 +6,10 @@ type AuthContainerProps = {
 };
 
 export function AuthContainer({ children, className }: AuthContainerProps) {
-  return <div className={cn("auth-container", className)}>{children}</div>;
+  /* P13.1 — single landmark for Login/Register (layout unchanged). */
+  return (
+    <main id="main-content" className={cn("auth-container", className)}>
+      {children}
+    </main>
+  );
 }

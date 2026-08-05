@@ -11,10 +11,10 @@ import {
   type SellProgressiveStep,
   type SellProgressiveStepId,
 } from "@/lib/sell/sell-progressive-flow";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellDraft } from "@/features/sell/context/SellProvider";
 
 export function useSellProgressiveFlow() {
-  const { draft } = useSell();
+  const { draft } = useSellDraft();
 
   const pendingText = useMemo(
     () => ({

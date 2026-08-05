@@ -185,8 +185,11 @@ export async function waitForSearchEmptyState(page: Page): Promise<void> {
 
 
 export async function waitForSearchOverlayUi(page: Page): Promise<void> {
-  const overlay = page.locator("#search-overlay-results");
-  await expect(overlay).toBeVisible({ timeout: 10_000 });
+  // Canonical Global Search is `/search` (HomepageSearchField). Overlay id is legacy optional.
+  const searchUi = page.locator(
+    '[data-search-landing="v1"], [data-search-version="v1.0-final"], #search-overlay-results, .srch-land, .srch-results',
+  );
+  await expect(searchUi.first()).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(300);
 }
 
@@ -205,23 +208,18 @@ export async function dismissSearchDialogIfOpen(page: Page): Promise<void> {
 }
 
 export async function openSearchOverlay(page: Page): Promise<void> {
-  const onSearchRoute = page.url().includes("/search");
+  if (page.url().includes("/search")) {
+    await waitForSearchOverlayUi(page);
+    return;
+  }
+
+  // Header is client-only (ssr:false) — wait for the homepage search field before click.
   const field = page.locator('#rx-h2-search, [data-header-search="field"]').first();
-  const bar = page.locator('[data-header-search="bar"]').first();
-
-  if (onSearchRoute && (await bar.isVisible().catch(() => false))) {
-    await bar.click();
-    await waitForSearchOverlayUi(page);
-    return;
-  }
-
-  if (await field.isVisible().catch(() => false)) {
-    await field.click();
-    await waitForSearchOverlayUi(page);
-    return;
-  }
-
-  await bar.click();
+  await expect(field).toBeVisible({ timeout: 15_000 });
+  await Promise.all([
+    page.waitForURL((url) => url.pathname.startsWith("/search"), { timeout: 15_000 }),
+    field.click(),
+  ]);
   await waitForSearchOverlayUi(page);
 }
 

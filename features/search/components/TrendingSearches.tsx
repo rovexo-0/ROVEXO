@@ -17,7 +17,7 @@ export function TrendingSearches({
   if (items.length === 0) return null;
 
   return (
-    <ul className="flex flex-wrap gap-ds-2" role="listbox" aria-label="Trending searches">
+    <ul className="flex flex-wrap gap-ds-2" aria-label="Trending searches">
       {items.map((term, index) => {
         const navIndex = navOffset + index;
         const isActive = activeIndex === navIndex;
@@ -26,8 +26,7 @@ export function TrendingSearches({
           <li key={term}>
             <button
               type="button"
-              role="option"
-              aria-selected={isActive}
+              aria-current={isActive ? "true" : undefined}
               onClick={() => onSelect(term)}
               className={cn(
                 "inline-flex min-h-ds-7 items-center rounded-ds-full bg-secondary px-ds-4 text-sm font-medium text-text-primary hover:bg-primary/10 hover:text-primary",

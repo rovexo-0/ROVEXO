@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { SeoLandingPageView } from "@/features/seo/components/SeoLandingPageView";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   brandPageJsonLd,
   brandPageLinkGroups,
@@ -46,12 +47,7 @@ export default async function BrandRoute({ params }: BrandPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([jsonLd.collection, jsonLd.breadcrumbs, jsonLd.itemList].filter(Boolean)),
-        }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-brand-slug-page-tsx" data={[jsonLd.collection, jsonLd.breadcrumbs, jsonLd.itemList].filter(Boolean)} />
       <SeoLandingPageView
         title={page.name}
         description={page.description}

@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { validateBankAccountInput } from "@/lib/wallet/bank-account";
 import { removeBankAccount, saveBankAccount } from "@/lib/wallet/store";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "wallet-bank-account", 20, 60_000);
+  if (limited) return limited;
 
   let body: unknown;
   try {
@@ -48,11 +52,14 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true, method });
 }
 
-export async function DELETE() {
-  const auth = await requireApiAuth();
+export async function DELETE(request: Request) {
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "wallet-bank-account", 20, 60_000);
+  if (limited) return limited;
 
   const removed = await removeBankAccount(auth.user.id);
   if (!removed) {

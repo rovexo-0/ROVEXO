@@ -17,7 +17,7 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { flushOfflineNotificationQueue } from "@/lib/notifications/offline-sync";
 import { createClient } from "@/lib/supabase/client";
-import { fetchDeduped, invalidateShareInflight } from "@/lib/performance/fetch";
+import { fetchDeduped } from "@/lib/performance/fetch";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import type { Notification } from "@/lib/notifications/types";
 import type { DashboardBadgeCounts } from "@/lib/notifications/badge-counts";
@@ -57,11 +57,22 @@ let inboxBadgeInflight: Promise<{
   ok: boolean;
 }> | null = null;
 
+/** Short TTL so BetaAppShell remounts (per-page shell) do not re-hit the API. */
+const INBOX_BADGE_TTL_MS = 2_500;
+let inboxBadgeCache: {
+  at: number;
+  value: { messages: number; notifications: number; ok: boolean };
+} | null = null;
+
 function fetchInboxBadgeCounts(signal?: AbortSignal): Promise<{
   messages: number;
   notifications: number;
   ok: boolean;
 }> {
+  const now = Date.now();
+  if (inboxBadgeCache && now - inboxBadgeCache.at < INBOX_BADGE_TTL_MS) {
+    return Promise.resolve(inboxBadgeCache.value);
+  }
   if (inboxBadgeInflight) return inboxBadgeInflight;
   inboxBadgeInflight = (async () => {
     const res = await fetch("/api/inbox/badge", { cache: "no-store", signal });
@@ -70,11 +81,13 @@ function fetchInboxBadgeCounts(signal?: AbortSignal): Promise<{
       messages?: number;
       notifications?: number;
     };
-    return {
+    const value = {
       messages: Math.max(0, Number(payload.messages) || 0),
       notifications: Math.max(0, Number(payload.notifications) || 0),
       ok: true,
     };
+    inboxBadgeCache = { at: Date.now(), value };
+    return value;
   })().finally(() => {
     inboxBadgeInflight = null;
   });
@@ -162,8 +175,23 @@ export function RealtimeNotificationProvider({
 
   const applyState = useCallback(
     (state: Awaited<ReturnType<typeof fetchBadgeState>>, includeTray: boolean) => {
-      setUnreadCount(state.unreadCount);
-      setMobileBadges(state.mobileBadges);
+      // Bail when badge payloads are identical — refresh/poll must not force
+      // a new context value (and full consumer tree render) on no-op syncs.
+      setUnreadCount((prev) => (prev === state.unreadCount ? prev : state.unreadCount));
+      setMobileBadges((prev) => {
+        const next = state.mobileBadges;
+        if (
+          prev.messages === next.messages &&
+          prev.notifications === next.notifications &&
+          prev.orders === next.orders &&
+          prev.saved === next.saved &&
+          prev.cart === next.cart &&
+          prev["wallet-payout"] === next["wallet-payout"]
+        ) {
+          return prev;
+        }
+        return next;
+      });
       if (includeTray) {
         setNotifications(state.notifications);
         setBadgeCounts(state.badgeCounts);

@@ -87,6 +87,7 @@ export function AccountCanonicalShell({
             </div>
           ) : null}
           <main
+            id="main-content"
             className={cn(
               "cds-layout__content",
               showBottomNav && "cds-layout__content--with-bottom-nav",

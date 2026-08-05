@@ -38,6 +38,24 @@ export async function enqueueSellerPerformanceEvent(
     if (error.code === "23505") {
       return { queued: false, flagged: false };
     }
+    // PGRST205 / missing relation: PostgREST schema cache or migration lag.
+    // Recalculate in-process so reputation stays correct without console storms.
+    if (error.code === "PGRST205" || error.code === "42P01") {
+      console.warn(
+        "[seller-performance] queue table unavailable; recalculating synchronously",
+        error.code,
+        error.message,
+      );
+      if (!fraud.flagged) {
+        await recalculateSellerPerformanceInternal({
+          userId: input.userId,
+          trigger: input.trigger,
+          metadata: input.metadata ?? {},
+        });
+        invalidateSellerPerformanceCache(input.userId);
+      }
+      return { queued: false, flagged: fraud.flagged };
+    }
     throw error;
   }
 

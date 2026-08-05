@@ -40,7 +40,9 @@ export function CookieConsentBanner() {
       };
     },
     readCookieConsent,
-    () => "accepted" as CookieConsentChoice,
+    // Must match pre-consent client state — never fake "accepted" on the server
+    // snapshot (that hid the banner in SSR HTML then showed it after hydrate).
+    () => null,
   );
 
   if (consent !== null) return null;
@@ -48,6 +50,7 @@ export function CookieConsentBanner() {
   return (
     <div
       role="dialog"
+      aria-modal="true"
       aria-label="Cookie preferences"
       className={cn(
         "fixed inset-x-0 bottom-0 z-[70] border-t border-border bg-surface px-ds-4 py-ds-4",

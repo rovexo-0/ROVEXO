@@ -6,8 +6,8 @@ import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { SellPhotoFileInput } from "@/features/sell/ui/SellPhotoFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
-import { useSell } from "@/features/sell/context/SellProvider";
-import { getListingValidationErrors, SELL_PHOTO_MAX } from "@/features/sell/types";
+import { useSellActions, useSellPhotos } from "@/features/sell/context/SellProvider";
+import { createEmptyDraft, getListingValidationErrors, SELL_PHOTO_MAX } from "@/features/sell/types";
 import { DeletePhotoAction } from "@/features/sell/ui/DeletePhotoAction";
 import { SellInlineError } from "@/features/sell/ui/SellPrimitives";
 
@@ -23,12 +23,20 @@ export const SellPhotoRail = memo(function SellPhotoRail({
 }: {
   onPhotosAdded?: () => void;
 }) {
-  const { draft, addPhotos, replacePhoto, reorderPhotos, retryPhotoUpload, showValidation } = useSell();
+  const { photos, showValidation } = useSellPhotos();
+  const { addPhotos, replacePhoto, reorderPhotos, retryPhotoUpload } = useSellActions();
 
   const photoError = useMemo(() => {
     if (!showValidation) return undefined;
-    return getListingValidationErrors(draft, { mode: "quick", showErrors: true }).photos;
-  }, [draft, showValidation]);
+    // Full SellListingDraft shape required — never photos-only cast (P9.3.1).
+    return getListingValidationErrors(
+      { ...createEmptyDraft(), photos },
+      {
+        mode: "quick",
+        showErrors: true,
+      },
+    ).photos;
+  }, [photos, showValidation]);
 
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
@@ -40,7 +48,6 @@ export const SellPhotoRail = memo(function SellPhotoRail({
   const [activeTouch, setActiveTouch] = useState<number | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
 
-  const photos = draft.photos;
   const canAdd = photos.length < SELL_PHOTO_MAX;
   const onPhotosAddedRef = useRef(onPhotosAdded);
   onPhotosAddedRef.current = onPhotosAdded;

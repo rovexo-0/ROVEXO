@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types/database";
 import { AUTHENTICATED_HOME, sanitizeNextPath } from "@/lib/auth/redirects";
 import {
@@ -7,7 +8,9 @@ import {
   AUTH_ADMIN_PREFIXES,
   AUTH_SUPER_ADMIN_PREFIXES,
 } from "@/lib/auth/protected-routes";
+import { isInvalidOrExpiredRefreshError } from "@/lib/auth/invalid-refresh-session";
 import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
+import { enforceApiPerimeterSecurity } from "@/lib/api/api-perimeter-security-v1";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 import { isMfaPendingAllowedPath, MFA_TOTP_V1 } from "@/lib/auth/mfa/ssot";
 
@@ -94,9 +97,33 @@ export async function updateSession(request: NextRequest) {
       },
     });
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    let user: User | null = null;
+
+    try {
+      const {
+        data: { user: authUser },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError && isInvalidOrExpiredRefreshError(userError)) {
+        // Clear dead refresh cookies so /login and guests never loop or 500.
+        await supabase.auth.signOut({ scope: "local" });
+        user = null;
+      } else {
+        user = authUser;
+      }
+    } catch (authError) {
+      if (isInvalidOrExpiredRefreshError(authError)) {
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } catch {
+          /* cookies may already be unusable */
+        }
+        user = null;
+      } else {
+        throw authError;
+      }
+    }
 
     // Resolve the profile role at most once per request. Several checks below
     // need it; previously each issued its own profiles query, adding a
@@ -110,6 +137,14 @@ export async function updateSession(request: NextRequest) {
     };
 
     const pathname = request.nextUrl.pathname;
+
+    // P11.2 — API perimeter: sensitive rate limits + CSRF Origin (webhooks/cron exempt).
+    if (pathname.startsWith("/api/")) {
+      const perimeterBlock = await enforceApiPerimeterSecurity(request);
+      if (perimeterBlock) {
+        return perimeterBlock;
+      }
+    }
 
     // Removed startup routes — always redirect away from Splash / Welcome.
     if (pathname === "/splash" || pathname.startsWith("/splash/") || pathname === "/welcome" || pathname.startsWith("/welcome/")) {
@@ -233,7 +268,8 @@ export async function updateSession(request: NextRequest) {
     // Only resolve the role for admin-scoped paths. Ordinary authenticated
     // navigations (homepage, most API routes) must not pay for a role query here.
     if (user) {
-      const isSuperAdminApi = pathname.startsWith("/api/super-admin/");
+      const isSuperAdminApi =
+        pathname.startsWith("/api/super-admin/") || pathname.startsWith("/api/marketplace-os/");
       const isAdminApi = pathname.startsWith("/api/admin/");
       const isStaffApi = pathname.startsWith("/api/staff-enterprise/");
       const isStaffPage = !isApiRoute && (pathname === "/staff" || pathname.startsWith("/staff/"));
@@ -299,6 +335,32 @@ export async function updateSession(request: NextRequest) {
   } catch (error) {
     // Never redirect from the error path — a stale session cookie plus a failed
     // Supabase refresh caused /login ↔ /dashboard infinite redirect loops in production.
+    // Invalid refresh → strip auth cookies and continue as anonymous (HTTP 200).
+    if (isInvalidOrExpiredRefreshError(error)) {
+      try {
+        const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll();
+            },
+            setAll(cookiesToSet) {
+              pendingCookies = cookiesToSet;
+              cookiesToSet.forEach(({ name, value }) => {
+                request.cookies.set(name, value);
+              });
+              supabaseResponse = nextWithPathname(request);
+              cookiesToSet.forEach(({ name, value, options }) => {
+                supabaseResponse.cookies.set(name, value, options);
+              });
+            },
+          },
+        });
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        /* continue anonymous */
+      }
+      return applyPendingCookies(supabaseResponse, pendingCookies);
+    }
     console.error("[middleware] session update failed:", error);
     return applyPendingCookies(supabaseResponse, pendingCookies);
   }

@@ -46,6 +46,8 @@ export function useSearchResults(initialQuery = "", locationCity?: string) {
           signal: controller.signal,
         });
 
+        if (controller.signal.aborted) return;
+
         setResults((current) => {
           if (append && current) {
             return mergeProductResults(current, data);
@@ -61,6 +63,8 @@ export function useSearchResults(initialQuery = "", locationCity?: string) {
           setResults(null);
         }
       } finally {
+        // P2: only the latest in-flight request may clear loading flags (abort race).
+        if (abortRef.current !== controller) return;
         if (append) {
           setIsLoadingMore(false);
         } else {
@@ -72,7 +76,10 @@ export function useSearchResults(initialQuery = "", locationCity?: string) {
   );
 
   useEffect(() => {
-    if (isTooShort) return;
+    if (isTooShort) {
+      abortRef.current?.abort();
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -90,12 +97,16 @@ export function useSearchResults(initialQuery = "", locationCity?: string) {
           signal: controller.signal,
         });
 
+        if (controller.signal.aborted) return;
+
         setResults(data);
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           setResults(null);
         }
       } finally {
+        // P2: only the latest in-flight request may clear loading flags (abort race).
+        if (abortRef.current !== controller) return;
         setIsLoading(false);
       }
     }

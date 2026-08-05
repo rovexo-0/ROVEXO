@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAuthContext } from "@/lib/auth/session";
+import { validateMutationOrigin } from "@/lib/api/csrf-guard";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { emitSmartNotification } from "@/lib/notifications/events";
 import { transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
@@ -32,7 +34,12 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
   void COUNTER_OFFER_ENGINE_V1.bloodLaw;
+  const csrf = validateMutationOrigin(request);
+  if (csrf) return csrf;
+
   const { user } = await requireAuthContext();
+  const limited = await enforceRateLimitForUser(user.id, "offers-mutate", 60, 60_000);
+  if (limited) return limited;
   const { id } = await context.params;
   void expireStaleBundleOffers().catch(() => undefined);
 

@@ -19,7 +19,8 @@
   --cds-color-text-muted: #64748b;
   --cds-color-info: #2563eb;
   --cds-color-info-bg: rgb(37 99 235 / 0.08);
-  --cds-color-success: #059669;
+  /* P13.1 — align with DS success for WCAG AA on white */
+  --cds-color-success: #047857;
   --cds-color-success-bg: rgb(5 150 105 / 0.08);
   --cds-color-warning: #d97706;
   --cds-color-warning-bg: rgb(217 119 6 / 0.08);

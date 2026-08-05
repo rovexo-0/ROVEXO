@@ -7,6 +7,9 @@ import { isDocumentVisible } from "@/lib/performance/visibility";
 const STORAGE_KEY = "rovexo-visitor-session";
 const HEARTBEAT_INTERVAL_MS = 45_000;
 
+/** P3 — skip overlapping POSTs (focus + interval); keep cadence unchanged. */
+let presenceInflight: Promise<void> | null = null;
+
 function getOrCreateSessionId(): string {
   const existing = window.sessionStorage.getItem(STORAGE_KEY);
   if (existing) return existing;
@@ -22,17 +25,24 @@ function getOrCreateSessionId(): string {
 
 async function sendHeartbeat(sessionId: string): Promise<void> {
   if (!isDocumentVisible()) return;
+  if (presenceInflight) return presenceInflight;
 
-  await fetch("/api/analytics/live-presence", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId,
-      referrer: document.referrer || undefined,
-      userAgent: navigator.userAgent,
-    }),
-    keepalive: true,
-  }).catch(() => undefined);
+  presenceInflight = (async () => {
+    await fetch("/api/analytics/live-presence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId,
+        referrer: document.referrer || undefined,
+        userAgent: navigator.userAgent,
+      }),
+      keepalive: true,
+    }).catch(() => undefined);
+  })().finally(() => {
+    presenceInflight = null;
+  });
+
+  return presenceInflight;
 }
 
 export function VisitorPresenceBeacon() {

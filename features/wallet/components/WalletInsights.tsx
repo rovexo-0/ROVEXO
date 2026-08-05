@@ -1,6 +1,6 @@
 "use client";
 
-import type { SVGProps } from "react";
+import { memo, type SVGProps } from "react";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 
 type WalletInsightsProps = {
@@ -22,7 +22,12 @@ function CalendarLineIcon(props: IconProps) {
 }
 
 /** Balance Insights — This Month + Next Payout. Visual polish only. */
-export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }: WalletInsightsProps) {
+export const WalletInsights = memo(function WalletInsights({
+  sales,
+  withdrawn,
+  pending,
+  pendingAvailableAt,
+}: WalletInsightsProps) {
   const hasUpcoming = pending > 0 && Boolean(pendingAvailableAt);
 
   return (
@@ -85,4 +90,4 @@ export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }
       </div>
     </section>
   );
-}
+});

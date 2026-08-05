@@ -24,6 +24,7 @@ import { resolveVerifiedStatus } from "@/lib/master-engine";
 import type { PublicSellerProfile } from "@/lib/profile/public";
 import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import type { Review } from "@/lib/reviews/types";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   buildRatingDistribution,
   RATING_DISTRIBUTION_LADDER,
@@ -319,10 +320,7 @@ export function ViewProfilePage({
   return (
     <BetaAppShell bottomNavTab={isOwnProfile ? "account" : undefined}>
       {jsonLdScript ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript }}
-        />
+        <JsonLdScript id="jsonld-features-profile-components-ViewProfilePage-tsx" data={jsonLdScript} />
       ) : null}
 
       <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { memo, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { VIEW_ITEM_PRESENTATION_TOKENS_V1 } from "@/lib/product-detail/view-item-presentation-tokens-v1";
 
 type ProductDescriptionV1Props = {
@@ -10,8 +10,11 @@ type ProductDescriptionV1Props = {
 /**
  * Vinted-style description — title 16/600 · body 15/400 LH 24.
  * Auto-expands; Read more only when body exceeds ~12 lines.
+ * memo: parent qty/offer/sheet updates must not re-run description layout measure.
  */
-export function ProductDescriptionV1({ description }: ProductDescriptionV1Props) {
+export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
+  description,
+}: ProductDescriptionV1Props) {
   const bodyRef = useRef<HTMLParagraphElement>(null);
   const [needsToggle, setNeedsToggle] = useState(false);
   const [expanded, setExpanded] = useState(true);
@@ -58,4 +61,4 @@ export function ProductDescriptionV1({ description }: ProductDescriptionV1Props)
       ) : null}
     </section>
   );
-}
+});

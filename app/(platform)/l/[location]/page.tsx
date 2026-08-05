@@ -7,6 +7,7 @@ import { ALL_UK_LOCATIONS, findLocationBySlug, getLocationChildren } from "@/lib
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { localBusinessJsonLd } from "@/lib/seo/json-ld";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 type LocalPageProps = {
   params: Promise<{ location: string }>;
@@ -39,7 +40,7 @@ export default async function LocalLandingPage({ params }: LocalPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLdScript id="jsonld-app-(platform)-l-location-page-tsx" data={jsonLd} />
       <main className="w-full max-w-none px-ds-4 py-ds-6">
         <h1 className="text-2xl font-bold">Marketplace in {location.name}</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">

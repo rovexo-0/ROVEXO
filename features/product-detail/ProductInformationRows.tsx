@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { ListingAttributeValue } from "@/components/listing/ListingAttributeValue";
@@ -21,7 +22,7 @@ type Props = {
  * Values use ListingAttributeValue (Attribute Engine typography SSOT).
  * Category / Brand may be links; value typography stays identical.
  */
-export function ProductInformationRows({ rows }: Props) {
+export const ProductInformationRows = memo(function ProductInformationRows({ rows }: Props) {
   if (rows.length === 0) return null;
 
   return (
@@ -61,4 +62,4 @@ export function ProductInformationRows({ rows }: Props) {
       </ul>
     </section>
   );
-}
+});

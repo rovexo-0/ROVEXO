@@ -72,6 +72,58 @@ export function subscribeToAccountHubStats(
   return primary;
 }
 
+/**
+ * Wallet hub live only — wallets + wallet_transactions (Realtime Certification v1.0).
+ * Does not subscribe to products/saved/orders/reviews (those wake Account Hub, not Balance).
+ */
+export function subscribeToWalletLiveStats(
+  userId: string,
+  options: SubscribeOptions,
+): RealtimeChannel | null {
+  const supabase = tryCreateClient();
+  if (!supabase || !userId) {
+    return null;
+  }
+
+  const { onChange, onStatus } = options;
+  const channels: RealtimeChannel[] = [];
+
+  const attach = (name: string, table: string, filter?: string) => {
+    const channel = supabase.channel(name);
+    const spec: {
+      event: "*";
+      schema: "public";
+      table: string;
+      filter?: string;
+    } = {
+      event: "*",
+      schema: "public",
+      table,
+    };
+    if (filter) {
+      spec.filter = filter;
+    }
+    channel
+      .on("postgres_changes", spec, () => {
+        onChange();
+      })
+      .subscribe((status) => {
+        onStatus?.(status);
+      });
+    channels.push(channel);
+  };
+
+  attach(`wallet-live-wallets:${userId}`, "wallets", `user_id=eq.${userId}`);
+  attach(`wallet-live-wallet-tx:${userId}`, "wallet_transactions", `user_id=eq.${userId}`);
+
+  const primary = channels[0] ?? null;
+  if (primary) {
+    (primary as RealtimeChannel & { __rovexoAccountHubChannels?: RealtimeChannel[] }).__rovexoAccountHubChannels =
+      channels;
+  }
+  return primary;
+}
+
 export function removeAccountHubChannel(channel: RealtimeChannel): void {
   const supabase = tryCreateClient();
   if (!supabase) return;

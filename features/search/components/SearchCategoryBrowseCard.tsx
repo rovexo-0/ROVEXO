@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import {
@@ -34,8 +35,9 @@ function resolvePremiumKey(iconKey: string | undefined, slug: string): RovexoCat
 /**
  * Blood XXXI — Search category tile (UI only).
  * Image → Name → Count. No purple badges.
+ * memo: Browse landing history/trending updates must not re-render idle tiles.
  */
-export function SearchCategoryBrowseCard({
+export const SearchCategoryBrowseCard = memo(function SearchCategoryBrowseCard({
   name,
   slug,
   itemCount,
@@ -68,4 +70,4 @@ export function SearchCategoryBrowseCard({
       </span>
     </Link>
   );
-}
+});

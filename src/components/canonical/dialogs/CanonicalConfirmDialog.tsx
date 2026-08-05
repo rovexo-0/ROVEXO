@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { CanonicalButton } from "@/src/components/canonical/CanonicalButton";
 import { cdsModalClass } from "@/src/components/canonical/utils";
 
@@ -20,9 +21,6 @@ export type CanonicalConfirmDialogProps = {
   /** Close when the backdrop is tapped. Default: true. */
   closeOnBackdropClick?: boolean;
 };
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
  * Canonical confirmation dialog — replaces window.confirm / alert / prompt in product UI.
@@ -45,6 +43,7 @@ export function CanonicalConfirmDialog({
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useBodyScrollLock(open);
+  useFocusTrap(open, dialogRef);
 
   useEffect(() => {
     if (!open) return;
@@ -54,34 +53,6 @@ export function CanonicalConfirmDialog({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
-
-  useEffect(() => {
-    if (!open || !dialogRef.current) return;
-
-    const root = dialogRef.current;
-    const focusables = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    first?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Tab" || focusables.length === 0) return;
-      if (event.shiftKey) {
-        if (document.activeElement === first) {
-          event.preventDefault();
-          last?.focus();
-        }
-        return;
-      }
-      if (document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    };
-
-    root.addEventListener("keydown", onKeyDown);
-    return () => root.removeEventListener("keydown", onKeyDown);
-  }, [open]);
 
   if (!open) return null;
 

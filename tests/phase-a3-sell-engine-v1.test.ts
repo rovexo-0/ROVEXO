@@ -33,9 +33,10 @@ describe("Phase A3 — Sell Engine + Shipping Labels", () => {
   });
 
   it("allows blob embeds for shipping label preview in production CSP", () => {
+    // Labels preview via iframe/blob — frame-src must allow blob.
+    // P11.2 tightened object-src to 'none' (plugins unused); do not re-open object-src.
     expect(PRODUCTION_CSP).toMatch(/frame-src[^;]*blob:/);
-    expect(PRODUCTION_CSP).toMatch(/object-src[^;]*blob:/);
-    expect(PRODUCTION_CSP).not.toContain("object-src 'none'");
+    expect(PRODUCTION_CSP).toContain("object-src 'none'");
   });
 
   it("fixes label download/print and persists storage path", () => {

@@ -5,8 +5,10 @@ import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/cons
 import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
+import { CategoryHubEditorialSection } from "@/features/seo/components/CategoryHubEditorial";
 import { MarketplaceNoProductsEmpty } from "@/features/search/components/MarketplaceNoProductsEmpty";
-import { popularBrowseLinks, relatedCategoryLinks } from "@/lib/seo/internal-links";
+import { categoryHubInternalLinkGroups } from "@/lib/seo/internal-links";
+import { getCategoryHubEditorial } from "@/lib/seo/category-hub-editorial-v1";
 import "@/styles/rovexo/search-results-v1.css";
 
 type CategoryPageViewProps = {
@@ -16,16 +18,15 @@ type CategoryPageViewProps = {
 };
 
 /**
- * Category page = Listings page (Phase I mobile-first simplification).
+ * Category page = Listings first (P12.1).
+ * Editorial + FAQ + capped internal links after the grid.
  * Empty state: Owner Global Empty State Lock (Search & Browse).
  */
 export function CategoryPageView({ category, products, total }: CategoryPageViewProps) {
   const { node, breadcrumbs } = category;
   const slugPath = breadcrumbs.map((crumb) => crumb.slug);
-  const internalLinkGroups = [
-    relatedCategoryLinks(slugPath),
-    popularBrowseLinks(),
-  ];
+  const editorial = getCategoryHubEditorial(slugPath);
+  const internalLinkGroups = categoryHubInternalLinkGroups(slugPath);
 
   if (products.length === 0) {
     return (
@@ -89,6 +90,8 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           ))}
         </div>
       </section>
+
+      {editorial ? <CategoryHubEditorialSection editorial={editorial} /> : null}
 
       <InternalLinksSection groups={internalLinkGroups} />
     </HubPageMain>

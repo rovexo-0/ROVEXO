@@ -64,7 +64,10 @@ describe("Realtime Engine Certification v1.2 — SSOT lock", () => {
 
   it("Orders · Wallet · Search wire live transports", () => {
     expect(read("features/orders/components/OrdersPage.tsx")).toContain("subscribeOrdersRealtime");
-    expect(read("features/wallet/hooks/use-wallet-live.ts")).toContain("subscribeToAccountHubStats");
+    expect(read("features/wallet/hooks/use-wallet-live.ts")).toContain("subscribeToWalletLiveStats");
+    expect(read("lib/account-center/realtime.ts")).toContain("subscribeToWalletLiveStats");
+    expect(read("lib/account-center/realtime.ts")).toContain("wallet-live-wallets");
+    expect(read("lib/account-center/realtime.ts")).toContain("wallet_transactions");
     expect(read("features/wallet/components/WalletHubV1.tsx")).toContain("useWalletLive");
     expect(read("features/search/components/SearchResultsView.tsx")).toContain(
       "subscribeSearchListingsRealtime",

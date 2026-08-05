@@ -113,13 +113,18 @@ export const PHASE_D_PRODUCTION_PREPARATION_V1 = {
     verifyEnv: "scripts/verify-env.ts",
   },
 
-  /** Ops blockers that engineering cannot close in Phase D without Owner/config action. */
+  /**
+   * P10.6R — remaining Owner-facing blockers (Apple/Facebook deferred · not listed).
+   * Google ops configured; live Owner confirmation still required for PRODUCTION_READY.
+   */
   externalBlockers: [
     {
-      id: "SUPABASE_OAUTH_CONFIGURATION",
-      areas: ["GOOGLE_LOGIN", "APPLE_LOGIN", "FACEBOOK_LOGIN"],
-      remediation: "Enable providers + callback allowlist in Supabase Auth (configuration only)",
+      id: "GOOGLE_OAUTH_LIVE_CONFIRMATION",
+      areas: ["GOOGLE_LOGIN"],
+      remediation:
+        "Owner live Google login confirmation on localhost:3000 and/or https://www.rovexo.co.uk (ops already configured)",
       ssot: "lib/rovexo-production-certification-v1.ts",
+      roadmapNote: "Apple/Facebook DEFERRED_V2_NOT_BLOCKING",
     },
   ] as const,
 } as const;

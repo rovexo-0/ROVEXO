@@ -5,7 +5,7 @@ import { CanonicalInput } from "@/src/components/canonical";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
 import { clampListingTitle, LISTING_TITLE_MAX, validateListingTitle } from "@/lib/sell/listing-title";
 import { isTitleStepComplete } from "@/lib/sell/sell-progressive-flow";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 
 const PENDING_BUMP_MS = 300;
 
@@ -14,7 +14,8 @@ export const SellTitleBlock = memo(function SellTitleBlock({
 }: {
   onStepComplete?: () => void;
 }) {
-  const { draft, showValidation, pendingTitleRef, flushTitleCommitRef, syncTitleToDraft } = useSell();
+  const { draft, showValidation } = useSellDraft();
+  const { pendingTitleRef, flushTitleCommitRef, syncTitleToDraft } = useSellActions();
   const titleId = useId();
   const [title, setTitle] = useState(draft.title);
   const titleRef = useRef(title);

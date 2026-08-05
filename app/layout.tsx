@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 
 /**
@@ -20,8 +21,24 @@ import { organizationJsonLd } from "@/lib/seo/metadata";
 import { getAppUrl } from "@/lib/supabase/env";
 import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
 import { AuthChromeDeferred } from "@/components/layout/AuthChromeDeferred";
+import { ChunkLoadRecovery } from "@/components/runtime/ChunkLoadRecovery";
+import { CHUNK_LOAD_BOOTSTRAP_SCRIPT } from "@/components/runtime/chunk-load-bootstrap";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
+
+function resolveSupabaseOrigin(): string | null {
+  const configured =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim();
+  if (!configured) return "https://pklotmwxtnnepaitedic.supabase.co";
+  try {
+    return new URL(configured).origin;
+  } catch {
+    return null;
+  }
+}
+
+const supabaseOrigin = resolveSupabaseOrigin();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -116,15 +133,22 @@ export default function RootLayout({
       data-theme="light"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
+      suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
-        />
+        {/* P9 — early connection setup for marketplace media + payments (delivery only). */}
+        {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
+        <link rel="preconnect" href="https://js.stripe.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-text-primary">
+        {/* beforeInteractive — root layout only; replaces raw <script> (React 19). */}
+        <Script id="rovexo-locale-init" strategy="beforeInteractive">
+          {LOCALE_INIT_SCRIPT}
+        </Script>
+        <Script id="rovexo-chunk-load-bootstrap" strategy="beforeInteractive">
+          {CHUNK_LOAD_BOOTSTRAP_SCRIPT}
+        </Script>
+        <JsonLdScript id="rovexo-organization-jsonld" data={organizationJsonLd()} />
         <PageVisibilityProvider>
           <LocaleProvider>
             <PwaProvider>
@@ -139,6 +163,7 @@ export default function RootLayout({
           </LocaleProvider>
         </PageVisibilityProvider>
         <AuthChromeDeferred mode="platform-chrome" />
+        <ChunkLoadRecovery />
       </body>
     </html>
   );

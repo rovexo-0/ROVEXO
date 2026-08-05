@@ -7,7 +7,7 @@ import { clearBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { useSellPageBottomClearance } from "@/features/sell/hooks/use-sell-page-bottom-clearance";
 import { useSellProgressiveFlow } from "@/features/sell/hooks/use-sell-progressive-flow";
 import type { SellListingDraft } from "@/features/sell/types";
-import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
+import { SellProvider, useSellActions, useSellDraft, useSellPublishOutcome, useSellPublishProgress } from "@/features/sell/context/SellProvider";
 import { SellPhotoRail } from "@/features/sell/ui/SellPhotoRail";
 import { SellTitleBlock } from "@/features/sell/ui/SellTitleBlock";
 import { SellDescriptionBlock } from "@/features/sell/ui/SellDescriptionBlock";
@@ -39,17 +39,27 @@ type SellPageProps = {
   initialDraft?: SellListingDraft;
 };
 
+/** Isolated: upload/publish progress ticks must not wake the form tree (P7). */
+function SellPublishingOverlayHost({ isEdit }: { isEdit: boolean }) {
+  const { publishPhase, uploadProgress } = useSellPublishProgress();
+  return <PublishingOverlay phase={publishPhase} uploadProgress={uploadProgress} isEdit={isEdit} />;
+}
+
+/** Isolated: formError updates without progress subscription (P7). */
+function SellFormErrorHost() {
+  const { formError } = useSellPublishOutcome();
+  if (!formError) return null;
+  return (
+    <p className="cds-field__error" role="alert">
+      {formError}
+    </p>
+  );
+}
+
 function SellPageInner() {
-  const {
-    formError,
-    publishPhase,
-    uploadProgress,
-    publishSuccess,
-    editListingId,
-    editListingSlug,
-    getIsDirty,
-    resetForAnotherListing,
-  } = useSell();
+  const { editListingId, editListingSlug } = useSellDraft();
+  const { publishSuccess } = useSellPublishOutcome();
+  const { getIsDirty, resetForAnotherListing } = useSellActions();
   const { scrollToNextStep } = useSellProgressiveFlow();
   const shellRef = useRef<HTMLDivElement>(null);
   const publishBarRef = useRef<HTMLDivElement>(null);
@@ -205,20 +215,12 @@ function SellPageInner() {
               <SellParcelBlock bare onParcelSelected={handleParcelSelected} />
             </div>
 
-            {formError ? (
-              <p className="cds-field__error" role="alert">
-                {formError}
-              </p>
-            ) : null}
+            <SellFormErrorHost />
 
             <SellPublishBar ref={publishBarRef} />
           </AccountPageStack>
 
-          <PublishingOverlay
-            phase={publishPhase}
-            uploadProgress={uploadProgress}
-            isEdit={isEdit}
-          />
+          <SellPublishingOverlayHost isEdit={isEdit} />
 
           {publishSuccess ? (
             <PublishSuccessDialog

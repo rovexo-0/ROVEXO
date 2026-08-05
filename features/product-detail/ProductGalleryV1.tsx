@@ -2,7 +2,7 @@
 
 import { SafeImage, isRenderableImageSrc } from "@/components/ui/SafeImage";
 import { ModalContainer } from "@/components/ui/ModalContainer";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -31,12 +31,15 @@ function PinchZoomSlide({
   image,
   alt,
   priority,
+  isActive,
 }: {
   image: string;
   alt: string;
   priority?: boolean;
+  isActive: boolean;
 }) {
   const [transform, setTransform] = useState<PinchTransform>({ scale: 1, x: 0, y: 0 });
+  const [wasActive, setWasActive] = useState(isActive);
   const pinchRef = useRef({
     initialDistance: 0,
     initialScale: 1,
@@ -44,6 +47,14 @@ function PinchZoomSlide({
     panStart: { x: 0, y: 0 },
     panning: false,
   });
+
+  // Adjust zoom state when inactive (same end-state as prior remount) — no effect setState.
+  if (isActive !== wasActive) {
+    setWasActive(isActive);
+    if (!isActive) {
+      setTransform({ scale: 1, x: 0, y: 0 });
+    }
+  }
 
   const onTouchStart = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
@@ -141,7 +152,10 @@ function PinchZoomSlide({
   );
 }
 
-export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1Props) {
+export const ProductGalleryV1 = memo(function ProductGalleryV1({
+  images: rawImages,
+  title,
+}: ProductGalleryV1Props) {
   const images = useMemo(() => rawImages.filter(isRenderableImageSrc), [rawImages]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -374,10 +388,10 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
           {images.map((image, index) => (
             <div key={`fullscreen-${image}-${index}`} className="pd-v1__lightbox-panel">
               <PinchZoomSlide
-                key={`${image}-${index}-${index === activeIndex}`}
                 image={image}
                 alt={`${title} — photo ${index + 1}`}
                 priority={index === activeIndex}
+                isActive={index === activeIndex}
               />
             </div>
           ))}
@@ -385,4 +399,4 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
       </ModalContainer>
     </>
   );
-}
+});

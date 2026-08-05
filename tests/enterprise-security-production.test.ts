@@ -21,6 +21,11 @@ describe("enterprise security headers", () => {
     expect(csp).toContain("https://hooks.stripe.com");
   });
 
+  it("removes unsafe-eval from production CSP (P11.1)", () => {
+    const csp = buildSecurityHeaders(true).find((header) => header.key === "Content-Security-Policy")?.value;
+    expect(csp).not.toContain("unsafe-eval");
+  });
+
   it("validates production header configuration", () => {
     const result = validateSecurityHeaderConfiguration(true);
     expect(result.pass).toBe(true);

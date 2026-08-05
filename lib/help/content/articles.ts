@@ -1,5 +1,6 @@
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 import { enrichHelpArticle } from "@/lib/help/content/article-meta";
+import { WAVE_A_HELP_ARTICLES } from "@/lib/help/content/wave-a-articles-v1";
 import {
   PRIVACY_DATA_CONTROLLER_MARKDOWN,
   TERMS_PLATFORM_OPERATOR_MARKDOWN,
@@ -430,6 +431,7 @@ Before receiving payouts, complete seller tax registration on your Personal Acco
 
 These are tax registration statuses, not separate marketplace roles or products. Provide accurate details including address and tax identifiers where required. Then add your bank account for Wallet withdrawals.`,
   },
+  ...WAVE_A_HELP_ARTICLES,
 ];
 
 export function getHelpArticle(slug: string): HelpArticle | undefined {

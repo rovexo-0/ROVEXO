@@ -140,17 +140,22 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
     expect(surfaces.hmrc).toContain("/seller/compliance");
   });
 
-  it("records OAuth configuration as open EXTERNAL BLOCKER (ops only)", () => {
+  it("records Google live confirmation as open EXTERNAL BLOCKER (Apple/FB deferred)", () => {
     expect(phaseDExternalBlockersOpen()).toBe(true);
     expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.EMAIL_LOGIN).toBe(true);
     expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.GOOGLE_LOGIN).toBe(false);
-    expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.APPLE_LOGIN).toBe(false);
+    expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.GOOGLE_OPS_CONFIGURED).toBe(
+      true,
+    );
+    expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.APPLE_ROADMAP).toBe(
+      "DEFERRED_V2_NOT_BLOCKING",
+    );
     expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.CURRENT_STATUS.PRODUCTION_READY).toBe(false);
     expect(ROVEXO_PRODUCTION_CERTIFICATION_V1.CURRENT_STATUS.ROOT_CAUSE).toBe(
-      "SUPABASE_OAUTH_CONFIGURATION",
+      "AWAITING_OWNER_LIVE_GOOGLE_AND_REMAINING_V1_GATES",
     );
     expect(PHASE_D_PRODUCTION_PREPARATION_V1.externalBlockers[0]?.id).toBe(
-      "SUPABASE_OAUTH_CONFIGURATION",
+      "GOOGLE_OAUTH_LIVE_CONFIRMATION",
     );
   });
 

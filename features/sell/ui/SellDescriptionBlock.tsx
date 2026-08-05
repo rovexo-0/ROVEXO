@@ -3,7 +3,7 @@
 import { memo, useEffect, useId, useRef, useState } from "react";
 import { CanonicalTextarea } from "@/src/components/canonical";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 
 const DESCRIPTION_MAX = 5000;
 const DESCRIPTION_MIN = 10;
@@ -14,13 +14,13 @@ export const SellDescriptionBlock = memo(function SellDescriptionBlock({
 }: {
   onStepComplete?: () => void;
 }) {
+  const { draft } = useSellDraft();
   const {
-    draft,
     pendingDescriptionRef,
     flushDescriptionCommitRef,
     syncDescriptionToDraft,
     markDescriptionManuallyEdited,
-  } = useSell();
+  } = useSellActions();
   const descId = useId();
   const [description, setDescription] = useState(draft.description);
   const descRef = useRef(description);

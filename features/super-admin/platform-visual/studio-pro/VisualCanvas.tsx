@@ -57,7 +57,7 @@ export function VisualCanvas({ canvas, onChange }: VisualCanvasProps) {
       originX: node.x,
       originY: node.y,
     });
-    event.currentTarget.setPointerCapture(event.pointerId);
+    // No setPointerCapture — parent viewport owns pointermove/up (avoids NotFoundError).
   };
 
   const handlePointerMove = (event: ReactPointerEvent) => {

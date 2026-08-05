@@ -3,13 +3,14 @@
 import { useId, useMemo } from "react";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { SELL_CURRENCY_SSR_DEFAULT } from "@/lib/sell/currency";
 
 export function SellPricingBlock({ bare = false }: { bare?: boolean }) {
   void bare;
-  const { draft, updateDraft, showValidation } = useSell();
+  const { draft, showValidation } = useSellDraft();
+  const { updateDraft } = useSellActions();
   const priceId = useId();
 
   const errors = useMemo(

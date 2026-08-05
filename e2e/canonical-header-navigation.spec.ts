@@ -1,12 +1,17 @@
 import { test, expect } from "@playwright/test";
 import { ALL_LISTINGS_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
+import { ensureMarketplaceSession, dismissCookieBanner } from "./helpers/marketplace-session";
 
-const CANONICAL_HEADER = '[data-canonical-page-header="v1"]';
-const LISTING_DETAIL = '[data-pd-detail-version="v1.1"]';
+/** Product Detail freeze — SSOT in ProductDetailPage.tsx */
+const LISTING_DETAIL = '[data-pd-detail-version="cod-sange-v3.1"]';
+/** Product gallery chrome back — not Account CanonicalPageHeader */
+const LISTING_BACK = '[data-pd-chrome="v3"] button[aria-label="Back"]';
 
 test.describe("canonical page header navigation", () => {
-  test("homepage → listing → back returns to homepage", async ({ page }) => {
+  test("homepage → listing → back returns to homepage", async ({ page, baseURL }) => {
+    await ensureMarketplaceSession(page, baseURL);
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    await dismissCookieBanner(page);
     await waitForHomepageUi(page);
 
     const listingLink = page.locator(`${ALL_LISTINGS_SELECTOR} a[href*="/listing/"]`).first();
@@ -17,13 +22,15 @@ test.describe("canonical page header navigation", () => {
     await listingLink.click();
     await expect(page).toHaveURL(/\/listing\//, { timeout: 30_000 });
     await expect(page.locator(LISTING_DETAIL)).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator(CANONICAL_HEADER)).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(LISTING_BACK)).toBeVisible({ timeout: 15_000 });
 
-    await page.locator(`${CANONICAL_HEADER} button[aria-label="Back"]`).click();
+    await page.locator(LISTING_BACK).click();
     await expect(page).toHaveURL(/\/(\?.*)?$/, { timeout: 15_000 });
   });
 
-  test("direct listing URL → back navigates to homepage", async ({ page, request }) => {
+  test("direct listing URL → back navigates to homepage", async ({ page, request, baseURL }) => {
+    await ensureMarketplaceSession(page, baseURL);
+
     const feedRes = await request.get("/api/homepage/feed?page=1");
     expect(feedRes.ok(), "Homepage feed must be available").toBeTruthy();
 
@@ -33,9 +40,9 @@ test.describe("canonical page header navigation", () => {
 
     await page.goto(`/listing/${slug}`, { waitUntil: "domcontentloaded" });
     await expect(page.locator(LISTING_DETAIL)).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator(CANONICAL_HEADER)).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(LISTING_BACK)).toBeVisible({ timeout: 15_000 });
 
-    await page.locator(`${CANONICAL_HEADER} button[aria-label="Back"]`).click();
+    await page.locator(LISTING_BACK).click();
     await expect(page).toHaveURL(/\/(\?.*)?$/, { timeout: 15_000 });
   });
 });

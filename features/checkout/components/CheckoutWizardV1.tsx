@@ -22,6 +22,7 @@ import type { CheckoutStep } from "@/features/checkout/types";
 import type { ProductDetail } from "@/lib/products/types";
 import type { PaymentMethodId } from "@/lib/checkout/payment";
 import type { BundleCheckoutSnapshotV1 } from "@/lib/bundle/bundle-snapshot-v1";
+import { fetchAccountSnapshotShared } from "@/lib/account-center/fetch-account-snapshot-shared";
 
 type CheckoutWizardV1Props = {
   product: ProductDetail;
@@ -130,11 +131,7 @@ export function CheckoutWizardV1({
     let cancelled = false;
     void (async () => {
       try {
-        const res = await fetch("/api/account/snapshot", { cache: "no-store" });
-        if (!res.ok) return;
-        const payload = (await res.json()) as {
-          wallet?: { availableBalance?: number } | null;
-        };
+        const payload = await fetchAccountSnapshotShared();
         if (!cancelled && payload.wallet?.availableBalance != null) {
           setAvailableBalance(Number(payload.wallet.availableBalance));
         }

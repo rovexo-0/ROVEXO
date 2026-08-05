@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiListingRole } from "@/lib/auth/session";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import { resolveTransactionModeFromCategoryPathPayload } from "@/lib/transaction-mode/resolver";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
@@ -53,8 +54,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiListingRole();
+  const auth = await requireApiListingRole(request);
   if (auth instanceof NextResponse) return auth;
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "listings-publish", 20, 60_000);
+  if (limited) return limited;
 
   try {
     const body = createListingSchema.parse(await request.json());

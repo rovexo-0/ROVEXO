@@ -121,13 +121,15 @@
 }
 
 .badge[data-tone="featured"] {
+  /* P13.1 — darker purple on tint for WCAG AA (≥4.5:1); brand purple retained as family */
   background: rgb(147 51 234 / 0.14);
-  color: var(--ds-color-primary);
+  color: #6b21a8;
 }
 
 .badge[data-tone="new"] {
   background: #d1fae5;
-  color: #047857;
+  /* Token resolves to #047857 (WCAG AA on white) — ListingCard freeze SSOT */
+  color: var(--ds-color-success);
 }
 
 .badge[data-tone="urgent"] {
@@ -228,6 +230,7 @@
   font-size: clamp(0.6875rem, 3.4cqi, var(--rx-listing-bp-size, 0.75rem));
   font-weight: 700;
   line-height: 1.2;
+  /* P13.1 — token = #047857 on #fff ≥4.5:1 (was #059669 ≈3.76:1 FAIL) */
   color: var(--ds-color-success);
 }
 

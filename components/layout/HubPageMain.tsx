@@ -18,7 +18,7 @@ export function HubPageMain({
   children,
   className,
   withBottomNav = true,
-  id,
+  id = "main-content",
 }: HubPageMainProps) {
   return (
     <ScrollContainer

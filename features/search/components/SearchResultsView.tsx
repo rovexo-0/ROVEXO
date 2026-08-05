@@ -84,6 +84,9 @@ export function SearchResultsView({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [, startTransition] = useTransition();
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  /** P2: page-1 / realtime abort must not share ownership with load-more. */
+  const page1AbortRef = useRef<AbortController | null>(null);
+  const loadMoreAbortRef = useRef<AbortController | null>(null);
 
   const heading = useMemo(() => {
     if (query) return `Results for “${query}”`;
@@ -92,14 +95,17 @@ export function SearchResultsView({
   }, [category, query]);
 
   const loadPage = useCallback(
-    async (nextPage: number, append: boolean, signal?: AbortSignal) => {
+    async (nextPage: number, append: boolean, controller: AbortController) => {
       if (append) setIsLoadingMore(true);
-      else setLoading(true);
+      else {
+        setLoading(true);
+        setIsLoadingMore(false);
+      }
       setError(false);
 
       try {
-        const data = await fetchResults(query, category, nextPage, signal);
-        if (signal?.aborted) return;
+        const data = await fetchResults(query, category, nextPage, controller.signal);
+        if (controller.signal.aborted) return;
         setItems((current) => (append ? [...current, ...data.items] : data.items));
         setTotal(data.total);
         setPage(data.page);
@@ -108,9 +114,11 @@ export function SearchResultsView({
         if ((fetchError as Error).name === "AbortError") return;
         setError(true);
       } finally {
-        if (!signal?.aborted) {
+        // Only the latest request of this kind may clear its own loading flag.
+        if (append) {
+          if (loadMoreAbortRef.current === controller) setIsLoadingMore(false);
+        } else if (page1AbortRef.current === controller) {
           setLoading(false);
-          setIsLoadingMore(false);
         }
       }
     },
@@ -120,11 +128,17 @@ export function SearchResultsView({
   useEffect(() => {
     if (!hasBrowseTarget) return;
 
+    page1AbortRef.current?.abort();
+    loadMoreAbortRef.current?.abort();
     const controller = new AbortController();
+    page1AbortRef.current = controller;
     startTransition(() => {
-      void loadPage(1, false, controller.signal);
+      void loadPage(1, false, controller);
     });
-    return () => controller.abort();
+    return () => {
+      page1AbortRef.current?.abort();
+      loadMoreAbortRef.current?.abort();
+    };
   }, [hasBrowseTarget, loadPage, startTransition]);
 
   /* Realtime Certification — listing publish/pause/delete updates results without F5. */
@@ -132,8 +146,12 @@ export function SearchResultsView({
     if (!hasBrowseTarget) return;
     const sub = subscribeSearchListingsRealtime(() => {
       setRtTick((tick) => tick + 1);
+      page1AbortRef.current?.abort();
+      loadMoreAbortRef.current?.abort();
+      const controller = new AbortController();
+      page1AbortRef.current = controller;
       startTransition(() => {
-        void loadPage(1, false);
+        void loadPage(1, false, controller);
       });
     });
     return () => sub.unsubscribe();
@@ -141,8 +159,11 @@ export function SearchResultsView({
 
   useIntersectionWhenVisible(
     () => {
+      loadMoreAbortRef.current?.abort();
+      const controller = new AbortController();
+      loadMoreAbortRef.current = controller;
       startTransition(() => {
-        void loadPage(page + 1, true);
+        void loadPage(page + 1, true, controller);
       });
     },
     {
@@ -257,7 +278,15 @@ export function SearchResultsView({
             <button
               type="button"
               className={cn("srch-results__error-retry", focusRing)}
-              onClick={() => void loadPage(1, false)}
+              onClick={() => {
+                page1AbortRef.current?.abort();
+                loadMoreAbortRef.current?.abort();
+                const controller = new AbortController();
+                page1AbortRef.current = controller;
+                startTransition(() => {
+                  void loadPage(1, false, controller);
+                });
+              }}
             >
               Retry
             </button>

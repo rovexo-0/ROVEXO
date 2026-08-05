@@ -1,28 +1,46 @@
 /**
  * Wallet hub live balance — wallets + wallet_transactions (Realtime Certification v1.0).
  * Reuses account snapshot API (one SSOT) — no parallel wallet fetch system.
+ * P8: wallet-only RT channels + equal-bail setData (no financial behaviour change).
  */
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   removeAccountHubChannel,
-  subscribeToAccountHubStats,
+  subscribeToWalletLiveStats,
 } from "@/lib/account-center/realtime";
-import { fetchDeduped } from "@/lib/performance/fetch";
+import { fetchAccountSnapshotShared } from "@/lib/account-center/fetch-account-snapshot-shared";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { WalletData } from "@/lib/wallet/types";
 
-async function fetchWalletFromSnapshot(signal?: AbortSignal): Promise<WalletData | null> {
-  const response = await fetchDeduped("/api/account/snapshot", {
-    cache: "no-store",
-    signal,
-    dedupeKey: "wallet-hub:snapshot",
-  });
-  if (!response.ok) return null;
-  const payload = (await response.json()) as { wallet?: WalletData | null };
+async function fetchWalletFromSnapshot(): Promise<WalletData | null> {
+  const payload = await fetchAccountSnapshotShared();
   return payload.wallet ?? null;
+}
+
+/** Compare hub-visible money fields — skip setState when RT refresh is identical. */
+export function walletLiveFingerprint(data: WalletData): string {
+  const tx = data.transactions
+    .map((row) => `${row.id}:${row.status}:${row.amount}:${row.createdAt}`)
+    .join("|");
+  return [
+    data.availableBalance,
+    data.pendingBalance,
+    data.lockedBalance,
+    data.paidOutBalance,
+    data.pendingOrderCount,
+    data.pendingAvailableAt,
+    data.withdrawalSummary.processingTotal,
+    data.withdrawalSummary.processingCount,
+    data.withdrawalSummary.completedTotal,
+    data.withdrawalSummary.completedCount,
+    data.monthSummary.revenue.value,
+    data.monthSummary.withdrawn.value,
+    data.monthSummary.fees.value,
+    tx,
+  ].join(";");
 }
 
 export type WalletLiveState = {
@@ -35,12 +53,17 @@ export function useWalletLive(userId: string, initial: WalletData): WalletLiveSt
   const [data, setData] = useState(initial);
   const [rtTick, setRtTick] = useState(0);
   const timerRef = useRef<number | null>(null);
+  const fingerprintRef = useRef(walletLiveFingerprint(initial));
 
   const refresh = useCallback(async () => {
     if (!isDocumentVisible()) return;
     try {
       const next = await fetchWalletFromSnapshot();
-      if (next) setData(next);
+      if (!next) return;
+      const nextFp = walletLiveFingerprint(next);
+      if (nextFp === fingerprintRef.current) return;
+      fingerprintRef.current = nextFp;
+      setData(next);
     } catch {
       // ignore transient
     }
@@ -63,9 +86,13 @@ export function useWalletLive(userId: string, initial: WalletData): WalletLiveSt
   }
 
   useEffect(() => {
+    fingerprintRef.current = walletLiveFingerprint(data);
+  }, [data]);
+
+  useEffect(() => {
     if (!userId || !isSupabaseConfigured()) return;
 
-    const channel = subscribeToAccountHubStats(userId, {
+    const channel = subscribeToWalletLiveStats(userId, {
       onChange: schedule,
     });
 

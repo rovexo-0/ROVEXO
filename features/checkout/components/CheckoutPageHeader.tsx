@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
 import { PageBack } from "@/components/navigation/PageBack";
 import { cn } from "@/lib/cn";
@@ -14,7 +15,7 @@ type CheckoutPageHeaderProps = {
 };
 
 /** Absolute Law — back + Checkout title. */
-export function CheckoutPageHeader({
+export const CheckoutPageHeader = memo(function CheckoutPageHeader({
   backHref = "/",
   backLabel = "Back",
   onBack,
@@ -44,4 +45,4 @@ export function CheckoutPageHeader({
       </div>
     </header>
   );
-}
+});

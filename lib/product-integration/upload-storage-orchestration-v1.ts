@@ -17,19 +17,18 @@
 
 import type { SellPhoto } from "@/features/sell/types";
 import {
-  deleteListingImage as deleteListingImageTransport,
-  uploadPreparedListingImage,
-  type UploadedImageResult,
-} from "@/lib/listings/upload-client";
-import {
   clearDraftPhotos,
-  loadDraftPhotos,
   saveDraftPhotos,
 } from "@/lib/sell/draft-photo-storage";
 import {
   createListingThumbnail,
   compressListingImage,
 } from "@/lib/storage/client-images";
+import {
+  deleteListingImage as deleteListingImageTransport,
+  uploadPreparedListingImage,
+  type UploadedImageResult,
+} from "@/lib/listings/upload-client";
 
 export const PHOTO_SYSTEM_PRODUCT_INTEGRATION_PHASE_IV_V1 = {
   version: "1.0",
@@ -147,7 +146,9 @@ export async function deleteSellListingPhoto(
 
 /** Draft storage orchestration — persistence remains draft-photo-storage. */
 export async function loadSellDraftPhotosViaProductIntegration(): Promise<SellPhoto[]> {
-  return loadDraftPhotos();
+  // R1.3: restore path only — scrub stale/foreign storagePath before Sell remounts draft.
+  const { loadSanitizedDraftPhotos } = await import("@/lib/sell/draft-restore-sanitize-v1");
+  return loadSanitizedDraftPhotos();
 }
 
 export async function saveSellDraftPhotosViaProductIntegration(

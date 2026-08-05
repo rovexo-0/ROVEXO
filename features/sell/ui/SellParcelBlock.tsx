@@ -6,7 +6,7 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
 import { SellInlineError, SellNavRow, SellFlowHeader } from "@/features/sell/ui/SellPrimitives";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors, PARCEL_SIZE_OPTIONS, type ParcelSize } from "@/features/sell/types";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
@@ -146,7 +146,8 @@ export function SellParcelBlock({
   bare?: boolean;
   onParcelSelected?: () => void;
 }) {
-  const { draft, updateDraft, showValidation } = useSell();
+  const { draft, showValidation } = useSellDraft();
+  const { updateDraft } = useSellActions();
   const [parcelOpen, setParcelOpen] = useState(false);
 
   const errors = useMemo(

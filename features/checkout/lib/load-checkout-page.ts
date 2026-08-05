@@ -70,6 +70,10 @@ export async function loadCheckoutPageProps(
 
   let resolvedCsId: string | null = null;
   let bundleSnapshot: BundleCheckoutSnapshotV1 | null = null;
+  /** Reused for listing_id check — avoid duplicate getByPublicId (P8). */
+  let openCheckoutSession: Awaited<
+    ReturnType<typeof CHECKOUT_SESSION_ENGINE_getByPublicId>
+  > | null = null;
 
   if (enforceBuyNowGuard) {
     await CHECKOUT_SESSION_ENGINE_expireAll();
@@ -110,6 +114,7 @@ export async function loadCheckoutPageProps(
           listingHref: `/listing/${slug}`,
         };
       }
+      openCheckoutSession = session;
       resolvedCsId = session.public_id;
       if (isBundleCheckoutSnapshot(session.bundle_lines)) {
         bundleSnapshot = session.bundle_lines;
@@ -144,8 +149,7 @@ export async function loadCheckoutPageProps(
 
   // Reserved listings are OK when owned by this checkout session.
   if (resolvedCsId) {
-    const session = await CHECKOUT_SESSION_ENGINE_getByPublicId(resolvedCsId);
-    if (session && product.id !== session.listing_id) {
+    if (openCheckoutSession && product.id !== openCheckoutSession.listing_id) {
       return {
         kind: "blocked",
         code: "RVX-2001",

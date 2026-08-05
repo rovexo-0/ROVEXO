@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Link from "next/link";
 import type { SVGProps } from "react";
 import { cn } from "@/lib/cn";
@@ -42,7 +42,9 @@ function ChevronDownIcon(props: IconProps) {
  * Balance hub recent transactions — visual density aligned to Inbox/Orders list.
  * Presentation only: thumb 56×56 · title · date · amount · chevron. Engine untouched.
  */
-export function WalletRecentTransactions({ transactions }: WalletRecentTransactionsProps) {
+export const WalletRecentTransactions = memo(function WalletRecentTransactions({
+  transactions,
+}: WalletRecentTransactionsProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const visible = transactions.slice(0, visibleCount);
   const hasMore = visibleCount < transactions.length;
@@ -120,4 +122,4 @@ export function WalletRecentTransactions({ transactions }: WalletRecentTransacti
       </div>
     </section>
   );
-}
+});

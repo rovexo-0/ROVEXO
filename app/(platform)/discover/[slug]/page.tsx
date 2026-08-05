@@ -4,6 +4,7 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { SeoLandingPageView } from "@/features/seo/components/SeoLandingPageView";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { buildOrganicGrowthContext, discoveryPageLinkGroups, resolveDiscoveryPage } from "@/lib/seo/engine";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 type DiscoverPageProps = {
   params: Promise<{ slug: string }>;
@@ -34,10 +35,7 @@ export default async function DiscoverRoute({ params }: DiscoverPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ctx.jsonLd) }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-discover-slug-page-tsx" data={ctx.jsonLd} />
       <SeoLandingPageView
         title={page.title.replace(/ \| ROVEXO$/, "")}
         description={page.description}

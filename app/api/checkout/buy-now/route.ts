@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "checkout-buy-now", 20, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     FINANCIAL_LOGGER("BUYER FAILED");
     return NextResponse.json(

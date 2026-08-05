@@ -2,6 +2,7 @@ import type { MutableRefObject } from "react";
 import type { SellListingDraft } from "@/features/sell/types";
 import { saveSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 import {
+  canAutosaveDatabaseDraft,
   canPersistDatabaseDraft,
   DRAFT_DATABASE_SSOT_V1,
   type DatabaseDraftPersistResult,
@@ -25,6 +26,17 @@ type PersistableDraftRefs = {
   uploadSessionId: string;
 };
 
+/** Post-publish / intentional reset shell — must not rewrite storage or POST. */
+function isPostPublishEmptyShell(draft: SellListingDraft): boolean {
+  return (
+    draft.photos.length === 0 &&
+    draft.title.trim().length === 0 &&
+    draft.description.trim().length === 0 &&
+    draft.categoryPath == null &&
+    draft.price.trim().length === 0
+  );
+}
+
 /** Read pending keystrokes from refs — never flush/sync to React state during autosave. */
 function resolvePersistableDraft(refs: PersistableDraftRefs): SellListingDraft {
   const draft = resolveEffectiveSellDraft(refs.draftRef.current, {
@@ -44,6 +56,11 @@ export function persistSellDraftTextSync(refs: PersistableDraftRefs): boolean {
   try {
     sellProfilePersist("textSync");
     const draft = resolvePersistableDraft(refs);
+    // P10.1 — do not re-seed localStorage with an intentional empty shell.
+    if (isPostPublishEmptyShell(draft)) {
+      sellInputDiag("persist.textSync.skip_empty");
+      return false;
+    }
     saveSellDraft(draft);
     touchDraftSavedAt();
     if (refs.uploadSessionId) {
@@ -63,6 +80,8 @@ export async function persistDatabaseDraftFromSellDraft(
   draft: SellListingDraft,
   options?: { draftId?: string | null },
 ): Promise<DatabaseDraftPersistResult> {
+  // Publish-failure recovery still uses photo-only gate (API pads incomplete fields).
+  // Autosave callers must pass canAutosaveDatabaseDraft first (P10.1).
   if (!canPersistDatabaseDraft(draft)) {
     return { ok: false, error: "DRAFT_PHOTO_REQUIRED" };
   }
@@ -146,11 +165,18 @@ export async function persistSellDraftSnapshot(
 ): Promise<{ databaseDraftSaved: boolean; draftId?: string }> {
   sellProfilePersist("snapshot");
   sellInputDiag("persist.snapshot.start");
-  persistSellDraftTextSync(refs);
   const draft = resolveEffectiveSellDraft(refs.draftRef.current, {
     title: refs.pendingTitleRef.current,
     description: refs.pendingDescriptionRef.current,
   });
+
+  // P10.1 — post-publish / intentional empty reset: no local rewrite, no POST.
+  if (isPostPublishEmptyShell(draft)) {
+    sellInputDiag("persist.snapshot.skip_empty");
+    return { databaseDraftSaved: false };
+  }
+
+  persistSellDraftTextSync(refs);
   try {
     await saveSellDraftPhotosViaProductIntegration(draft.photos);
   } catch (error) {
@@ -161,6 +187,14 @@ export async function persistSellDraftSnapshot(
 
   if (options?.persistDatabase === false) {
     sellInputDiag("persist.snapshot.done");
+    return { databaseDraftSaved: false };
+  }
+
+  if (!canAutosaveDatabaseDraft(draft)) {
+    sellInputDiag("persist.snapshot.skip_database", {
+      photos: draft.photos.length,
+      price: draft.price,
+    });
     return { databaseDraftSaved: false };
   }
 

@@ -148,8 +148,9 @@ export const CanonicalProfileAvatar = forwardRef<
   };
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    // Do not setPointerCapture — Safari throws NotFoundError on auto-release races.
+    // Canvas crop drag stays within the element; window listeners are unnecessary.
     dragRef.current = { x: event.clientX - offset.x, y: event.clientY - offset.y };
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {

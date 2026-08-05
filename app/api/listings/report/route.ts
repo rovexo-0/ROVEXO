@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "listing-report", 10, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   try {

@@ -11,7 +11,7 @@ import {
   type BundleLineItemV1,
   type BundleSnapshotV1,
 } from "@/lib/bundle/bundle-domain-v1";
-import { readBundleMirror, writeBundleMirror } from "@/lib/bundle/bundle-mirror-v1";
+import { readBundleMirror, writeBundleMirror, fetchBundleSnapshotShared } from "@/lib/bundle/bundle-mirror-v1";
 import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
 
 type SheetProps = {
@@ -127,28 +127,21 @@ export function useActiveBundle(): BundleSnapshotV1 | null {
     const hydrate = async () => {
       const gen = ++hydrateGen;
       try {
-        const res = await fetch("/api/bundle", { credentials: "include" });
+        const result = await fetchBundleSnapshotShared();
         if (cancelled || gen !== hydrateGen) return;
-        if (res.status === 401) {
+        if (result.status === 401) {
           writeBundleMirror(null);
           setBundle(null);
           return;
         }
-        if (!res.ok) {
+        if (!result.ok) {
           // Fail closed: do not trust stale cache after failed hydrate.
           writeBundleMirror(null);
           setBundle(null);
           return;
         }
-        const payload = (await res.json()) as { ok?: boolean; bundle?: BundleSnapshotV1 | null };
-        if (cancelled || gen !== hydrateGen) return;
-        if (payload.ok) {
-          writeBundleMirror(payload.bundle ?? null);
-          setBundle(payload.bundle ?? null);
-          return;
-        }
-        writeBundleMirror(null);
-        setBundle(null);
+        writeBundleMirror(result.bundle);
+        setBundle(result.bundle);
       } catch {
         if (!cancelled && gen === hydrateGen) {
           writeBundleMirror(null);

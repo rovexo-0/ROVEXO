@@ -62,6 +62,8 @@ export function useInfiniteCarousel({
   const scrollSampleRef = useRef({ scrollLeft: 0, time: 0 });
   const velocityRef = useRef(0);
   const initializedRef = useRef(false);
+  /** Window-level drag listeners — avoids setPointerCapture/releasePointerCapture NotFoundError on Safari. */
+  const windowDragCleanupRef = useRef<(() => void) | null>(null);
 
   const clearResumeTimer = useCallback(() => {
     if (resumeTimerRef.current) {
@@ -218,6 +220,8 @@ export function useInfiniteCarousel({
       window.cancelAnimationFrame(rafRef.current);
       stopMomentum();
       clearResumeTimer();
+      windowDragCleanupRef.current?.();
+      windowDragCleanupRef.current = null;
     };
   }, [autoScrollSpeed, clearResumeTimer, mobileOnly, normalizeScroll, stopMomentum]);
 
@@ -239,6 +243,36 @@ export function useInfiniteCarousel({
     return () => scroller.removeEventListener("wheel", handleWheel);
   }, [normalizeScroll, pause, scheduleResume]);
 
+  const detachWindowDrag = useCallback(() => {
+    windowDragCleanupRef.current?.();
+    windowDragCleanupRef.current = null;
+  }, []);
+
+  const finishHorizontalDrag = useCallback(() => {
+    const scroller = scrollerRef.current;
+    const wasHorizontalDrag = gestureAxisRef.current === "horizontal" && isDragging.current;
+    detachWindowDrag();
+    isDragging.current = false;
+    pointerIdRef.current = null;
+    gestureAxisRef.current = "none";
+    scroller?.classList.remove("premium-infinite--dragging");
+
+    if (!wasHorizontalDrag) {
+      scheduleResume();
+      return;
+    }
+
+    normalizeScroll();
+
+    if (enableMomentum && Math.abs(velocityRef.current) > 0.35) {
+      pausedRef.current = true;
+      momentumRafRef.current = window.requestAnimationFrame(runMomentum);
+      return;
+    }
+
+    scheduleResume();
+  }, [detachWindowDrag, enableMomentum, normalizeScroll, runMomentum, scheduleResume]);
+
   const engageHorizontalDrag = useCallback(
     (scroller: HTMLDivElement, event: React.PointerEvent<HTMLDivElement>) => {
       gestureAxisRef.current = "horizontal";
@@ -251,13 +285,45 @@ export function useInfiniteCarousel({
       };
       scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: performance.now() };
       scroller.classList.add("premium-infinite--dragging");
-      try {
-        scroller.setPointerCapture(event.pointerId);
-      } catch {
-        // ignore
-      }
+
+      // Track the active pointer on window — never setPointerCapture.
+      // Safari throws NotFoundError on releasePointerCapture even after a
+      // successful hasPointerCapture check when the capture is already gone.
+      detachWindowDrag();
+      const pointerId = event.pointerId;
+      const onWindowMove = (moveEvent: PointerEvent) => {
+        if (moveEvent.pointerId !== pointerId) return;
+        if (gestureAxisRef.current !== "horizontal" || !isDragging.current) return;
+        const active = scrollerRef.current;
+        if (!active) return;
+
+        const delta = moveEvent.clientX - dragStartRef.current.x;
+        if (Math.abs(delta) > DRAG_THRESHOLD_PX) dragMovedRef.current = true;
+        active.scrollLeft = dragStartRef.current.scrollLeft - delta;
+        normalizeScroll();
+
+        const now = performance.now();
+        const elapsed = now - scrollSampleRef.current.time;
+        if (elapsed > 0) {
+          const scrollDelta = active.scrollLeft - scrollSampleRef.current.scrollLeft;
+          velocityRef.current = (scrollDelta / elapsed) * 16.67;
+        }
+        scrollSampleRef.current = { scrollLeft: active.scrollLeft, time: now };
+      };
+      const onWindowUp = (upEvent: PointerEvent) => {
+        if (upEvent.pointerId !== pointerId) return;
+        finishHorizontalDrag();
+      };
+      window.addEventListener("pointermove", onWindowMove);
+      window.addEventListener("pointerup", onWindowUp);
+      window.addEventListener("pointercancel", onWindowUp);
+      windowDragCleanupRef.current = () => {
+        window.removeEventListener("pointermove", onWindowMove);
+        window.removeEventListener("pointerup", onWindowUp);
+        window.removeEventListener("pointercancel", onWindowUp);
+      };
     },
-    [],
+    [detachWindowDrag, finishHorizontalDrag, normalizeScroll],
   );
 
   const onPointerDown = useCallback(
@@ -272,11 +338,8 @@ export function useInfiniteCarousel({
       dragStartRef.current = { x: event.clientX, y: event.clientY, scrollLeft: scroller.scrollLeft };
       scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: performance.now() };
 
-      // Stay undecided for every input type and DO NOT capture the pointer yet.
-      // Capturing on pointer-down retargets the subsequent click to the scroller,
-      // which swallows card navigation on desktop (mouse), and it also steals
-      // vertical page scrolling on touch. We only capture once onPointerMove
-      // detects an actual drag, so a plain click/tap always reaches the card link.
+      // Stay undecided — plain click/tap must reach the card link. Vertical page
+      // scroll must win on touch until horizontal intent is proven.
       gestureAxisRef.current = "none";
       isDragging.current = false;
     },
@@ -286,19 +349,17 @@ export function useInfiniteCarousel({
   const onPointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (pointerIdRef.current !== event.pointerId) return;
+      // Once window listeners own the drag, ignore element move events.
+      if (gestureAxisRef.current === "horizontal" && isDragging.current) return;
       const scroller = scrollerRef.current;
       if (!scroller) return;
 
-      // Resolve gesture direction once movement clears the lock threshold.
       if (gestureAxisRef.current === "none") {
         const dx = event.clientX - dragStartRef.current.x;
         const dy = event.clientY - dragStartRef.current.y;
         const absX = Math.abs(dx);
         const absY = Math.abs(dy);
         if (event.pointerType === "mouse") {
-          // Mouse never competes with page scroll; engage as soon as the press
-          // turns into a drag. Below the threshold it stays a plain click so the
-          // card link navigates normally.
           if (absX < DRAG_THRESHOLD_PX && absY < DRAG_THRESHOLD_PX) return;
           engageHorizontalDrag(scroller, event);
         } else {
@@ -306,7 +367,6 @@ export function useInfiniteCarousel({
             return;
           }
           if (absY >= absX) {
-            // Vertical intent — release the gesture to the browser for page scroll.
             gestureAxisRef.current = "vertical";
             scheduleResume();
             return;
@@ -314,52 +374,18 @@ export function useInfiniteCarousel({
           engageHorizontalDrag(scroller, event);
         }
       }
-
-      if (gestureAxisRef.current !== "horizontal" || !isDragging.current) return;
-
-      const delta = event.clientX - dragStartRef.current.x;
-      if (Math.abs(delta) > DRAG_THRESHOLD_PX) dragMovedRef.current = true;
-      scroller.scrollLeft = dragStartRef.current.scrollLeft - delta;
-      normalizeScroll();
-
-      const now = performance.now();
-      const elapsed = now - scrollSampleRef.current.time;
-      if (elapsed > 0) {
-        const scrollDelta = scroller.scrollLeft - scrollSampleRef.current.scrollLeft;
-        velocityRef.current = (scrollDelta / elapsed) * 16.67;
-      }
-      scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: now };
     },
-    [engageHorizontalDrag, normalizeScroll, scheduleResume],
+    [engageHorizontalDrag, scheduleResume],
   );
 
   const releasePointer = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (pointerIdRef.current !== event.pointerId) return;
-      const scroller = scrollerRef.current;
-      if (scroller?.hasPointerCapture(event.pointerId)) scroller.releasePointerCapture(event.pointerId);
-      const wasHorizontalDrag = gestureAxisRef.current === "horizontal" && isDragging.current;
-      isDragging.current = false;
-      pointerIdRef.current = null;
-      gestureAxisRef.current = "none";
-      scroller?.classList.remove("premium-infinite--dragging");
-
-      if (!wasHorizontalDrag) {
-        scheduleResume();
-        return;
-      }
-
-      normalizeScroll();
-
-      if (enableMomentum && Math.abs(velocityRef.current) > 0.35) {
-        pausedRef.current = true;
-        momentumRafRef.current = window.requestAnimationFrame(runMomentum);
-        return;
-      }
-
-      scheduleResume();
+      // If window drag is active, window pointerup owns finishHorizontalDrag.
+      if (windowDragCleanupRef.current) return;
+      finishHorizontalDrag();
     },
-    [enableMomentum, normalizeScroll, runMomentum, scheduleResume],
+    [finishHorizontalDrag],
   );
 
   return {

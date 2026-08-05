@@ -8,6 +8,12 @@
  * FROZEN
  * CANONICAL SSOT
  *
+ * P10.6R — Authentication Roadmap (Owner Decision):
+ *   Email/Password → REQUIRED (v1.0)
+ *   Google OAuth → REQUIRED (v1.0)
+ *   Apple OAuth → DEFERRED (v2.0) · NOT a production blocker
+ *   Facebook OAuth → DEFERRED (v2.0) · NOT a production blocker
+ *
  ******************************************************************/
 
 export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
@@ -18,6 +24,19 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
   APPROVED_BY_OWNER: true,
   FROZEN: true,
   SSOT_READY: true,
+
+  /******************************************************************
+   *
+   * AUTHENTICATION ROADMAP (Owner Decision · P10.6R)
+   *
+   ******************************************************************/
+  AUTHENTICATION_ROADMAP: Object.freeze({
+    EMAIL_PASSWORD: "REQUIRED_V1",
+    GOOGLE_OAUTH: "REQUIRED_V1",
+    APPLE_OAUTH: "DEFERRED_V2_NOT_BLOCKING",
+    FACEBOOK_OAUTH: "DEFERRED_V2_NOT_BLOCKING",
+    OWNER_DECISION: "P10.6R",
+  }),
 
   /******************************************************************
    *
@@ -45,9 +64,20 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
     FORGOT_PASSWORD: true,
     REMEMBER_ME: true,
     AUTH_CALLBACK: true,
+    /** Owner Decision: Supabase + local + production Google ops configured. */
+    GOOGLE_OPS_CONFIGURED: true,
+    /**
+     * Live Google Login Owner confirmation — required for PRODUCTION_READY.
+     * Ops configured ≠ live PASS. Status: Awaiting Owner Live Confirmation.
+     */
     GOOGLE_LOGIN: false,
+    GOOGLE_LIVE_STATUS: "AWAITING_OWNER_LIVE_CONFIRMATION",
+    /** Deferred v2.0 — false does NOT block production deploy. */
     APPLE_LOGIN: false,
+    APPLE_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
+    /** Deferred v2.0 — false does NOT block production deploy. */
     FACEBOOK_LOGIN: false,
+    FACEBOOK_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
   }),
 
   /******************************************************************
@@ -111,6 +141,24 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
 
   /******************************************************************
    *
+   * PRODUCTION BLOCKERS (v1.0 · P10.6R)
+   *
+   ******************************************************************/
+  PRODUCTION_BLOCKERS_V1: Object.freeze({
+    EMAIL_PASSWORD: "REQUIRED",
+    GOOGLE_OAUTH_LIVE: "REQUIRED",
+    TYPESCRIPT: "REQUIRED",
+    ESLINT: "REQUIRED",
+    PRODUCTION_BUILD: "REQUIRED",
+    VITEST: "REQUIRED",
+    FUNCTIONAL_CERTIFICATION: "REQUIRED",
+    DEVICE_MATRIX: "REQUIRED",
+    APPLE_OAUTH: "NOT_BLOCKING_DEFERRED_V2",
+    FACEBOOK_OAUTH: "NOT_BLOCKING_DEFERRED_V2",
+  }),
+
+  /******************************************************************
+   *
    * FORBIDDEN
    *
    ******************************************************************/
@@ -125,6 +173,8 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
     "BUILD -> DEPLOY -> FIX AFTER",
     "DEPLOY AT 99 PERCENT",
     "IGNORE FAILED GATES",
+    "BLOCK V1 DEPLOY ON APPLE OAUTH",
+    "BLOCK V1 DEPLOY ON FACEBOOK OAUTH",
   ]),
 
   /******************************************************************
@@ -161,9 +211,12 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
     IMAGE_SEARCH: true,
     BUILD: true,
     TESTS: true,
-    GOOGLE: false,
-    APPLE: false,
-    FACEBOOK: false,
+    GOOGLE_OPS_CONFIGURED: true,
+    GOOGLE_LIVE: false,
+    APPLE: "DEFERRED_V2_NOT_BLOCKING",
+    FACEBOOK: "DEFERRED_V2_NOT_BLOCKING",
+    FUNCTIONAL_CERTIFICATION: false,
+    DEVICE_MATRIX: false,
     PRODUCTION_READY: false,
   }),
 
@@ -178,6 +231,8 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
     IF_ARCHITECTURE_PASSES: "PRESERVE ARCHITECTURE",
     IF_ONE_GATE_FAILS: "NO DEPLOY",
     IF_ALL_GATES_PASS: "DEPLOY_ALLOWED",
+    IF_APPLE_DEFERRED: "DO NOT BLOCK V1 DEPLOY",
+    IF_FACEBOOK_DEFERRED: "DO NOT BLOCK V1 DEPLOY",
   }),
 
   /******************************************************************
@@ -186,20 +241,20 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
    *
    ******************************************************************/
   CURRENT_STATUS: Object.freeze({
-    ROOT_CAUSE: "SUPABASE_OAUTH_CONFIGURATION",
+    ROOT_CAUSE: "AWAITING_OWNER_LIVE_GOOGLE_AND_REMAINING_V1_GATES",
     PRODUCTION_READY: false,
     NO_CODE_CHANGES_REQUIRED: true,
     NO_ARCHITECTURE_CHANGES_REQUIRED: true,
-    OWNER_OPS_ONLY: true,
+    OWNER_OPS_ONLY: false,
+    OWNER_LIVE_CONFIRMATION_REQUIRED: true,
+    UNTIL_GOOGLE_LIVE_AND_V1_GATES_PASS: "NO DEPLOY",
+    /** @deprecated P10.6R — use UNTIL_GOOGLE_LIVE_AND_V1_GATES_PASS */
     UNTIL_OAUTH_PASSES: "NO DEPLOY",
     SMALLEST_FIX: Object.freeze([
-      "ENABLE GOOGLE",
-      "ENABLE APPLE",
-      "ENABLE FACEBOOK",
-      "ADD CALLBACK URLS",
-      "SAVE",
-      "TEST",
-      "PASS",
+      "OWNER LIVE GOOGLE LOGIN CONFIRMATION",
+      "FUNCTIONAL CERTIFICATION PASS",
+      "DEVICE MATRIX PASS (Desktop · iPhone Safari · Android Chrome)",
+      "THEN PRODUCTION_READY",
     ]),
     LEVEL_8_VERDICT: Object.freeze({
       CODE: "PASS",
@@ -208,7 +263,11 @@ export const ROVEXO_PRODUCTION_CERTIFICATION_V1 = Object.freeze({
       SEARCH: "PASS",
       HEADER: "PASS",
       SESSION: "PASS",
-      OAUTH_CONFIG: "FAIL",
+      GOOGLE_OPS: "PASS",
+      GOOGLE_LIVE: "AWAITING_OWNER_LIVE_CONFIRMATION",
+      APPLE: "DEFERRED_V2_NOT_BLOCKING",
+      FACEBOOK: "DEFERRED_V2_NOT_BLOCKING",
+      OAUTH_CONFIG: "GOOGLE_OPS_PASS_LIVE_AWAITING",
     }),
   }),
 });

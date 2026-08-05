@@ -1,5 +1,5 @@
 ---
-description: Auth Senior Audit — code PASS config FAIL no rewrites
+description: Auth Senior Audit — code PASS; Google live awaiting; Apple/FB deferred
 alwaysApply: true
 ---
 
@@ -8,39 +8,43 @@ alwaysApply: true
 **STATUS: OWNER AUDIT RECORDED | LOCKED**
 
 SSOT: `lib/auth/auth-senior-audit-v1.ts`  
-Aligned: OAuth Configuration Golden Law · Deployment Golden Law
+Aligned: OAuth Configuration Golden Law · Deployment Golden Law · **P10.6R**
 
 ## Verdict
 
 **THE CODE IS CORRECT. THE ARCHITECTURE IS CORRECT. THE BUTTONS ARE CORRECT.**  
-**ROOT CAUSE = SUPABASE OAUTH CONFIGURATION.**  
-**NO CODE CHANGES REQUIRED.**
+**NO CODE CHANGES REQUIRED.**  
+Open gate: **Owner live Google confirmation** (ops already configured per Owner Decision).
 
 ## PASS (platform)
 
 Email Login/Register · Remember Me · Forgot Password · Cookie · Session · Callback · Router · Middleware · Search · Header · Camera Search  
-Sign-in/Register pages · OAuth buttons/calls · Callback path · Session/Cookie creation · Supabase client · ENV · Architecture
+Sign-in/Register pages · OAuth buttons/calls · Callback path · Session/Cookie creation · Supabase client · ENV · Architecture · Google ops configured
 
-## FAIL (Supabase config only)
+## Authentication Roadmap
 
-Google / Apple / Facebook enabled · OAuth redirects · Provider configuration  
-Error: `400 validation_failed` · provider is not enabled
+| Method | Status |
+|--------|--------|
+| Email / Password | REQUIRED |
+| Google OAuth | REQUIRED · AWAITING_OWNER_LIVE_CONFIRMATION |
+| Apple OAuth | DEFERRED_V2_NOT_BLOCKING |
+| Facebook OAuth | DEFERRED_V2_NOT_BLOCKING |
 
-## Smallest fix (ops only)
+## Smallest fix
 
-Enable Google · Apple · Facebook  
-Allowlist `http://localhost:3000` (+ `/auth/callback`) · `https://www.rovexo.co.uk` (+ `/auth/callback`)  
-Save → Test → Pass
+Owner live Google login confirmation · Functional Certification · Device Matrix · then PRODUCTION_READY
 
 ## Forbidden
 
-Auth/OAuth/callback/header/session/search rewrites · Auth v2 · OAuth v2 · new providers/systems
+Auth/OAuth/callback/header/session/search rewrites · Auth v2 · OAuth v2 · new providers/systems  
+Blocking v1 deploy on Apple or Facebook
 
 ## Deploy
 
-If Google **or** Apple **or** Facebook FAIL → **NO DEPLOY**  
+If Google **live** FAIL → **NO DEPLOY**  
+Apple / Facebook deferred → **DO NOT BLOCK V1**  
 Only **100/100** → DEPLOY
 
 ## Cursor must never
 
-Treat this audit as permission to rewrite Auth. Configuration only.
+Treat this audit as permission to rewrite Auth. Configuration / Owner live confirmation only.

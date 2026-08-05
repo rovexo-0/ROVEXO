@@ -30,11 +30,9 @@ export function SellerResults({
         const isActive = activeIndex === navIndex;
 
         return (
-          <li key={seller.href}>
+          <li key={seller.href} role="option" aria-selected={isActive}>
             <Link
               href={seller.href}
-              role="option"
-              aria-selected={isActive}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(
@@ -56,11 +54,9 @@ export function SellerResults({
         const isActive = activeIndex === navIndex;
 
         return (
-          <li key={user.id}>
+          <li key={user.id} role="option" aria-selected={isActive}>
             <Link
               href={user.href}
-              role="option"
-              aria-selected={isActive}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(

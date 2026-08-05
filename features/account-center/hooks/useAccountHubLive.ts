@@ -6,7 +6,7 @@ import {
   subscribeToAccountHubStats,
 } from "@/lib/account-center/realtime";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
-import { fetchDeduped } from "@/lib/performance/fetch";
+import { fetchAccountSnapshotShared } from "@/lib/account-center/fetch-account-snapshot-shared";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { WalletData } from "@/lib/wallet/types";
@@ -23,23 +23,8 @@ type AccountHubLiveState = {
   rtTick: number;
 };
 
-async function fetchAccountHubLiveState(
-  signal?: AbortSignal,
-): Promise<Omit<AccountHubLiveState, "rtTick">> {
-  const response = await fetchDeduped("/api/account/snapshot", {
-    cache: "no-store",
-    signal,
-    dedupeKey: "account-hub:snapshot",
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to refresh account snapshot.");
-  }
-
-  const payload = (await response.json()) as {
-    snapshot: AccountHubSnapshot;
-    wallet?: WalletData | null;
-  };
+async function fetchAccountHubLiveState(): Promise<Omit<AccountHubLiveState, "rtTick">> {
+  const payload = await fetchAccountSnapshotShared();
   return {
     snapshot: payload.snapshot,
     wallet: payload.wallet ?? null,

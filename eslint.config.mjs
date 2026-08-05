@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "_wip/**",
     "next-env.d.ts",
+    // P3.2 diagnostic probes (CommonJS) — not app runtime.
+    "scripts/p32-*.cjs",
   ]),
   // Conversation Hub — allow known intentional resume-checkout effect.
   {

@@ -63,13 +63,28 @@ export async function requireAuthContext(): Promise<AuthContext> {
   return context;
 }
 
-export async function requireApiAuth():
-  Promise<AuthContext | NextResponse> {
+export async function requireApiAuth(
+  request?: Request,
+): Promise<AuthContext | NextResponse> {
   const context = await getAuthContext();
   if (!context) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // P11.1 H-02 — Origin CSRF guard on cookie-auth mutations when Request is supplied.
+  if (request) {
+    const blocked = validateMutationOrigin(request);
+    if (blocked) return blocked;
+  }
+
   return context;
+}
+
+/** Authenticated mutation helper — always applies CSRF Origin guard. */
+export async function requireApiAuthMutation(
+  request: Request,
+): Promise<AuthContext | NextResponse> {
+  return requireApiAuth(request);
 }
 
 export async function getUserRole(userId: string): Promise<UserRole | null> {
@@ -98,8 +113,9 @@ export async function requireRole(
 
 export async function requireApiRole(
   allowed: UserRole[],
+  request?: Request,
 ): Promise<(AuthContext & { role: UserRole }) | NextResponse> {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -162,14 +178,9 @@ export async function requireSuperAdmin(): Promise<AuthContext & { role: "super_
 export async function requireApiSuperAdmin(
   request?: Request,
 ): Promise<(AuthContext & { role: "super_admin" }) | NextResponse> {
-  const auth = await requireApiRole(["super_admin"]);
+  const auth = await requireApiRole(["super_admin"], request);
   if (auth instanceof NextResponse) {
     return auth;
-  }
-
-  if (request) {
-    const blocked = validateMutationOrigin(request);
-    if (blocked) return blocked;
   }
 
   return auth as AuthContext & { role: "super_admin" };
@@ -183,10 +194,12 @@ export async function requireAdmin(): Promise<
   >;
 }
 
-export async function requireApiListingRole(): Promise<
+export async function requireApiListingRole(
+  request?: Request,
+): Promise<
   (AuthContext & { role: UserRole }) | NextResponse
 > {
-  return requireApiRole(["buyer", "seller", "business", "admin", "super_admin"]);
+  return requireApiRole(["buyer", "seller", "business", "admin", "super_admin"], request);
 }
 
 /** Any authenticated account may connect marketplace OAuth (unified buy/sell model). */
@@ -196,10 +209,10 @@ export async function requireApiMarketplaceOAuth(): Promise<
   return requireApiListingRole();
 }
 
-export async function requireApiAdmin(): Promise<
-  (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
-> {
-  return requireApiRole(["admin", "super_admin"]) as Promise<
+export async function requireApiAdmin(
+  request?: Request,
+): Promise<(AuthContext & { role: "admin" | "super_admin" }) | NextResponse> {
+  return requireApiRole(["admin", "super_admin"], request) as Promise<
     (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
   >;
 }
@@ -213,7 +226,7 @@ export type StaffAuthContext = AuthContext & {
 export async function requireApiStaff(
   request?: Request,
 ): Promise<StaffAuthContext | NextResponse> {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   if (auth.role === "super_admin") {
@@ -231,11 +244,6 @@ export async function requireApiStaff(
   const linked = await loadStaffRoleIdsByProfileId(auth.user.id);
   if (!linked.staffId || !linked.roleIds.length) {
     return NextResponse.json({ error: "Staff access required." }, { status: 403 });
-  }
-
-  if (request) {
-    const blocked = validateMutationOrigin(request);
-    if (blocked) return blocked;
   }
 
   return {

@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { CanonicalInput } from "@/src/components/canonical";
 import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 import { INVENTORY_MAX, INVENTORY_MIN, parseInventoryInput } from "@/lib/sell/inventory";
 
 /**
@@ -12,7 +12,8 @@ import { INVENTORY_MAX, INVENTORY_MIN, parseInventoryInput } from "@/lib/sell/in
  * User may clear and type 1…999+ directly; clamp on blur.
  */
 export function SellStockQuantityBlock() {
-  const { draft, updateDraft } = useSell();
+  const { draft } = useSellDraft();
+  const { updateDraft } = useSellActions();
   const quantityId = useId();
   const [editingValue, setEditingValue] = useState<string | null>(null);
 

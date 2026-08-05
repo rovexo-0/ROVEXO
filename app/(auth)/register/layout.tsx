@@ -9,5 +9,5 @@ export const viewport: Viewport = {
 };
 
 export default function RegisterRouteLayout({ children }: { children: React.ReactNode }) {
-  return <div className="auth-register-route">{children}</div>;
+  return <div className="auth-register-route rx-page">{children}</div>;
 }

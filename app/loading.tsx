@@ -1,33 +1,20 @@
-import { headers } from "next/headers";
-import { SplashFirstPaint } from "@/components/auth/SplashFirstPaint";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { HomeSkeleton } from "@/components/skeletons/PageSkeletons";
-import { AUTH_PUBLIC_PREFIXES } from "@/lib/auth/protected-routes";
-import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
-
-function isAuthBootPath(pathname: string): boolean {
-  if (!pathname) return false;
-  if (pathname === "/splash" || pathname.startsWith("/splash/")) return true;
-  if (pathname === "/welcome" || pathname.startsWith("/welcome/")) return true;
-  return AUTH_PUBLIC_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
-}
-
 /**
- * Root Suspense fallback. Auth cold starts must never paint homepage skeleton.
+ * Root Suspense fallback — MUST NOT call `headers()` / `cookies()`.
+ * Calling `headers()` here forces the entire App Router tree to dynamic rendering
+ * (`private, no-store`) and blocks Edge cache for public pages (Phase 7 evidence).
+ *
+ * Auth cold starts: `app/(auth)/loading.tsx` → SplashFirstPaint
+ * Platform navigations: `app/(platform)/loading.tsx` → HomeSkeleton
+ *
+ * Neutral root fallback only — no pathname branching (P9 production delivery).
  */
-export default async function RootLoading() {
-  const headerStore = await headers();
-  const pathname = headerStore.get(ROVEXO_PATHNAME_HEADER) ?? "";
-
-  if (isAuthBootPath(pathname)) {
-    return <SplashFirstPaint wordmarkOnly />;
-  }
-
+export default function RootLoading() {
   return (
-    <BetaAppShell bottomNavTab="home" className="rovexo-page-home">
-      <HomeSkeleton />
-    </BetaAppShell>
+    <div
+      className="min-h-[100dvh] w-full bg-white"
+      aria-busy="true"
+      aria-live="polite"
+      data-root-loading="neutral"
+    />
   );
 }

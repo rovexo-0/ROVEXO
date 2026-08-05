@@ -13,6 +13,8 @@ type HomepageV4FeedProps = {
   reservedIds?: string[];
 };
 
+const EMPTY_RESERVED_IDS: string[] = [];
+
 function mergeUniqueProducts(current: Product[], incoming: Product[], reserved: Set<string>): Product[] {
   const seen = new Set([...reserved, ...current.map((item) => item.id)]);
   const merged = [...current];
@@ -30,7 +32,7 @@ function resolveSeedItems(initialPage: ProductsPage, reserved: Set<string>): Pro
 
 export const HomepageV4Feed = memo(function HomepageV4Feed({
   initialPage,
-  reservedIds = [],
+  reservedIds = EMPTY_RESERVED_IDS,
 }: HomepageV4FeedProps) {
   const reserved = useMemo(() => new Set(reservedIds), [reservedIds]);
   const seedItems = useMemo(

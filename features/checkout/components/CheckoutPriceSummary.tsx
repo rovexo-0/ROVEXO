@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { memo, useId, useState } from "react";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import type { OrderTotals } from "@/lib/orders/types";
 
@@ -10,7 +10,10 @@ type CheckoutPriceSummaryProps = {
 };
 
 /** Buyer-facing price lines — total lives on the PAY CTA only. */
-export function CheckoutPriceSummary({ totals, freeDelivery = false }: CheckoutPriceSummaryProps) {
+export const CheckoutPriceSummary = memo(function CheckoutPriceSummary({
+  totals,
+  freeDelivery = false,
+}: CheckoutPriceSummaryProps) {
   const tipId = useId();
   const [open, setOpen] = useState(false);
   const delivery = freeDelivery ? 0 : totals.delivery;
@@ -49,4 +52,4 @@ export function CheckoutPriceSummary({ totals, freeDelivery = false }: CheckoutP
       ) : null}
     </section>
   );
-}
+});

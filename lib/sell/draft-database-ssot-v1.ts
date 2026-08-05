@@ -48,3 +48,23 @@ export function canPersistDatabaseDraft(input: {
 }): boolean {
   return input.photos.some(isUploadedSellPhoto);
 }
+
+/**
+ * P10.1 — Database autosave must not POST empty / post-publish reset shells.
+ * Requires uploaded photo(s) AND a price that satisfies products_price_check (≥ £0.01).
+ * Does not change API validation — only skips the client request.
+ */
+export function canAutosaveDatabaseDraft(input: {
+  photos: Array<{ url?: string; storagePath?: string; uploaded?: boolean }>;
+  price?: string | number | null;
+}): boolean {
+  if (!canPersistDatabaseDraft(input)) return false;
+  const raw = input.price;
+  const parsed =
+    typeof raw === "number"
+      ? raw
+      : typeof raw === "string"
+        ? Number.parseFloat(raw.trim())
+        : Number.NaN;
+  return Number.isFinite(parsed) && parsed >= 0.01;
+}

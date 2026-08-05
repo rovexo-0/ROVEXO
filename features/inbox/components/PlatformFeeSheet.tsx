@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import { calculatePlatformFee } from "@/lib/orders/pricing";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 const PLATFORM_FEE_POINTS = [
   "Secure payments",
@@ -41,6 +43,18 @@ export function PlatformFeeSheet({
   total: totalOverride = null,
   onClose,
 }: PlatformFeeSheetProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, dialogRef);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const platformFee =
@@ -54,7 +68,13 @@ export function PlatformFeeSheet({
       : Math.round((itemPrice + platformFee + (shipping ?? 0)) * 100) / 100;
 
   return (
-    <div className="conv-hub__fee-sheet" role="dialog" aria-modal="true" aria-labelledby="conv-hub-fee-title">
+    <div
+      ref={dialogRef}
+      className="conv-hub__fee-sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="conv-hub-fee-title"
+    >
       <button type="button" className="conv-hub__fee-backdrop" aria-label="Close Platform Fee" onClick={onClose} />
       <div className="conv-hub__fee-panel">
         <h2 id="conv-hub-fee-title" className="conv-hub__fee-title">

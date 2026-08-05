@@ -8,18 +8,12 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 
+/**
+ * P10.5 — no `<link rel="preload">` here.
+ * Primary Emblem LCP is owned by `RovexoBrandLogo` (`fetchPriority="high"` on the
+ * same AVIF). A layout preload was hoisted across routes and triggered
+ * “preloaded but not used” on non-auth pages (and was redundant on /login).
+ */
 export default function LoginRouteLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="auth-login-route">
-      {/* LCP preload — same Level II Primary Emblem artwork (AVIF), appearance unchanged */}
-      <link
-        rel="preload"
-        as="image"
-        href="/brand/canonical-rx/primary-emblem-auth-v4.avif"
-        type="image/avif"
-        fetchPriority="high"
-      />
-      {children}
-    </div>
-  );
+  return <div className="auth-login-route">{children}</div>;
 }

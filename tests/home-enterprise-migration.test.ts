@@ -53,7 +53,8 @@ describe("Homepage enterprise migration contract", () => {
     );
     expect(page).toContain("resolveHomepageV4Sections");
     expect(page).toContain("fetchHomepageFeed");
-    expect(page).toContain('fetchProducts("recommended"');
+    // P1: unused recommended-section SSR query removed (no featured rail on CanonicalHomepage).
+    expect(page).not.toContain('fetchProducts("recommended"');
     expect(page).not.toContain('fetchProducts("popular"');
     expect(page).not.toContain('fetchProducts("new"');
     expect(page).not.toContain('fetchProducts("trending"');

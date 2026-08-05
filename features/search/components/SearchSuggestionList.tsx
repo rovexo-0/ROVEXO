@@ -106,19 +106,23 @@ export function SearchSuggestionList({
               query={query}
               elementId={`search-nav-item-${currentIndex}`}
               isActive={isActive}
-              onHover={() => onHoverIndex(currentIndex)}
+              hoverNavIndex={currentIndex}
+              onHoverIndex={onHoverIndex}
               onNavigate={onNavigate}
             />
           );
         }
 
         return (
-          <li key={row.key} className="min-h-[44px]">
+          <li
+            key={row.key}
+            role="option"
+            aria-selected={isActive}
+            id={`search-nav-item-${currentIndex}`}
+            className="min-h-[44px]"
+          >
             <Link
               href={row.href}
-              role="option"
-              aria-selected={isActive}
-              id={`search-nav-item-${currentIndex}`}
               onMouseEnter={() => onHoverIndex(currentIndex)}
               onClick={onNavigate}
               className={cn(

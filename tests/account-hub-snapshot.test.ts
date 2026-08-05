@@ -47,7 +47,7 @@ describe("Account hub live profile stats", () => {
     expect(route).toContain("fetchAccountHubSnapshot");
     expect(route).toContain("getWalletData");
     expect(hook).toContain("subscribeToAccountHubStats");
-    expect(hook).toContain('dedupeKey: "account-hub:snapshot"');
+    expect(hook).toContain("fetchAccountSnapshotShared");
     expect(home).toContain("useAccountHubLive");
     expect(realtime).toContain("saved_items");
     expect(realtime).not.toContain("seller_follows");

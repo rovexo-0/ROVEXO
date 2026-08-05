@@ -97,7 +97,13 @@ const nextConfig: NextConfig = {
     root: projectRoot,
   },
   experimental: {
-    optimizePackageImports: ["lucide-react", "react-hook-form", "@hookform/resolvers"],
+    optimizePackageImports: [
+      "lucide-react",
+      "react-hook-form",
+      "@hookform/resolvers",
+      "zod",
+      "framer-motion",
+    ],
     // Windows/Turbopack production hardening: the compile phase writes all SSR
     // chunks up front, but during "Generating static pages" a parallel worker can
     // transiently fail to require() an already-emitted chunk (Windows file-handle
@@ -126,9 +132,23 @@ const nextConfig: NextConfig = {
     "127.0.0.1",
     "192.168.*.*",
     "10.*.*.*",
+    // Full RFC1918 172.16/12 — includes WSL Hyper-V NAT (often 172.24.x.x).
     "172.16.*.*",
     "172.17.*.*",
     "172.18.*.*",
+    "172.19.*.*",
+    "172.20.*.*",
+    "172.21.*.*",
+    "172.22.*.*",
+    "172.23.*.*",
+    "172.24.*.*",
+    "172.25.*.*",
+    "172.26.*.*",
+    "172.27.*.*",
+    "172.28.*.*",
+    "172.29.*.*",
+    "172.30.*.*",
+    "172.31.*.*",
   ],
   images: {
     // Serve AVIF/WebP where supported so product thumbnails ship far smaller

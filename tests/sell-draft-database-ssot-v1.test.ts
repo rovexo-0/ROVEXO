@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  canAutosaveDatabaseDraft,
   canPersistDatabaseDraft,
   DRAFT_DATABASE_SAVED_MESSAGE,
   DRAFT_DATABASE_SSOT_V1,
@@ -22,6 +23,14 @@ describe("draft-database-ssot-v1", () => {
         photos: [{ uploaded: true, url: "https://x/a.jpg", storagePath: "a.jpg" }],
       }),
     ).toBe(true);
+  });
+
+  it("skips database autosave without a persistable price (P10.1 post-publish empty)", () => {
+    const photos = [{ uploaded: true, url: "https://x/a.jpg", storagePath: "a.jpg" }];
+    expect(canAutosaveDatabaseDraft({ photos, price: "" })).toBe(false);
+    expect(canAutosaveDatabaseDraft({ photos, price: "0" })).toBe(false);
+    expect(canAutosaveDatabaseDraft({ photos, price: "0.01" })).toBe(true);
+    expect(canAutosaveDatabaseDraft({ photos: [], price: "12.00" })).toBe(false);
   });
 
   it("claims draft saved only via DB success message; publish fallback never fakes it", () => {

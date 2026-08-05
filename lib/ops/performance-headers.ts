@@ -10,10 +10,20 @@ export function buildPerformanceRouteHeaders(): Array<{
   source: string;
   headers: PerformanceHeader[];
 }> {
+  const immutable = buildStaticAssetCacheHeaders();
   return [
-    { source: "/icons/:path*", headers: buildStaticAssetCacheHeaders() },
-    { source: "/fonts/:path*", headers: buildStaticAssetCacheHeaders() },
-    { source: "/images/:path*", headers: buildStaticAssetCacheHeaders() },
+    { source: "/icons/:path*", headers: immutable },
+    { source: "/fonts/:path*", headers: immutable },
+    { source: "/images/:path*", headers: immutable },
+    { source: "/brand/:path*", headers: immutable },
+    { source: "/categories/:path*", headers: immutable },
+    { source: "/search/:path*", headers: immutable },
+    { source: "/assets/:path*", headers: immutable },
+    { source: "/placeholder-product.svg", headers: immutable },
+    { source: "/favicon.ico", headers: immutable },
+    { source: "/favicon.svg", headers: immutable },
+    { source: "/apple-touch-icon.png", headers: immutable },
+    { source: "/apple-icon.png", headers: immutable },
   ];
 }
 
@@ -23,7 +33,12 @@ export function validatePerformanceHeaderConfiguration(): {
   missing: string[];
 } {
   const routes = buildPerformanceRouteHeaders().map((entry) => entry.source);
-  const required = ["/icons/:path*", "/fonts/:path*"];
+  const required = [
+    "/icons/:path*",
+    "/fonts/:path*",
+    "/brand/:path*",
+    "/categories/:path*",
+  ];
   const missing = required.filter((route) => !routes.includes(route));
 
   return {

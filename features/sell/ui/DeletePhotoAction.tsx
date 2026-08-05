@@ -1,6 +1,6 @@
 "use client";
 
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions } from "@/features/sell/context/SellProvider";
 
 type DeletePhotoActionProps = {
   photoId: string;
@@ -23,7 +23,7 @@ export function DeletePhotoAction({
   onBeforeDelete,
   onAfterDelete,
 }: DeletePhotoActionProps) {
-  const { removePhoto } = useSell();
+  const { removePhoto } = useSellActions();
 
   return (
     <button

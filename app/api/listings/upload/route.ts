@@ -11,10 +11,10 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "listings-upload", 30, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiListingRole();
+  const roleCheck = await requireApiListingRole(request);
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {

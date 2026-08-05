@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { SeoLandingPageView } from "@/features/seo/components/SeoLandingPageView";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   discoveryPageJsonLd,
   locationCategoryMetadata,
@@ -79,12 +80,7 @@ export default async function LocationCategoryRoute({ params }: LocationCategory
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([jsonLd.place, jsonLd.breadcrumbs, jsonLd.itemList].filter(Boolean)),
-        }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-l-location----category-page-tsx" data={[jsonLd.place, jsonLd.breadcrumbs, jsonLd.itemList].filter(Boolean)} />
       <SeoLandingPageView
         title={page.title}
         description={page.description}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   resolveProductOfferActionView,
   type OfferActionOfferInput,
@@ -29,6 +29,7 @@ function mapRows(rows: ApiOfferRow[]): OfferActionOfferInput[] {
 
 /**
  * Product-page offer negotiation — reads/patches existing /api/offers only.
+ * P6: stable action callbacks so Listing action bar memo can skip unrelated updates.
  */
 export function useProductOfferNegotiation(input: {
   productSlug: string;
@@ -76,10 +77,16 @@ export function useProductOfferNegotiation(input: {
     };
   }, [input.enabled, input.outOfStock, input.productSlug, revision]);
 
-  const view: ProductOfferActionView = resolveProductOfferActionView({
-    outOfStock: input.outOfStock,
-    offers: input.enabled ? offers : [],
-  });
+  const view: ProductOfferActionView = useMemo(
+    () =>
+      resolveProductOfferActionView({
+        outOfStock: input.outOfStock,
+        offers: input.enabled ? offers : [],
+      }),
+    [input.enabled, input.outOfStock, offers],
+  );
+  const clearError = useCallback(() => setError(null), []);
+  const refresh = useCallback(() => setRevision((n) => n + 1), []);
 
   const patchOffer = useCallback(
     async (
@@ -126,16 +133,36 @@ export function useProductOfferNegotiation(input: {
     [],
   );
 
-  return {
-    view,
-    loading,
-    busy,
-    error,
-    clearError: () => setError(null),
-    refresh: () => setRevision((n) => n + 1),
-    accept: (offerId: string) => patchOffer(offerId, "accept"),
-    decline: (offerId: string) => patchOffer(offerId, "decline"),
-    cancel: (offerId: string) => patchOffer(offerId, "decline"),
-    counter: (offerId: string, amount: number) => patchOffer(offerId, "counter", amount),
-  };
+  const accept = useCallback(
+    (offerId: string) => patchOffer(offerId, "accept"),
+    [patchOffer],
+  );
+  const decline = useCallback(
+    (offerId: string) => patchOffer(offerId, "decline"),
+    [patchOffer],
+  );
+  const cancel = useCallback(
+    (offerId: string) => patchOffer(offerId, "decline"),
+    [patchOffer],
+  );
+  const counter = useCallback(
+    (offerId: string, amount: number) => patchOffer(offerId, "counter", amount),
+    [patchOffer],
+  );
+
+  return useMemo(
+    () => ({
+      view,
+      loading,
+      busy,
+      error,
+      clearError,
+      refresh,
+      accept,
+      decline,
+      cancel,
+      counter,
+    }),
+    [view, loading, busy, error, clearError, refresh, accept, decline, cancel, counter],
+  );
 }

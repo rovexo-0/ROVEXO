@@ -1,5 +1,5 @@
 ---
-description: OAuth Configuration Golden Law — providers only no code
+description: OAuth Golden Law — Google required v1; Apple/FB deferred v2
 alwaysApply: true
 ---
 
@@ -8,22 +8,27 @@ alwaysApply: true
 **STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL SSOT**
 
 SSOT: `lib/auth/oauth-configuration-golden-law-v1.ts`  
-Companion: `lib/auth/oauth-configuration-freeze-v1.ts`
+Companion: `lib/auth/oauth-configuration-freeze-v1.ts`  
+Roadmap: **P10.6R**
 
-## Root cause (only)
+## Root cause (open)
 
-`SUPABASE_CONFIGURATION: true`  
-Error: `400 validation_failed : provider is not enabled`  
+`AWAITING_OWNER_LIVE_GOOGLE_CONFIRMATION: true`  
+Google ops configured (Supabase · local · production) per Owner Decision.  
+Historical when disabled: `400 validation_failed : provider is not enabled`  
 **Not** code · architecture · auth system · header · search · camera · cookies.
 
 ## Auth core = PASS
 
 Email login/register · cookie session · session restore · callback · header · search · camera
 
-## OAuth = FAIL until configured
+## OAuth roadmap
 
-Google · Apple · Facebook → `Provider Disabled`  
-Google/Apple **MUST BE ENABLED** · Facebook **OPTIONAL BUT SUPPORTED**
+| Provider | v1.0 |
+|----------|------|
+| Google | **MUST BE ENABLED** · live confirmation required |
+| Apple | **DEFERRED_V2_NOT_BLOCKING** |
+| Facebook | **DEFERRED_V2_NOT_BLOCKING** |
 
 ## Callbacks
 
@@ -33,14 +38,14 @@ Google/Apple **MUST BE ENABLED** · Facebook **OPTIONAL BUT SUPPORTED**
 
 ## Allowed only
 
-ENABLE GOOGLE/APPLE/FACEBOOK · ADD CALLBACK URLS · ALLOWLIST ORIGINS · SAVE · TEST
+ENABLE GOOGLE · ADD CALLBACK URLS · ALLOWLIST ORIGINS · OWNER LIVE GOOGLE CONFIRMATION · SAVE · TEST · DEFER APPLE/FACEBOOK TO V2
 
 ## Forbidden
 
-AUTH V2 · OAUTH V2 · new auth/providers · cookie/session/header/search/callback rewrites · Supabase replacement · **code changes for config errors**
+AUTH V2 · OAUTH V2 · new auth/providers · cookie/session/header/search/callback rewrites · Supabase replacement · **code changes for config errors** · **block v1 deploy on Apple/Facebook**
 
 ## Equation
 
 If configuration fails **and** auth core passes → **NO CODE CHANGES.**  
-Only: enable providers + allowlist callbacks + test + pass + deploy.  
+v1 OAuth gate = Email + Google live. Apple/Facebook deferred.  
 **100/100 = DEPLOY · 99 = NO DEPLOY · 1 FAIL = NO DEPLOY · ZERO EXCEPTIONS.**

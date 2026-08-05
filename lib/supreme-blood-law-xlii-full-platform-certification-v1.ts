@@ -536,17 +536,17 @@ export function certifyFullPlatformLocalXlII(
       : deployment.checks.find((c) => !c.pass)?.detail ?? "Deployment gate FAIL",
   );
 
-  // Known production blocker (OAuth config) — fail closed, never silent.
-  const oauthPass =
-    ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.GOOGLE_LOGIN &&
-    ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.APPLE_LOGIN;
+  // P10.6R — v1.0 OAuth production gate = Google live only.
+  // Apple / Facebook = DEFERRED_V2_NOT_BLOCKING (must not block deploy).
+  const googleLoginEnabled: boolean = ROVEXO_PRODUCTION_CERTIFICATION_V1.AUTH.GOOGLE_LOGIN;
+  const oauthPass = googleLoginEnabled;
   add(
     "oauth-config",
-    "OAuth Configuration (Google · Apple)",
+    "OAuth Configuration (Google live · v1.0)",
     oauthPass,
     oauthPass
-      ? "OAuth providers enabled"
-      : "OAuth configuration FAIL — Google/Apple not enabled (Owner ops). NO DEPLOY.",
+      ? "Google OAuth live PASS (Apple/Facebook deferred v2.0 — not blocking)"
+      : "OAuth configuration FAIL — Google live awaiting Owner confirmation. NO DEPLOY.",
     "Critical",
   );
 

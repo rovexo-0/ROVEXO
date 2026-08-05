@@ -5,9 +5,9 @@ import "@/styles/rovexo/header-v2.css";
 import { CanonicalHomepage } from "@/components/homepage/canonical";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   fetchHomepageFeed,
-  fetchProducts,
   fetchShowcaseSellerSections,
 } from "@/lib/products/queries";
 import { resolveHomepageV4Sections } from "@/lib/homepage/v4-data";
@@ -20,6 +20,7 @@ import { getPlatformVisualConfig, getDefaultPlatformVisualConfig } from "@/lib/p
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
 import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
 
+/** Empty featured rail input — canonical Homepage does not render a featured section. */
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 const siteUrl = getAppUrl();
 
@@ -73,17 +74,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
   }
 
-  const [visualConfig, featuredPage, feedResult, showcaseFromDb, preferredStores] =
-    await Promise.all([
-      getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
-      fetchProducts("recommended", 1).catch(() => emptyPage),
-      fetchHomepageFeed(1).catch(() => emptyPage),
-      fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
-      listActivePreferredMarketplaceStores().catch(() => []),
-    ]);
+  // P1: skip unused recommended-section SSR query — CanonicalHomepage has no featured rail;
+  // feed + showcase remain the live data path (identical UI/UX).
+  const [visualConfig, feedResult, showcaseFromDb, preferredStores] = await Promise.all([
+    getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
+    fetchHomepageFeed(1).catch(() => emptyPage),
+    fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
+    listActivePreferredMarketplaceStores().catch(() => []),
+  ]);
 
   const sections = resolveHomepageV4Sections({
-    featuredPage,
+    featuredPage: emptyPage,
     feed: feedResult,
     showcase: showcaseFromDb,
     preferredStores,
@@ -98,10 +99,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       visualConfig={visualConfig}
       menuItems={HP_CANONICAL_BOTTOM_NAV}
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-page-tsx" data={structuredData} />
       <HomePageShell header={null} bottomNav={null}>
         <CanonicalHomepage {...sections} />
       </HomePageShell>

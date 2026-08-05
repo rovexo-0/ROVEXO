@@ -4,6 +4,7 @@ import { ProStorePage } from "@/features/store/components/ProStorePage";
 import { getPublicTrustSummary } from "@/lib/trust/service";
 import { storePageJsonLd, storePageMetadata } from "@/lib/seo/engine";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   resolveStoreByRouteParam,
   storeMemberSinceLabel,
@@ -62,12 +63,7 @@ export default async function StorePage({ params }: PageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([jsonLd.store, jsonLd.itemList].filter(Boolean)),
-        }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-store-slug-page-tsx" data={[jsonLd.store, jsonLd.itemList].filter(Boolean)} />
       <ProStorePage
         storeName={store.storeName}
         username={store.storeSlug}

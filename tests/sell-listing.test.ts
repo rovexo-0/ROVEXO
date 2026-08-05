@@ -177,6 +177,25 @@ describe("sell listing validation", () => {
     expect(isListingValid(draft, { mode: "quick" })).toBe(false);
   });
 
+  /** P9.3.1 — photos-only Partial must never be cast as SellListingDraft. */
+  it("accepts empty photos on a structurally valid draft without TypeError", () => {
+    expect(() =>
+      getListingValidationErrors(
+        { ...createEmptyDraft(), photos: [] },
+        { mode: "quick", showErrors: true },
+      ),
+    ).not.toThrow();
+  });
+
+  it("throws when title is missing from a fake draft object (model contract)", () => {
+    expect(() =>
+      getListingValidationErrors({ photos: [] } as ReturnType<typeof createEmptyDraft>, {
+        mode: "quick",
+        showErrors: true,
+      }),
+    ).toThrow(TypeError);
+  });
+
   it("enables save when all required fields are present", () => {
     const draft = createEmptyDraft();
     draft.photos = [

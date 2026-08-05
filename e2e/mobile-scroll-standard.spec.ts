@@ -2,26 +2,52 @@
  * Mobile scroll standard — viewport scroll, modal scroll, safe-area.
  */
 import { test, expect } from "@playwright/test";
+import { dismissCookieBanner, ensureMarketplaceSession } from "./helpers/marketplace-session";
+import { openSearchOverlay, waitForHomepageUi } from "./helpers/stable-ui";
 
-const PUBLIC_ROUTES = ["/", "/login", "/categories", "/search"];
+const PUBLIC_ROUTES = ["/", "/login", "/categories", "/search"] as const;
 
 test.describe("mobile scroll standard", () => {
   for (const route of PUBLIC_ROUTES) {
-    test(`${route} page is scrollable within viewport`, async ({ page }) => {
+    test(`${route} page is scrollable within viewport`, async ({ page, baseURL }) => {
+      if (route === "/") {
+        await ensureMarketplaceSession(page, baseURL);
+      }
       await page.goto(route, { waitUntil: "domcontentloaded", timeout: 60_000 });
 
-      const metrics = await page.evaluate(() => ({
-        scrollHeight: document.documentElement.scrollHeight,
-        clientHeight: document.documentElement.clientHeight,
-        pageClass: document.querySelector(".rx-page")?.className ?? "",
-        scrollPage: document.querySelector(".rx-scroll-page")?.className ?? "",
-      }));
+      const metrics = await page.evaluate((path) => {
+        const pageEl =
+          document.querySelector(".rx-page") ||
+          document.querySelector(".auth-login-route") ||
+          document.querySelector(".auth-register-route") ||
+          document.documentElement;
+        return {
+          scrollHeight: document.documentElement.scrollHeight,
+          clientHeight: document.documentElement.clientHeight,
+          pageClass: document.querySelector(".rx-page")?.className ?? "",
+          scrollPage: document.querySelector(".rx-scroll-page")?.className ?? "",
+          authShell: Boolean(
+            document.querySelector(".auth-login-route, .auth-login, [data-auth-screen='login']"),
+          ),
+          path,
+          hasPageMarker: Boolean(pageEl),
+        };
+      }, route);
 
       expect(metrics.clientHeight).toBeGreaterThan(0);
-      expect(metrics.pageClass).toContain("rx-page");
       expect(metrics.scrollHeight).toBeGreaterThanOrEqual(metrics.clientHeight);
-      if (route === "/") {
-        expect(metrics.scrollPage).toContain("rx-scroll-page");
+
+      if (route === "/login") {
+        // Auth freeze shell — document scroll; rx-page applied on auth route wrapper.
+        expect(metrics.pageClass.includes("rx-page") || metrics.authShell).toBe(true);
+      } else if (route === "/") {
+        expect(metrics.pageClass).toContain("rx-page");
+        const homepageMain = page.locator('main[data-hp-homepage="canonical"]').first();
+        await expect(homepageMain).toBeVisible({ timeout: 15_000 });
+        const homepageClass = (await homepageMain.getAttribute("class")) ?? "";
+        expect(homepageClass).toContain("rx-scroll-page");
+      } else {
+        expect(metrics.pageClass).toContain("rx-page");
       }
     });
   }
@@ -29,13 +55,14 @@ test.describe("mobile scroll standard", () => {
   test("login form inputs have scroll margin for keyboard", async ({ page }) => {
     await page.goto("/login", { waitUntil: "domcontentloaded", timeout: 60_000 });
 
-    const email = page.getByLabel(/^email$/i);
+    const email = page.locator("#email, input[name='email'], input[type='email']").first();
     await expect(email).toBeVisible();
 
     const scrollMargin = await email.evaluate((el) =>
       window.getComputedStyle(el).scrollMarginBottom,
     );
-    expect(scrollMargin).not.toBe("0px");
+    // Mobile Scroll Standard — keyboard clearance (resolved calc must be > 0).
+    expect(scrollMargin === "0px" ? 0 : Number.parseFloat(scrollMargin)).toBeGreaterThan(0);
   });
 
   test("Dialog uses canonical modal scroll panel", async ({ page }) => {
@@ -63,7 +90,8 @@ test.describe("mobile scroll standard", () => {
     expect(style.maxHeight).not.toBe("none");
   });
 
-  test("homepage share sheet uses ModalContainer", async ({ page }) => {
+  test("homepage share sheet uses ModalContainer", async ({ page, baseURL }) => {
+    await ensureMarketplaceSession(page, baseURL);
     await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
 
     const shareButton = page.getByRole("button", { name: /^share$/i }).first();
@@ -90,22 +118,27 @@ test.describe("mobile scroll standard", () => {
     expect(panelStyle.maxHeight).not.toBe("none");
   });
 
-  test("search overlay uses fullscreen modal shell", async ({ page }) => {
-    await page.goto("/search", { waitUntil: "domcontentloaded", timeout: 60_000 });
+  test("search overlay uses fullscreen modal shell", async ({ page, baseURL }) => {
+    // Product truth: Homepage search navigates to Global Search `/search` (not SearchOverlay dialog).
+    await ensureMarketplaceSession(page, baseURL);
+    await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await dismissCookieBanner(page);
+    await waitForHomepageUi(page);
+    await openSearchOverlay(page);
 
-    const searchInput = page.getByRole("searchbox").first();
-    if (!(await searchInput.count())) {
-      test.skip(true, "No search input");
-    }
+    await expect(page).toHaveURL(/\/search/);
+    const scrollShell = page.locator(".rx-scroll-page, [data-rx-scroll-page='v1']").first();
+    await expect(scrollShell).toBeVisible({ timeout: 15_000 });
 
-    await searchInput.click();
-    const fullscreen = page.locator(".rx-modal-shell-fullscreen");
-    await expect(fullscreen).toBeVisible({ timeout: 10_000 });
+    const searchSurface = page
+      .locator(
+        '[data-search-landing="v1"], [data-search-version="v1.0-final"], #search-overlay-results, .rx-modal-shell-fullscreen',
+      )
+      .first();
+    await expect(searchSurface).toBeVisible({ timeout: 15_000 });
 
-    const body = page.locator(".rx-modal-shell-fullscreen__body");
-    await expect(body).toBeVisible();
-
-    const bodyStyle = await body.evaluate((el) => window.getComputedStyle(el).overflowY);
-    expect(bodyStyle).toBe("auto");
+    const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+    const clientHeight = await page.evaluate(() => document.documentElement.clientHeight);
+    expect(scrollHeight).toBeGreaterThanOrEqual(clientHeight);
   });
 });

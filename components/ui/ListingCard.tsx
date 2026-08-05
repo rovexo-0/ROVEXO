@@ -6,12 +6,19 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { EyeLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { memo, useCallback, useEffect, useState, type SyntheticEvent } from "react";
-import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
+
+/** Lazy: Homepage uses showShare=false — keep share sheet out of the critical card graph. */
+const ShareListingSheet = dynamic(
+  () =>
+    import("@/components/share/ShareListingSheet").then((mod) => mod.ShareListingSheet),
+  { ssr: false },
+);
 import { useCardImageSrc } from "@/lib/media/use-card-image-src";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";

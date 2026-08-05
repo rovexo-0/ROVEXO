@@ -155,7 +155,6 @@ export async function applyOrderAction(
   action: OrderAction,
   payload?: AddTrackingInput,
 ): Promise<Order | null> {
-  const supabase = await createClient();
   const existing = await getOrderById(id);
   if (!existing) {
     return null;
@@ -205,7 +204,9 @@ export async function applyOrderAction(
       return existing;
     }
 
-    await supabase
+    // P11.1 — order status writes via service_role after app authz (RLS least privilege).
+    const admin = createAdminClient();
+    await admin
       .from("orders")
       .update({
         status: "delivered",
@@ -213,7 +214,6 @@ export async function applyOrderAction(
       })
       .eq("id", id);
 
-    const admin = createAdminClient();
     const { data: buyerProfile } = await admin
       .from("profiles")
       .select("email")
@@ -313,7 +313,7 @@ export async function applyOrderAction(
       sellerId: existing.seller.id,
     });
 
-    await supabase.from("orders").update({ status: "cancelled" }).eq("id", id);
+    await createAdminClient().from("orders").update({ status: "cancelled" }).eq("id", id);
     return getOrderById(id);
   }
 
@@ -322,7 +322,8 @@ export async function applyOrderAction(
       return existing;
     }
 
-    await supabase
+    const admin = createAdminClient();
+    await admin
       .from("orders")
       .update({
         status: "completed",
@@ -331,7 +332,6 @@ export async function applyOrderAction(
       })
       .eq("id", id);
 
-    const admin = createAdminClient();
     const { data: orderRow } = await admin
       .from("orders")
       .select(
@@ -375,7 +375,7 @@ export async function applyOrderAction(
       return existing;
     }
 
-    await supabase.from("orders").update({ status: "issue_open" }).eq("id", id);
+    await createAdminClient().from("orders").update({ status: "issue_open" }).eq("id", id);
 
     await createProtectionCase({
       orderId: id,

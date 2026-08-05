@@ -1,0 +1,34 @@
+# ROVEXO BLOOD LAW — FUNCTIONAL PARITY LOCK v1.0
+
+**STATUS: ABSOLUTE STOP · OWNER MANDATE**
+
+SSOT: `lib/functional-parity-lock-v1.ts`  
+Baseline: **`9ed6f9b3`** — ROVEXO v1.0.0 Production Release  
+Cert report: `ROVEXO_FUNCTIONAL_PARITY_CERTIFICATION.md`
+
+## Absolute stop
+
+Suspend immediately any: optimization · refactor · cache · bundle splitting · CSS splitting · ISR · Edge Cache · performance tuning · image engine · Lighthouse chasing.
+
+## Mandate
+
+Restore / keep platform at **100% functional parity** with `9ed6f9b3` — zero regressions.
+
+## Forbidden until full recertification + Owner PASS
+
+UI · UX · layout · navigation · menus · Buyer/Seller logic · middleware · auth · providers · bundles · CSS · performance · images · cache · ISR/SSR strategies · Edge Runtime
+
+## Allowed only
+
+Repair regressions introduced after the certified baseline. Smallest safe restore to `9ed6f9b3` behaviour.
+
+## Blood law
+
+**No optimisation is accepted if it reduces even one certified ROVEXO function.**  
+Functionality is inviolable; performance may resume only on a fully functional base.
+
+## Cursor must never
+
+- Resume Phase 11 / bundle / CSS isolation / Edge / Image Engine while this lock is ABSOLUTE STOP
+- Treat docs/tests green alone as Product PASS without Owner visual + mobile checklist
+- Commit / push / deploy without Owner stage approval

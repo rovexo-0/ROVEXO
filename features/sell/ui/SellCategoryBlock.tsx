@@ -4,7 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { SellInlineError, SellNavRow } from "@/features/sell/ui/SellPrimitives";
 import { SellCategoryPicker } from "@/features/sell/ui/SellCategoryPicker";
 import { SellCategorySuggestionCard } from "@/features/sell/ui/SellCategorySuggestion";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 import { getSellValidationErrorForField } from "@/lib/sell/sell-validation";
 import {
   applyCategorySuggestion,
@@ -22,7 +22,8 @@ type SellCategoryBlockProps = {
  * Category Suggestion Engine v1.0 — never auto-selects / overwrites.
  */
 export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps) {
-  const { draft, setCategoryPath, showValidation } = useSell();
+  const { draft, showValidation } = useSellDraft();
+  const { setCategoryPath } = useSellActions();
   const [open, setOpen] = useState(false);
 
   const deferredTitle = useDeferredValue(draft.title);

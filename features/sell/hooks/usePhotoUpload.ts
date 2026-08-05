@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback } from "react";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellPublishProgress } from "@/features/sell/context/SellProvider";
 
 export function usePhotoUpload() {
-  const { addPhotos, removePhoto, replacePhoto, reorderPhotos, setMainPhoto, retryPhotoUpload, uploadProgress } =
-    useSell();
+  const { addPhotos, removePhoto, replacePhoto, reorderPhotos, setMainPhoto, retryPhotoUpload } =
+    useSellActions();
+  const { uploadProgress } = useSellPublishProgress();
 
   const uploadPhotos = useCallback(
     async (files: FileList | File[]) => {

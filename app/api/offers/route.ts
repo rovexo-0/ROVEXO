@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAuthContext } from "@/lib/auth/session";
+import { validateMutationOrigin } from "@/lib/api/csrf-guard";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { detectSelfOffer } from "@/lib/trust/anti-fraud";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
@@ -159,7 +161,12 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const csrf = validateMutationOrigin(request);
+  if (csrf) return csrf;
+
   const { user } = await requireAuthContext();
+  const limited = await enforceRateLimitForUser(user.id, "offers-create", 30, 60_000);
+  if (limited) return limited;
 
   let body: unknown;
   try {

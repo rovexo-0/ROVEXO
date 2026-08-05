@@ -31,13 +31,17 @@ export function ScrollContainer({
 }: ScrollContainerProps) {
   return (
     <Component
+      {...rest}
       id={id}
+      data-rx-scroll-page="v1"
       className={cn(
+        // Literals keep scroll tokens on the DOM even if named-import binding flakes in chunk graphs.
+        "rx-scroll-page",
+        withBottomNav ? "rx-scroll-page--with-nav" : "rx-scroll-page--no-nav",
         RX_SCROLL_PAGE,
         withBottomNav ? RX_SCROLL_PAGE_WITH_NAV : RX_SCROLL_PAGE_NO_NAV,
         className,
       )}
-      {...rest}
     >
       {children}
     </Component>

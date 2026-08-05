@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
 import { LISTING_DEFAULT_LOW_STOCK_ALERT } from "@/lib/sell/build-listing-publish-payload";
+import { LISTING_PRICE_MIN } from "@/lib/sell/listing-price";
 
 const imageSchema = z.object({
   url: z.string().url(),
@@ -33,7 +34,7 @@ export const createListingSchema = z.object({
     .string()
     .optional()
     .transform((value) => (value && value.trim().length > 0 ? value.trim() : "Good")),
-  price: z.number().positive(),
+  price: z.coerce.number().finite().min(LISTING_PRICE_MIN),
   locationCity: z.string().min(1).max(80).optional(),
   acceptOffers: z.boolean(),
   freeDelivery: z.boolean().optional(),
@@ -56,8 +57,8 @@ export const createListingSchema = z.object({
   }),
   images: z.array(imageSchema).min(1).max(SELL_PHOTO_MAX),
   listingType: z.enum(["fixed", "auction"]).optional(),
-  auctionStartPrice: z.number().positive().optional(),
-  reservePrice: z.number().positive().nullable().optional(),
+  auctionStartPrice: z.coerce.number().finite().min(LISTING_PRICE_MIN).optional(),
+  reservePrice: z.coerce.number().finite().min(LISTING_PRICE_MIN).nullable().optional(),
   auctionEndsAt: z.string().datetime().nullable().optional(),
 });
 
@@ -68,7 +69,7 @@ export const updateListingSchema = z.object({
   color: z.string().optional(),
   size: z.string().optional(),
   condition: z.string().min(1).optional(),
-  price: z.number().positive().optional(),
+  price: z.coerce.number().finite().min(LISTING_PRICE_MIN).optional(),
   locationCity: z.string().min(1).max(80).nullable().optional(),
   acceptOffers: z.boolean().optional(),
   freeDelivery: z.boolean().optional(),

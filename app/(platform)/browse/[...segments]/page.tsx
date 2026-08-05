@@ -5,6 +5,7 @@ import { ProgrammaticPageView } from "@/features/seo/components/ProgrammaticPage
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { browsePageMetadata, buildOrganicPageContext } from "@/lib/seo/engine";
 import { programmaticPageJsonLd } from "@/lib/seo/programmatic/metadata";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   buildProgrammaticSearchQuery,
   resolveProgrammaticPage,
@@ -68,12 +69,7 @@ export default async function BrowsePage({ params }: BrowsePageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([...Object.values(jsonLd), ...ctx.jsonLd]),
-        }}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-browse----segments-page-tsx" data={[...Object.values(jsonLd), ...ctx.jsonLd]} />
       <ProgrammaticPageView page={page} products={ctx.products} total={results.total} />
     </BetaAppShell>
   );

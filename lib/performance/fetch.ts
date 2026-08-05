@@ -42,9 +42,50 @@ export async function fetchDeduped(input: RequestInfo | URL, init: FetchInit = {
   }
 }
 
-export type ShareInflightJsonOptions = {
-  /** Soft TTL for remount / Strict Mode (ms). Default 750. */
+export type ShareInflightOptions = {
+  /**
+   * Soft TTL for remount / Strict Mode (ms).
+   * `0` = inflight-only (no soft cache) — required for wallet / checkout / bundle.
+   * Default 750 for safe catalog/list remounts.
+   */
   ttlMs?: number;
+};
+
+/**
+ * Share any async work by key — concurrent callers await the same Promise.
+ * Prefer this when the shared result is not plain JSON GET (e.g. 401 handling).
+ */
+export function shareInflightRequest<T>(
+  key: string,
+  factory: () => Promise<T>,
+  options: ShareInflightOptions = {},
+): Promise<T> {
+  const ttlMs = options.ttlMs ?? 750;
+  const cached = shareCache.get(key);
+  if (ttlMs > 0 && cached && cached.expires > Date.now()) {
+    return Promise.resolve(cached.value as T);
+  }
+
+  const existing = shareInflight.get(key);
+  if (existing) return existing as Promise<T>;
+
+  const tracked = (async () => {
+    const value = await factory();
+    if (ttlMs > 0) {
+      shareCache.set(key, { expires: Date.now() + ttlMs, value });
+    }
+    return value;
+  })().finally(() => {
+    if (shareInflight.get(key) === tracked) {
+      shareInflight.delete(key);
+    }
+  });
+
+  shareInflight.set(key, tracked);
+  return tracked as Promise<T>;
+}
+
+export type ShareInflightJsonOptions = ShareInflightOptions & {
   init?: RequestInit;
 };
 
@@ -58,34 +99,20 @@ export function shareInflightJson<T>(
   input: RequestInfo | URL,
   options: ShareInflightJsonOptions = {},
 ): Promise<T> {
-  const ttlMs = options.ttlMs ?? 750;
-  const cached = shareCache.get(key);
-  if (cached && cached.expires > Date.now()) {
-    return Promise.resolve(cached.value as T);
-  }
-
-  const existing = shareInflight.get(key);
-  if (existing) return existing as Promise<T>;
-
-  const tracked = (async () => {
-    const response = await fetch(input, {
-      cache: "no-store",
-      ...options.init,
-    });
-    if (!response.ok) {
-      throw new Error(`shareInflightJson failed: ${key} ${response.status}`);
-    }
-    const value = (await response.json()) as T;
-    shareCache.set(key, { expires: Date.now() + ttlMs, value });
-    return value;
-  })().finally(() => {
-    if (shareInflight.get(key) === tracked) {
-      shareInflight.delete(key);
-    }
-  });
-
-  shareInflight.set(key, tracked);
-  return tracked as Promise<T>;
+  return shareInflightRequest(
+    key,
+    async () => {
+      const response = await fetch(input, {
+        cache: "no-store",
+        ...options.init,
+      });
+      if (!response.ok) {
+        throw new Error(`shareInflightJson failed: ${key} ${response.status}`);
+      }
+      return (await response.json()) as T;
+    },
+    { ttlMs: options.ttlMs },
+  );
 }
 
 export function invalidateShareInflight(prefix?: string): void {

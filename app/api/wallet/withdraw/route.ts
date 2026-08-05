@@ -18,7 +18,7 @@ const withdrawSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }

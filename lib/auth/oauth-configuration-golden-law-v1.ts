@@ -11,6 +11,11 @@
  * IF CONFIGURATION FAILS AND AUTH CORE PASSES →
  * NO CODE CHANGES. ENABLE PROVIDERS + ALLOWLIST CALLBACKS ONLY.
  *
+ * P10.6R — Authentication Roadmap (Owner Decision):
+ *   Google → REQUIRED v1.0
+ *   Apple → DEFERRED v2.0 (NOT a production blocker)
+ *   Facebook → DEFERRED v2.0 (NOT a production blocker)
+ *
  ***************************************************************/
 
 export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
@@ -35,7 +40,12 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
     SEARCH: false,
     CAMERA_SEARCH: false,
     COOKIE_SESSION: false,
-    SUPABASE_CONFIGURATION: true,
+    /** Google ops configured per Owner Decision P10.6R — no longer the open blocker. */
+    SUPABASE_CONFIGURATION: false,
+    AWAITING_OWNER_LIVE_GOOGLE_CONFIRMATION: true,
+    HISTORICAL_ERROR_WHEN_DISABLED:
+      "400 validation_failed : provider is not enabled",
+    /** @deprecated Prefer HISTORICAL_ERROR_WHEN_DISABLED */
     ERROR: "400 validation_failed : provider is not enabled",
   }),
 
@@ -58,14 +68,18 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
 
   /***************************************************************
    *
-   * OAUTH
+   * OAUTH (v1.0 roadmap)
    *
    ***************************************************************/
   OAUTH: Object.freeze({
-    GOOGLE: false,
+    GOOGLE_OPS_CONFIGURED: true,
+    GOOGLE_LIVE: false,
+    GOOGLE_LIVE_STATUS: "AWAITING_OWNER_LIVE_CONFIRMATION",
     APPLE: false,
+    APPLE_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
     FACEBOOK: false,
-    ROOT_CAUSE: "Provider Disabled",
+    FACEBOOK_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
+    ROOT_CAUSE_LEGACY: "Provider Disabled (historical)",
   }),
 
   /***************************************************************
@@ -74,9 +88,9 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
    *
    ***************************************************************/
   PROVIDERS: Object.freeze({
-    GOOGLE: "MUST BE ENABLED",
-    APPLE: "MUST BE ENABLED",
-    FACEBOOK: "OPTIONAL BUT SUPPORTED",
+    GOOGLE: "MUST BE ENABLED (v1.0 REQUIRED)",
+    APPLE: "DEFERRED_V2_NOT_BLOCKING",
+    FACEBOOK: "DEFERRED_V2_NOT_BLOCKING",
   }),
 
   /***************************************************************
@@ -123,6 +137,8 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
     "CALLBACK REWRITES",
     "SUPABASE REPLACEMENT",
     "CODE CHANGES FOR CONFIG ERRORS",
+    "BLOCK V1 DEPLOY ON APPLE OAUTH",
+    "BLOCK V1 DEPLOY ON FACEBOOK OAUTH",
   ]),
 
   /***************************************************************
@@ -132,12 +148,13 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
    ***************************************************************/
   ALLOWED: Object.freeze([
     "ENABLE GOOGLE",
-    "ENABLE APPLE",
-    "ENABLE FACEBOOK",
     "ADD CALLBACK URLS",
     "ALLOWLIST ORIGINS",
     "SAVE CONFIGURATION",
-    "TEST PROVIDERS",
+    "TEST GOOGLE",
+    "OWNER LIVE GOOGLE CONFIRMATION",
+    "DEFER APPLE TO V2",
+    "DEFER FACEBOOK TO V2",
   ]),
 
   /***************************************************************
@@ -146,7 +163,9 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
    *
    ***************************************************************/
   DEPLOYMENT: Object.freeze({
-    IF_ONE_PROVIDER_FAILS: "NO DEPLOY",
+    IF_GOOGLE_LIVE_FAILS: "NO DEPLOY",
+    IF_APPLE_DEFERRED: "DO NOT BLOCK V1",
+    IF_FACEBOOK_DEFERRED: "DO NOT BLOCK V1",
     IF_CONFIGURATION_FAILS: "FIX CONFIGURATION ONLY",
     IF_CODE_FAILS: "FIX CODE",
     IF_ARCHITECTURE_FAILS: "FIX ARCHITECTURE",
@@ -165,9 +184,13 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
     COOKIE_SESSION: true,
     SESSION_RESTORE: true,
     AUTH_CALLBACK: true,
+    GOOGLE_OPS_CONFIGURED: true,
     GOOGLE_LOGIN: false,
+    GOOGLE_LIVE_STATUS: "AWAITING_OWNER_LIVE_CONFIRMATION",
     APPLE_LOGIN: false,
+    APPLE_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
     FACEBOOK_LOGIN: false,
+    FACEBOOK_ROADMAP: "DEFERRED_V2_NOT_BLOCKING",
     NO_REDIRECT_LOOPS: true,
     NO_HEADER_REMOUNT: true,
     NO_SEARCH_FAILURES: true,
@@ -183,9 +206,9 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
   LEVEL_8_EQUATION: Object.freeze({
     AUTH_CORE_PLUS_PLATFORM:
       "AUTH CORE + SEARCH + HEADER + SESSION + COOKIE + CAMERA + CALLBACK + SUPABASE = 100% PASS (core)",
-    OAUTH_IS_CONFIGURATION: "GOOGLE + APPLE + FACEBOOK = CONFIGURATION",
+    OAUTH_V1: "EMAIL + GOOGLE LIVE = V1 OAUTH GATE · APPLE/FACEBOOK = DEFERRED V2",
     IF_CONFIG_FAILS_AND_AUTH_CORE_PASSES:
-      "NO CODE CHANGES. ONLY ENABLE PROVIDERS + ALLOWLIST CALLBACK URLS + TEST + PASS + DEPLOY.",
+      "NO CODE CHANGES. ONLY ENABLE GOOGLE + ALLOWLIST CALLBACK URLS + OWNER LIVE TEST + PASS + DEPLOY.",
     DEPLOY_GATE: "100/100 = DEPLOY · 99/100 = NO DEPLOY · 1 FAIL = NO DEPLOY · ZERO EXCEPTIONS",
   }),
 });

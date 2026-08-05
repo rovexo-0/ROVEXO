@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
@@ -19,7 +19,9 @@ type SearchResultCardProps = {
   elementId?: string;
   isActive?: boolean;
   onNavigate?: () => void;
-  onHover?: () => void;
+  /** Stable parent callback — prefer over inline `onHover={() => ...}` which defeats memo. */
+  onHoverIndex?: (index: number) => void;
+  hoverNavIndex?: number;
 };
 
 function StarIcon({ className }: { className?: string }) {
@@ -59,13 +61,14 @@ function formatCondition(condition?: string): string | null {
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
-export function SearchResultCard({
+export const SearchResultCard = memo(function SearchResultCard({
   product,
   query,
   elementId,
   isActive = false,
   onNavigate,
-  onHover,
+  onHoverIndex,
+  hoverNavIndex,
 }: SearchResultCardProps) {
   const props = productToCardProps(product);
   const { isSaved, toggle, isPending } = useProductWatchlist(product.slug);
@@ -85,7 +88,11 @@ export function SearchResultCard({
       id={elementId}
       role="option"
       aria-selected={isActive}
-      onMouseEnter={onHover}
+      onMouseEnter={
+        onHoverIndex != null && hoverNavIndex != null
+          ? () => onHoverIndex(hoverNavIndex)
+          : undefined
+      }
       className={cn(
         "rx-search-result-in group relative flex gap-3 rounded-2xl border border-border bg-surface p-3",
         "hover:border-primary/30 hover:shadow-ds-medium",
@@ -211,4 +218,4 @@ export function SearchResultCard({
       </button>
     </li>
   );
-}
+});

@@ -21,10 +21,10 @@ SSOT: `lib/auth/auth-master-freeze-v1.ts`
 | User | Supabase Auth |
 | Callback | Supabase Auth |
 
-## Canonical methods
+## Canonical methods (P10.6R Authentication Roadmap)
 
-**Login / Register (ACTIVE):** Email · Google · Apple  
-**Facebook:** OPTIONAL on Login and Register
+**Login / Register (ACTIVE · v1.0):** Email · Google  
+**Deferred to v2.0 (NOT production blockers):** Apple · Facebook
 
 ## Callback origins (allowlist only)
 
@@ -38,7 +38,8 @@ Canonical path: `/auth/callback`
 
 ## Flows (locked)
 
-Email / Google / Apple / Facebook → (OAuth consent when social) → Supabase callback → session → cookie → Homepage.
+Email / Google → (OAuth consent when Google) → Supabase callback → session → cookie → Homepage.  
+Apple / Facebook → deferred v2.0 (architecture may retain provider hooks; not v1 deploy gates).
 
 ## Forbidden forever
 

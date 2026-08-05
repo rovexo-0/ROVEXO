@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import {
@@ -109,7 +109,7 @@ function StatusCard({
  * Product sticky actions — Dynamic Offer Action Engine (UI visibility).
  * Exactly one logical negotiation state at a time.
  */
-export function ProductActionBarV1({
+export const ProductActionBarV1 = memo(function ProductActionBarV1({
   transactionMode,
   onBuy,
   onMakeOffer,
@@ -338,4 +338,4 @@ export function ProductActionBarV1({
       ) : null}
     </div>
   );
-}
+});

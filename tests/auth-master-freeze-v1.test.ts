@@ -21,15 +21,15 @@ describe("AUTH Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(AUTH_MASTER_FREEZE_V1.singularity.oneCallbackOwner).toBe("SUPABASE_AUTH");
   });
 
-  it("locks login and register methods", () => {
+  it("locks login and register methods (P10.6R roadmap)", () => {
     expect(AUTH_MASTER_FREEZE_V1.loginMethods.email).toBe("ACTIVE");
     expect(AUTH_MASTER_FREEZE_V1.loginMethods.google).toBe("ACTIVE");
-    expect(AUTH_MASTER_FREEZE_V1.loginMethods.apple).toBe("ACTIVE");
-    expect(AUTH_MASTER_FREEZE_V1.loginMethods.facebook).toBe("OPTIONAL");
+    expect(AUTH_MASTER_FREEZE_V1.loginMethods.apple).toBe("DEFERRED_V2");
+    expect(AUTH_MASTER_FREEZE_V1.loginMethods.facebook).toBe("DEFERRED_V2");
     expect(AUTH_MASTER_FREEZE_V1.registerMethods.email).toBe("ACTIVE");
     expect(AUTH_MASTER_FREEZE_V1.registerMethods.google).toBe("ACTIVE");
-    expect(AUTH_MASTER_FREEZE_V1.registerMethods.apple).toBe("ACTIVE");
-    expect(AUTH_MASTER_FREEZE_V1.registerMethods.facebook).toBe("OPTIONAL");
+    expect(AUTH_MASTER_FREEZE_V1.registerMethods.apple).toBe("DEFERRED_V2");
+    expect(AUTH_MASTER_FREEZE_V1.registerMethods.facebook).toBe("DEFERRED_V2");
   });
 
   it("locks Owner-approved callback origins", () => {

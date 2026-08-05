@@ -27,11 +27,9 @@ export function StoreResults({
         const isActive = activeIndex === navIndex;
 
         return (
-          <li key={store.id}>
+          <li key={store.id} role="option" aria-selected={isActive}>
             <Link
               href={store.href}
-              role="option"
-              aria-selected={isActive}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(

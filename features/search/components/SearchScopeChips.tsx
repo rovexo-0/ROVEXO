@@ -27,7 +27,7 @@ export function SearchScopeChips({ active, onChange, query = "", className }: Se
   return (
     <div
       className={cn("flex flex-wrap gap-ds-2", className)}
-      role="tablist"
+      role="group"
       aria-label="Search filters"
     >
       {SEARCH_FILTER_SCOPES.map((scope) => (
@@ -35,6 +35,7 @@ export function SearchScopeChips({ active, onChange, query = "", className }: Se
           key={scope.id}
           label={scope.label}
           active={active === scope.id}
+          aria-pressed={active === scope.id}
           onClick={() => handleSelect(scope.id)}
           className="min-h-[36px]"
         />

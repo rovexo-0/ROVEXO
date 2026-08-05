@@ -30,18 +30,22 @@ export const AUTH_MASTER_FREEZE_V1 = {
     oneCallbackOwner: "SUPABASE_AUTH",
   } as const,
 
+  /**
+   * P10.6R Authentication Roadmap (Owner Decision).
+   * Architecture singularity unchanged — only roadmap status for v1.0 gates.
+   */
   loginMethods: {
     email: "ACTIVE",
     google: "ACTIVE",
-    apple: "ACTIVE",
-    facebook: "OPTIONAL",
+    apple: "DEFERRED_V2",
+    facebook: "DEFERRED_V2",
   } as const,
 
   registerMethods: {
     email: "ACTIVE",
     google: "ACTIVE",
-    apple: "ACTIVE",
-    facebook: "OPTIONAL",
+    apple: "DEFERRED_V2",
+    facebook: "DEFERRED_V2",
   } as const,
 
   /** Owner-approved OAuth / auth redirect origins only. */

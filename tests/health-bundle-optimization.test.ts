@@ -8,7 +8,9 @@ describe("health runtime bundle isolation", () => {
     expect(route).toContain("@/lib/ops/health-runtime");
     expect(route).not.toContain("@/lib/stripe/server");
     expect(route).not.toMatch(/from "@\/lib\/ops\/logger"/);
-    expect(route).toContain('"@/lib/ops/production-env"');
+    // P11.1 — public health must not load production-env (secret name inventory).
+    expect(route).not.toContain("@/lib/ops/production-env");
+    expect(route).not.toContain("missingEnv");
     expect(route).toContain('await import');
     expect(route).toContain('"@/lib/ops/logger"');
   });
@@ -26,9 +28,10 @@ describe("health runtime bundle isolation", () => {
     expect(runtime).toContain("@supabase/supabase-js");
   });
 
-  it("exposes diagnostics on a separate route", () => {
+  it("gates diagnostics behind super_admin and keeps env validation off public health", () => {
     const diagnostics = readFileSync(join(process.cwd(), "app/api/health/diagnostics/route.ts"), "utf8");
     expect(diagnostics).toContain("validateProductionEnvironment");
     expect(diagnostics).toContain("validatePlatformSecuritySurface");
+    expect(diagnostics).toContain("requireApiSuperAdmin");
   });
 });

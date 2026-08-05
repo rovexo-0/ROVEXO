@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type KeyboardEvent } from "react";
+import { memo, useRef, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { captureHomepageScroll } from "@/lib/navigation/homepage-scroll-restore";
@@ -17,8 +17,12 @@ export type HomepageSearchFieldProps = {
 /**
  * Homepage search entry — Search Bar Icon Freeze.
  * Navigates to Global Search `/search` (not Browse `/browse`).
+ * memo: header scroll / badge updates must not re-render this field.
  */
-export function HomepageSearchField({ inputId, className }: HomepageSearchFieldProps) {
+export const HomepageSearchField = memo(function HomepageSearchField({
+  inputId,
+  className,
+}: HomepageSearchFieldProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -66,4 +70,4 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
       </div>
     </div>
   );
-}
+});

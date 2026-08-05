@@ -59,7 +59,15 @@ function primaryCardImages(row: ProductRow) {
   // Cards prefer the 400px thumbnail; imageFullUrl keeps product_images.url for
   // one-shot client fallback when the thumb object is missing/invalid.
   const primary = sorted[0];
-  return resolveCardImageSources(primary?.thumbnail_url, primary?.url);
+  const url = primary?.url ?? null;
+  const rawThumb = primary?.thumbnail_url ?? null;
+  const thumbIsDerived =
+    Boolean(rawThumb?.trim()) &&
+    Boolean(url?.trim()) &&
+    rawThumb !== url &&
+    /-thumb\./i.test(rawThumb ?? "");
+  // Collapse invalid derived -thumb refs before resolve (avoids `/_next/image` 400).
+  return resolveCardImageSources(thumbIsDerived ? url : rawThumb, url);
 }
 
 function deriveTrustScore(rating: number, verified: boolean): number {

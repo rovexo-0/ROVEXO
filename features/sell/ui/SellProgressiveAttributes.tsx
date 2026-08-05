@@ -7,7 +7,7 @@ import { SizeSelector } from "@/features/size";
 import { ListingAttributeLabel } from "@/components/listing/ListingAttributeLabel";
 import { CanonicalInput } from "@/src/components/canonical";
 import { useSellProgressiveFlow } from "@/features/sell/hooks/use-sell-progressive-flow";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
 import { readAttributeValue, type AttributeDef } from "@/lib/sell/attribute-engine";
 import {
   suggestBrandFromText,
@@ -56,7 +56,8 @@ function displayValue(def: AttributeDef, raw: string): string {
  * Order follows attribute engine map (Condition included when taxonomy requires it).
  */
 export function SellProgressiveAttributes() {
-  const { draft, updateDraft } = useSell();
+  const { draft } = useSellDraft();
+  const { updateDraft } = useSellActions();
   const { visibleAttributeDefs, scrollToNextStep } = useSellProgressiveFlow();
   const [activeId, setActiveId] = useState<string | null>(null);
 

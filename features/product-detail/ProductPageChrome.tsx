@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { ProductListingActionsMenu } from "@/features/product-detail/ProductListingActionsMenu";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
@@ -36,7 +37,7 @@ function IconHeart({ filled }: { filled: boolean }) {
  * Seller ••• = Edit / Sold / Pause / Relist / Delete.
  * Buyer ••• = Report Listing / Report Seller / Block / Share.
  */
-export function ProductPageChrome({
+export const ProductPageChrome = memo(function ProductPageChrome({
   productId,
   productSlug,
   productTitle,
@@ -96,4 +97,4 @@ export function ProductPageChrome({
       </div>
     </div>
   );
-}
+});

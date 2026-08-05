@@ -3,6 +3,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import {
   createSellerListing,
@@ -88,11 +89,14 @@ function parseDraftPrice(raw: string | number | undefined): number {
  * Fail closed: create requires ≥1 image; never returns success without a draft row.
  */
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiListingRole();
+  const roleCheck = await requireApiListingRole(request);
   if (roleCheck instanceof NextResponse) return roleCheck;
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "sell-draft", 40, 60_000);
+  if (limited) return limited;
 
   try {
     const body = upsertDraftSchema.parse(await request.json());

@@ -50,7 +50,8 @@ export function ProductResults({
               query={query}
               elementId={`search-nav-item-${navIndex}`}
               isActive={activeIndex === navIndex}
-              onHover={() => onHoverIndex(navIndex)}
+              hoverNavIndex={navIndex}
+              onHoverIndex={onHoverIndex}
               onNavigate={onNavigate}
             />
           );

@@ -1,18 +1,26 @@
 import { test, expect } from "@playwright/test";
 import { HEADER_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
+import {
+  dismissCookieBanner,
+  ensureMarketplaceSession,
+} from "./helpers/marketplace-session";
 
+/**
+ * Canonical bottom nav (BottomNavigation.tsx / HP_CANONICAL_BOTTOM_NAV):
+ * Home · Browse(/browse) · Sell · Inbox(/inbox) · Account
+ */
 const BOTTOM_NAV_ROUTES = [
   { tab: "Home", href: "/", aria: "Home" },
-  { tab: "Search", href: "/search", aria: "Search" },
-  { tab: "Sell", href: "/sell", aria: "Sell", authRedirect: true },
-  { tab: "Saved", href: "/saved", aria: "Saved", authRedirect: true },
-  { tab: "Account", href: "/account", aria: "Account", authRedirect: true },
+  { tab: "Browse", href: "/browse", aria: "Browse" },
+  { tab: "Sell", href: "/sell", aria: "Sell" },
+  { tab: "Inbox", href: "/inbox", aria: "Inbox" },
+  { tab: "Account", href: "/account", aria: "Account" },
 ] as const;
 
-const HEADER_LINKS = [
-  { label: "Messages", href: "/messages", authRedirect: true },
-  { label: "Notifications", href: "/notifications", authRedirect: true },
-  { label: "Account", href: "/account", authRedirect: true },
+const AUTH_REQUIRED_PATHS = [
+  { label: "Messages", href: "/messages" },
+  { label: "Notifications", href: "/notifications" },
+  { label: "Account", href: "/account" },
 ] as const;
 
 const VIEWPORTS = [
@@ -22,9 +30,9 @@ const VIEWPORTS = [
 ] as const;
 
 test.describe("Navigation audit — bottom navigation", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    // Next.js dev indicator portal can cover bottom-nav taps during local E2E.
+    await ensureMarketplaceSession(page, baseURL);
     await page.addInitScript(() => {
       const removeDevPortal = () => {
         document.querySelectorAll("nextjs-portal").forEach((node) => node.remove());
@@ -40,68 +48,76 @@ test.describe("Navigation audit — bottom navigation", () => {
   for (const item of BOTTOM_NAV_ROUTES) {
     test(`${item.tab} tab navigates to ${item.href}`, async ({ page }) => {
       if (item.tab === "Home") {
-        await page.goto("/search", { waitUntil: "domcontentloaded" });
+        await page.goto("/browse", { waitUntil: "domcontentloaded" });
       } else {
         await page.goto("/", { waitUntil: "domcontentloaded" });
         await waitForHomepageUi(page);
       }
+      await dismissCookieBanner(page);
 
       const nav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i }).first();
       await expect(nav).toBeVisible();
       const navLink = nav.getByRole("link", { name: item.aria });
+      await expect(navLink).toBeVisible();
 
       if (item.tab === "Home") {
         await Promise.all([
           page.waitForURL((url) => url.pathname === "/"),
-          navLink.evaluate((node) => (node as HTMLAnchorElement).click()),
+          navLink.click({ force: true }),
         ]);
       } else {
-        await navLink.click();
+        await navLink.click({ force: true });
       }
 
-      if (item.authRedirect) {
-        await expect(page).toHaveURL(/\/login/);
-      } else if (item.tab === "Search") {
-        await expect(page).toHaveURL(/\/(search)?$/);
-      } else {
-        await expect(page).toHaveURL(new RegExp(item.href === "/" ? "/$" : item.href.replace("/", "\\/")));
-      }
+      await expect(page).toHaveURL(
+        new RegExp(item.href === "/" ? "/$" : `${item.href.replace("/", "\\/")}`),
+      );
     });
   }
 
   test("bottom navigation is visible on homepage", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
+    await dismissCookieBanner(page);
     await expect(page.getByRole("navigation", { name: /mobile navigation|main navigation/i }).first()).toBeVisible();
   });
 });
 
 test.describe("Navigation audit — header chrome", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/search", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /search rovexo|results for/i })).toBeVisible();
+    await ensureMarketplaceSession(page, baseURL);
   });
 
   test("logo returns to homepage", async ({ page }) => {
-    // Search landing auto-opens the full-screen overlay; use results view so the header logo is reachable.
-    await page.goto("/search?q=phone", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /results for/i })).toBeVisible();
+    // Homepage Search Bar Only freeze: RovexoHeaderV2 mounts on `/` only — not on /search.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForHomepageUi(page);
+    await dismissCookieBanner(page);
     const logo = page.locator('header[data-header-version="rovexo-v2"] a[aria-label="ROVEXO Home"]');
     await expect(logo).toBeVisible();
-    await Promise.all([page.waitForURL("/", { timeout: 15_000 }), logo.click()]);
+    await expect(logo).toHaveAttribute("href", "/");
+    await page.goto("/browse", { waitUntil: "domcontentloaded" });
+    await dismissCookieBanner(page);
+    await expect(page).toHaveURL(/\/browse/);
+    // Off-homepage: return via bottom Home (header logo is unmounted by freeze).
+    const nav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i }).first();
+    await Promise.all([
+      page.waitForURL((url) => url.pathname === "/", { timeout: 15_000 }),
+      nav.getByRole("link", { name: "Home" }).click({ force: true }),
+    ]);
     await expect(page).toHaveURL("/");
+    await waitForHomepageUi(page);
+    await expect(
+      page.locator('header[data-header-version="rovexo-v2"] a[aria-label="ROVEXO Home"]'),
+    ).toBeVisible();
   });
 
-  for (const link of HEADER_LINKS) {
-    test(`${link.label} header link requires auth`, async ({ page }) => {
-      const header = page.locator(HEADER_SELECTOR).first();
-      const target =
-        link.label === "Account"
-          ? header.getByRole("link", { name: /account|profile/i }).first()
-          : header.getByRole("link", { name: new RegExp(`^${link.label}`, "i") }).first();
-      await expect(target).toHaveAttribute("href", link.href === "/account" ? /\/account/ : link.href);
-      await page.goto(link.href);
+  for (const link of AUTH_REQUIRED_PATHS) {
+    test(`${link.label} route requires auth when logged out`, async ({ page, context }) => {
+      // Header Search Priority Freeze: Messages/Notifications/Account are NOT in header.
+      await context.clearCookies();
+      await page.goto(link.href, { waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(/\/login/);
     });
   }
@@ -109,26 +125,46 @@ test.describe("Navigation audit — header chrome", () => {
 
 test.describe("Navigation audit — auth routes", () => {
   const authRoutes = [
-    { path: "/login", heading: /welcome back/i },
-    { path: "/register", heading: /create your account/i },
-    { path: "/forgot-password", heading: /forgot|reset/i },
+    {
+      path: "/login",
+      assert: async (page: import("@playwright/test").Page) => {
+        await expect(page.getByRole("button", { name: /^sign in$/i })).toBeVisible();
+        await expect(page.getByLabel(/email address/i)).toBeVisible();
+        await expect(page.getByRole("link", { name: /create account/i })).toBeVisible();
+      },
+    },
+    {
+      path: "/register",
+      assert: async (page: import("@playwright/test").Page) => {
+        await expect(page.getByRole("button", { name: /create free account/i })).toBeVisible();
+        await expect(page.getByLabel(/email address/i)).toBeVisible();
+      },
+    },
+    {
+      path: "/forgot-password",
+      assert: async (page: import("@playwright/test").Page) => {
+        await expect(page.getByRole("heading", { name: /forgot|reset/i })).toBeVisible();
+      },
+    },
   ] as const;
 
   for (const route of authRoutes) {
     test(`${route.path} loads`, async ({ page }) => {
       const response = await page.goto(route.path, { waitUntil: "domcontentloaded" });
       expect(response?.status()).toBeLessThan(500);
-      await expect(page.getByRole("heading", { name: route.heading })).toBeVisible();
+      await route.assert(page);
     });
   }
 });
 
 test.describe("Navigation audit — responsive shells", () => {
   for (const viewport of VIEWPORTS) {
-    test(`homepage renders at ${viewport.name}`, async ({ page }) => {
+    test(`homepage renders at ${viewport.name}`, async ({ page, baseURL }) => {
+      await ensureMarketplaceSession(page, baseURL);
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       const response = await page.goto("/", { waitUntil: "domcontentloaded" });
       expect(response?.status()).toBeLessThan(500);
+      await dismissCookieBanner(page);
       if (viewport.width < 1024) {
         await waitForHomepageUi(page);
       } else {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SearchInputActions } from "@/features/search/components/SearchInputActions";
@@ -43,6 +43,9 @@ type SearchLandingViewProps = {
   surface?: "browse" | "search";
 };
 
+const EMPTY_CATEGORY_COUNTS: SearchLandingCategoryCount[] = [];
+const EMPTY_TRENDING: string[] = [];
+
 function ClockIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
@@ -70,12 +73,88 @@ function ChipCloseIcon() {
 }
 
 /**
+ * Browse Categories grid — isolated from recent-history hydrate / chip updates.
+ * Presentation identical to SEARCH_UI_v1.0 (no visual change).
+ */
+const BrowseCategoriesGrid = memo(function BrowseCategoriesGrid({
+  categoryCounts,
+}: {
+  categoryCounts: SearchLandingCategoryCount[];
+}) {
+  const countBySlug = useMemo(
+    () => new Map(categoryCounts.map((row) => [row.slug, row.itemCount])),
+    [categoryCounts],
+  );
+
+  return (
+    <section className="srch-land__section" aria-labelledby="srch-land-categories-title">
+      <div className="srch-land__section-head">
+        <h2 id="srch-land-categories-title" className="srch-land__section-title">
+          Browse categories
+        </h2>
+        <Link href="/categories" className={cn("srch-land__section-action", focusRing)}>
+          View all &gt;
+        </Link>
+      </div>
+      <div className="srch-land__grid">
+        {ROVEXO_HOME_CATEGORY_RAIL.map((item) => (
+          <SearchCategoryBrowseCard
+            key={item.slug}
+            name={item.name}
+            slug={item.slug}
+            iconKey={item.icon}
+            itemCount={countBySlug.get(item.slug) ?? 0}
+            href={item.href ?? `/category/${encodeURIComponent(item.slug)}`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+});
+
+const TrendingSearchesSection = memo(function TrendingSearchesSection({
+  trending,
+  onApplyTerm,
+}: {
+  trending: string[];
+  onApplyTerm: (term: string) => void;
+}) {
+  if (trending.length === 0) return null;
+
+  return (
+    <section className="srch-land__section" aria-labelledby="srch-land-trending-title">
+      <div className="srch-land__section-head">
+        <h2 id="srch-land-trending-title" className="srch-land__section-title">
+          Trending searches
+        </h2>
+      </div>
+      <ul className="srch-land__chips" aria-label="Trending searches">
+        {trending.map((term) => (
+          <li key={term}>
+            <button
+              type="button"
+              className="srch-land__chip srch-land__chip--trending"
+              onClick={() => onApplyTerm(term)}
+            >
+              <span className="srch-land__chip-icon">
+                <TrendIcon />
+              </span>
+              <span className="srch-land__chip-label">{term}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+});
+
+/**
  * SEARCH_UI_v1.0 — browse / global-search idle surfaces (presentation reused).
  * Typeahead runs inline (no Homepage overlay bypass).
  */
 export function SearchLandingView({
-  categoryCounts = [],
-  trending = [],
+  categoryCounts = EMPTY_CATEGORY_COUNTS,
+  trending = EMPTY_TRENDING,
   surface = "browse",
 }: SearchLandingViewProps) {
   const router = useRouter();
@@ -101,7 +180,6 @@ export function SearchLandingView({
     inputRef.current?.focus();
   }, [isGlobalSearch]);
 
-  const countBySlug = new Map(categoryCounts.map((row) => [row.slug, row.itemCount]));
   const isTyping = query.trim().length > 0;
 
   const handleClose = useCallback(() => {
@@ -123,14 +201,14 @@ export function SearchLandingView({
     [router],
   );
 
-  function handleClearHistory() {
+  const handleClearHistory = useCallback(() => {
     clearSearchHistory();
     setHistory([]);
-  }
+  }, []);
 
-  function handleRemoveHistory(term: string) {
+  const handleRemoveHistory = useCallback((term: string) => {
     setHistory(removeSearchHistoryItem(term).slice(0, SUPREME_BLOOD_CODE_XXVII_V1.recentMax));
-  }
+  }, []);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -199,30 +277,7 @@ export function SearchLandingView({
         <SearchTypeaheadPanel query={query} onQueryChange={setQuery} />
       ) : (
         <>
-          {!isGlobalSearch ? (
-            <section className="srch-land__section" aria-labelledby="srch-land-categories-title">
-              <div className="srch-land__section-head">
-                <h2 id="srch-land-categories-title" className="srch-land__section-title">
-                  Browse categories
-                </h2>
-                <Link href="/categories" className={cn("srch-land__section-action", focusRing)}>
-                  View all &gt;
-                </Link>
-              </div>
-              <div className="srch-land__grid">
-                {ROVEXO_HOME_CATEGORY_RAIL.map((item) => (
-                  <SearchCategoryBrowseCard
-                    key={item.slug}
-                    name={item.name}
-                    slug={item.slug}
-                    iconKey={item.icon}
-                    itemCount={countBySlug.get(item.slug) ?? 0}
-                    href={item.href ?? `/category/${encodeURIComponent(item.slug)}`}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
+          {!isGlobalSearch ? <BrowseCategoriesGrid categoryCounts={categoryCounts} /> : null}
 
           {history.length > 0 ? (
             <section className="srch-land__section" aria-labelledby="srch-land-recent-title">
@@ -265,31 +320,7 @@ export function SearchLandingView({
             </section>
           ) : null}
 
-          {trending.length > 0 ? (
-            <section className="srch-land__section" aria-labelledby="srch-land-trending-title">
-              <div className="srch-land__section-head">
-                <h2 id="srch-land-trending-title" className="srch-land__section-title">
-                  Trending searches
-                </h2>
-              </div>
-              <ul className="srch-land__chips" aria-label="Trending searches">
-                {trending.map((term) => (
-                  <li key={term}>
-                    <button
-                      type="button"
-                      className="srch-land__chip srch-land__chip--trending"
-                      onClick={() => applyTerm(term)}
-                    >
-                      <span className="srch-land__chip-icon">
-                        <TrendIcon />
-                      </span>
-                      <span className="srch-land__chip-label">{term}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
+          <TrendingSearchesSection trending={trending} onApplyTerm={applyTerm} />
         </>
       )}
     </div>

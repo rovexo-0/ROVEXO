@@ -9,11 +9,14 @@ import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplac
 import type { Product, ProductsPage } from "@/lib/products/types";
 import type { CSSProperties } from "react";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
+import { shareInflightJson } from "@/lib/performance/fetch";
 
 type CanonicalMarketplaceFeedProps = {
   initialPage: ProductsPage;
   reservedIds?: string[];
 };
+
+const EMPTY_RESERVED_IDS: string[] = [];
 
 /** Opt-in pipeline tracing (set NEXT_PUBLIC_HOMEPAGE_FEED_DEBUG=1). No-op in prod. */
 const FEED_DEBUG = process.env.NEXT_PUBLIC_HOMEPAGE_FEED_DEBUG === "1";
@@ -39,7 +42,7 @@ function resolveSeedItems(initialPage: ProductsPage, reserved: Set<string>): Pro
 
 export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   initialPage,
-  reservedIds = [],
+  reservedIds = EMPTY_RESERVED_IDS,
 }: CanonicalMarketplaceFeedProps) {
   const reserved = useMemo(() => new Set(reservedIds), [reservedIds]);
   const seedItems = useMemo(
@@ -76,17 +79,26 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
       setLoading(true);
       feedDebugLog("fetch:start", { targetPage, mode });
       try {
-        const response = await fetch(`/api/homepage/feed?page=${targetPage}`, {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          feedDebugLog("fetch:error", { targetPage, status: response.status });
-          setHasMore(false);
-          return;
+        let payload: ProductsPage;
+        if (targetPage === 1 && mode === "replace") {
+          // P3: coalesce Strict Mode / remount page-1 (short soft TTL; public catalog).
+          payload = await shareInflightJson<ProductsPage>(
+            "GET:/api/homepage/feed?page=1",
+            "/api/homepage/feed?page=1",
+            { ttlMs: 500 },
+          );
+        } else {
+          const response = await fetch(`/api/homepage/feed?page=${targetPage}`, {
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            feedDebugLog("fetch:error", { targetPage, status: response.status });
+            setHasMore(false);
+            return;
+          }
+          payload = (await response.json()) as ProductsPage;
         }
 
-        const payload = (await response.json()) as ProductsPage;
         const fetchedItems = payload.items.filter((product) => !reserved.has(product.id));
         feedDebugLog("fetch:response", {
           targetPage,
@@ -118,6 +130,9 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
         });
         setPage(payload.page);
         setHasMore(Boolean(payload.hasMore));
+      } catch {
+        feedDebugLog("fetch:error", { targetPage, mode });
+        setHasMore(false);
       } finally {
         fetchingRef.current = false;
         setLoading(false);

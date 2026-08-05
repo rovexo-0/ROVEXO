@@ -2,6 +2,7 @@ import { deliveryCarriersForMethod } from "@/lib/sell/delivery";
 import { clampInventory } from "@/lib/sell/inventory";
 import { buildPublishDescription } from "@/lib/sell/publish-description";
 import { formatAttributeNote } from "@/lib/sell/attribute-engine";
+import { normalizeListingPrice } from "@/lib/sell/listing-price";
 import type { ParcelSize, SellListingDraft, SellPhoto } from "@/features/sell/types";
 
 /** Default low-stock alert when the sell form does not expose that field. */
@@ -41,11 +42,8 @@ export type ListingPublishPayload = {
 };
 
 export function parsePublishPrice(raw: string): number {
-  const parsed = Number.parseFloat(String(raw).trim());
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error("Enter a price greater than zero.");
-  }
-  return parsed;
+  const parsed = Number.parseFloat(String(raw).trim().replace(/,/g, ""));
+  return normalizeListingPrice(parsed);
 }
 
 /** Build a POST /api/listings body with no undefined numeric fields. */

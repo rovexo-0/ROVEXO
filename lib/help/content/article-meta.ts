@@ -22,10 +22,24 @@ const CATEGORY_TO_TOPIC: Record<HelpCategory, HelpTopicSlug> = {
 };
 
 const RELATED_BY_SLUG: Record<string, string[]> = {
-  "account-overview": ["reset-password", "privacy-policy"],
-  "buying-how-to-buy": ["buying-buyer-protection", "payments-checkout", "delivery-tracking"],
-  "payments-refunds": ["buying-buyer-protection", "delivery-tracking"],
-  "seller-tax-registration": ["payments-checkout", "business-accounts-setup"],
+  "account-overview": ["reset-password", "account-notifications", "account-delete"],
+  "buying-how-to-buy": ["buying-total-buyer-pays", "buying-make-offer", "buying-buyer-protection", "payments-checkout"],
+  "buying-total-buyer-pays": ["buying-how-to-buy", "payments-platform-fee", "payments-checkout"],
+  "buying-make-offer": ["buying-how-to-buy", "buying-first-purchase", "safety-scam-red-flags"],
+  "buying-first-purchase": ["buying-how-to-buy", "buying-condition-guide", "uk-buying-secondhand"],
+  "selling-get-started": ["selling-fees", "selling-listing-quality", "selling-photos"],
+  "selling-fees": ["selling-get-started", "payments-platform-fee", "wallet-overview"],
+  "wallet-overview": ["wallet-withdraw", "wallet-bank-account", "payments-checkout"],
+  "wallet-withdraw": ["wallet-overview", "wallet-bank-account", "verification-payouts"],
+  "shipping-labels": ["delivery-shipping", "delivery-tracking", "selling-parcels"],
+  "payments-refunds": ["buying-buyer-protection", "returns-buyer-steps", "delivery-tracking"],
+  "returns-buyer-steps": ["returns-seller-steps", "payments-refunds", "buying-buyer-protection"],
+  "safety-scam-red-flags": ["safety-marketplace", "buying-buyer-protection", "community-reporting"],
+  "community-reviews": ["trust-and-safety", "buying-how-to-buy", "selling-get-started"],
+  "uk-buying-secondhand": ["buying-first-purchase", "uk-selling-locally", "buying-condition-guide"],
+  "guide-womens-fashion": ["buying-condition-guide", "selling-listing-quality", "guide-mens-fashion"],
+  "guide-vehicle-parts": ["selling-get-started", "selling-parcels", "uk-selling-locally"],
+  "seller-tax-registration": ["business-vat-basics", "business-storefront-tips", "wallet-withdraw"],
   "pro-seller-promotions": ["pro-seller-dashboard"],
 };
 

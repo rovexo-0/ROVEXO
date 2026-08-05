@@ -9,9 +9,12 @@ import { privatePageMetadata } from "@/lib/seo/private-metadata";
 export const metadata = privatePageMetadata;
 
 export default async function AccountPage() {
-  const profile = await fetchProfile();
+  // Overlap wallet (session-auth only) with profile so Account is not a pure waterfall.
+  const profilePromise = fetchProfile();
+  const walletPromise = fetchWalletData().catch(() => null);
+  const profile = await profilePromise;
   const [wallet, snapshot, sellerPerformance, settings] = await Promise.all([
-    fetchWalletData().catch(() => null),
+    walletPromise,
     fetchAccountHubSnapshot(profile),
     getSellerPerformanceSummary(profile.id),
     getAppSettings(profile.id).catch(() => null),

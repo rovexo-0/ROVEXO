@@ -16,8 +16,11 @@ import {
   type BundleLineItemV1,
   type BundleSnapshotV1,
 } from "@/lib/bundle/bundle-domain-v1";
+import { invalidateShareInflight, shareInflightRequest } from "@/lib/performance/fetch";
 
 export const BUNDLE_MIRROR_STORAGE_KEY = "rovexo:bundle-mirror:v1";
+/** P3 — concurrent GET /api/bundle mounts share one network round-trip (inflight only). */
+export const BUNDLE_GET_SHARE_KEY = "GET:/api/bundle" as const;
 
 export type { BundleLineItemV1, BundleSnapshotV1, BundleAddResultV1 };
 export { bundleItemCount, bundleSubtotal, BUNDLE_SYNC_EVENT };
@@ -93,25 +96,49 @@ export function replaceBundleMirrorFromServer(bundle: BundleSnapshotV1 | null): 
 }
 
 /**
+ * Shared GET /api/bundle — inflight coalesce only (no soft TTL; checkout path).
+ * Returns the same shape callers already handled from fetch+json.
+ */
+export function fetchBundleSnapshotShared(): Promise<{
+  status: number;
+  ok: boolean;
+  bundle: BundleSnapshotV1 | null;
+}> {
+  return shareInflightRequest(
+    BUNDLE_GET_SHARE_KEY,
+    async () => {
+      const res = await fetch("/api/bundle", { credentials: "include" });
+      if (res.status === 401) {
+        return { status: 401, ok: false, bundle: null };
+      }
+      if (!res.ok) {
+        return { status: res.status, ok: false, bundle: null };
+      }
+      const payload = (await res.json()) as { ok?: boolean; bundle?: BundleSnapshotV1 | null };
+      if (!payload.ok) {
+        return { status: res.status, ok: false, bundle: null };
+      }
+      return { status: res.status, ok: true, bundle: payload.bundle ?? null };
+    },
+    { ttlMs: 0 },
+  );
+}
+
+/**
  * Fail-closed rehydrate: discard cache, fetch GET /api/bundle, rewrite mirror.
  * Returns server snapshot (null when empty / unauthenticated).
  */
 export async function rehydrateBundleMirrorFromServer(): Promise<BundleSnapshotV1 | null> {
   discardBundleMirror();
+  // Drop any in-flight pre-mutation GET so we never adopt a stale shared response.
+  invalidateShareInflight(BUNDLE_GET_SHARE_KEY);
   try {
-    const res = await fetch("/api/bundle", { credentials: "include" });
-    if (res.status === 401) {
+    const result = await fetchBundleSnapshotShared();
+    if (!result.ok) {
       return null;
     }
-    if (!res.ok) {
-      return null;
-    }
-    const payload = (await res.json()) as { ok?: boolean; bundle?: BundleSnapshotV1 | null };
-    if (!payload.ok) {
-      return null;
-    }
-    writeBundleMirror(payload.bundle ?? null);
-    return payload.bundle ?? null;
+    writeBundleMirror(result.bundle);
+    return result.bundle;
   } catch {
     return null;
   }

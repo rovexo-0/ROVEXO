@@ -6,12 +6,16 @@ import { publishPhaseLabel } from "@/lib/sell/publish-engine";
 import { getPendingTextSnapshot, subscribePendingText } from "@/lib/sell/pending-text-store";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { isSellListingPublishable } from "@/lib/sell/sell-validation";
-import { useSell } from "@/features/sell/context/SellProvider";
+import {
+  useSellActions,
+  useSellDraft,
+  useSellPublishProgress,
+} from "@/features/sell/context/SellProvider";
 
 function readCanPublish(
-  draft: ReturnType<typeof useSell>["draft"],
-  pendingTitleRef: ReturnType<typeof useSell>["pendingTitleRef"],
-  pendingDescriptionRef: ReturnType<typeof useSell>["pendingDescriptionRef"],
+  draft: ReturnType<typeof useSellDraft>["draft"],
+  pendingTitleRef: ReturnType<typeof useSellActions>["pendingTitleRef"],
+  pendingDescriptionRef: ReturnType<typeof useSellActions>["pendingDescriptionRef"],
 ): boolean {
   void getPendingTextSnapshot();
   const effective = resolveEffectiveSellDraft(draft, {
@@ -27,16 +31,9 @@ function readCanPublish(
 
 /** Sticky publish CTA — Settings sticky action + CanonicalButton only. */
 export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar(_props, ref) {
-  const {
-    draft,
-    pendingTitleRef,
-    pendingDescriptionRef,
-    isPublishing,
-    publishPhase,
-    uploadProgress,
-    publishListing,
-    editListingId,
-  } = useSell();
+  const { draft, editListingId } = useSellDraft();
+  const { pendingTitleRef, pendingDescriptionRef, publishListing } = useSellActions();
+  const { isPublishing, publishPhase, uploadProgress } = useSellPublishProgress();
 
   const canPublish = useSyncExternalStore(
     subscribePendingText,

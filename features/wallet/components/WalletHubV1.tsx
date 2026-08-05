@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import type { ReactNode, SVGProps } from "react";
+import { memo, type ReactNode, type SVGProps } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { resolveManualWithdrawableBalance } from "@/lib/transaction-hub/seller-wallet";
@@ -94,7 +94,7 @@ function WalletSectionSkeleton({ label, tall = false }: { label: string; tall?: 
   );
 }
 
-function BalanceMetricCard({
+const BalanceMetricCard = memo(function BalanceMetricCard({
   href,
   title,
   amount,
@@ -125,6 +125,129 @@ function BalanceMetricCard({
       <p className="wallet-v2__metric-amount">{formatCurrency(amount)}</p>
     </Link>
   );
+});
+
+/**
+ * Live wallet body — owns useWalletLive so AccountCanonicalShell does not wake on RT ticks (P8).
+ */
+function WalletHubLiveBody({
+  initialData,
+  userId,
+  connectMessage,
+}: {
+  initialData: WalletData;
+  userId: string;
+  connectMessage?: string;
+}) {
+  const { data, rtTick } = useWalletLive(userId, initialData);
+  const withdrawable = resolveManualWithdrawableBalance(data);
+  const { withdrawalSummary } = data;
+
+  return (
+    <div
+      className="wallet-v2"
+      data-wallet-hub-version="v1.0-canonical"
+      data-wallet-canonical={WALLET_CANONICAL_VERSION}
+      data-wallet-ui="v1.0-canonical-mockup"
+      data-wallet-visual="canonical-light"
+      data-wallet-final-spec="v1.0-canonical-lock"
+      data-balance-visual="final-polish-v1.0"
+      data-blood-code-xiii={SUPREME_BLOOD_CODE_XIII_V1.version}
+      data-blood-code-xiv={SUPREME_BLOOD_CODE_XIV_V1.version}
+      data-blood-code-xix={SUPREME_BLOOD_CODE_XIX_V1.version}
+      data-wallet-sprint="IV"
+      data-wallet-freeze="LOCKED"
+      data-wallet-rt-tick={rtTick}
+      data-wallet-available={data.availableBalance}
+      data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
+    >
+      {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
+
+      <section className="wallet-v2__hero" aria-labelledby="wallet-available-label">
+        <div className="wallet-v2__hero-top">
+          <p id="wallet-available-label" className="wallet-v2__hero-label">
+            Available Balance
+          </p>
+          <span className="wallet-v2__status-pill" aria-label="Wallet status Available">
+            <span className="wallet-v2__status-dot" aria-hidden />
+            Available
+          </span>
+        </div>
+
+        <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
+
+        <div className="wallet-v2__hero-footer">
+          <p className="wallet-v2__hero-sub">
+            Available to withdraw
+            <span className="wallet-v2__hero-info" aria-hidden>
+              <InfoLineIcon />
+            </span>
+          </p>
+
+          <div className="wallet-v2__hero-actions">
+            <Link
+              href={WALLET_ROUTES.withdraw}
+              className={cn(
+                "wallet-v2__hero-btn",
+                "wallet-v2__hero-btn--primary",
+                withdrawable <= 0 && "is-disabled",
+              )}
+              aria-disabled={withdrawable <= 0}
+              tabIndex={withdrawable <= 0 ? -1 : undefined}
+              onClick={(event) => {
+                if (withdrawable <= 0) event.preventDefault();
+              }}
+            >
+              Withdraw
+            </Link>
+            <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
+              Bank Account
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="wallet-v2__metrics" aria-label="Wallet balances">
+        <BalanceMetricCard
+          href={WALLET_ROUTES.transactions}
+          title="Pending"
+          amount={data.pendingBalance}
+          tone="pending"
+          icon={<ClockLineIcon />}
+        />
+        <BalanceMetricCard
+          href={WALLET_ROUTES.withdraw}
+          title="Available"
+          amount={withdrawable}
+          tone="available"
+          icon={<WalletLineIcon />}
+        />
+        <BalanceMetricCard
+          href={WALLET_ROUTES.payouts}
+          title="Processing"
+          amount={withdrawalSummary.processingTotal}
+          tone="processing"
+          icon={<RefreshLineIcon />}
+        />
+        <BalanceMetricCard
+          href={WALLET_ROUTES.payouts}
+          title="Paid Out"
+          amount={withdrawalSummary.completedTotal}
+          tone="paid"
+          icon={<CheckCircleLineIcon />}
+        />
+      </section>
+
+      <WalletInsights
+        sales={data.monthSummary.revenue.value}
+        withdrawn={data.monthSummary.withdrawn.value}
+        pending={data.pendingBalance}
+        pendingAvailableAt={data.pendingAvailableAt}
+      />
+
+      <WalletRecentTransactions transactions={data.transactions} />
+    </div>
+  );
 }
 
 export function WalletHubV1({
@@ -136,10 +259,7 @@ export function WalletHubV1({
   isBusinessVerified = false,
 }: WalletHubV1Props) {
   void isBusinessVerified;
-  const { data, rtTick } = useWalletLive(userId, initialData);
   const isBusiness = variant === "business";
-  const withdrawable = resolveManualWithdrawableBalance(data);
-  const { withdrawalSummary } = data;
 
   return (
     <AccountCanonicalShell
@@ -154,109 +274,7 @@ export function WalletHubV1({
         </Link>
       }
     >
-      <div
-        className="wallet-v2"
-        data-wallet-hub-version="v1.0-canonical"
-        data-wallet-canonical={WALLET_CANONICAL_VERSION}
-        data-wallet-ui="v1.0-canonical-mockup"
-        data-wallet-visual="canonical-light"
-        data-wallet-final-spec="v1.0-canonical-lock"
-        data-balance-visual="final-polish-v1.0"
-        data-blood-code-xiii={SUPREME_BLOOD_CODE_XIII_V1.version}
-        data-blood-code-xiv={SUPREME_BLOOD_CODE_XIV_V1.version}
-        data-blood-code-xix={SUPREME_BLOOD_CODE_XIX_V1.version}
-        data-wallet-sprint="IV"
-        data-wallet-freeze="LOCKED"
-        data-wallet-rt-tick={rtTick}
-        data-wallet-available={data.availableBalance}
-        data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
-      >
-        {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
-
-        <section className="wallet-v2__hero" aria-labelledby="wallet-available-label">
-          <div className="wallet-v2__hero-top">
-            <p id="wallet-available-label" className="wallet-v2__hero-label">
-              Available Balance
-            </p>
-            <span className="wallet-v2__status-pill" aria-label="Wallet status Available">
-              <span className="wallet-v2__status-dot" aria-hidden />
-              Available
-            </span>
-          </div>
-
-          <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
-
-          <div className="wallet-v2__hero-footer">
-            <p className="wallet-v2__hero-sub">
-              Available to withdraw
-              <span className="wallet-v2__hero-info" aria-hidden>
-                <InfoLineIcon />
-              </span>
-            </p>
-
-            <div className="wallet-v2__hero-actions">
-              <Link
-                href={WALLET_ROUTES.withdraw}
-                className={cn(
-                  "wallet-v2__hero-btn",
-                  "wallet-v2__hero-btn--primary",
-                  withdrawable <= 0 && "is-disabled",
-                )}
-                aria-disabled={withdrawable <= 0}
-                tabIndex={withdrawable <= 0 ? -1 : undefined}
-                onClick={(event) => {
-                  if (withdrawable <= 0) event.preventDefault();
-                }}
-              >
-                Withdraw
-              </Link>
-              <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
-                Bank Account
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section className="wallet-v2__metrics" aria-label="Wallet balances">
-          <BalanceMetricCard
-            href={WALLET_ROUTES.transactions}
-            title="Pending"
-            amount={data.pendingBalance}
-            tone="pending"
-            icon={<ClockLineIcon />}
-          />
-          <BalanceMetricCard
-            href={WALLET_ROUTES.withdraw}
-            title="Available"
-            amount={withdrawable}
-            tone="available"
-            icon={<WalletLineIcon />}
-          />
-          <BalanceMetricCard
-            href={WALLET_ROUTES.payouts}
-            title="Processing"
-            amount={withdrawalSummary.processingTotal}
-            tone="processing"
-            icon={<RefreshLineIcon />}
-          />
-          <BalanceMetricCard
-            href={WALLET_ROUTES.payouts}
-            title="Paid Out"
-            amount={withdrawalSummary.completedTotal}
-            tone="paid"
-            icon={<CheckCircleLineIcon />}
-          />
-        </section>
-
-        <WalletInsights
-          sales={data.monthSummary.revenue.value}
-          withdrawn={data.monthSummary.withdrawn.value}
-          pending={data.pendingBalance}
-          pendingAvailableAt={data.pendingAvailableAt}
-        />
-
-        <WalletRecentTransactions transactions={data.transactions} />
-      </div>
+      <WalletHubLiveBody initialData={initialData} userId={userId} connectMessage={connectMessage} />
     </AccountCanonicalShell>
   );
 }

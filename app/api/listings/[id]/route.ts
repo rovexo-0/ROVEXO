@@ -197,18 +197,30 @@ export async function DELETE(_request: Request, context: RouteContext) {
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
-  const existing = await getSellerListingById(auth.user.id, id);
-  const deleted = await deleteSellerListing(auth.user.id, id);
 
-  if (!deleted) {
-    return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+  try {
+    const existing = await getSellerListingById(auth.user.id, id);
+    if (!existing) {
+      return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+    }
+
+    const deleted = await deleteSellerListing(auth.user.id, id);
+
+    if (!deleted) {
+      return NextResponse.json(
+        { error: "Unable to delete listing." },
+        { status: 500 },
+      );
+    }
+
+    if (existing.slug) {
+      revalidateDeletedListing(existing.slug);
+    } else {
+      revalidateDeletedListing();
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Unable to delete listing." }, { status: 500 });
   }
-
-  if (existing?.slug) {
-    revalidateDeletedListing(existing.slug);
-  } else {
-    revalidateDeletedListing();
-  }
-
-  return NextResponse.json({ success: true });
 }

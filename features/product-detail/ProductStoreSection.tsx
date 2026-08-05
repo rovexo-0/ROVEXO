@@ -1,3 +1,6 @@
+"use client";
+
+import { memo } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { PremiumButtonLink } from "@/components/ui/PremiumButton";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -15,7 +18,9 @@ type ProductStoreSectionProps = {
  * Seller card — Visit Store on the RIGHT of the row.
  * Avatar · Name tap → Public Profile. Visit Store → Store.
  */
-export function ProductStoreSection({ product }: ProductStoreSectionProps) {
+export const ProductStoreSection = memo(function ProductStoreSection({
+  product,
+}: ProductStoreSectionProps) {
   const storeHref = resolveStoreHrefFromSeller({
     sellerId: product.sellerId,
     storeSlug: product.sellerUsername,
@@ -94,4 +99,4 @@ export function ProductStoreSection({ product }: ProductStoreSectionProps) {
       </div>
     </section>
   );
-}
+});

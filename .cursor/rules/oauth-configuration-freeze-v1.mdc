@@ -1,5 +1,5 @@
 ---
-description: OAuth Configuration Freeze — enable providers in Supabase only
+description: OAuth Configuration Freeze — Google live; Apple/FB deferred
 alwaysApply: true
 ---
 
@@ -7,34 +7,39 @@ alwaysApply: true
 
 **STATUS: OWNER APPROVED | LOCKED | FROZEN | SSOT READY**
 
-SSOT: `lib/auth/oauth-configuration-freeze-v1.ts`
+SSOT: `lib/auth/oauth-configuration-freeze-v1.ts`  
+Roadmap: **P10.6R**
 
 ## Mission
 
 **NO code changes. NO auth rewrites. NO new auth systems.**  
-**ONLY configuration is allowed.**
+**ONLY configuration / Owner live confirmation is allowed.**
 
-## Root cause (only one)
+## Historical root cause (when providers disabled)
 
-Supabase Auth providers are **not enabled** → `400 validation_failed` · Unsupported provider · provider is not enabled.
+Supabase Auth providers not enabled → `400 validation_failed` · Unsupported provider · provider is not enabled.
 
-## Current status
+## Current status (P10.6R)
 
 Email / Remember Me / Forgot Password / Session / Cookie / Header / Search / Camera Search → **PASS**  
-Google / Apple / Facebook Login → **FAIL** (configuration)
+Google ops configured → **PASS**  
+Google live → **AWAITING_OWNER_LIVE_CONFIRMATION**  
+Apple / Facebook → **DEFERRED_V2_NOT_BLOCKING**
 
 ## Allowed (Owner / ops only)
 
-1. Enable Google · Apple · Facebook in Supabase Auth  
+1. Enable Google in Supabase Auth (done per Owner Decision)  
 2. Configure callback URLs + local (`http://localhost:3000`) + production (`https://www.rovexo.co.uk`)  
 3. Path `/auth/callback`  
-4. Save → Test → Pass → Production ready
+4. Owner live Google test → Pass → Production ready  
+5. Defer Apple / Facebook to v2.0
 
 ## Forbidden forever
 
 - Auth / session / cookie / middleware / login / register / header / search **rewrites**
 - New auth / session / cookie systems · custom OAuth · multiple callbacks / user owners  
-- **GOOGLE/APPLE/FACEBOOK FAILS → REWRITE AUTH** — absolutely forbidden
+- **GOOGLE FAILS → REWRITE AUTH** — absolutely forbidden  
+- Treating Apple/Facebook as v1.0 production blockers
 
 ## Golden rule
 
@@ -43,12 +48,13 @@ Never: rewrites, refactors, new architectures, duplicates.
 
 ## Level 8 law
 
-If Header + Search + Camera Search + Auth core **PASS** and the only failure is OAuth configuration →  
-**application code must not be modified — only configuration may be modified.**
+If Header + Search + Camera Search + Auth core **PASS** and the only open item is Google live confirmation →  
+**application code must not be modified — only configuration / Owner confirmation may proceed.**
 
 ## Cursor must never
 
 - Rewrite Auth because OAuth returns 400  
 - Add Clerk / Firebase / Auth.js / NextAuth / custom OAuth  
-- Touch Login/Register/Header/Search to “fix” disabled providers  
-- Claim production OAuth PASS until Owner has enabled providers and tested
+- Touch Login/Register/Header/Search to “fix” deferred providers  
+- Claim Google live PASS until Owner has confirmed live login  
+- Block v1 deploy because Apple or Facebook are deferred

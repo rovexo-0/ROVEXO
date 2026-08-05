@@ -2,19 +2,21 @@
 
 /**
  * Live products.views from DATABASE publish — never a frontend counter authority.
+ * P5: subscribe per slug so unrelated cards on Browse grids do not wake.
  */
 
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import {
   getLiveViewCount,
-  subscribeViewLive,
+  subscribeLiveViewCount,
 } from "@/lib/views/view-live-sync";
 
-function subscribe(callback: () => void): () => void {
-  return subscribeViewLive(() => callback());
-}
-
 export function useLiveProductViews(slug: string, initialViews: number | undefined): number {
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => subscribeLiveViewCount(slug, onStoreChange),
+    [slug],
+  );
+
   const live = useSyncExternalStore(
     subscribe,
     () => getLiveViewCount(slug),

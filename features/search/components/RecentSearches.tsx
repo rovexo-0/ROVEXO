@@ -30,7 +30,7 @@ export function RecentSearches({
 
   return (
     <div className="flex flex-col gap-ds-2">
-      <ul className="flex flex-col gap-ds-1" role="listbox" aria-label="Recent searches">
+      <ul className="flex flex-col gap-ds-1" aria-label="Recent searches">
         {items.map((term, index) => {
           const navIndex = navOffset + index;
           const isActive = activeIndex === navIndex;
@@ -45,8 +45,7 @@ export function RecentSearches({
               >
                 <button
                   type="button"
-                  role="option"
-                  aria-selected={isActive}
+                  aria-current={isActive ? "true" : undefined}
                   onClick={() => onSelect(term)}
                   className={cn(
                     "flex min-h-[44px] min-w-0 flex-1 items-center rounded-ds-md px-ds-3 text-left text-sm text-text-primary hover:bg-secondary",

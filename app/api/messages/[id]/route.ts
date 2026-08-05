@@ -9,6 +9,7 @@ import {
   reactToMessage,
   updateConversationPreferences,
 } from "@/lib/messages/store";
+import { getViewerRole } from "@/lib/messages/types";
 import {
   INBOX_EVENT_ENGINE_V1,
   syncConversationOpen,
@@ -31,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const userLimited = await enforceRateLimitForUser(auth.user.id, "messages-send", 60, 60_000);
@@ -46,7 +47,7 @@ export async function POST(request: Request, context: RouteContext) {
       kind?: "text" | "photo" | "emoji";
     };
 
-    if (!body.content?.trim() || !body.senderRole) {
+    if (!body.content?.trim()) {
       return NextResponse.json({ error: "Invalid message payload." }, { status: 400 });
     }
 
@@ -55,12 +56,15 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
     }
 
+    // P11.1 H-03 — bind senderRole server-side (ignore client spoof).
+    const senderRole = getViewerRole(existing.participant);
+
     const kind = body.kind === "photo" || body.kind === "emoji" ? body.kind : "text";
 
     const result = await appendMessage({
       conversationId: id,
       senderId: auth.user.id,
-      senderRole: body.senderRole,
+      senderRole,
       content: body.content.trim(),
       replyToId: body.replyToId,
       kind,
@@ -78,7 +82,7 @@ export async function POST(request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;

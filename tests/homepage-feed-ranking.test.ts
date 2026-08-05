@@ -148,7 +148,8 @@ describe("Homepage V4 section architecture", () => {
 
     expect(page).toContain("resolveHomepageV4Sections");
 
-    expect(page).toContain('fetchProducts("recommended"');
+    // P1: recommended/featured SSR query removed — CanonicalHomepage has no featured rail.
+    expect(page).not.toContain('fetchProducts("recommended"');
 
     expect(page).not.toContain('fetchProducts("popular"');
 

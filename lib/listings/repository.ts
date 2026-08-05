@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import type { Tables, TablesUpdate, ProductStatus } from "@/lib/supabase/types/database";
 import type { Product, ProductSection } from "@/lib/products/types";
 import { buildProductImagePath } from "@/lib/storage/server-images";
@@ -10,11 +10,12 @@ import { resolveEligibleVisibleTotal } from "@/lib/listings/resolve-eligible-vis
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { applyAntiMonopolyRotation } from "@/lib/promotions/boost-time-decay-v1";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { purgeListingNotifications } from "@/lib/listings/purge-listing-notifications";
+import { normalizeListingPrice } from "@/lib/sell/listing-price";
 import type {
   CreateListingInput,
   ListingFilter,
@@ -70,19 +71,28 @@ function slugify(title: string): string {
 function mapImages(rows: Tables<"product_images">[] | undefined): ListingImage[] {
   return [...(rows ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
-    .map((row) => ({
-      id: row.id,
-      url: row.url,
-      thumbnailUrl: row.thumbnail_url ?? row.url,
-      storagePath: row.storage_path ?? "",
-      sortOrder: row.sort_order,
-      isPrimary: row.is_primary,
-    }));
+    .map((row) => {
+      const url = row.url ?? "";
+      const rawThumb = (row.thumbnail_url ?? "").trim();
+      // Derived `-thumb.` URLs that never landed in Storage cause `/_next/image` HTTP 400.
+      // Collapse those invalid refs to the full object URL (GATE 3 class repair at read-time).
+      const thumbIsDerived =
+        Boolean(rawThumb) && Boolean(url) && rawThumb !== url && /-thumb\./i.test(rawThumb);
+      return {
+        id: row.id,
+        url,
+        thumbnailUrl: thumbIsDerived ? url : rawThumb || url,
+        storagePath: row.storage_path ?? "",
+        sortOrder: row.sort_order,
+        isPrimary: row.is_primary,
+      };
+    });
 }
 
 function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): SellerListing {
   const images = mapImages(row.product_images);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
+  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url);
   const auctionEndsAt = row.auction_ends_at;
   const isAuctionExpired =
     row.listing_type === "auction" &&
@@ -124,8 +134,8 @@ function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     lowStockAlert: row.low_stock_alert,
     views: row.views,
     likes: row.likes,
-    imageUrl: primary?.url ?? PRODUCT_IMAGE_FALLBACK,
-    thumbnailUrl: primary?.thumbnailUrl ?? null,
+    imageUrl: cardImages.imageUrl,
+    thumbnailUrl: cardImages.imageUrl !== cardImages.imageFullUrl ? cardImages.imageUrl : null,
     images,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -159,6 +169,7 @@ async function attachSellerListingModes(listings: SellerListing[]): Promise<Sell
 function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): Product {
   const images = mapImages(row.product_images);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
+  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url);
 
   return {
     id: row.id,
@@ -182,7 +193,8 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     reviewCount: row.review_count,
     views: row.views,
     likes: row.likes,
-    imageUrl: primary?.url ?? PRODUCT_IMAGE_FALLBACK,
+    imageUrl: cardImages.imageUrl,
+    imageFullUrl: cardImages.imageFullUrl,
     sections: (row.sections ?? []) as ProductSection[],
     isFeatured: isPromotionActive(row.featured_until),
     isBumped: isPromotionActive(row.bumped_until),
@@ -315,11 +327,19 @@ async function storageObjectExists(
   supabase: Awaited<ReturnType<typeof createClient>>,
   path: string,
 ): Promise<boolean> {
+  // Signed URL probe — reliable existence check without downloading bytes.
+  // `list({ search })` produced false negatives → publish skipped images /
+  // "Object not found" / "Unable to save listing images".
+  const { data: signed, error: signedError } = await supabase.storage
+    .from("products")
+    .createSignedUrl(path, 30);
+  if (!signedError && signed?.signedUrl) return true;
+
   const slash = path.lastIndexOf("/");
   const dir = slash >= 0 ? path.slice(0, slash) : "";
   const name = slash >= 0 ? path.slice(slash + 1) : path;
-  const { data } = await supabase.storage.from("products").list(dir, { search: name, limit: 100 });
-  return Boolean(data?.some((entry) => entry.name === name));
+  const { data: listed } = await supabase.storage.from("products").list(dir, { limit: 200 });
+  return Boolean(listed?.some((entry) => entry.name === name));
 }
 
 /**
@@ -339,7 +359,26 @@ async function moveImageToProductFolder(
   }
 
   if (!image.storagePath.includes("/temp/")) {
-    return image;
+    const supabase = await createClient();
+    const exists = await storageObjectExists(supabase, image.storagePath);
+    if (!exists) {
+      console.error("[moveImageToProductFolder] final-path image missing in storage", {
+        storagePath: image.storagePath,
+      });
+      return null;
+    }
+    // Repair dangling -thumb refs on already-final paths.
+    const thumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
+    const thumbExists =
+      image.storagePath !== thumbPath ? await storageObjectExists(supabase, thumbPath) : false;
+    const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
+    return {
+      ...image,
+      url: publicUrl,
+      thumbnailUrl: thumbExists
+        ? getPublicStorageUrl("products", thumbPath)
+        : publicUrl,
+    };
   }
 
   const supabase = await createClient();
@@ -420,6 +459,71 @@ async function insertProductImages(
   }
 }
 
+/**
+ * P10.3 — Draft SSOT image attach (NO Storage materialization).
+ *
+ * Publish owns the sole temp→final copy+delete via `insertProductImages` /
+ * `moveImageToProductFolder`. Draft must never call those — concurrent draft
+ * create after publish was deleting the same temp twice → Object not found → 500.
+ *
+ * Behaviour: reference existing owned objects only; skip missing (already
+ * consumed by Publish); never copy; never remove; never throw when all temps gone.
+ */
+async function insertDraftProductImageRefs(
+  productId: string,
+  sellerId: string,
+  images: ListingImageInput[],
+): Promise<void> {
+  const supabase = await createClient();
+  const kept: ListingImageInput[] = [];
+
+  for (const image of images) {
+    if (!image.storagePath.startsWith(`${sellerId}/`)) {
+      throw new Error("Invalid image storage path.");
+    }
+
+    const exists = await storageObjectExists(supabase, image.storagePath);
+    if (!exists) {
+      continue;
+    }
+
+    const thumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
+    const thumbExists =
+      image.storagePath !== thumbPath ? await storageObjectExists(supabase, thumbPath) : false;
+    const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
+
+    kept.push({
+      ...image,
+      url: publicUrl,
+      thumbnailUrl: thumbExists
+        ? getPublicStorageUrl("products", thumbPath)
+        : publicUrl,
+    });
+  }
+
+  if (kept.length === 0) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("product_images")
+    .insert(
+      kept.map((image, index) => ({
+        product_id: productId,
+        url: image.url,
+        thumbnail_url: image.thumbnailUrl ?? image.url,
+        storage_path: image.storagePath,
+        sort_order: image.sortOrder ?? index,
+        is_primary: image.isPrimary ?? index === 0,
+      })),
+    )
+    .select();
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function getSellerListingById(
   sellerId: string,
   productId: string,
@@ -473,7 +577,8 @@ export async function createSellerListing(
     status === "published" ? ["new", "trending", "recommended"] : [];
 
   const isAuction = input.listingType === "auction";
-  const auctionStart = input.auctionStartPrice ?? input.price;
+  const normalizedPrice = normalizeListingPrice(input.price);
+  const auctionStart = normalizeListingPrice(input.auctionStartPrice ?? normalizedPrice);
 
   const productInsert = {
     seller_id: input.sellerId,
@@ -486,8 +591,12 @@ export async function createSellerListing(
     color: input.color,
     size: input.size,
     condition: input.condition,
-    price: isAuction ? (input.price > auctionStart ? input.price : auctionStart) : input.price,
-    accept_offers: isAuction ? input.price > auctionStart : input.acceptOffers,
+    price: isAuction
+      ? normalizedPrice > auctionStart
+        ? normalizedPrice
+        : auctionStart
+      : normalizedPrice,
+    accept_offers: isAuction ? normalizedPrice > auctionStart : input.acceptOffers,
     delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
     shipping_method: input.shippingMethod ?? "delivery_available",
     shipping_price: input.shippingPrice ?? (input.freeDelivery ? 0 : null),
@@ -525,9 +634,13 @@ export async function createSellerListing(
   // Image insertion and the pre-publish moderation scan are independent (the scan
   // reads image *names* from the input, not the freshly inserted rows), so run
   // them concurrently instead of serializing two round-trip chains.
+  //
+  // P10.3 — Draft never materializes temp Storage (Publish is sole move owner).
   try {
     const [, moderation] = await Promise.all([
-      insertProductImages(product.id, input.sellerId, input.images),
+      status === "draft"
+        ? insertDraftProductImageRefs(product.id, input.sellerId, input.images)
+        : insertProductImages(product.id, input.sellerId, input.images),
       status === "published"
         ? scanListingBeforePublish({
             sellerId: input.sellerId,
@@ -588,7 +701,7 @@ export async function updateSellerListing(
     ...(input.color !== undefined && { color: input.color }),
     ...(input.size !== undefined && { size: input.size }),
     ...(input.condition !== undefined && { condition: input.condition }),
-    ...(input.price !== undefined && { price: input.price }),
+    ...(input.price !== undefined && { price: normalizeListingPrice(input.price) }),
     ...(input.acceptOffers !== undefined && { accept_offers: input.acceptOffers }),
     ...(input.status !== undefined && {
       status: input.status,
@@ -705,19 +818,38 @@ type ListingDeletionTarget = {
  * rows owned by other users (e.g. buyers' cart/saved entries) regardless of RLS.
  */
 async function purgeListingRecord(target: ListingDeletionTarget): Promise<boolean> {
-  const admin = createAdminClient();
+  const admin = tryCreateAdminClient();
+  if (!admin) {
+    console.error("[purgeListingRecord] admin client unavailable");
+    return false;
+  }
 
-  // Remove every stored image object (originals + thumbnails) for the listing.
-  await deleteStoragePaths(target.storagePaths);
-  await deleteStorageFolder(`${target.sellerId}/${target.id}`);
+  try {
+    // Remove every stored image object (originals + thumbnails) for the listing.
+    await deleteStoragePaths(target.storagePaths);
+    await deleteStorageFolder(`${target.sellerId}/${target.id}`);
 
-  // Purge notifications that deep-link to this listing (no product_id column).
-  await purgeListingNotifications(admin, { id: target.id, slug: target.slug });
+    // Purge notifications that deep-link to this listing (no product_id column).
+    await purgeListingNotifications(admin, { id: target.id, slug: target.slug });
 
-  // Hard delete the product row — cascades all child records atomically.
-  const { error } = await admin.from("products").delete().eq("id", target.id);
+    // Hard delete the product row — cascades all child records atomically.
+    // RESTRICT FKs (bundle_items.product_id, checkout_sessions.listing_id) may
+    // block hard delete; soft-delete then removes the listing from marketplace
+    // without schema / typed-table coupling.
+    const { error } = await admin.from("products").delete().eq("id", target.id);
+    if (!error) return true;
 
-  return !error;
+    console.error("[purgeListingRecord] hard delete failed; soft-deleting", error.message);
+    const { error: softError } = await admin
+      .from("products")
+      .update({ status: "deleted" })
+      .eq("id", target.id)
+      .eq("seller_id", target.sellerId);
+    return !softError;
+  } catch (error) {
+    console.error("[purgeListingRecord] unexpected failure", error);
+    return false;
+  }
 }
 
 /**

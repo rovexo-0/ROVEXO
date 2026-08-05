@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -28,12 +28,16 @@ export type RovexoHeaderV2Props = {
 const SEARCH_FIELD_ID = "rx-h2-search";
 
 /**
- * ROVEXO HEADER v1.0 — SEARCH PRIORITY FREEZE
- * Purpose: SEARCH only. Stateless. Identical on Home / Search / Results / Discovery.
- * Homepage is excluded from compact hide-on-scroll (Owner) — chrome stays visible.
+ * Scroll chrome owns `isScrolled` so logo + search children keep a stable
+ * element identity and do not re-render on scroll class toggles.
  */
-function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV2Props) {
-  const isAccountLayout = layout === "account";
+function HeaderScrollShell({
+  isAccountLayout,
+  children,
+}: {
+  isAccountLayout: boolean;
+  children: ReactNode;
+}) {
   const headerRef = useRef<HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -43,9 +47,6 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  void HEADER_MASTER_FREEZE_V1.searchFirstMinimalist;
-  void SEARCH_PRIORITY_FREEZE_V1.identicalMarketplaceChrome;
 
   return (
     <header
@@ -61,34 +62,50 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
         isScrolled && "rx-h2--scrolled",
       )}
     >
-      <div className={cn("rx-h2__inner", isAccountLayout && "rx-h2__inner--row1")}>
-        <Link
-          href="/"
-          aria-label="ROVEXO Home"
-          className={cn("rx-h2__logo", focusRing)}
-          data-auth-brand-freeze="XXXIX"
-          data-auth-experience-freeze="XLI"
-          data-brand-level="III_APP_ICON"
-        >
-          <SafeImage
-            src={OFFICIAL_BRAND_APP_ICON}
-            alt="ROVEXO"
-            width={42}
-            height={28}
-            className="rx-h2__logo-img"
-            priority
-            quality={100}
-            unoptimized
-          />
-        </Link>
-
-        {showSearch && !isAccountLayout ? (
-          <div className="rx-h2__search">
-            <HomepageSearchField inputId={SEARCH_FIELD_ID} className="rx-h2-search" />
-          </div>
-        ) : null}
-      </div>
+      <div className={cn("rx-h2__inner", isAccountLayout && "rx-h2__inner--row1")}>{children}</div>
     </header>
+  );
+}
+
+/**
+ * ROVEXO HEADER v1.0 — SEARCH PRIORITY FREEZE
+ * Purpose: SEARCH only. Stateless. Identical on Home / Search / Results / Discovery.
+ * Homepage is excluded from compact hide-on-scroll (Owner) — chrome stays visible.
+ */
+function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV2Props) {
+  const isAccountLayout = layout === "account";
+
+  void HEADER_MASTER_FREEZE_V1.searchFirstMinimalist;
+  void SEARCH_PRIORITY_FREEZE_V1.identicalMarketplaceChrome;
+
+  return (
+    <HeaderScrollShell isAccountLayout={isAccountLayout}>
+      <Link
+        href="/"
+        aria-label="ROVEXO Home"
+        className={cn("rx-h2__logo", focusRing)}
+        data-auth-brand-freeze="XXXIX"
+        data-auth-experience-freeze="XLI"
+        data-brand-level="III_APP_ICON"
+      >
+        <SafeImage
+          src={OFFICIAL_BRAND_APP_ICON}
+          alt="ROVEXO"
+          width={28}
+          height={28}
+          className="rx-h2__logo-img"
+          priority
+          quality={100}
+          unoptimized
+        />
+      </Link>
+
+      {showSearch && !isAccountLayout ? (
+        <div className="rx-h2__search">
+          <HomepageSearchField inputId={SEARCH_FIELD_ID} className="rx-h2-search" />
+        </div>
+      ) : null}
+    </HeaderScrollShell>
   );
 }
 

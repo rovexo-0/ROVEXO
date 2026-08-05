@@ -38,15 +38,22 @@ describe("OAuth Configuration Freeze v1.0 — LEVEL 8", () => {
     );
   });
 
-  it("locks current PASS core auth and FAIL social login", () => {
+  it("locks current PASS core auth · Google awaiting · Apple/FB deferred", () => {
     expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.emailLogin).toBe("PASS");
     expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.sessionRestore).toBe(
       "PASS",
     );
-    expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.googleLogin).toBe("FAIL");
-    expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.appleLogin).toBe("FAIL");
+    expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.googleOpsConfigured).toBe(
+      "PASS",
+    );
+    expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.googleLogin).toBe(
+      "AWAITING_OWNER_LIVE_CONFIRMATION",
+    );
+    expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.appleLogin).toBe(
+      "DEFERRED_V2_NOT_BLOCKING",
+    );
     expect(OAUTH_CONFIGURATION_FREEZE_V1.currentStatus.facebookLogin).toBe(
-      "FAIL",
+      "DEFERRED_V2_NOT_BLOCKING",
     );
   });
 
@@ -89,6 +96,7 @@ describe("OAuth Configuration Freeze v1.0 — LEVEL 8", () => {
     );
     const rule = readSource(".cursor/rules/oauth-configuration-freeze-v1.mdc");
     expect(rule).toContain("ONLY configuration");
-    expect(rule).toContain("provider is not enabled");
+    expect(rule).toContain("P10.6R");
+    expect(rule).toContain("DEFERRED_V2_NOT_BLOCKING");
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Avatar } from "@/components/ui/Avatar";
@@ -15,7 +16,7 @@ type CheckoutProductSummaryProps = {
 };
 
 /** Compact product summary — Blood Compact UI. Bundle: locked lines from snapshot only. */
-export function CheckoutProductSummary({
+export const CheckoutProductSummary = memo(function CheckoutProductSummary({
   product,
   bundleSnapshot,
 }: CheckoutProductSummaryProps) {
@@ -91,4 +92,4 @@ export function CheckoutProductSummary({
       </span>
     </Link>
   );
-}
+});

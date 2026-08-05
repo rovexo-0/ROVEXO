@@ -4,19 +4,18 @@ import {
   PUBLISH_FAILURE_MESSAGE,
   type PublishPhase,
 } from "@/lib/sell/publish-engine";
-import { useSell } from "@/features/sell/context/SellProvider";
+import {
+  useSellActions,
+  useSellDraft,
+  useSellPublishOutcome,
+  useSellPublishProgress,
+} from "@/features/sell/context/SellProvider";
 
 export function usePublishListing() {
-  const {
-    publishListing,
-    isPublishing,
-    publishPhase,
-    uploadProgress,
-    publishSuccess,
-    formError,
-    resetForAnotherListing,
-    editListingId,
-  } = useSell();
+  const { editListingId } = useSellDraft();
+  const { publishListing, resetForAnotherListing } = useSellActions();
+  const { isPublishing, publishPhase, uploadProgress } = useSellPublishProgress();
+  const { publishSuccess, formError } = useSellPublishOutcome();
 
   return {
     publishListing,

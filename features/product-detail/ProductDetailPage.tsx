@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
@@ -30,7 +30,7 @@ import {
   formatListingPriceIncl,
   resolveListingShippingForIncl,
 } from "@/lib/listing-card/format";
-import type { Product, ProductDetail } from "@/lib/products/types";
+import type { ProductDetail } from "@/lib/products/types";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { getTransactionCapabilities } from "@/lib/transaction-mode/capabilities";
@@ -53,8 +53,6 @@ import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
-  /** Kept for route compatibility — Similar Items not mounted (View Item freeze). */
-  similarProducts?: Product[];
 };
 
 /**
@@ -75,8 +73,6 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
   const stockQty = clampStockLevel(product.stock);
   const [qtyState, setQtyState] = useState({ productId: product.id, quantity: 1 });
   const quantity = qtyState.productId === product.id ? qtyState.quantity : 1;
-  const setQuantity = (next: number) => setQtyState({ productId: product.id, quantity: next });
-
   const capabilities = getTransactionCapabilities(product.transactionMode);
   const isSold = product.status === "sold";
   const sellerOnHoliday = product.sellerOnHoliday === true;
@@ -247,6 +243,51 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
     void persistAddToBundle(buildLine());
   };
 
+  const handleContact = useCallback(() => {
+    void fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productSlug: product.slug }),
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as { href?: string };
+        router.push(payload.href ?? "/inbox");
+      })
+      .catch(() => router.push("/inbox"));
+  }, [product.slug, router]);
+
+  const handleCancelOffer = useCallback(() => {
+    if (!negotiationView.offerId) return;
+    void negotiation.cancel(negotiationView.offerId);
+    // negotiation.cancel is referentially stable (P6 hook memo).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable cancel callback
+  }, [negotiation.cancel, negotiationView.offerId]);
+
+  const handleCloseSheet = useCallback(() => setSheetOpen(false), []);
+  const handleCloseConflict = useCallback(() => setConflictOpen(false), []);
+  const handleConflictContinue = useCallback(() => {
+    setConflictOpen(false);
+    router.push(BUNDLE_ENGINE_V1.ssot.reviewRoute);
+  }, [router]);
+  const handleCloseOffer = useCallback(() => setOfferOpen(false), []);
+  const handleOfferSent = useCallback(
+    ({ conversationHref }: { conversationHref?: string }) => {
+      negotiation.refresh();
+      if (conversationHref) router.push(conversationHref);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable refresh callback
+    [negotiation.refresh, router],
+  );
+  const handleCloseBuyError = useCallback(() => {
+    setBuyNowError(null);
+    negotiation.clearError();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable clearError callback
+  }, [negotiation.clearError]);
+
+  const setQuantity = useCallback(
+    (next: number) => setQtyState({ productId: product.id, quantity: next }),
+    [product.id],
+  );
   useEffect(() => {
     const { currency } = getActiveMarket();
     trackGaEvent("view_item", {
@@ -351,28 +392,14 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
           buyDisabled={!isPurchasable || isOwnListing}
           offerDisabled={!offerEnabled || isOwnListing}
           buyState={buyState}
-          onContact={() => {
-            void fetch("/api/messages", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ productSlug: product.slug }),
-            })
-              .then(async (response) => {
-                const payload = (await response.json()) as { href?: string };
-                router.push(payload.href ?? "/inbox");
-              })
-              .catch(() => router.push("/inbox"));
-          }}
+          onContact={handleContact}
           onBuy={handleBuyNow}
           onMakeOffer={handleMakeOffer}
           onAddToBundle={
             isPurchasable && !isOwnListing ? handleAddToBundle : undefined
           }
           addToBundleDisabled={!isPurchasable || isOwnListing}
-          onCancelOffer={() => {
-            if (!negotiationView.offerId) return;
-            void negotiation.cancel(negotiationView.offerId);
-          }}
+          onCancelOffer={handleCancelOffer}
         />
       ) : null}
       {!isSold && !sellerOnHoliday ? (
@@ -381,38 +408,29 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
       {sheetOpen && sheetBundle && sheetLine ? (
         <AddToBundleSheet
           open={sheetOpen}
-          onClose={() => setSheetOpen(false)}
+          onClose={handleCloseSheet}
           bundle={sheetBundle}
           line={sheetLine}
         />
       ) : null}
       <BundleSellerConflictDialog
         open={conflictOpen}
-        onCancel={() => setConflictOpen(false)}
-        onContinue={() => {
-          setConflictOpen(false);
-          router.push(BUNDLE_ENGINE_V1.ssot.reviewRoute);
-        }}
+        onCancel={handleCloseConflict}
+        onContinue={handleConflictContinue}
       />
       {!isSold && !sellerOnHoliday ? (
         <OfferComposerSheet
           open={offerOpen}
-          onClose={() => setOfferOpen(false)}
+          onClose={handleCloseOffer}
           product={offerProduct}
-          onOfferSent={({ conversationHref }) => {
-            negotiation.refresh();
-            if (conversationHref) router.push(conversationHref);
-          }}
+          onOfferSent={handleOfferSent}
         />
       ) : null}
 
       <BuyNowPublicErrorDialog
         open={Boolean(buyNowError || negotiation.error)}
         message={buyNowError ?? negotiation.error ?? ""}
-        onClose={() => {
-          setBuyNowError(null);
-          negotiation.clearError();
-        }}
+        onClose={handleCloseBuyError}
       />
     </div>
   );

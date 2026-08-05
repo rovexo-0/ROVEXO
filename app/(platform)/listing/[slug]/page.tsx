@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
-import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
+import { fetchProductBySlug } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productPageMetadata } from "@/lib/seo/engine";
 import { productJsonLd } from "@/lib/seo/json-ld";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -36,10 +37,9 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 
 export default async function ListingPage({ params }: ListingPageProps) {
   const { slug } = await params;
-  const [product, similarProducts] = await Promise.all([
-    fetchProductBySlug(slug),
-    fetchSimilarProducts(slug),
-  ]);
+  // Similar Items are frozen off View Item — do not fetch unused similar products (P6 network).
+  // getProductBySlug is React.cache'd — generateMetadata + page share one resolve per request.
+  const product = await fetchProductBySlug(slug);
 
   if (!product) {
     // Owner cleanup: old RUN4 / certification URLs redirect safely to Home.
@@ -62,14 +62,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <ProductDetailPage
-        product={{ ...product, categoryBreadcrumbs: breadcrumbs }}
-        similarProducts={similarProducts}
-      />
+      <JsonLdScript id="jsonld-app-(platform)-listing-slug-page-tsx" data={structuredData} />
+      <ProductDetailPage product={{ ...product, categoryBreadcrumbs: breadcrumbs }} />
     </>
   );
 }

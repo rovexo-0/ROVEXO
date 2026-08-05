@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { listSavedItems, removeSavedItems, saveItem } from "@/lib/saved/store";
 
 /**
@@ -27,10 +28,13 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "saved-mutate", 60, 60_000);
+  if (limited) return limited;
 
   try {
     const body = (await request.json()) as { productSlug?: string };
@@ -46,10 +50,13 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "saved-mutate", 60, 60_000);
+  if (limited) return limited;
 
   try {
     const body = (await request.json()) as { productSlugs?: string[] };

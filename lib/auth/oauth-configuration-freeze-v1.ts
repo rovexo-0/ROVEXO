@@ -4,12 +4,17 @@
  *
  * STATUS: OWNER APPROVED · LOCKED · FROZEN · SSOT READY
  *
- * ROOT CAUSE (ONLY ONE):
- * Supabase Auth providers are not enabled → 400 validation_failed
+ * HISTORICAL ROOT CAUSE (when providers disabled):
+ * Supabase Auth providers not enabled → 400 validation_failed
  * "Unsupported provider: provider is not enabled"
  *
  * MISSION: NO CODE CHANGES · NO AUTH REWRITES · NO NEW AUTH SYSTEMS
  * ONLY CONFIGURATION IS ALLOWED.
+ *
+ * P10.6R — Authentication Roadmap (Owner Decision):
+ *   Google → REQUIRED v1.0 (ops configured · live confirmation awaiting)
+ *   Apple → DEFERRED v2.0 · NOT a production blocker
+ *   Facebook → DEFERRED v2.0 · NOT a production blocker
  *
  * IF AUTH WORKS → DO NOT TOUCH IT.
  * IF CONFIGURATION FAILS → FIX CONFIGURATION ONLY.
@@ -54,22 +59,24 @@ export const OAUTH_CONFIGURATION_FREEZE_V1 = {
     header: "PASS",
     search: "PASS",
     cameraSearch: "PASS",
-    googleLogin: "FAIL",
-    appleLogin: "FAIL",
-    facebookLogin: "FAIL",
+    googleOpsConfigured: "PASS",
+    googleLogin: "AWAITING_OWNER_LIVE_CONFIRMATION",
+    appleLogin: "DEFERRED_V2_NOT_BLOCKING",
+    facebookLogin: "DEFERRED_V2_NOT_BLOCKING",
   } as const,
 
   allowedActions: [
     "ENABLE GOOGLE PROVIDER",
-    "ENABLE APPLE PROVIDER",
-    "ENABLE FACEBOOK PROVIDER",
     "CONFIGURE CALLBACK URLS",
     "CONFIGURE LOCAL ORIGIN",
     "CONFIGURE PRODUCTION ORIGIN",
+    "OWNER LIVE GOOGLE CONFIRMATION",
     "SAVE",
     "TEST",
     "PASS",
     "PRODUCTION READY",
+    "DEFER APPLE TO V2",
+    "DEFER FACEBOOK TO V2",
   ] as const,
 
   callbackRules: {
@@ -123,7 +130,10 @@ export const OAUTH_CONFIGURATION_FREEZE_V1 = {
     "FACEBOOK FAILS → REWRITE AUTH",
   ] as const,
 
-  /** Target gates after Owner configuration (not a claim that live OAuth already passes). */
+  /**
+   * Target gates for v1.0 after Owner Google live confirmation
+   * (Apple/Facebook deferred — not required for productionReady).
+   */
   productionGatesAfterConfig: {
     emailLogin: "PASS",
     emailRegister: "PASS",
@@ -135,18 +145,15 @@ export const OAUTH_CONFIGURATION_FREEZE_V1 = {
     search: "PASS",
     cameraSearch: "PASS",
     googleLogin: "PASS",
-    appleLogin: "PASS",
-    facebookLogin: "PASS",
     googleEnabled: "PASS",
-    appleEnabled: "PASS",
-    facebookEnabled: "PASS",
+    appleLogin: "DEFERRED_V2_NOT_BLOCKING",
+    facebookLogin: "DEFERRED_V2_NOT_BLOCKING",
     callbackUrls: "PASS",
     localhostUrl: "PASS",
     productionUrl: "PASS",
     no400Errors: "PASS",
-    noProviderFailures: "PASS",
+    noGoogleProviderFailures: "PASS",
     noValidationFailures: "PASS",
-    noOauthFailures: "PASS",
     productionReady: "PASS",
   } as const,
 

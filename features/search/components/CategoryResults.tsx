@@ -26,7 +26,7 @@ export function CategoryResults({
         const isActive = activeIndex === navIndex;
 
         return (
-          <li key={category.href}>
+          <li key={category.href} role="option" aria-selected={isActive}>
             <CategoryChip
               label={category.name}
               href={category.href}

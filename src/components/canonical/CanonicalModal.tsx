@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import {
   CheckLineIcon,
   InfoLineIcon,
   ShieldLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { CanonicalButton } from "./CanonicalButton";
 import { cdsModalClass } from "./utils";
 import type { CanonicalModalVariant } from "./tokens";
@@ -47,7 +48,9 @@ export function CanonicalModal({
   confirmDisabled = false,
   className,
 }: CanonicalModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
   useBodyScrollLock(open);
+  useFocusTrap(open, dialogRef);
 
   useEffect(() => {
     if (!open) return;
@@ -65,6 +68,7 @@ export function CanonicalModal({
   return (
     <div className="cds-modal-backdrop" role="presentation" onClick={onClose}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="cds-modal-title"

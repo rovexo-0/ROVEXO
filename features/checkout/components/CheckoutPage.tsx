@@ -128,6 +128,7 @@ export function CheckoutPage({
   return (
     <BetaAppShell showBottomNav={false} className="checkout-v1-shell">
       <main
+        id="main-content"
         className={cn(
           isSuccess &&
             "flex min-h-[100dvh] w-full max-w-none flex-col justify-center px-ds-4 py-ds-6",

@@ -31,6 +31,7 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
 
   return (
     <ScrollContainer
+      id="main-content"
       withBottomNav
       className={css.hpCanonical}
       data-hp-homepage="canonical"

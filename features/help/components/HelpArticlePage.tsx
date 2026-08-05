@@ -95,6 +95,21 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
         </CanonicalSection>
       ) : null}
 
+      {(article.relatedFeatureHrefs ?? []).filter(
+        (link) => link.href.startsWith("/category/") || link.href.startsWith("/collections/"),
+      ).length ? (
+        <CanonicalSection title="Browse marketplace">
+          <CanonicalCard variant="list">
+            {(article.relatedFeatureHrefs ?? [])
+              .filter((link) => link.href.startsWith("/category/") || link.href.startsWith("/collections/"))
+              .slice(0, 4)
+              .map((link) => (
+                <CanonicalMenuRow key={link.href} title={link.label} href={link.href} />
+              ))}
+          </CanonicalCard>
+        </CanonicalSection>
+      ) : null}
+
       {article.topic ? <HelpResolutionPrompt topicSlug={article.topic} /> : null}
     </AccountCanonicalShell>
   );

@@ -56,14 +56,24 @@ export async function getEligibleListingItems(
 export async function countEligibleListings(
   options: EligibleListingsOptions = {},
 ): Promise<number> {
-  const probe = await getEligibleListings({ ...options, page: 1, pageSize: 1 });
-  if (probe.total <= 0) return 0;
-  if (probe.total === 1) return probe.items.length;
+  // One first-page fetch large enough for typical root categories.
+  // Avoids the historical probe(pageSize=1) + full(dbTotal) waterfall that
+  // doubled Browse category-counter latency (Owner ~2.7s).
+  const INITIAL_PAGE_SIZE = 48;
+  const first = await getEligibleListings({
+    ...options,
+    page: 1,
+    pageSize: INITIAL_PAGE_SIZE,
+  });
+  if (first.total <= 0) return 0;
+  // resolveEligibleVisibleTotal already made `total` eligibility-exact when the
+  // first page covered the entire DB match set.
+  if (first.total <= INITIAL_PAGE_SIZE) return first.total;
 
   const full = await getEligibleListings({
     ...options,
     page: 1,
-    pageSize: probe.total,
+    pageSize: first.total,
   });
   return full.items.length;
 }

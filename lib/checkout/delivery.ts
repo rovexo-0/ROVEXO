@@ -4,6 +4,7 @@ import type {
   CheckoutShippingQuoteReason,
   CheckoutShippingQuotesResult,
 } from "@/lib/checkout/types";
+import { shareInflightRequest } from "@/lib/performance/fetch";
 
 export type DeliveryOptionId = string;
 
@@ -37,17 +38,32 @@ export async function resolveLiveDeliveryQuotes(input: {
   postcode: string;
   country: string;
 }): Promise<CheckoutShippingQuotesResult> {
-  const response = await fetch("/api/checkout/shipping-quotes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
+  const key = [
+    "POST:/api/checkout/shipping-quotes",
+    input.productSlug,
+    input.postcode.trim().toUpperCase(),
+    input.addressLine.trim(),
+    input.recipientName.trim(),
+    input.country.trim().toUpperCase(),
+  ].join(":");
 
-  if (!response.ok) {
-    return { live: false, options: [], reason: "provider_unavailable" };
-  }
+  return shareInflightRequest(
+    key,
+    async () => {
+      const response = await fetch("/api/checkout/shipping-quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
 
-  return (await response.json()) as CheckoutShippingQuotesResult;
+      if (!response.ok) {
+        return { live: false, options: [], reason: "provider_unavailable" as const };
+      }
+
+      return (await response.json()) as CheckoutShippingQuotesResult;
+    },
+    { ttlMs: 0 },
+  );
 }
 
 export function getDeliveryPrice(

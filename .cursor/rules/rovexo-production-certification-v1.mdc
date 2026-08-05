@@ -1,5 +1,5 @@
 ---
-description: Production Certification Law — 100/100 OAuth blocks deploy
+description: Production Certification Law — Google live + v1 gates; Apple/FB deferred
 alwaysApply: true
 ---
 
@@ -8,24 +8,38 @@ alwaysApply: true
 **STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL SSOT**
 
 SSOT: `lib/rovexo-production-certification-v1.ts`  
-Related: Deployment Golden Law · Auth Senior Audit · OAuth Configuration Golden Law
+Related: Deployment Golden Law · Auth Senior Audit · OAuth Configuration Golden Law  
+Roadmap: **P10.6R** (Owner Decision)
+
+## Authentication Roadmap (v1.0)
+
+| Method | Status |
+|--------|--------|
+| Email / Password | **REQUIRED** |
+| Google OAuth | **REQUIRED** (ops configured · live confirmation awaiting) |
+| Apple OAuth | **Deferred v2.0 · NOT BLOCKING** |
+| Facebook OAuth | **Deferred v2.0 · NOT BLOCKING** |
 
 ## Current certification
 
-**PASS:** Header · Search · Camera · Auth core · Cookie · Session · Email · Remember Me · Forgot Password · Router · Image Search · Architecture · Build · Tests  
+**PASS:** Header · Search · Camera · Auth core · Cookie · Session · Email · Remember Me · Forgot Password · Router · Image Search · Architecture · Build · Tests · Google ops configured  
 
-**FAIL:** Google · Apple · Facebook (Supabase OAuth config)  
+**AWAITING:** Google live Owner confirmation · Functional Certification · Device Matrix  
 
-**PRODUCTION READY: NO** · Until OAuth passes → **NO DEPLOY**
+**NOT BLOCKING:** Apple · Facebook  
+
+**PRODUCTION READY: NO** · Until mandatory v1 gates pass → **NO DEPLOY**
 
 ## Verdict
 
-Code PASS · Architecture PASS · OAuth config FAIL  
-Root cause: Supabase configuration · **Owner ops only** · no code/architecture changes
+Code PASS · Architecture PASS · Google ops PASS · Google live AWAITING · Apple/Facebook deferred  
+No code/architecture changes for deferred providers
 
 ## Deploy gate (zero exceptions)
 
-100/100 = DEPLOY · 99 = NO DEPLOY · 1 FAIL = NO DEPLOY
+100/100 = DEPLOY · 99 = NO DEPLOY · 1 FAIL = NO DEPLOY  
+
+Do **not** block v1 deploy on Apple or Facebook.
 
 ## Order
 
@@ -35,4 +49,4 @@ Forbidden: BUILD → DEPLOY → FIX AFTER · production hotfix deploy · ignore 
 
 ## Cursor must never
 
-Deploy while Google/Apple/Facebook gates are false · rewrite Auth because OAuth is disabled · claim PRODUCTION_READY until OAuth passes
+Deploy while Google live or other mandatory v1 gates fail · rewrite Auth because OAuth is deferred · claim PRODUCTION_READY until mandatory gates pass · treat Apple/Facebook as v1.0 production blockers
