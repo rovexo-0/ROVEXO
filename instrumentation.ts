@@ -27,6 +27,7 @@ export async function register() {
    * - Production / Certification mode: FAIL → throw → block startup
    * - P13.1 hotfix: brand source-integrity (.tsx/.css NFT prune) → warn + continue
    *   (never HTTP 500 because RovexoBrandLogo.tsx is absent from /var/task)
+   * - XLII serverless: source-tree Full Platform scans skipped → warn + continue
    */
   const { runStartupCertificationGate } = await import(
     "@/lib/startup/startup-certification-policy-v1"

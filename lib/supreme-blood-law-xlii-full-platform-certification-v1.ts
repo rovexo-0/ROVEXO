@@ -28,6 +28,7 @@ import { workspacePath } from "@/lib/server/workspace-path";
 import { FULL_DEMO_ACCOUNTS } from "@/lib/full-demo/canonical";
 import { runFullDemoCertificationScan } from "@/lib/full-demo/deploy-gate";
 import { runDeploymentCertificationScan } from "@/lib/full-demo/deployment-certification";
+import { shouldSoftFailBrandIntegrityAtRuntime } from "@/lib/startup/brand-integrity-runtime-v1";
 import { certifyAuthenticationExperienceFinalFreezeXli } from "@/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1";
 import { ROVEXO_PRODUCTION_CERTIFICATION_V1 } from "@/lib/rovexo-production-certification-v1";
 
@@ -614,8 +615,30 @@ export function certifyFullPlatformXlII(
  * Protects live Production requests only. NFT-safe evidence paths.
  * Executed ONLY from instrumentation (via assertFullPlatformProductionRuntimeOrBlock).
  * Does NOT run Launch Dashboard, Playwright, reports, .cursor, seeds, or deploy aggregates.
+ *
+ * Serverless (Vercel NFT): source `.tsx` / `.ts` are not in `/var/task`.
+ * Same class as Blood XXXVII–XLI brand soft-fail — skip source-tree verification,
+ * never throw, never HTTP 500.
  */
 export function certifyFullPlatformProductionRuntimeXlII(): FullPlatformCertificationReport {
+  // NFT prune: source-tree scans cannot run inside serverless /var/task.
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    console.warn("[XLII] Source verification skipped in production runtime.");
+    return finalizeFullPlatformReport({
+      checks: [
+        {
+          id: "source-verification-skipped-serverless",
+          label: "Source verification skipped (serverless NFT)",
+          pass: true,
+          detail: "[XLII] Source verification skipped in production runtime.",
+        },
+      ],
+      modules: [],
+      blockingIssues: [],
+      errors: [],
+    });
+  }
+
   const law = SUPREME_BLOOD_LAW_XLII_FULL_PLATFORM_CERTIFICATION_V1;
   const checks: FullPlatformCheck[] = [];
   const errors: string[] = [];
@@ -783,10 +806,15 @@ export function assertFullPlatformCertificationOrBlock(): void {
 }
 
 /**
- * Production Runtime assert — FAIL CLOSED.
+ * Production Runtime assert — FAIL CLOSED when source tree is present (local / CI).
+ * Serverless NFT: skip source verification — never throw / never HTTP 500.
  * Instrumentation MUST call this (and only this) for XLII.
  */
 export function assertFullPlatformProductionRuntimeOrBlock(): void {
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    console.warn("[XLII] Source verification skipped in production runtime.");
+    return;
+  }
   const report = certifyFullPlatformProductionRuntimeXlII();
   if (!report.ok || report.errors.length > 0) {
     throw new Error(

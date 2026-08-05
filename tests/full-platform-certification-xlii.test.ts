@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -72,6 +72,27 @@ describe("Absolute Blood Law XLII — Full Platform Certification", () => {
     expect(runtime.checks.some((c) => c.id === "startup-fail-closed-wiring")).toBe(true);
     expect(runtime.checks.some((c) => c.id === "instrumentation-runtime-xlII")).toBe(true);
     expect(() => assertFullPlatformProductionRuntimeOrBlock()).not.toThrow();
+  });
+
+  it("skips source verification on Vercel serverless (never throws)", () => {
+    const prev = process.env.VERCEL;
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    process.env.VERCEL = "1";
+    try {
+      const runtime = certifyFullPlatformProductionRuntimeXlII();
+      expect(runtime.ok).toBe(true);
+      expect(runtime.errors).toEqual([]);
+      expect(
+        runtime.checks.some((c) => c.id === "source-verification-skipped-serverless"),
+      ).toBe(true);
+      expect(() => assertFullPlatformProductionRuntimeOrBlock()).not.toThrow();
+      expect(warn).toHaveBeenCalledWith(
+        "[XLII] Source verification skipped in production runtime.",
+      );
+    } finally {
+      process.env.VERCEL = prev;
+      warn.mockRestore();
+    }
   });
 
   it("wires Production Runtime XLII only in instrumentation", () => {
