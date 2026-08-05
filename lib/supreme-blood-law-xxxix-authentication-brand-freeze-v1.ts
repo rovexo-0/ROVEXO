@@ -13,8 +13,12 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
+import {
+  readUtf8SourceOrEmpty,
+  shouldSoftFailBrandIntegrityAtRuntime,
+  warnBrandIntegrityAndContinue,
+} from "@/lib/startup/brand-integrity-runtime-v1";
 import {
   OFFICIAL_BRAND_APP_ICON,
   OFFICIAL_BRAND_ASSET_REGISTRY,
@@ -235,39 +239,41 @@ export function certifyAuthenticationBrandFreezeXxxix(): AuthenticationBrandFree
     "Certified Primary Emblem / App Icon missing or non-transparent",
   );
 
-  const authCss = readFileSync(projectRoot("styles", "rovexo", "auth-v1.css"), "utf8");
+  const authCss = readUtf8SourceOrEmpty(projectRoot("styles", "rovexo", "auth-v1.css"));
   add(
     "login-register-scale",
     "Login / Register Emblem Certified Scale (180px)",
-    authCss.includes(".auth-login .rovexo-brand-logo.rovexo-brand-logo--auth") &&
+    Boolean(authCss) &&
+      authCss.includes(".auth-login .rovexo-brand-logo.rovexo-brand-logo--auth") &&
       authCss.includes(".auth-register .rovexo-brand-logo.rovexo-brand-logo--auth") &&
       authCss.includes("width: 180px") &&
       authCss.includes("max-width: 180px"),
     "Auth emblem certified width 180px must remain in auth-v1.css",
   );
 
-  const headerCss = readFileSync(projectRoot("styles", "rovexo", "header-v2.css"), "utf8");
+  const headerCss = readUtf8SourceOrEmpty(projectRoot("styles", "rovexo", "header-v2.css"));
   add(
     "homepage-icon-scale",
     "Homepage Header Icon Certified Scale (28px)",
-    headerCss.includes(".rx-h2__logo-img") &&
+    Boolean(headerCss) &&
+      headerCss.includes(".rx-h2__logo-img") &&
       headerCss.includes("height: 28px") &&
       headerCss.includes("max-height: 28px"),
     "Homepage RX App Icon certified height 28px must remain in header-v2.css",
   );
 
-  const login = readFileSync(
+  const login = readUtf8SourceOrEmpty(
     projectRoot("features", "auth", "components", "LoginScreen.tsx"),
-    "utf8",
   );
-  const register = readFileSync(
+  const register = readUtf8SourceOrEmpty(
     projectRoot("features", "auth", "components", "RegisterScreen.tsx"),
-    "utf8",
   );
   add(
     "login-register-wire",
     "Login / Register Wire RovexoBrandLogo",
-    login.includes("RovexoBrandLogo") &&
+    Boolean(login) &&
+      Boolean(register) &&
+      login.includes("RovexoBrandLogo") &&
       login.includes('data-auth-brand-freeze="XXXIX"') &&
       register.includes("RovexoBrandLogo") &&
       register.includes('data-auth-brand-freeze="XXXIX"') &&
@@ -276,14 +282,14 @@ export function certifyAuthenticationBrandFreezeXxxix(): AuthenticationBrandFree
     "Login/Register must render RovexoBrandLogo with XXXIX freeze stamp",
   );
 
-  const brandLogo = readFileSync(
+  const brandLogo = readUtf8SourceOrEmpty(
     projectRoot("components", "branding", "RovexoBrandLogo.tsx"),
-    "utf8",
   );
   add(
     "brand-logo-primary-only",
     "Auth Brand Component Primary Emblem Only",
-    brandLogo.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
+    Boolean(brandLogo) &&
+      brandLogo.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
       brandLogo.includes('data-auth-brand-freeze="XXXIX"') &&
       !brandLogo.includes("OFFICIAL_BRAND_APP_ICON") &&
       !brandLogo.includes("OFFICIAL_BRAND_MASTER_EMBLEM") &&
@@ -291,14 +297,14 @@ export function certifyAuthenticationBrandFreezeXxxix(): AuthenticationBrandFree
     "RovexoBrandLogo must stay Primary Emblem only under XXXIX",
   );
 
-  const header = readFileSync(
+  const header = readUtf8SourceOrEmpty(
     projectRoot("components", "header", "RovexoHeaderV2.tsx"),
-    "utf8",
   );
   add(
     "header-app-icon-only",
     "Header Wires App Icon · Never Primary Emblem",
-    header.includes("OFFICIAL_BRAND_APP_ICON") &&
+    Boolean(header) &&
+      header.includes("OFFICIAL_BRAND_APP_ICON") &&
       header.includes('data-auth-brand-freeze="XXXIX"') &&
       !header.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
       !header.includes("OFFICIAL_BRAND_MASTER_EMBLEM"),
@@ -332,10 +338,13 @@ export function certifyAuthenticationBrandFreezeXxxix(): AuthenticationBrandFree
 
 export function assertAuthenticationBrandFreezeOrBlock(): void {
   const report = certifyAuthenticationBrandFreezeXxxix();
-  if (!report.ok) {
-    throw new Error(
-      `[BLOOD LAW XXXIX] AUTHENTICATION BRAND FREEZE CERTIFICATION FAILED — REJECT RELEASE.\n` +
-        report.errors.map((e) => ` - ${e}`).join("\n"),
-    );
+  if (report.ok) return;
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    warnBrandIntegrityAndContinue("XXXIX", report.errors);
+    return;
   }
+  throw new Error(
+    `[BLOOD LAW XXXIX] AUTHENTICATION BRAND FREEZE CERTIFICATION FAILED — REJECT RELEASE.\n` +
+      report.errors.map((e) => ` - ${e}`).join("\n"),
+  );
 }

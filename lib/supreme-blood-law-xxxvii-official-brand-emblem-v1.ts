@@ -15,7 +15,6 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
 import {
   CANONICAL_LOGO_ENGINE_V1,
@@ -27,6 +26,11 @@ import {
   OFFICIAL_RX_EMBLEM_FORMATS,
   OFFICIAL_RX_EMBLEM_ICON_SIZES,
 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
+import {
+  readUtf8SourceOrEmpty,
+  shouldSoftFailBrandIntegrityAtRuntime,
+  warnBrandIntegrityAndContinue,
+} from "@/lib/startup/brand-integrity-runtime-v1";
 
 export const SUPREME_BLOOD_LAW_XXXVII_OFFICIAL_BRAND_EMBLEM_V1 = {
   version: "1.0",
@@ -326,10 +330,10 @@ export function certifyOfficialBrandEmblemXxxvii(): OfficialBrandEmblemReport {
     "auth-component",
     "Authentication Surfaces Consume Official Emblem Family",
     (() => {
-      const brand = readFileSync(
+      const brand = readUtf8SourceOrEmpty(
         projectRoot("components", "branding", "RovexoBrandLogo.tsx"),
-        "utf8",
       );
+      if (!brand) return false;
       return (
         brand.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
         (brand.includes("data-blood-law=\"XXXVIII\"") || brand.includes("data-blood-law=\"XXXVII\""))
@@ -361,12 +365,15 @@ export function certifyOfficialBrandEmblemXxxvii(): OfficialBrandEmblemReport {
 
 export function assertOfficialBrandEmblemOrBlock(): void {
   const report = certifyOfficialBrandEmblemXxxvii();
-  if (!report.ok) {
-    throw new Error(
-      `[BLOOD LAW XXXVII] OFFICIAL BRAND EMBLEM CERTIFICATION FAILED — BLOCK RELEASE.\n` +
-        report.errors.map((e) => ` - ${e}`).join("\n"),
-    );
+  if (report.ok) return;
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    warnBrandIntegrityAndContinue("XXXVII", report.errors);
+    return;
   }
+  throw new Error(
+    `[BLOOD LAW XXXVII] OFFICIAL BRAND EMBLEM CERTIFICATION FAILED — BLOCK RELEASE.\n` +
+      report.errors.map((e) => ` - ${e}`).join("\n"),
+  );
 }
 
 export function isOfficialBrandEmblemLocked(): boolean {

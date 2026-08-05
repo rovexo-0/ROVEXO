@@ -14,6 +14,8 @@
  * Production / Certification mode:
  *   PASS → continue
  *   FAIL → throw → block startup
+ *   EXCEPTION (P13.1 hotfix): source-tree ENOENT (.tsx/.css NFT prune on serverless)
+ *     → warn and continue — never HTTP 500 for missing branding sources
  *
  * Testing artifacts (e2e/ · playwright · *.spec.ts · cert runners under scripts/):
  *   Load ONLY when NODE_ENV !== "production", or ROVEXO_CERTIFICATION_MODE is set.
@@ -23,12 +25,17 @@
  * Does not remove, skip, or weaken certification engines or assertions.
  */
 
+import {
+  isSourceTreeEnoentError,
+} from "@/lib/startup/brand-integrity-runtime-v1";
+
 export const STARTUP_CERTIFICATION_POLICY_V1 = {
-  version: "1.1",
+  version: "1.2",
   id: "startup-certification-policy-v1",
   developmentOnFail: "log-and-continue",
   productionOnFail: "throw-and-block",
   certificationModeOnFail: "throw-and-block",
+  sourceTreeEnoentOnFail: "warn-and-continue",
   testingArtifacts: "development-or-certification-mode-only",
 } as const;
 
@@ -114,6 +121,21 @@ export function runStartupCertificationGate(
     return { ok: true, blocked: false, label };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+
+    // Serverless NFT prune: never abort boot because branding/source .tsx/.css is absent.
+    if (isSourceTreeEnoentError(error)) {
+      console.warn(
+        [
+          "",
+          `[ROVEXO STARTUP CERTIFICATION] ${label} soft-fail (source-tree ENOENT)`,
+          `Policy: ${STARTUP_CERTIFICATION_POLICY_V1.id} · ${STARTUP_CERTIFICATION_POLICY_V1.sourceTreeEnoentOnFail}`,
+          message,
+          "",
+        ].join("\n"),
+      );
+      return { ok: false, blocked: false, label, error: message };
+    }
+
     const mustBlock = shouldBlockStartupOnCertificationFailure(env);
 
     if (mustBlock) {

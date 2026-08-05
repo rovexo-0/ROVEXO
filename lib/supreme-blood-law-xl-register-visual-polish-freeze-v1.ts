@@ -12,9 +12,13 @@
  * Target: /register ONLY
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
+import { existsSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
+import {
+  readUtf8SourceOrEmpty,
+  shouldSoftFailBrandIntegrityAtRuntime,
+  warnBrandIntegrityAndContinue,
+} from "@/lib/startup/brand-integrity-runtime-v1";
 import {
   OFFICIAL_BRAND_PRIMARY_EMBLEM,
   getOfficialBrandAssetForSurface,
@@ -127,14 +131,15 @@ export function certifyRegisterVisualPolishFreezeXl(): RegisterVisualPolishRepor
     "Register must keep Official Primary Emblem",
   );
 
-  const authCss = readFileSync(projectRoot("styles", "rovexo", "auth-v1.css"), "utf8");
+  const authCss = readUtf8SourceOrEmpty(projectRoot("styles", "rovexo", "auth-v1.css"));
 
   add(
     "emblem-offset",
     "Register Brand Container Offset 10px (8–12px range)",
-    /auth-register--canonical-freeze\s+\.auth-register__brand\s*\{[^}]*margin-top:\s*10px/s.test(
-      authCss,
-    ) &&
+    Boolean(authCss) &&
+      /auth-register--canonical-freeze\s+\.auth-register__brand\s*\{[^}]*margin-top:\s*10px/s.test(
+        authCss,
+      ) &&
       REGISTER_EMBLEM_BACK_OFFSET_PX >= 8 &&
       REGISTER_EMBLEM_BACK_OFFSET_PX <= 12,
     "Register brand must use margin-top: 10px under canonical freeze",
@@ -144,20 +149,21 @@ export function certifyRegisterVisualPolishFreezeXl(): RegisterVisualPolishRepor
     "emblem-scale-unchanged",
     "Register Emblem Certified Width Unchanged (180px)",
     AUTH_BRAND_PRIMARY_EMBLEM_CERTIFIED_WIDTH_PX === 180 &&
+      Boolean(authCss) &&
       authCss.includes(".auth-register .rovexo-brand-logo.rovexo-brand-logo--auth") &&
       authCss.includes("width: 180px") &&
       authCss.includes("max-width: 180px"),
     "Register emblem width must remain 180px",
   );
 
-  const register = readFileSync(
+  const register = readUtf8SourceOrEmpty(
     projectRoot("features", "auth", "components", "RegisterScreen.tsx"),
-    "utf8",
   );
   add(
     "register-stamp",
     "Register Screen XL Polish Stamp",
-    register.includes('data-register-visual-polish="XL"') &&
+    Boolean(register) &&
+      register.includes('data-register-visual-polish="XL"') &&
       register.includes("RovexoBrandLogo") &&
       register.includes("auth-register__brand") &&
       register.includes("AuthBackButton"),
@@ -189,10 +195,13 @@ export function certifyRegisterVisualPolishFreezeXl(): RegisterVisualPolishRepor
 
 export function assertRegisterVisualPolishFreezeOrBlock(): void {
   const report = certifyRegisterVisualPolishFreezeXl();
-  if (!report.ok) {
-    throw new Error(
-      `[BLOOD LAW XL] REGISTER VISUAL POLISH FREEZE CERTIFICATION FAILED — REJECT BUILD.\n` +
-        report.errors.map((e) => ` - ${e}`).join("\n"),
-    );
+  if (report.ok) return;
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    warnBrandIntegrityAndContinue("XL", report.errors);
+    return;
   }
+  throw new Error(
+    `[BLOOD LAW XL] REGISTER VISUAL POLISH FREEZE CERTIFICATION FAILED — REJECT BUILD.\n` +
+      report.errors.map((e) => ` - ${e}`).join("\n"),
+  );
 }

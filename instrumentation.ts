@@ -25,6 +25,8 @@ export async function register() {
    * - Development: FAIL → log full report → continue (`npm run dev` must start)
    * - Vercel Preview: FAIL → log / warn → continue boot (never fail-close)
    * - Production / Certification mode: FAIL → throw → block startup
+   * - P13.1 hotfix: brand source-integrity (.tsx/.css NFT prune) → warn + continue
+   *   (never HTTP 500 because RovexoBrandLogo.tsx is absent from /var/task)
    */
   const { runStartupCertificationGate } = await import(
     "@/lib/startup/startup-certification-policy-v1"

@@ -10,9 +10,12 @@
  * Parents: Blood Laws XXXVIII · XXXIX · XL
  */
 
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
+import {
+  readUtf8SourceOrEmpty,
+  shouldSoftFailBrandIntegrityAtRuntime,
+  warnBrandIntegrityAndContinue,
+} from "@/lib/startup/brand-integrity-runtime-v1";
 import {
   OFFICIAL_BRAND_APP_ICON,
   OFFICIAL_BRAND_PRIMARY_EMBLEM,
@@ -229,12 +232,13 @@ export function certifyAuthenticationExperienceFinalFreezeXli(): AuthenticationE
     "Homepage must use App Icon; Login/Register must use Primary Emblem",
   );
 
-  const headerCss = readFileSync(projectRoot("styles", "rovexo", "header-v2.css"), "utf8");
-  const authCss = readFileSync(projectRoot("styles", "rovexo", "auth-v1.css"), "utf8");
+  const headerCss = readUtf8SourceOrEmpty(projectRoot("styles", "rovexo", "header-v2.css"));
+  const authCss = readUtf8SourceOrEmpty(projectRoot("styles", "rovexo", "auth-v1.css"));
   add(
     "css-homepage-28",
     "Homepage Header Icon CSS 28px",
-    headerCss.includes(".rx-h2__logo-img") &&
+    Boolean(headerCss) &&
+      headerCss.includes(".rx-h2__logo-img") &&
       headerCss.includes("height: 28px") &&
       headerCss.includes("max-height: 28px"),
     "Homepage RX icon certified height 28px missing",
@@ -242,39 +246,42 @@ export function certifyAuthenticationExperienceFinalFreezeXli(): AuthenticationE
   add(
     "css-auth-180",
     "Login / Register Emblem CSS 180px",
-    authCss.includes("width: 180px") && authCss.includes("max-width: 180px"),
+    Boolean(authCss) &&
+      authCss.includes("width: 180px") &&
+      authCss.includes("max-width: 180px"),
     "Auth emblem certified width 180px missing",
   );
   add(
     "css-register-offset-10",
     "Register Brand Offset CSS +10px",
-    /auth-register--canonical-freeze\s+\.auth-register__brand\s*\{[^}]*margin-top:\s*10px/s.test(
-      authCss,
-    ),
+    Boolean(authCss) &&
+      /auth-register--canonical-freeze\s+\.auth-register__brand\s*\{[^}]*margin-top:\s*10px/s.test(
+        authCss,
+      ),
     "Register certified vertical offset +10px missing",
   );
 
-  const login = readFileSync(
+  const login = readUtf8SourceOrEmpty(
     projectRoot("features", "auth", "components", "LoginScreen.tsx"),
-    "utf8",
   );
-  const register = readFileSync(
+  const register = readUtf8SourceOrEmpty(
     projectRoot("features", "auth", "components", "RegisterScreen.tsx"),
-    "utf8",
   );
-  const brand = readFileSync(
+  const brand = readUtf8SourceOrEmpty(
     projectRoot("components", "branding", "RovexoBrandLogo.tsx"),
-    "utf8",
   );
-  const header = readFileSync(
+  const header = readUtf8SourceOrEmpty(
     projectRoot("components", "header", "RovexoHeaderV2.tsx"),
-    "utf8",
   );
 
   add(
     "xli-stamps",
     "XLI Final Freeze Stamps Present",
-    login.includes('data-auth-experience-freeze="XLI"') &&
+    Boolean(login) &&
+      Boolean(register) &&
+      Boolean(brand) &&
+      Boolean(header) &&
+      login.includes('data-auth-experience-freeze="XLI"') &&
       register.includes('data-auth-experience-freeze="XLI"') &&
       brand.includes('data-auth-experience-freeze="XLI"') &&
       header.includes('data-auth-experience-freeze="XLI"'),
@@ -309,10 +316,13 @@ export function certifyAuthenticationExperienceFinalFreezeXli(): AuthenticationE
 
 export function assertAuthenticationExperienceFinalFreezeOrBlock(): void {
   const report = certifyAuthenticationExperienceFinalFreezeXli();
-  if (!report.ok) {
-    throw new Error(
-      `[BLOOD LAW XLI] AUTHENTICATION EXPERIENCE FINAL FREEZE FAILED — REJECT RELEASE.\n` +
-        report.errors.map((e) => ` - ${e}`).join("\n"),
-    );
+  if (report.ok) return;
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    warnBrandIntegrityAndContinue("XLI", report.errors);
+    return;
   }
+  throw new Error(
+    `[BLOOD LAW XLI] AUTHENTICATION EXPERIENCE FINAL FREEZE FAILED — REJECT RELEASE.\n` +
+      report.errors.map((e) => ` - ${e}`).join("\n"),
+  );
 }

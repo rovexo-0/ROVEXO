@@ -12,8 +12,12 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
+import {
+  readUtf8SourceOrEmpty,
+  shouldSoftFailBrandIntegrityAtRuntime,
+  warnBrandIntegrityAndContinue,
+} from "@/lib/startup/brand-integrity-runtime-v1";
 import {
   OFFICIAL_BRAND_APP_ICON,
   OFFICIAL_BRAND_ASSET_REGISTRY,
@@ -241,28 +245,30 @@ export function certifyOfficialBrandApplicationXxxviii(): OfficialBrandApplicati
     "Primary Emblem must not be used in headers / cards / chrome",
   );
 
-  const brandLogo = readFileSync(
+  const brandLogo = readUtf8SourceOrEmpty(
     projectRoot("components", "branding", "RovexoBrandLogo.tsx"),
-    "utf8",
   );
   add(
     "auth-component-primary",
     "RovexoBrandLogo Wires Primary Emblem",
-    brandLogo.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
+    Boolean(brandLogo) &&
+      brandLogo.includes("OFFICIAL_BRAND_PRIMARY_EMBLEM") &&
       brandLogo.includes('data-blood-law="XXXVIII"') &&
       !brandLogo.includes("rovexo-brand-logo__tagline"),
     "Auth brand component must render Primary Emblem only (no CSS slogan duplicate)",
   );
 
-  const header = readFileSync(
+  const header = readUtf8SourceOrEmpty(
     projectRoot("components", "header", "RovexoHeaderV2.tsx"),
-    "utf8",
   );
-  const topbar = readFileSync(projectRoot("components", "header", "RvxTopBar.tsx"), "utf8");
+  const topbar = readUtf8SourceOrEmpty(projectRoot("components", "header", "RvxTopBar.tsx"));
   add(
     "header-component-app-icon",
     "Header Components Wire App Icon",
-    header.includes("OFFICIAL_BRAND_APP_ICON") && topbar.includes("OFFICIAL_BRAND_APP_ICON"),
+    Boolean(header) &&
+      Boolean(topbar) &&
+      header.includes("OFFICIAL_BRAND_APP_ICON") &&
+      topbar.includes("OFFICIAL_BRAND_APP_ICON"),
     "Header / top bar must use App Icon — never Primary/Master Emblem",
   );
 
@@ -303,10 +309,13 @@ export function certifyOfficialBrandApplicationXxxviii(): OfficialBrandApplicati
 
 export function assertOfficialBrandApplicationOrBlock(): void {
   const report = certifyOfficialBrandApplicationXxxviii();
-  if (!report.ok) {
-    throw new Error(
-      `[BLOOD LAW XXXVIII] OFFICIAL BRAND APPLICATION CERTIFICATION FAILED — BLOCK RELEASE.\n` +
-        report.errors.map((e) => ` - ${e}`).join("\n"),
-    );
+  if (report.ok) return;
+  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+    warnBrandIntegrityAndContinue("XXXVIII", report.errors);
+    return;
   }
+  throw new Error(
+    `[BLOOD LAW XXXVIII] OFFICIAL BRAND APPLICATION CERTIFICATION FAILED — BLOCK RELEASE.\n` +
+      report.errors.map((e) => ` - ${e}`).join("\n"),
+  );
 }
