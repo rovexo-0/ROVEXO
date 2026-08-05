@@ -33,7 +33,7 @@ See: `ROVEXO_PRODUCTION_DEPLOY_REPORT.md` (FAIL CLOSED) · `ROVEXO_PRODUCTION_HO
 
 | Field | Value |
 |-------|--------|
-| Hotfix commit SHA | `488b04a96b393fc5bc57359bfe29319a152578d4` |
+| Hotfix commit SHA | `647c0ff845948b613f5528a9e02e5c8fe519284c` |
 | Push SHA | ⏸ not pushed (approval UI blocked) |
 | Deploy ID | ⏸ not redeployed |
 | Production URL | https://www.rovexo.co.uk |

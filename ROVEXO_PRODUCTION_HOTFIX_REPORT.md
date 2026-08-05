@@ -91,11 +91,11 @@ This is a **startup implementation bug**, not a Vercel platform bug.
 
 | Step | Result |
 |------|--------|
-| Local commit | ✔ `488b04a96b393fc5bc57359bfe29319a152578d4` — `P13.1 hotfix: serverless brand integrity soft-fail` |
+| Local commit | ✔ `647c0ff845948b613f5528a9e02e5c8fe519284c` — `P13.1 hotfix: serverless brand integrity soft-fail` |
 | Push `origin/develop` | ⏸ Blocked — Cursor Auto-review approval UI failed to present |
 | Vercel `--prod` | ⏸ Blocked — same approval gate |
 
-**Owner action required:** Approve push + `npx vercel deploy --prod --yes` (or Dashboard Redeploy of SHA `488b04a9`), then re-run live smoke on https://www.rovexo.co.uk.
+**Owner action required:** Approve push + `npx vercel deploy --prod --yes` (or Dashboard Redeploy of SHA `647c0ff8`), then re-run live smoke on https://www.rovexo.co.uk.
 
 ---
 
