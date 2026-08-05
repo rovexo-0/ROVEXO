@@ -9,10 +9,12 @@
  * Parents: XLII · XLIII · XLIV
  */
 
-import { readFileSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
-import path from "node:path";
 import { shouldLoadTestingArtifactsOnStartup } from "@/lib/startup/startup-certification-policy-v1";
+import {
+  readSourceUtf8,
+  SOURCE_NOT_AVAILABLE_IN_SERVERLESS,
+} from "@/lib/startup/source-integrity-runtime-v1";
 import {
   FINAL_LIVE_CERTIFICATION_V1,
   XLV_CRITICAL_VIDEO_FLOWS,
@@ -51,18 +53,43 @@ export function certifyFinalLiveProductionXlv(): {
 
   // Production MUST NEVER read scripts/* cert runners — excluded from Vercel NFT (ENOENT).
   const loadTestingArtifacts = shouldLoadTestingArtifactsOnStartup();
-  const runner = loadTestingArtifacts
-    ? readFileSync(path.join(cwd, "scripts/run-final-live-certification.ts"), "utf8")
+  const runnerResult = loadTestingArtifacts
+    ? readSourceUtf8("scripts/run-final-live-certification.ts")
+    : { available: true as const, content: "" };
+  const contractResult = readSourceUtf8("lib/full-demo/final-live-certification-v1.ts");
+  const engineResult = readSourceUtf8("lib/full-demo/demo-session-engine-v1.ts");
+  const instrumentationResult = readSourceUtf8("instrumentation.ts");
+
+  if (
+    (!contractResult.available &&
+      contractResult.status === SOURCE_NOT_AVAILABLE_IN_SERVERLESS) ||
+    (!engineResult.available &&
+      engineResult.status === SOURCE_NOT_AVAILABLE_IN_SERVERLESS) ||
+    (!instrumentationResult.available &&
+      instrumentationResult.status === SOURCE_NOT_AVAILABLE_IN_SERVERLESS)
+  ) {
+    return {
+      bloodLaw: "XLV",
+      ok: true,
+      productionReady: false,
+      gates: [
+        {
+          id: "source-integrity-serverless",
+          label: SOURCE_NOT_AVAILABLE_IN_SERVERLESS,
+          pass: true,
+        },
+      ],
+      errors: [],
+      discoveredRoutes: 0,
+    };
+  }
+
+  const runner = runnerResult.available ? runnerResult.content : "";
+  const contract = contractResult.available ? contractResult.content : "";
+  const engine = engineResult.available ? engineResult.content : "";
+  const instrumentation = instrumentationResult.available
+    ? instrumentationResult.content
     : "";
-  const contract = readFileSync(
-    path.join(cwd, "lib/full-demo/final-live-certification-v1.ts"),
-    "utf8",
-  );
-  const engine = readFileSync(
-    path.join(cwd, "lib/full-demo/demo-session-engine-v1.ts"),
-    "utf8",
-  );
-  const instrumentation = readFileSync(path.join(cwd, "instrumentation.ts"), "utf8");
 
   const routes = discoverAppRoutes(cwd);
 

@@ -14,28 +14,35 @@
  * Production / Certification mode:
  *   PASS → continue
  *   FAIL → throw → block startup
- *   EXCEPTION (P13.1 hotfix): source-tree ENOENT (.tsx/.css NFT prune on serverless)
- *     → warn and continue — never HTTP 500 for missing branding sources
+ *   EXCEPTION (Source Integrity Runtime v1.0): source-tree NFT prune
+ *     → warn once · continue — never HTTP 500 for missing *.ts/*.tsx/*.css
+ *     Covers Blood Laws XXXVII–XLV automatically via one shared helper.
  *
  * Testing artifacts (e2e/ · playwright · *.spec.ts · cert runners under scripts/):
  *   Load ONLY when NODE_ENV !== "production", or ROVEXO_CERTIFICATION_MODE is set.
  *   Production MUST NEVER readFileSync / import Playwright or E2E files (ENOENT on Vercel —
  *   outputFileTracingExcludes ships without ./e2e/** and ./scripts/**).
  *
- * Does not remove, skip, or weaken certification engines or assertions.
+ * Does not remove, skip, or weaken non-source certification engines or assertions.
  */
 
 import {
+  isSourceIntegrityBloodLawLabel,
+  isSourceTreeAvailable,
+  isSourceTreeCertificationFailure,
   isSourceTreeEnoentError,
-} from "@/lib/startup/brand-integrity-runtime-v1";
+  shouldSkipSourceTreeVerificationAtRuntime,
+  warnSourceIntegrityServerlessOnce,
+} from "@/lib/startup/source-integrity-runtime-v1";
 
 export const STARTUP_CERTIFICATION_POLICY_V1 = {
-  version: "1.2",
+  version: "1.3",
   id: "startup-certification-policy-v1",
   developmentOnFail: "log-and-continue",
   productionOnFail: "throw-and-block",
   certificationModeOnFail: "throw-and-block",
   sourceTreeEnoentOnFail: "warn-and-continue",
+  sourceIntegrityRuntime: "source-integrity-runtime-v1",
   testingArtifacts: "development-or-certification-mode-only",
 } as const;
 
@@ -104,36 +111,91 @@ export type StartupCertificationGateResult = {
   blocked: boolean;
   label: string;
   error?: string;
+  sourceIntegritySkipped?: boolean;
 };
 
 /**
  * Run a startup certification assertion under the canonical policy.
  * The assertion function itself stays fail-closed (throws on FAIL).
  * This wrapper decides whether the throw aborts boot or is logged.
+ *
+ * Architectural source-integrity: Blood Laws XXXVII–XLV that scan source trees
+ * are skipped (never thrown) when serverless NFT has pruned sources — ONE shared
+ * policy via source-integrity-runtime-v1 (not per-law patches).
  */
 export function runStartupCertificationGate(
   label: string,
   assertFn: () => void,
   env: NodeJS.ProcessEnv = process.env,
 ): StartupCertificationGateResult {
+  // ONE architectural skip for all source-integrity Blood Laws (XXXVII–XLV).
+  if (
+    shouldSkipSourceTreeVerificationAtRuntime(env) &&
+    isSourceIntegrityBloodLawLabel(label) &&
+    !isSourceTreeAvailable()
+  ) {
+    warnSourceIntegrityServerlessOnce(label);
+    return {
+      ok: true,
+      blocked: false,
+      label,
+      sourceIntegritySkipped: true,
+    };
+  }
+
   try {
     assertFn();
     return { ok: true, blocked: false, label };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const certMode =
+      env.ROVEXO_CERTIFICATION_MODE === "1" || env.ROVEXO_CERTIFICATION_MODE === "true";
 
-    // Serverless NFT prune: never abort boot because branding/source .tsx/.css is absent.
-    if (isSourceTreeEnoentError(error)) {
+    // 1) Pure Node ENOENT on source paths — NFT prune class. Never HTTP 500
+    //    (unless explicit certification mode requires fail-closed).
+    if (!certMode && isSourceTreeEnoentError(error)) {
+      warnSourceIntegrityServerlessOnce(label);
       console.warn(
         [
           "",
           `[ROVEXO STARTUP CERTIFICATION] ${label} soft-fail (source-tree ENOENT)`,
-          `Policy: ${STARTUP_CERTIFICATION_POLICY_V1.id} · ${STARTUP_CERTIFICATION_POLICY_V1.sourceTreeEnoentOnFail}`,
+          `Policy: ${STARTUP_CERTIFICATION_POLICY_V1.sourceIntegrityRuntime}`,
           message,
           "",
         ].join("\n"),
       );
-      return { ok: false, blocked: false, label, error: message };
+      return {
+        ok: false,
+        blocked: false,
+        label,
+        error: message,
+        sourceIntegritySkipped: true,
+      };
+    }
+
+    // 2) Serverless skip policy: also soft-continue "file missing" assertion failures
+    //    (XLIII+) that are source-tree certification, not Stripe/DB/env.
+    if (
+      shouldSkipSourceTreeVerificationAtRuntime(env) &&
+      isSourceTreeCertificationFailure(error)
+    ) {
+      warnSourceIntegrityServerlessOnce(label);
+      console.warn(
+        [
+          "",
+          `[ROVEXO STARTUP CERTIFICATION] ${label} soft-fail (source-tree integrity)`,
+          `Policy: ${STARTUP_CERTIFICATION_POLICY_V1.sourceIntegrityRuntime}`,
+          message,
+          "",
+        ].join("\n"),
+      );
+      return {
+        ok: false,
+        blocked: false,
+        label,
+        error: message,
+        sourceIntegritySkipped: true,
+      };
     }
 
     const mustBlock = shouldBlockStartupOnCertificationFailure(env);

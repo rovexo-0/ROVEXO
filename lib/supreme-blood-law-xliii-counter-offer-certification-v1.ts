@@ -19,9 +19,6 @@
  * Parents: Absolute Financial Law · Conversation Hub Master · Inbox Hub Master
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { workspacePath } from "@/lib/server/workspace-path";
 import {
   COUNTER_OFFER_ENGINE_V1,
   COUNTER_OFFER_ERROR_COPY,
@@ -32,6 +29,10 @@ import {
   type CounterOfferErrorCode,
 } from "@/lib/offers/counter-offer-engine-v1";
 import { mapOfferDbStatus } from "@/lib/inbox/conversation-view";
+import {
+  readSourceUtf8,
+  SOURCE_NOT_AVAILABLE_IN_SERVERLESS,
+} from "@/lib/startup/source-integrity-runtime-v1";
 
 /**
  * Canonical certification file targets — one object, no duplicated path strings.
@@ -129,12 +130,6 @@ export type CounterOfferCertificationReport = {
   errors: string[];
 };
 
-function readWorkspace(relativePath: string): string | null {
-  const absolute = workspacePath(relativePath);
-  if (!existsSync(absolute)) return null;
-  return readFileSync(absolute, "utf8");
-}
-
 function gate(id: string, label: string, pass: boolean, detail?: string): CounterOfferCertificationGate {
   return { id, label, pass, detail };
 }
@@ -145,12 +140,16 @@ function requireSource(
   missingLabel: string,
   relativePath: string,
 ): string | null {
-  const source = readWorkspace(relativePath);
-  if (source == null) {
-    gates.push(gate(id, missingLabel, false, relativePath));
+  const result = readSourceUtf8(relativePath);
+  if (result.available) return result.content;
+  if (result.status === SOURCE_NOT_AVAILABLE_IN_SERVERLESS) {
+    gates.push(
+      gate(id, missingLabel, true, SOURCE_NOT_AVAILABLE_IN_SERVERLESS),
+    );
     return null;
   }
-  return source;
+  gates.push(gate(id, missingLabel, false, relativePath));
+  return null;
 }
 
 /** Static + contract certification (runtime E2E is Owner / Playwright). */

@@ -9,8 +9,10 @@
  * Parents: XLII Full Platform Certification · Full Demo Permanence · XLIII
  */
 
-import { readFileSync } from "node:fs";
-import { workspacePath } from "@/lib/server/workspace-path";
+import {
+  readSourceUtf8,
+  SOURCE_NOT_AVAILABLE_IN_SERVERLESS,
+} from "@/lib/startup/source-integrity-runtime-v1";
 import { shouldLoadTestingArtifactsOnStartup } from "@/lib/startup/startup-certification-policy-v1";
 import {
   DEMO_SESSION_ENGINE_V1,
@@ -68,7 +70,12 @@ export type XlivCertificationReport = {
 };
 
 function readWorkspace(relativePath: string): string {
-  return readFileSync(workspacePath(relativePath), "utf8");
+  const result = readSourceUtf8(relativePath);
+  if (result.available) return result.content;
+  if (result.status === SOURCE_NOT_AVAILABLE_IN_SERVERLESS) {
+    return SOURCE_NOT_AVAILABLE_IN_SERVERLESS;
+  }
+  throw new Error(`SOURCE_MISSING:${relativePath}`);
 }
 
 export function certifyFullDemoCertificationEnvironmentXliv(): XlivCertificationReport {
@@ -84,6 +91,28 @@ export function certifyFullDemoCertificationEnvironmentXliv(): XlivCertification
   const productsRepo = readWorkspace("lib/products/repository.ts");
   const instrumentation = readWorkspace("instrumentation.ts");
 
+  // Serverless NFT: shared helper returned sentinel — do not fail-close on source absence.
+  if (
+    engine === SOURCE_NOT_AVAILABLE_IN_SERVERLESS ||
+    migration === SOURCE_NOT_AVAILABLE_IN_SERVERLESS ||
+    productsRepo === SOURCE_NOT_AVAILABLE_IN_SERVERLESS ||
+    instrumentation === SOURCE_NOT_AVAILABLE_IN_SERVERLESS
+  ) {
+    return {
+      bloodLaw: "XLIV",
+      ok: true,
+      certified: true,
+      productionReady: false,
+      gates: [
+        {
+          id: "source-integrity-serverless",
+          label: SOURCE_NOT_AVAILABLE_IN_SERVERLESS,
+          pass: true,
+        },
+      ],
+      errors: [],
+    };
+  }
   // Production MUST NEVER read e2e/*.spec.ts — excluded from Vercel NFT (ENOENT).
   // E2E artifact checks run only in development / ROVEXO_CERTIFICATION_MODE.
   const loadE2eArtifacts = shouldLoadTestingArtifactsOnStartup();

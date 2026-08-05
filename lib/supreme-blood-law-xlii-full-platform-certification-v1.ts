@@ -28,7 +28,7 @@ import { workspacePath } from "@/lib/server/workspace-path";
 import { FULL_DEMO_ACCOUNTS } from "@/lib/full-demo/canonical";
 import { runFullDemoCertificationScan } from "@/lib/full-demo/deploy-gate";
 import { runDeploymentCertificationScan } from "@/lib/full-demo/deployment-certification";
-import { shouldSoftFailBrandIntegrityAtRuntime } from "@/lib/startup/brand-integrity-runtime-v1";
+import { shouldSkipSourceTreeVerificationAtRuntime } from "@/lib/startup/source-integrity-runtime-v1";
 import { certifyAuthenticationExperienceFinalFreezeXli } from "@/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1";
 import { ROVEXO_PRODUCTION_CERTIFICATION_V1 } from "@/lib/rovexo-production-certification-v1";
 
@@ -622,7 +622,7 @@ export function certifyFullPlatformXlII(
  */
 export function certifyFullPlatformProductionRuntimeXlII(): FullPlatformCertificationReport {
   // NFT prune: source-tree scans cannot run inside serverless /var/task.
-  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+  if (shouldSkipSourceTreeVerificationAtRuntime()) {
     console.warn("[XLII] Source verification skipped in production runtime.");
     return finalizeFullPlatformReport({
       checks: [
@@ -811,7 +811,7 @@ export function assertFullPlatformCertificationOrBlock(): void {
  * Instrumentation MUST call this (and only this) for XLII.
  */
 export function assertFullPlatformProductionRuntimeOrBlock(): void {
-  if (shouldSoftFailBrandIntegrityAtRuntime()) {
+  if (shouldSkipSourceTreeVerificationAtRuntime()) {
     console.warn("[XLII] Source verification skipped in production runtime.");
     return;
   }
