@@ -23,11 +23,20 @@ additional_redirect_urls = [
   "http://localhost:3000/auth/callback",
   "http://localhost:3000/auth/callback?next=%2Faccount",
   "http://localhost:3000/auth/callback?next=%2Freset-password",
+  "http://localhost:3000/verify-email",
+  "https://www.rovexo.co.uk/auth/callback",
+  "https://www.rovexo.co.uk/verify-email",
+  "https://rovexo.co.uk/auth/callback",
+  "https://rovexo.co.uk/verify-email",
 ]
 
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+
+[auth.email.template.confirmation]
+subject = "Confirm your email address"
+content_path = "./supabase/templates/confirmation.html"
 
 [storage]
 enabled = true

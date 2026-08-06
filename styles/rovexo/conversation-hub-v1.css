@@ -75,7 +75,7 @@
   top: 0;
   z-index: 40;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-columns: 40px minmax(0, 1fr) 48px;
   gap: 8px;
   align-items: center;
   min-height: calc(var(--conv-header-h) + env(safe-area-inset-top, 0px));

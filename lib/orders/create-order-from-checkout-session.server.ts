@@ -22,6 +22,11 @@ import {
 } from "@/lib/bundle/bundle-snapshot-v1";
 import { markBundlePaidAfterOrder } from "@/lib/bundle/bundle-lifecycle-v1";
 import { notifyBundlePurchased } from "@/lib/bundle/bundle-notification-matrix-v1";
+import {
+  claimProductsForPaidSale,
+  restoreProductInventoryClaim,
+} from "@/lib/inventory/service";
+import { CHECKOUT_RACE_CONDITION_V1 } from "@/lib/checkout/checkout-race-condition-v1";
 
 function primaryImage(
   images: Array<{ url: string; is_primary: boolean; sort_order: number }> | null | undefined,
@@ -54,6 +59,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
         stripeSessionId: input.stripeSessionId ?? session.stripe_checkout_session_id,
         stripePaymentIntentId:
           input.stripePaymentIntentId ?? session.stripe_payment_intent_id,
+        inventoryAlreadyClaimed: true,
       });
       if (!fulfilled.success) {
         return { success: false, error: fulfilled.error ?? "Unable to fulfill paid order." };
@@ -98,6 +104,23 @@ export async function createOrderFromPaidCheckoutSession(input: {
   const resolvedOrderNumber = orderNumber ?? `RVX${Date.now().toString(36).toUpperCase()}`;
   const invoiceNumber = generateInvoiceNumber(resolvedOrderNumber);
 
+  // Checkout Race Condition v1.0 — claim inventory BEFORE order insert.
+  // Second concurrent payer loses here → ITEM_JUST_SOLD (no order / no duplicate).
+  const claimLines = bundleSnapshot
+    ? bundleSnapshot.lines.map((line) => ({
+        productId: line.productId,
+        quantity: Math.max(1, Number(line.quantity) || 1),
+      }))
+    : [{ productId: product!.id, quantity: 1 }];
+
+  const claimed = await claimProductsForPaidSale(claimLines);
+  if (!claimed.ok) {
+    return {
+      success: false,
+      error: CHECKOUT_RACE_CONDITION_V1.conflictCode,
+    };
+  }
+
   const paidAt = new Date().toISOString();
   const { data: orderRow, error: orderError } = await admin
     .from("orders")
@@ -125,6 +148,11 @@ export async function createOrderFromPaidCheckoutSession(input: {
     .single();
 
   if (orderError || !orderRow) {
+    await Promise.all(
+      claimLines.map((line) =>
+        restoreProductInventoryClaim(line.productId, line.quantity),
+      ),
+    );
     return { success: false, error: "Unable to create order after payment." };
   }
 
@@ -141,6 +169,12 @@ export async function createOrderFromPaidCheckoutSession(input: {
     }));
     const { error: itemsError } = await admin.from("order_items").insert(orderItems);
     if (itemsError) {
+      await admin.from("orders").delete().eq("id", orderRow.id);
+      await Promise.all(
+        claimLines.map((line) =>
+          restoreProductInventoryClaim(line.productId, line.quantity),
+        ),
+      );
       return { success: false, error: "Unable to create bundle order items." };
     }
 
@@ -189,6 +223,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
       orderId: orderRow.id,
       stripeSessionId: input.stripeSessionId ?? null,
       stripePaymentIntentId: input.stripePaymentIntentId ?? null,
+      inventoryAlreadyClaimed: true,
     });
 
     if (!fulfilled.success) {

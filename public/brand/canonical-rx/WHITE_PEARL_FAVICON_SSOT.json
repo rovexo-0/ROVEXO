@@ -1,0 +1,9 @@
+{
+  "name": "White Pearl RX",
+  "level": "III_APP_ICON + IV_FAVICON",
+  "source": "/brand/canonical-rx/app-icon-v1.png",
+  "sha256": "d5fcaef5b14f135bfa5f3f54c2ce94e18e1cfa27cde92f8eac44b57a294c2123",
+  "cacheBust": "wp-20260805",
+  "generatedAt": "2026-08-05T14:30:06.270Z",
+  "generator": "scripts/generate-favicon-white-pearl-v1.mjs"
+}

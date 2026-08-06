@@ -1,0 +1,84 @@
+/**
+ * ROVEXO HEADER STANDARD v1.0
+ * Visual SSOT = Orders page header (Back · Title · Close).
+ * Homepage marketplace header is excluded.
+ */
+
+.rx-header-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #111111;
+  cursor: pointer;
+}
+
+.rx-header-close svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* CanonicalPageHeader — Orders tokens */
+.rx-page-header[data-rovexo-header-standard="1.0"] .rx-page-header__bar,
+[data-canonical-page-header="v1"][data-rovexo-header-standard="1.0"] .rx-page-header__bar {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 40px 1fr 48px;
+  align-items: center;
+  min-height: 48px;
+  height: auto;
+  gap: 8px;
+  padding-left: var(--cds-space-page-x, 16px);
+  padding-right: var(--cds-space-page-x, 16px);
+  padding-bottom: 4px;
+  padding-top: max(env(safe-area-inset-top, 0px), 4px);
+  background: #ffffff;
+}
+
+.rx-page-header__title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: #1a1a1a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rx-page-header__back {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.rx-page-header__back .cds-header__back,
+.rx-page-header[data-rovexo-header-standard="1.0"] .cds-header__back {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 12px;
+}
+
+.rx-page-header[data-rovexo-header-standard="1.0"] .cds-header__back svg {
+  width: 22px;
+  height: 22px;
+}
+
+.rx-page-header__action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+}

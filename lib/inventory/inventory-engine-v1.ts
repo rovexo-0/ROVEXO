@@ -1,26 +1,19 @@
 /**
- * ROVEXO INVENTORY ENGINE v1.0 + COD SÂNGE RVX-2012 (Reserved Absolute Law)
+ * ROVEXO INVENTORY ENGINE v1.0 + Checkout Race Condition v1.0
  *
- * SSOT statuses only: published → reserved → sold → delisted(deleted)
+ * SSOT statuses: published → (checkout, still published) → sold after payment commit
  *
  * FORBIDDEN:
+ *   Buy Now → RESERVED hides marketplace
  *   Buy Now → SOLD → Checkout
- *   Buy Now → SOLD → Payment → Order
  *   Buy Now → Order → Payment
- *   Buy Now → Payment → Checkout
- *   Buy Now → SOLD → No Payment
  *
- * ONLY ALLOWED (Master Checkout Architecture v1.0):
- *   Buy Now → RESERVED → Checkout Session (120s) → Payment → Success → Order → SOLD
+ * ONLY ALLOWED (Checkout Race Condition v1.0):
+ *   Buy Now → Checkout Session (listing stays published)
+ *   → Payment success → ATOMIC claim (verify + order + sold) → marketplace remove
  *
- * Reservation record (ONE SSOT — checkout_sessions, Absolute Law 120s):
- *   reservationId = checkout_sessions.public_id
- *   buyerId · listingId · createdAt · expiresAt (expires_at)
- *   stripeCheckoutSessionId · orderId (after pay only) · status
- *
- * Timer: 120 seconds → AUTO RELEASE → published (stock unchanged)
- * Payment fail / timeout / abandoned session → RELEASE → published
- * Payment success → mark sold → stock = stock - quantity
+ * Winner = first payment confirmed + order committed.
+ * Second payer → ITEM_JUST_SOLD / HTTP 409.
  */
 
 export const INVENTORY_ENGINE_V1 = {
@@ -45,16 +38,18 @@ export const INVENTORY_ENGINE_V1 = {
     "lock_sold",
     "checkout_sold",
   ] as const,
+  /** Legacy RPC retained for heal only — Buy Now must NOT call reserve. */
   reserveSets: {
     status: "reserved" as const,
     reserved: true,
     stockUnchanged: true,
   },
   markSoldSets: {
-    status: "published" as const,
+    statusWhenStockZero: "sold" as const,
+    statusWhenStockRemaining: "published" as const,
     reserved: false,
     stockDecrementByQuantity: true,
-    outOfStockRemainsVisible: true,
+    outOfStockRemainsVisible: false,
   },
   releaseSets: {
     status: "published" as const,
@@ -63,8 +58,8 @@ export const INVENTORY_ENGINE_V1 = {
   },
   forbiddenOnReserve: ["status=sold", "stock=0", "stock_decrement"] as const,
   officialChain:
-    "PUBLISHED → RESERVED → PAID → SOLD → FINISHED" as const,
-  /** Absolute Law — listing may remain RESERVED for a maximum of 120 seconds. */
+    "PUBLISHED → CHECKOUT (still published) → PAID → ATOMIC ORDER+SOLD → FINISHED" as const,
+  /** Checkout session TTL — does not hide listing. */
   reservationSeconds: 120 as const,
   reservationMinutes: 2 as const,
   reservationSsot: "checkout_sessions (open) + checkout_sessions.expires_at" as const,
@@ -87,19 +82,22 @@ export const INVENTORY_ENGINE_V1 = {
   ] as const,
   successSequence: [
     "PAYMENT_SUCCESS",
+    "CLAIM_INVENTORY",
     "CREATE_ORDER",
     "CREATE_TRANSACTION",
     "CREATE_SHIPPING",
     "STATUS_SOLD",
-    "STOCK_DECREMENT",
     "NOTIFICATIONS",
     "FINISHED",
   ] as const,
   sqlMigrations: [
     "supabase/migrations/20260724223000_inventory_engine_reserved_enum_v1.sql",
     "supabase/migrations/20260724223100_inventory_engine_reserved_rpc_v1.sql",
+    "supabase/migrations/20260806150000_checkout_race_condition_sold_claim_v1.sql",
   ] as const,
   onlyBlockerUntilApplied: "SQL_MIGRATION" as const,
+  buyNowMustNotHideListing: true as const,
+  conflictMessage: "This item has just been sold." as const,
 } as const;
 
 export type InventoryEngineV1 = typeof INVENTORY_ENGINE_V1;

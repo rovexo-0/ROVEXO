@@ -3,20 +3,25 @@ import { getAppUrl } from "@/lib/supabase/env";
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-function allowedHosts(): Set<string> {
+function normalizeHost(raw: string): string {
+  return raw.trim().toLowerCase();
+}
+
+/** Configured public hosts (env) — not the only allow source. */
+function configuredHosts(): Set<string> {
   const hosts = new Set<string>();
   for (const key of ["NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL"]) {
     const raw = process.env[key]?.trim();
     if (!raw) continue;
     try {
-      hosts.add(new URL(raw.startsWith("http") ? raw : `https://${raw}`).host);
+      hosts.add(normalizeHost(new URL(raw.startsWith("http") ? raw : `https://${raw}`).host));
     } catch {
       // ignore invalid URL
     }
   }
 
   const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) hosts.add(vercel);
+  if (vercel) hosts.add(normalizeHost(vercel));
 
   if (process.env.NODE_ENV !== "production") {
     hosts.add("localhost:3000");
@@ -26,10 +31,37 @@ function allowedHosts(): Set<string> {
   return hosts;
 }
 
-function hostFromHeader(value: string | null): string | null {
-  if (!value) return null;
+/**
+ * Hosts that are valid for this request:
+ * - configured app URLs
+ * - the request Host / X-Forwarded-Host (same-origin as the browser hit)
+ * - request URL host (fallback when Host header absent, e.g. unit tests)
+ *
+ * Android / LAN: phone opens http://192.168.x.x:3000 while env lists localhost —
+ * Origin matches request Host → PASS. Evil Origin ≠ Host → FAIL.
+ */
+function allowedHostsForRequest(request: Request): Set<string> {
+  const hosts = configuredHosts();
+
+  const hostHeader = request.headers.get("host");
+  if (hostHeader) hosts.add(normalizeHost(hostHeader));
+
+  const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  if (forwarded) hosts.add(normalizeHost(forwarded));
+
   try {
-    return new URL(value).host;
+    hosts.add(normalizeHost(new URL(request.url).host));
+  } catch {
+    // ignore
+  }
+
+  return hosts;
+}
+
+function hostFromHeader(value: string | null): string | null {
+  if (!value || value === "null") return null;
+  try {
+    return normalizeHost(new URL(value).host);
   } catch {
     return null;
   }
@@ -41,7 +73,7 @@ export function validateMutationOrigin(request: Request): NextResponse | null {
     return null;
   }
 
-  const hosts = allowedHosts();
+  const hosts = allowedHostsForRequest(request);
   if (hosts.size === 0) {
     return null;
   }
@@ -56,6 +88,12 @@ export function validateMutationOrigin(request: Request): NextResponse | null {
     return null;
   }
 
+  // Some mobile WebViews omit Origin on same-origin JSON POST; trust Sec-Fetch-Site.
+  const fetchSite = request.headers.get("sec-fetch-site")?.toLowerCase();
+  if (fetchSite === "same-origin") {
+    return null;
+  }
+
   if (!originHost && !refererHost && process.env.NODE_ENV !== "production") {
     return null;
   }
@@ -65,7 +103,8 @@ export function validateMutationOrigin(request: Request): NextResponse | null {
       success: false,
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? "1.0.0-rc.1",
-      error: "Cross-origin mutation blocked.",
+      // User-facing — never expose CSRF/framework internals (fail-closed).
+      error: "Unable to complete this action.",
       diagnostics: { guard: "csrf-origin", appUrl: getAppUrl() },
     },
     { status: 403 },

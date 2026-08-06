@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   getDeliveryPrice,
   pickDefaultShippingQuote,
@@ -18,8 +19,15 @@ import {
   type RvxClassifiedCode,
 } from "@/lib/checkout/buy-now-guard-v1";
 import { mapOrderCheckoutErrorToRvx } from "@/lib/checkout/map-order-checkout-error-v1";
+import {
+  CHECKOUT_RACE_CONDITION_V1,
+  isItemJustSoldError,
+} from "@/lib/checkout/checkout-race-condition-v1";
 
 function toPublicCheckoutError(raw: string, codeHint?: string): string {
+  if (isItemJustSoldError(raw) || codeHint === CHECKOUT_RACE_CONDITION_V1.conflictCode) {
+    return CHECKOUT_RACE_CONDITION_V1.conflictMessage;
+  }
   const embedded = raw.match(/\bRVX-20(?:0[1-9]|1[0-2]|99)\b/);
   const fromHint =
     codeHint &&
@@ -57,6 +65,7 @@ export function useCheckoutForm(
     onDraftChange?: (draft: CheckoutDraft) => void;
   },
 ) {
+  const router = useRouter();
   const liveShippingEnabled = options?.liveShippingEnabled ?? true;
   const hubConversationId = options?.hubConversationId;
   const offerId = options?.offerId ?? null;
@@ -315,6 +324,15 @@ export function useCheckoutForm(
       };
 
       if (!response.ok || !payload.success) {
+        if (
+          response.status === CHECKOUT_RACE_CONDITION_V1.httpConflict ||
+          isItemJustSoldError(payload.error) ||
+          payload.code === CHECKOUT_RACE_CONDITION_V1.conflictCode
+        ) {
+          setErrorMessage(CHECKOUT_RACE_CONDITION_V1.conflictMessage);
+          router.replace(`/listing/${product.slug}`);
+          return;
+        }
         const raw = payload.error ?? "";
         setErrorMessage(toPublicCheckoutError(raw, payload.code));
         return;
@@ -343,6 +361,7 @@ export function useCheckoutForm(
     offerId,
     pendingOrderId,
     product.slug,
+    router,
     selectedQuote,
   ]);
 

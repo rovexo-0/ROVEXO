@@ -22,6 +22,7 @@ import { isDocumentVisible } from "@/lib/performance/visibility";
 import type { Notification } from "@/lib/notifications/types";
 import type { DashboardBadgeCounts } from "@/lib/notifications/badge-counts";
 import type { MobileBadges } from "@/lib/mobile-ui/types";
+import { triggerCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-client-v1";
 
 type RealtimeNotificationContextValue = {
   unreadCount: number;
@@ -277,6 +278,7 @@ export function RealtimeNotificationProvider({
         onStatus: (status) => {
           if (status === "SUBSCRIBED") {
             reconnectAttempts = 0;
+            triggerCheckoutSessionSelfHeal("realtime-subscribed");
             return;
           }
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
@@ -308,6 +310,7 @@ export function RealtimeNotificationProvider({
     if (isDocumentVisible()) void connect();
 
     const onOnline = () => {
+      triggerCheckoutSessionSelfHeal("realtime-online");
       void flushOfflineNotificationQueue().then(() => refresh());
       void connect();
     };

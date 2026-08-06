@@ -2287,3 +2287,252 @@ a.auth-login__register-cta:active {
   text-align: center;
   margin: 0;
 }
+
+/* ── Email Verification UX v1.0 (COD SÂNGE · /verify-email) ── */
+.auth-verify-email {
+  min-height: 100dvh;
+  width: 100%;
+  background: #ffffff;
+  color-scheme: light;
+}
+
+.auth-verify-email__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 430px;
+  margin-inline: auto;
+  padding: max(env(safe-area-inset-top), 32px) 16px max(env(safe-area-inset-bottom), 32px);
+  gap: 28px;
+}
+
+.auth-verify-email .rovexo-brand-logo--auth {
+  margin: 0 auto;
+}
+
+.auth-verify-email__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 20px;
+  text-align: center;
+}
+
+.auth-verify-email__panel .auth-heading {
+  width: 100%;
+  text-align: center;
+}
+
+.auth-verify-email__panel .auth-heading__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #111827;
+}
+
+.auth-verify-email__panel .auth-heading__description {
+  margin-top: 8px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.auth-verify-email__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.auth-verify-email__icon-svg {
+  width: 32px;
+  height: 32px;
+  color: #ffffff;
+}
+
+.auth-verify-email__icon--created {
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  box-shadow: 0 8px 24px rgb(147 51 234 / 0.28);
+}
+
+.auth-verify-email__icon--verifying {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  box-shadow: 0 0 0 12px rgb(147 51 234 / 0.12), 0 8px 28px rgb(147 51 234 / 0.3);
+  animation: auth-verify-pulse 1.4s ease-in-out infinite;
+}
+
+.auth-verify-email__icon--success {
+  background: #22c55e;
+  box-shadow: 0 8px 24px rgb(34 197 94 / 0.28);
+}
+
+.auth-verify-email__icon--expired {
+  background: #f3f4f6;
+}
+
+.auth-verify-email__icon--expired .auth-verify-email__icon-svg {
+  color: #6b7280;
+}
+
+.auth-verify-email__email-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.auth-verify-email__email-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #9333ea;
+}
+
+.auth-verify-email__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.auth-verify-email__resend-form,
+.auth-verify-email__full-form {
+  width: 100%;
+  margin: 0;
+}
+
+.auth-verify-email__resend-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: #9333ea;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-verify-email__resend-link:disabled {
+  color: #a78bfa;
+  cursor: default;
+  opacity: 0.85;
+}
+
+.auth-verify-email__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9375rem;
+}
+
+.auth-verify-email__progress {
+  width: 100%;
+  max-width: 220px;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #ede9fe;
+  overflow: hidden;
+}
+
+.auth-verify-email__progress-bar {
+  height: 100%;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a855f7, #7c3aed);
+  animation: auth-verify-progress 1.2s ease-in-out infinite;
+}
+
+.auth-verify-email__success-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.auth-verify-email__success-burst span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.auth-verify-email__success-burst span:nth-child(1) {
+  top: 8%;
+  left: 18%;
+  background: #f472b6;
+  transform: rotate(18deg);
+}
+.auth-verify-email__success-burst span:nth-child(2) {
+  top: 4%;
+  right: 22%;
+  background: #60a5fa;
+  transform: rotate(-12deg);
+}
+.auth-verify-email__success-burst span:nth-child(3) {
+  top: 28%;
+  left: 8%;
+  background: #fbbf24;
+}
+.auth-verify-email__success-burst span:nth-child(4) {
+  top: 22%;
+  right: 10%;
+  background: #34d399;
+  transform: rotate(28deg);
+}
+.auth-verify-email__success-burst span:nth-child(5) {
+  top: 12%;
+  left: 46%;
+  background: #a78bfa;
+}
+.auth-verify-email__success-burst span:nth-child(6) {
+  top: 36%;
+  right: 28%;
+  background: #fb7185;
+  transform: rotate(-24deg);
+}
+
+@keyframes auth-verify-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 10px rgb(147 51 234 / 0.1), 0 8px 28px rgb(147 51 234 / 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgb(147 51 234 / 0.16), 0 10px 32px rgb(147 51 234 / 0.34);
+  }
+}
+
+@keyframes auth-verify-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-verify-email__icon--verifying,
+  .auth-verify-email__progress-bar {
+    animation: none;
+  }
+}
+

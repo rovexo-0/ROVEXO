@@ -29,20 +29,18 @@ export function AnalyticsHeader({ backHref, activeRange, onRangeChange }: Analyt
 
   return (
     <>
-      <CanonicalPageHeader
-        title="Analytics"
-        backHref={backHref}
-        rightAction={
-          <IconButton
-            label={`Filter date range, ${activeLabel}`}
-            variant="ghost"
-            size="md"
-            onClick={() => setFilterOpen(true)}
-          >
-            <FilterIcon className="h-5 w-5" />
-          </IconButton>
-        }
-      />
+      <CanonicalPageHeader title="Analytics" backHref={backHref} />
+
+      <div className="flex items-center justify-end px-ds-4 pb-ds-2">
+        <IconButton
+          label={`Filter date range, ${activeLabel}`}
+          variant="ghost"
+          size="md"
+          onClick={() => setFilterOpen(true)}
+        >
+          <FilterIcon className="h-5 w-5" />
+        </IconButton>
+      </div>
 
       <ModalContainer
         open={filterOpen}
@@ -59,7 +57,7 @@ export function AnalyticsHeader({ backHref, activeRange, onRangeChange }: Analyt
               <CategoryChip
                 key={range.id}
                 label={range.label}
-                active={activeRange === range.id}
+                active={range.id === activeRange}
                 onClick={() => {
                   onRangeChange(range.id);
                   setFilterOpen(false);

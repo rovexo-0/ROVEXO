@@ -3,9 +3,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
+import { RovexoHeaderCloseButton } from "@/components/navigation/RovexoHeaderCloseButton";
 import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { ROVEXO_HEADER_STANDARD_VERSION } from "@/lib/header/rovexo-header-standard-v1";
 import { CDS_VERSION } from "./tokens";
 
 export type CanonicalPageHeaderProps = {
@@ -13,6 +15,7 @@ export type CanonicalPageHeaderProps = {
   backHref?: string;
   backLabel?: string;
   onBack?: () => void;
+  /** @deprecated Header Standard v1.0 — right slot is always Close. */
   rightAction?: ReactNode;
   className?: string;
   titleId?: string;
@@ -21,18 +24,19 @@ export type CanonicalPageHeaderProps = {
 };
 
 /**
- * My Account subpage header — 1:1 with platform account module chrome.
+ * My Account subpage header — ROVEXO Header Standard v1.0 (Orders SSOT).
  */
 export function CanonicalPageHeader({
   title,
   backHref = "/",
   backLabel = "Back",
   onBack,
-  rightAction,
+  rightAction: _rightAction,
   className,
   titleId,
   hideBack = false,
 }: CanonicalPageHeaderProps) {
+  void _rightAction;
   const back = usePageBack({ backHref, backLabel, preferHistory: true });
 
   return (
@@ -40,9 +44,10 @@ export function CanonicalPageHeader({
       className={cn("rx-page-header rx-canon-header cds-header sticky top-0 z-50", className)}
       data-cds-header={CDS_VERSION}
       data-canonical-page-header="v1"
+      data-rovexo-header-standard={ROVEXO_HEADER_STANDARD_VERSION}
     >
-      <div className="cds-header__grid">
-        <div className="justify-self-start">
+      <div className="rx-page-header__bar cds-header__grid">
+        <div className="rx-page-header__back justify-self-start">
           {onBack ? (
             <button
               type="button"
@@ -66,11 +71,13 @@ export function CanonicalPageHeader({
           )}
         </div>
 
-        <h1 id={titleId} className="cds-header__title">
+        <h1 id={titleId} className="rx-page-header__title cds-header__title">
           {title}
         </h1>
 
-        <div className="cds-header__action">{rightAction ?? <span aria-hidden className="w-12" />}</div>
+        <div className="rx-page-header__action cds-header__action">
+          <RovexoHeaderCloseButton fallbackHref={backHref} />
+        </div>
       </div>
     </header>
   );

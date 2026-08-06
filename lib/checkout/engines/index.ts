@@ -18,10 +18,16 @@ export {
   CHECKOUT_SESSION_ENGINE_getOpenForBuyerListing,
   CHECKOUT_SESSION_ENGINE_destroy,
   CHECKOUT_SESSION_ENGINE_expireAll,
+  CHECKOUT_SESSION_ENGINE_selfHeal,
   CHECKOUT_SESSION_ENGINE_markPaid,
   CHECKOUT_SESSION_ENGINE_attachStripe,
   CHECKOUT_SESSION_ENGINE_isExpired,
   PAYMENT_INTENT_ENGINE_createShell,
+  INVENTORY_LIFECYCLE_LOG,
+} from "@/lib/checkout/engines/checkout-session-engine-v1";
+export type {
+  CheckoutSessionDestroyResult,
+  CheckoutSessionExpireAllResult,
 } from "@/lib/checkout/engines/checkout-session-engine-v1";
 export { FINANCIAL_AUDIT_ENGINE } from "@/lib/checkout/engines/financial-audit-engine-v1";
 export {

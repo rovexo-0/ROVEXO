@@ -120,6 +120,16 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session):
   if (session.metadata?.checkoutType === "order") {
     const result = await fulfillOrderFromStripeSession(session);
     if (!result.success) {
+      const { isItemJustSoldError } = await import(
+        "@/lib/checkout/checkout-race-condition-v1"
+      );
+      if (isItemJustSoldError(result.error)) {
+        logStripeWebhookEvent("checkout.session.completed ITEM_JUST_SOLD — refunded", {
+          sessionId: session.id,
+          error: result.error,
+        });
+        return;
+      }
       throw new Error(result.error ?? "Order fulfillment failed after checkout.session.completed.");
     }
     await recordPlatformAnalyticsEvent({ domain: "orders", metric: "checkout_completed" });
@@ -229,6 +239,46 @@ async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
           stripePaymentIntentId: paymentIntent.id,
         });
         if (!result.success) {
+          const { isItemJustSoldError, CHECKOUT_RACE_CONDITION_V1 } = await import(
+            "@/lib/checkout/checkout-race-condition-v1"
+          );
+          if (isItemJustSoldError(result.error)) {
+            const {
+              CHECKOUT_SESSION_ENGINE_getByPublicId,
+              CHECKOUT_SESSION_ENGINE_destroy,
+            } = await import("@/lib/checkout/engines/checkout-session-engine-v1");
+            const row = await CHECKOUT_SESSION_ENGINE_getByPublicId(checkoutSessionId);
+            if (row && row.status === "open") {
+              await CHECKOUT_SESSION_ENGINE_destroy({ session: row, status: "cancelled" });
+            }
+            try {
+              const { getStripeClient, isStripeConfigured } = await import("@/lib/stripe/server");
+              if (isStripeConfigured() && !paymentIntent.id.startsWith("pi_virtual_")) {
+                const stripe = getStripeClient();
+                await stripe.refunds.create(
+                  {
+                    payment_intent: paymentIntent.id,
+                    reason: "requested_by_customer",
+                    metadata: {
+                      reason: CHECKOUT_RACE_CONDITION_V1.conflictCode,
+                      checkoutSessionId,
+                    },
+                  },
+                  { idempotencyKey: `item-just-sold-refund-${paymentIntent.id}` },
+                );
+              }
+            } catch (refundError) {
+              console.error(
+                "[stripe-webhook] ITEM_JUST_SOLD refund failed:",
+                refundError instanceof Error ? refundError.message : refundError,
+              );
+            }
+            logStripeWebhookEvent("payment_intent.succeeded ITEM_JUST_SOLD — refunded", {
+              checkoutSessionId,
+              paymentIntentId: paymentIntent.id,
+            });
+            break;
+          }
           throw new Error(
             result.error ?? "Order create failed after payment_intent.succeeded.",
           );

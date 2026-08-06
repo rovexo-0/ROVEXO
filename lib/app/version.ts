@@ -12,8 +12,8 @@ export const ROVEXO_RELEASE_LABEL = "ROVEXO v1.0.0 Release Candidate 1";
 /** Short code for docs and tags (no git tag until Owner authorizes) */
 export const ROVEXO_RELEASE_CODE = "RC1";
 
-/** Service Worker static cache epoch for this release */
-export const ROVEXO_SW_CACHE_NAME = "rovexo-static-v15";
+/** Service Worker static cache epoch for this release (White Pearl favicon bump) */
+export const ROVEXO_SW_CACHE_NAME = "rovexo-static-v16";
 
 /** Post-RC1 workstream — not part of this freeze */
 export const ROVEXO_NEXT_MINOR = "v1.1";

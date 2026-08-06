@@ -4,7 +4,11 @@ import {
   fetchCheckoutCarrierQuotes,
   findCheckoutCarrierQuote,
 } from "@/lib/checkout/shipping-quotes.server";
-import { isPurchasable, releaseProductInventory } from "@/lib/inventory/service";
+import {
+  isPurchasable,
+  releaseProductInventory,
+  restoreProductInventoryClaim,
+} from "@/lib/inventory/service";
 import { notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
 import { getOrderById } from "@/lib/orders/store";
@@ -29,6 +33,51 @@ import {
 import { CHECKOUT_SESSION_TTL_SECONDS } from "@/lib/checkout/engines/status-map-v1";
 import { createOrderFromPaidCheckoutSession } from "@/lib/orders/create-order-from-checkout-session.server";
 import { isBundleCheckoutSnapshot } from "@/lib/bundle/bundle-snapshot-v1";
+import {
+  CHECKOUT_RACE_CONDITION_V1,
+  isItemJustSoldError,
+} from "@/lib/checkout/checkout-race-condition-v1";
+
+/** Refund Stripe PI when payment won the race for money but lost inventory claim. */
+async function refundItemJustSoldPayment(input: {
+  paymentIntentId: string | null;
+  checkoutSessionPublicId: string;
+}): Promise<void> {
+  const fresh = await CHECKOUT_SESSION_ENGINE_getByPublicId(input.checkoutSessionPublicId);
+  if (fresh && fresh.status === "open") {
+    await CHECKOUT_SESSION_ENGINE_destroy({ session: fresh, status: "cancelled" });
+  }
+
+  if (!input.paymentIntentId || !isStripeConfigured()) return;
+  if (
+    input.paymentIntentId.startsWith("pi_virtual_") ||
+    input.paymentIntentId.startsWith("virtual_")
+  ) {
+    return;
+  }
+
+  try {
+    const stripe = getStripeClient();
+    await stripe.refunds.create(
+      {
+        payment_intent: input.paymentIntentId,
+        reason: "requested_by_customer",
+        metadata: {
+          reason: CHECKOUT_RACE_CONDITION_V1.conflictCode,
+          checkoutSessionId: input.checkoutSessionPublicId,
+        },
+      },
+      {
+        idempotencyKey: `item-just-sold-refund-${input.paymentIntentId}`,
+      },
+    );
+  } catch (error) {
+    console.error(
+      "[checkout-race] refund after ITEM_JUST_SOLD failed:",
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
 
 /** @deprecated Legacy awaiting_payment window. Absolute Law = 120s checkout session. */
 const RESERVATION_MINUTES = Math.ceil(CHECKOUT_SESSION_TTL_SECONDS / 60);
@@ -516,11 +565,10 @@ async function finalizeCheckoutSessionPayment(
 
     if (!debit.ok) {
       await admin.from("orders").update({ status: "cancelled" }).eq("id", created.orderId);
+      await restoreProductInventoryClaim(product.id, 1);
       const fresh = await CHECKOUT_SESSION_ENGINE_getByPublicId(session.public_id);
       if (fresh && fresh.status === "open") {
         await CHECKOUT_SESSION_ENGINE_destroy({ session: fresh, status: "cancelled" });
-      } else {
-        await releaseProductInventory(product.id, 1);
       }
       return { error: debit.error };
     }
@@ -536,6 +584,7 @@ async function finalizeCheckoutSessionPayment(
       orderId: created.orderId,
       stripeSessionId: debit.sessionId,
       stripePaymentIntentId: virtualPi,
+      inventoryAlreadyClaimed: true,
     });
     if (!fulfilled.success) {
       return { error: fulfilled.error ?? "Unable to complete virtual payment." };
@@ -827,6 +876,12 @@ export async function fulfillOrderFromStripeSession(session: {
       stripePaymentIntentId: paymentIntentId,
     });
     if (!created.success) {
+      if (isItemJustSoldError(created.error)) {
+        await refundItemJustSoldPayment({
+          paymentIntentId,
+          checkoutSessionPublicId: checkoutSessionId,
+        });
+      }
       return { success: false, error: created.error };
     }
     return { success: true, orderId: created.orderId };

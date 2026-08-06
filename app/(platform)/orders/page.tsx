@@ -3,6 +3,7 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 import { OrdersPage, OrdersPageSkeleton } from "@/features/orders/components/OrdersPage";
 import { fetchOrdersForUser } from "@/lib/orders/queries";
 import { getProfile } from "@/lib/profile/data";
+import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
 
 function OrdersFallback() {
   return (
@@ -13,6 +14,7 @@ function OrdersFallback() {
 }
 
 export default async function OrdersRoute() {
+  await awaitCheckoutSessionSelfHeal("orders");
   const profile = await getProfile();
   const [boughtOrders, soldOrders] = await Promise.all([
     fetchOrdersForUser(profile.id, "buyer"),

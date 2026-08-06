@@ -19,6 +19,8 @@ type FollowButtonProps = {
   followerCount?: number;
   followingCount?: number;
   onCountsChange?: (counts: FollowCounts) => void;
+  /** Visit Store v2.0 CTA label style only — Profile unchanged. */
+  storeCta?: boolean;
 };
 
 /**
@@ -33,6 +35,7 @@ export function FollowButton({
   followerCount = 0,
   followingCount = 0,
   onCountsChange,
+  storeCta = false,
 }: FollowButtonProps) {
   const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
@@ -137,13 +140,37 @@ export function FollowButton({
         {following ? (
           <>
             <CheckIcon />
-            <span>FOLLOWING</span>
+            <span>{storeCta ? "Following" : "FOLLOWING"}</span>
           </>
         ) : (
-          <span>FOLLOW</span>
+          <>
+            {storeCta ? <PersonPlusIcon /> : null}
+            <span>{storeCta ? "Follow" : "FOLLOW"}</span>
+          </>
         )}
       </button>
     </div>
+  );
+}
+
+function PersonPlusIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M19 8v6M22 11h-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 

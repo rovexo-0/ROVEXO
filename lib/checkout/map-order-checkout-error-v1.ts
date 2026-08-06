@@ -47,6 +47,11 @@ export function mapOrderCheckoutErrorToRvx(raw: string | null | undefined): {
   ) {
     code = "RVX-2005";
   } else if (
+    lower.includes("item_just_sold") ||
+    lower.includes("just been sold")
+  ) {
+    code = "RVX-2007";
+  } else if (
     lower.includes("unable to reserve") ||
     lower.includes("out of stock") ||
     lower.includes("listing lock")

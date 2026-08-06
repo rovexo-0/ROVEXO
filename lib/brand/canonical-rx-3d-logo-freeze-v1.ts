@@ -86,8 +86,19 @@ export const CANONICAL_RX_LOGO_LOGIN =
 /** XXXVII certified master file (Level I alias — same as master-emblem-v1) */
 export const CANONICAL_RX_MASTER_FILE = "/brand/canonical-rx/rx-mark-v3.png" as const;
 
-/** Level III App Icon — headers / navigation / PWA source */
+/** Level III App Icon — headers / navigation / PWA source (White Pearl RX) */
 export const CANONICAL_RX_APP_ICON = "/brand/canonical-rx/app-icon-v1.png" as const;
+
+/**
+ * Favicon / PWA icon cache bust — White Pearl unification.
+ * Appended to metadata + manifest icon URLs so browsers drop stale immutable icons.
+ */
+export const ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST = "wp-20260805" as const;
+
+export function withWhitePearlFaviconCacheBust(path: string): string {
+  const sep = path.includes("?") ? "&" : "?";
+  return `${path}${sep}v=${ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST}`;
+}
 
 /**
  * Compact RX mark for application chrome (Level III App Icon).
@@ -151,13 +162,19 @@ export const CANONICAL_RX_ICON_PATHS = {
   icon64: "/icons/icon-64.png",
   icon192: "/icons/icon-192.png",
   icon512: "/icons/icon-512.png",
+  androidChrome192: "/icons/android-chrome-192x192.png",
+  androidChrome512: "/icons/android-chrome-512x512.png",
   maskable512: "/icons/icon-maskable-512.png",
   maskableIcon512: "/icons/maskable-icon-512.png",
   icon1024: "/icons/icon-1024.png",
   faviconIco: "/favicon.ico",
   faviconSvg: "/favicon.svg",
-  /** Owner-approved RX-only favicon/PWA source (no hands). */
+  safariPinnedTab: "/safari-pinned-tab.svg",
+  browserconfig: "/browserconfig.xml",
+  siteWebmanifest: "/site.webmanifest",
+  /** Owner-approved White Pearl RX favicon/PWA source (no hands). */
   rxOnlySource: "/brand/canonical-rx/rx-favicon-source-v1.png",
+  whitePearlSsot: "/brand/canonical-rx/app-icon-v1.png",
 } as const;
 
 /** @deprecated alias — prefer CANONICAL_LOGO_ENGINE_V1 */

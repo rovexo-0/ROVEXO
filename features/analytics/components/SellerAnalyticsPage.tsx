@@ -40,14 +40,14 @@ export function SellerAnalyticsPage({
       backLabel="Selling"
       showHeaderTitle
       showBottomNav={false}
-      rightAction={
-        <AnalyticsRangeAction
-          activeRange={range}
-          onRangeChange={(nextRange) => void changeRange(nextRange)}
-        />
-      }
     >
       <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
+        <div className="flex justify-end">
+          <AnalyticsRangeAction
+            activeRange={range}
+            onRangeChange={(nextRange) => void changeRange(nextRange)}
+          />
+        </div>
         {loading ? (
           <p className="sr-only" aria-live="polite">
             Updating analytics

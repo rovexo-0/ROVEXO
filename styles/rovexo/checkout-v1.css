@@ -15,8 +15,18 @@
   --ckt-text: #111111;
   --ckt-muted: #6b7280;
   --ckt-purple: #9333ea;
+  /* Sticky Pay clearance — footer is position:fixed */
+  --ckt-sticky-footer-clearance: calc(100px + env(safe-area-inset-bottom, 0px));
+  /*
+   * Document owns vertical scroll (same model as PDP `.pd-v1`).
+   * Nested overflow-y:auto WITHOUT a bounded height traps touch on iOS Safari
+   * and blocks the page scroll chain — do NOT set overflow-y:auto here.
+   */
   min-height: 100vh;
   min-height: 100dvh;
+  height: auto;
+  max-height: none;
+  overflow: visible;
   background: #ffffff;
   color-scheme: light;
 }
@@ -249,7 +259,13 @@
   width: 100%;
   max-width: var(--ckt-max);
   margin: 0 auto;
-  padding: 0 var(--ckt-pad-x) calc(100px + env(safe-area-inset-bottom));
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  /* Must stay visible — nested auto scrollports eat iOS touch scroll */
+  overflow: visible;
+  padding: 0 var(--ckt-pad-x) var(--ckt-sticky-footer-clearance);
+  scroll-padding-bottom: var(--ckt-sticky-footer-clearance);
 }
 
 .ckt-v1__sections {

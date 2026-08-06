@@ -334,31 +334,6 @@ export function ViewProfilePage({
         <CanonicalPageHeader
           title={isOwnProfile ? "My Profile" : `@${profile.username}`}
           backHref={isOwnProfile ? "/account" : "/search"}
-          rightAction={
-            <div className="vp-v1__header-actions" data-profile-header-actions>
-              {!isOwnProfile ? (
-                <div className="vp-v1__header-follow">
-                  <FollowButton
-                    userId={profile.id}
-                    initialFollowing={profile.isFollowing}
-                    followerCount={followerCount}
-                    followingCount={followingCount}
-                    onCountsChange={onFollowCountsChange}
-                    className="vp-v1__follow-btn"
-                  />
-                </div>
-              ) : null}
-              <button
-                type="button"
-                className={cn("vp-v1__menu-btn", focusRing)}
-                aria-label="More"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((open) => !open)}
-              >
-                ···
-              </button>
-            </div>
-          }
         />
 
         {menuOpen ? (
@@ -566,15 +541,25 @@ export function ViewProfilePage({
                   Edit Profile
                 </Link>
               ) : (
-                <button
-                  type="button"
-                  className={cn("vp-v1__action-btn", "vp-v1__action-btn--secondary", focusRing)}
-                  disabled={isPending}
-                  onClick={messageUser}
-                >
-                  <MessageBubbleIcon />
-                  Message
-                </button>
+                <>
+                  <FollowButton
+                    userId={profile.id}
+                    initialFollowing={profile.isFollowing}
+                    followerCount={followerCount}
+                    followingCount={followingCount}
+                    onCountsChange={onFollowCountsChange}
+                    className="vp-v1__follow-btn"
+                  />
+                  <button
+                    type="button"
+                    className={cn("vp-v1__action-btn", "vp-v1__action-btn--secondary", focusRing)}
+                    disabled={isPending}
+                    onClick={messageUser}
+                  >
+                    <MessageBubbleIcon />
+                    Message
+                  </button>
+                </>
               )}
               {isOwnProfile ? (
                 <Link
@@ -584,6 +569,15 @@ export function ViewProfilePage({
                   Edit Bio
                 </Link>
               ) : null}
+              <button
+                type="button"
+                className={cn("vp-v1__menu-btn", focusRing)}
+                aria-label="More"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                ···
+              </button>
             </div>
 
             {isOwnProfile && commandCentre ? (

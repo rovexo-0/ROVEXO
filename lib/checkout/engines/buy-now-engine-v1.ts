@@ -336,7 +336,7 @@ export async function BUY_NOW_ENGINE(input: {
     if (lockedProduct.seller_id !== sellerId) {
       return await failAfterLock("RVX-2003");
     }
-    if (lockedProduct.status !== "reserved") {
+    if (lockedProduct.status !== "published") {
       return await failAfterLock("RVX-2001");
     }
     if (!(Number(lockedProduct.stock) > 0)) {

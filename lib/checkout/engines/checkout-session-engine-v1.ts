@@ -2,6 +2,11 @@
  * ROVEXO MASTER_CHECKOUT_ARCHITECTURE v1.0 — CHECKOUT_SESSION_ENGINE
  * Sole temporary object before payment. TTL = 120 seconds Absolute Law.
  * NOT an Order. NOT a Transaction.
+ *
+ * Inventory lifecycle Absolute Law:
+ * NO listing may remain reserved without a completed order.
+ * expire / cancel / abandon / crash → release → published.
+ * Paid order / Stripe success → never restore (Order wins).
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -54,6 +59,43 @@ export type PaymentIntentShell = {
   status: "PENDING_PAYMENT" | "READY";
   mode: "stripe" | "virtual" | "dev";
 };
+
+export type InventoryLifecycleEvent =
+  | "reserve"
+  | "release"
+  | "expire"
+  | "cancel"
+  | "restore"
+  | "skip";
+
+/** Structured inventory lifecycle logs — listing id · session id · reason. */
+export function INVENTORY_LIFECYCLE_LOG(
+  event: InventoryLifecycleEvent,
+  fields: {
+    listingId?: string | null;
+    sessionId?: string | null;
+    publicId?: string | null;
+    reason: string;
+    detail?: string;
+  },
+): void {
+  const line = [
+    "[RVX][INVENTORY]",
+    event,
+    fields.listingId ? `listing=${fields.listingId}` : null,
+    fields.sessionId ? `session=${fields.sessionId}` : null,
+    fields.publicId ? `public=${fields.publicId}` : null,
+    `reason=${fields.reason}`,
+    fields.detail ? `detail=${fields.detail}` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  if (event === "skip") {
+    console.info(line);
+    return;
+  }
+  console.info(line);
+}
 
 function expiresAtIso(fromMs = Date.now()): string {
   return new Date(fromMs + CHECKOUT_SESSION_TTL_SECONDS * 1000).toISOString();
@@ -151,29 +193,63 @@ export async function CHECKOUT_SESSION_ENGINE_getOpenForBuyerListing(input: {
   return (data as CheckoutSessionRow | null) ?? null;
 }
 
-/**
- * Expire / cancel session + release inventory + expire Stripe session if any.
- * Absolute Law: reserved → published, reserved=false.
- */
-export async function CHECKOUT_SESSION_ENGINE_destroy(input: {
-  session: CheckoutSessionRow;
-  status: "expired" | "cancelled";
-}): Promise<void> {
-  const admin = createAdminClient();
-  const session = input.session;
+async function stripeReportsPaymentSucceeded(
+  session: CheckoutSessionRow,
+): Promise<boolean> {
+  if (!session.stripe_checkout_session_id || !isStripeConfigured()) {
+    return false;
+  }
+  try {
+    const stripeSession = await getStripeClient().checkout.sessions.retrieve(
+      session.stripe_checkout_session_id,
+    );
+    return (
+      stripeSession.payment_status === "paid" ||
+      stripeSession.status === "complete"
+    );
+  } catch {
+    return false;
+  }
+}
 
-  if (session.status === "paid") {
-    return;
+async function sessionHasPaidOrder(session: CheckoutSessionRow): Promise<boolean> {
+  if (session.status === "paid" || session.order_id) {
+    return true;
   }
 
-  if (isStripeConfigured() && session.stripe_checkout_session_id) {
-    try {
-      await getStripeClient().checkout.sessions.expire(session.stripe_checkout_session_id);
-    } catch {
-      // already expired/consumed
+  const admin = createAdminClient();
+
+  if (session.order_id) {
+    const { data: order } = await admin
+      .from("orders")
+      .select("id, status")
+      .eq("id", session.order_id)
+      .maybeSingle();
+    if (order && order.status !== "cancelled" && order.status !== "awaiting_payment") {
+      return true;
     }
   }
 
+  if (session.stripe_checkout_session_id) {
+    const { data: orderByStripe } = await admin
+      .from("orders")
+      .select("id, status")
+      .eq("stripe_session_id", session.stripe_checkout_session_id)
+      .neq("status", "cancelled")
+      .limit(1)
+      .maybeSingle();
+    if (orderByStripe && orderByStripe.status !== "awaiting_payment") {
+      return true;
+    }
+  }
+
+  return stripeReportsPaymentSucceeded(session);
+}
+
+async function releaseSessionInventory(
+  session: CheckoutSessionRow,
+  reason: string,
+): Promise<boolean> {
   const bundleSnapshot = isBundleCheckoutSnapshot(session.bundle_lines)
     ? session.bundle_lines
     : null;
@@ -181,20 +257,366 @@ export async function CHECKOUT_SESSION_ENGINE_destroy(input: {
   if (bundleSnapshot) {
     await releaseBundleLinesFromSnapshot(bundleSnapshot);
     await restoreBundleAfterCheckoutCancel(bundleSnapshot);
-  } else {
-    await releaseProductInventory(session.listing_id, 1);
+    INVENTORY_LIFECYCLE_LOG("release", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason,
+      detail: "bundle",
+    });
+    return true;
   }
 
-  await admin
-    .from("checkout_sessions")
-    .update({
-      status: input.status,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", session.id)
-    .eq("status", "open");
+  const result = await releaseProductInventory(session.listing_id, 1);
+  INVENTORY_LIFECYCLE_LOG(result.released ? "release" : "skip", {
+    listingId: session.listing_id,
+    sessionId: session.id,
+    publicId: session.public_id,
+    reason: result.released ? reason : result.reason,
+  });
+  if (result.released) {
+    INVENTORY_LIFECYCLE_LOG("restore", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: "status=published reserved=false",
+    });
+  }
+  return result.released;
+}
 
+export type CheckoutSessionDestroyResult = {
+  /** True only when an open→terminal status write committed with affected rows > 0,
+   *  OR when healing an already-terminal session and inventory release changed rows. */
+  persisted: boolean;
+  inventoryReleased: boolean;
+  reason: string;
+  affectedRows: number;
+};
+
+/**
+ * Expire / cancel session + release inventory + expire Stripe session if any.
+ * Absolute Law: reserved → published, reserved=false.
+ *
+ * Race-safe: claims open → terminal with status='open' AND order_id IS NULL.
+ * Two workers never both release (only claim winner proceeds).
+ * Paid order / Stripe success → skip restore (Order wins).
+ *
+ * Cod Sânge: never report success without DB persistence (affected rows > 0).
+ */
+export async function CHECKOUT_SESSION_ENGINE_destroy(input: {
+  session: CheckoutSessionRow;
+  status: "expired" | "cancelled";
+}): Promise<CheckoutSessionDestroyResult> {
+  const admin = createAdminClient();
+  let session = input.session;
+  const event: InventoryLifecycleEvent = input.status === "expired" ? "expire" : "cancel";
+  let statusPersisted = false;
+  let affectedRows = 0;
+
+  if (session.status === "paid" || session.order_id) {
+    INVENTORY_LIFECYCLE_LOG("skip", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: "paid",
+    });
+    return { persisted: false, inventoryReleased: false, reason: "paid", affectedRows: 0 };
+  }
+
+  if (await sessionHasPaidOrder(session)) {
+    INVENTORY_LIFECYCLE_LOG("skip", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: "paid",
+      detail: "order_or_stripe_success",
+    });
+    return {
+      persisted: false,
+      inventoryReleased: false,
+      reason: "paid",
+      affectedRows: 0,
+    };
+  }
+
+  if (session.status === "open") {
+    const now = new Date().toISOString();
+    const claimQuery = await admin
+      .from("checkout_sessions")
+      .update({
+        status: input.status,
+        updated_at: now,
+      })
+      .eq("id", session.id)
+      .eq("status", "open")
+      .is("order_id", null)
+      .select("*")
+      .maybeSingle();
+    const claimed = claimQuery.data;
+    const claimError = claimQuery.error;
+
+    if (claimError) {
+      INVENTORY_LIFECYCLE_LOG("skip", {
+        listingId: session.listing_id,
+        sessionId: session.id,
+        publicId: session.public_id,
+        reason: "claim_error",
+        detail: claimError.message,
+      });
+      return {
+        persisted: false,
+        inventoryReleased: false,
+        reason: `claim_error:${claimError.message}`,
+        affectedRows: 0,
+      };
+    }
+
+    if (!claimed) {
+      const { data: fresh } = await admin
+        .from("checkout_sessions")
+        .select("*")
+        .eq("id", session.id)
+        .maybeSingle();
+      const current = fresh as CheckoutSessionRow | null;
+      if (current && (await sessionHasPaidOrder(current))) {
+        INVENTORY_LIFECYCLE_LOG("skip", {
+          listingId: session.listing_id,
+          sessionId: session.id,
+          publicId: session.public_id,
+          reason: "paid",
+          detail: "race_lost_to_payment",
+        });
+        return {
+          persisted: false,
+          inventoryReleased: false,
+          reason: "paid",
+          affectedRows: 0,
+        };
+      }
+      INVENTORY_LIFECYCLE_LOG("skip", {
+        listingId: session.listing_id,
+        sessionId: session.id,
+        publicId: session.public_id,
+        reason: "race_lost",
+        detail: current?.status ?? "missing",
+      });
+      return {
+        persisted: false,
+        inventoryReleased: false,
+        reason: `race_lost:${current?.status ?? "missing"}`,
+        affectedRows: 0,
+      };
+    }
+
+    // Prove persistence: re-read status must be terminal.
+    const { data: proved } = await admin
+      .from("checkout_sessions")
+      .select("id, status, updated_at")
+      .eq("id", session.id)
+      .maybeSingle();
+    if (!proved || proved.status !== input.status) {
+      INVENTORY_LIFECYCLE_LOG("skip", {
+        listingId: session.listing_id,
+        sessionId: session.id,
+        publicId: session.public_id,
+        reason: "persist_verify_failed",
+        detail: proved?.status ?? "missing",
+      });
+      return {
+        persisted: false,
+        inventoryReleased: false,
+        reason: "persist_verify_failed",
+        affectedRows: 0,
+      };
+    }
+
+    statusPersisted = true;
+    affectedRows = 1;
+    session = claimed as CheckoutSessionRow;
+    INVENTORY_LIFECYCLE_LOG(event, {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: input.status,
+    });
+  } else if (session.status === "expired" || session.status === "cancelled") {
+    // Terminal unfinished session — heal inventory only (no second status write).
+    INVENTORY_LIFECYCLE_LOG(event, {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: `heal_${session.status}`,
+    });
+  } else {
+    INVENTORY_LIFECYCLE_LOG("skip", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: `status_${session.status}`,
+    });
+    return {
+      persisted: false,
+      inventoryReleased: false,
+      reason: `status_${session.status}`,
+      affectedRows: 0,
+    };
+  }
+
+  if (isStripeConfigured() && session.stripe_checkout_session_id) {
+    try {
+      await getStripeClient().checkout.sessions.expire(session.stripe_checkout_session_id);
+    } catch {
+      // already expired/consumed/paid
+    }
+  }
+
+  // Re-check paid after Stripe expire attempt (webhook may have landed).
+  if (await sessionHasPaidOrder(session)) {
+    INVENTORY_LIFECYCLE_LOG("skip", {
+      listingId: session.listing_id,
+      sessionId: session.id,
+      publicId: session.public_id,
+      reason: "paid",
+      detail: "post_claim_stripe",
+    });
+    return {
+      persisted: statusPersisted,
+      inventoryReleased: false,
+      reason: "paid_post_claim",
+      affectedRows,
+    };
+  }
+
+  const inventoryReleased = await releaseSessionInventory(session, input.status);
   FINANCIAL_LOGGER("STOP", `checkout session ${input.status}=${session.public_id}`);
+
+  const persisted = statusPersisted || inventoryReleased;
+  if (!persisted) {
+    return {
+      persisted: false,
+      inventoryReleased: false,
+      reason: "no_db_change",
+      affectedRows: 0,
+    };
+  }
+
+  return {
+    persisted: true,
+    inventoryReleased,
+    reason: input.status,
+    affectedRows: affectedRows + (inventoryReleased ? 1 : 0),
+  };
+}
+
+/**
+ * Self-heal: any reserved listing without an active (open + unexpired) checkout
+ * and without a paid order must return to published.
+ * Counts restored ONLY when inventory release actually changed the DB.
+ */
+async function healOrphanedReservations(): Promise<{
+  restored: number;
+  failures: number;
+}> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+
+  const { data: reservedRows } = await admin
+    .from("products")
+    .select("id")
+    .eq("status", "reserved");
+
+  let restored = 0;
+  let failures = 0;
+
+  for (const row of reservedRows ?? []) {
+    const listingId = row.id as string;
+
+    const { data: activeOpen } = await admin
+      .from("checkout_sessions")
+      .select("id")
+      .eq("listing_id", listingId)
+      .eq("status", "open")
+      .gt("expires_at", now)
+      .limit(1)
+      .maybeSingle();
+
+    if (activeOpen) {
+      continue;
+    }
+
+    const { data: paidSession } = await admin
+      .from("checkout_sessions")
+      .select("id, order_id, status, stripe_checkout_session_id, public_id")
+      .eq("listing_id", listingId)
+      .or("status.eq.paid,order_id.not.is.null")
+      .limit(1)
+      .maybeSingle();
+
+    if (paidSession) {
+      INVENTORY_LIFECYCLE_LOG("skip", {
+        listingId,
+        sessionId: paidSession.id,
+        publicId: paidSession.public_id,
+        reason: "paid",
+        detail: "orphan_heal",
+      });
+      continue;
+    }
+
+    // Prefer releasing via a stale unfinished session (for structured session logs).
+    const { data: staleSession } = await admin
+      .from("checkout_sessions")
+      .select("*")
+      .eq("listing_id", listingId)
+      .is("order_id", null)
+      .in("status", ["open", "expired", "cancelled"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (staleSession) {
+      const session = staleSession as CheckoutSessionRow;
+      if (session.status === "open" && CHECKOUT_SESSION_ENGINE_isExpired(session.expires_at)) {
+        const destroyed = await CHECKOUT_SESSION_ENGINE_destroy({
+          session,
+          status: "expired",
+        });
+        if (destroyed.persisted && destroyed.affectedRows > 0) {
+          restored += 1;
+        } else {
+          failures += 1;
+          INVENTORY_LIFECYCLE_LOG("skip", {
+            listingId,
+            sessionId: session.id,
+            publicId: session.public_id,
+            reason: "heal_destroy_failed",
+            detail: destroyed.reason,
+          });
+        }
+        continue;
+      }
+      if (session.status === "expired" || session.status === "cancelled") {
+        const released = await releaseSessionInventory(session, `heal_${session.status}`);
+        if (released) restored += 1;
+        else failures += 1;
+        continue;
+      }
+    }
+
+    const result = await releaseProductInventory(listingId, 1);
+    if (result.released) {
+      INVENTORY_LIFECYCLE_LOG("restore", {
+        listingId,
+        reason: "orphan_reserved_no_active_checkout",
+      });
+      restored += 1;
+    } else if (result.reason !== "already_published" && result.reason !== "sold") {
+      failures += 1;
+    }
+  }
+
+  return { restored, failures };
 }
 
 export async function CHECKOUT_SESSION_ENGINE_markPaid(input: {
@@ -234,25 +656,88 @@ export async function CHECKOUT_SESSION_ENGINE_attachStripe(input: {
     .eq("id", input.sessionId);
 }
 
-/** Expire all open sessions past expires_at; unlock listings. */
-export async function CHECKOUT_SESSION_ENGINE_expireAll(): Promise<{ expired: number }> {
+export type CheckoutSessionExpireAllResult = {
+  expired: number;
+  restored: number;
+  failures: number;
+  ok: boolean;
+};
+
+/**
+ * Expire ALL open sessions past expires_at, then heal orphan reserved listings.
+ * Crash recovery / abandon / TTL / duplicate workers → published once.
+ *
+ * Cod Sânge: expired/restored increment ONLY after DB persistence (affected rows > 0).
+ */
+export async function CHECKOUT_SESSION_ENGINE_expireAll(): Promise<CheckoutSessionExpireAllResult> {
   const admin = createAdminClient();
   const now = new Date().toISOString();
-  const { data: rows } = await admin
-    .from("checkout_sessions")
-    .select("*")
-    .eq("status", "open")
-    .lt("expires_at", now);
 
   let expired = 0;
-  for (const row of rows ?? []) {
-    await CHECKOUT_SESSION_ENGINE_destroy({
-      session: row as CheckoutSessionRow,
-      status: "expired",
-    });
-    expired += 1;
+  let failures = 0;
+  let cursorCreatedAt: string | null = null;
+  const pageSize = 100;
+
+  for (;;) {
+    let query = admin
+      .from("checkout_sessions")
+      .select("*")
+      .eq("status", "open")
+      .lt("expires_at", now)
+      .order("created_at", { ascending: true })
+      .limit(pageSize);
+
+    if (cursorCreatedAt) {
+      query = query.gt("created_at", cursorCreatedAt);
+    }
+
+    const { data: rows, error: pageError } = await query;
+    if (pageError) {
+      FINANCIAL_LOGGER("STOP", `expireAll query failed: ${pageError.message}`);
+      return { expired, restored: 0, failures: failures + 1, ok: false };
+    }
+    if (!rows?.length) break;
+
+    for (const row of rows) {
+      const result = await CHECKOUT_SESSION_ENGINE_destroy({
+        session: row as CheckoutSessionRow,
+        status: "expired",
+      });
+      if (result.persisted && result.affectedRows > 0) {
+        expired += 1;
+      } else {
+        failures += 1;
+        INVENTORY_LIFECYCLE_LOG("skip", {
+          listingId: (row as CheckoutSessionRow).listing_id,
+          sessionId: (row as CheckoutSessionRow).id,
+          publicId: (row as CheckoutSessionRow).public_id,
+          reason: "expire_not_persisted",
+          detail: result.reason,
+        });
+      }
+    }
+
+    cursorCreatedAt = (rows[rows.length - 1] as CheckoutSessionRow).created_at;
+    if (rows.length < pageSize) break;
   }
-  return { expired };
+
+  const heal = await healOrphanedReservations();
+  const restored = heal.restored;
+  failures += heal.failures;
+  const ok = failures === 0;
+  FINANCIAL_LOGGER(
+    "FINISHED",
+    `sessions-expired=${expired} inventory-restored=${restored} failures=${failures} ok=${ok}`,
+  );
+  return { expired, restored, failures, ok };
+}
+
+/**
+ * Canonical self-heal — call before every marketplace commerce entry.
+ * Does not depend on daily cron. TTL Absolute Law = 120s.
+ */
+export async function CHECKOUT_SESSION_ENGINE_selfHeal(): Promise<CheckoutSessionExpireAllResult> {
+  return CHECKOUT_SESSION_ENGINE_expireAll();
 }
 
 export function PAYMENT_INTENT_ENGINE_createShell(input: {

@@ -33,16 +33,6 @@ type WalletHubV1Props = {
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-function HelpCircleIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1.4.9-1.4 1.7" strokeLinecap="round" />
-      <path d="M12 17h.01" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function CheckCircleLineIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
@@ -268,11 +258,6 @@ export function WalletHubV1({
       backLabel={isBusiness ? "Business" : "My Account"}
       showHeaderTitle
       showBottomNav
-      rightAction={
-        <Link href="/help" aria-label="Help" className="wallet-v2__help">
-          <HelpCircleIcon />
-        </Link>
-      }
     >
       <WalletHubLiveBody initialData={initialData} userId={userId} connectMessage={connectMessage} />
     </AccountCanonicalShell>

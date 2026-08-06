@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FormEventHandler } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MyAccountTemplate, AccountPageStack } from "@/features/account-canonical";
@@ -58,6 +58,7 @@ export function AddressesPage({
   const [lookupResults, setLookupResults] = useState<UkLookupResult[]>([]);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupPostcode, setLookupPostcode] = useState("");
+  const lookupRequestIdRef = useRef(0);
   const [editSheetAddress, setEditSheetAddress] = useState<UserAddress | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [extras, setExtras] = useState<AddressFormExtras>(EMPTY_EXTRAS);
@@ -69,11 +70,11 @@ export function AddressesPage({
 
   const {
     register,
-    handleSubmit,
     reset,
     control,
     setValue,
-    formState: { errors, isSubmitting },
+    getValues,
+    formState: { errors },
   } = useForm<AddressInput>({
     resolver: zodResolver(addressInputSchema),
     defaultValues: {
@@ -87,6 +88,9 @@ export function AddressesPage({
       isDefault: false,
     },
   });
+
+  const [lookupSaving, setLookupSaving] = useState(false);
+  const saveInFlightRef = useRef(false);
 
   const loadAddresses = async (scope: AddressUiScope) => {
     const type = ADDRESS_SCOPE_TO_STORAGE[scope];
@@ -167,36 +171,52 @@ export function AddressesPage({
     };
   }, [initialScope]);
 
-  const onSubmit = handleSubmit(async (values) => {
+  /** Enter-key / accidental form submit — save only via address selection. */
+  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+  };
+
+  const persistSelectedAddress = async (values: AddressInput) => {
+    if (saveInFlightRef.current) return;
+    saveInFlightRef.current = true;
+    setLookupSaving(true);
     setMessage(null);
-    if (!lookupSelected) {
-      setMessage("Search and select an address before saving.");
-      return;
+    try {
+      const response = await fetch(editingId ? `/api/addresses/${editingId}` : "/api/addresses", {
+        method: editingId ? "PATCH" : "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          country: UK_DEFAULT_COUNTRY,
+          addressType: activeType,
+        }),
+        signal: AbortSignal.timeout(12_000),
+      });
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        const raw = (payload?.error ?? "").trim();
+        const unsafe =
+          /cross-origin|csrf|mutation blocked|forbidden/i.test(raw) || !raw;
+        setMessage(unsafe ? "Unable to save address." : raw);
+        return;
+      }
+      setEditingId(null);
+      setShowForm(false);
+      resetForm(activeScope);
+      await loadAddresses(activeScope);
+      if (returnTo) {
+        router.push(returnTo);
+        return;
+      }
+      setMessage(null);
+    } catch {
+      setMessage("Unable to save address.");
+    } finally {
+      saveInFlightRef.current = false;
+      setLookupSaving(false);
     }
-    const response = await fetch(editingId ? `/api/addresses/${editingId}` : "/api/addresses", {
-      method: editingId ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...values,
-        country: UK_DEFAULT_COUNTRY,
-        addressType: activeType,
-      }),
-    });
-    const payload = (await response.json()) as { error?: string };
-    if (!response.ok) {
-      setMessage(payload.error ?? "Unable to save address.");
-      return;
-    }
-    setEditingId(null);
-    setShowForm(false);
-    resetForm(activeScope);
-    await loadAddresses(activeScope);
-    if (returnTo) {
-      router.push(returnTo);
-      return;
-    }
-    setMessage("Address saved.");
-  });
+  };
 
   const openEditSheet = (address: UserAddress) => {
     setEditSheetAddress(address);
@@ -273,6 +293,7 @@ export function AddressesPage({
   };
 
   const searchAddress = async () => {
+    const requestId = ++lookupRequestIdRef.current;
     setMessage(null);
     setLookupLoading(true);
     setLookupResults([]);
@@ -280,26 +301,37 @@ export function AddressesPage({
     try {
       const response = await fetch(
         `/api/addresses/lookup?postcode=${encodeURIComponent(lookupPostcode.trim())}`,
+        { signal: AbortSignal.timeout(12_000) },
       );
-      const payload = (await response.json()) as {
+      if (requestId !== lookupRequestIdRef.current) return;
+      const payload = (await response.json().catch(() => null)) as {
         addresses?: UkLookupResult[];
         error?: string;
-      };
+      } | null;
       if (!response.ok) {
-        setMessage(payload.error ?? "Address lookup temporarily unavailable.");
+        setMessage(payload?.error ?? "Address lookup temporarily unavailable.");
+        setLookupResults([]);
         return;
       }
-      const results = payload.addresses ?? [];
+      const results = payload?.addresses ?? [];
       setLookupResults(results);
       if (!results.length) {
         setMessage("No addresses found for that postcode.");
       }
+    } catch {
+      if (requestId !== lookupRequestIdRef.current) return;
+      setLookupResults([]);
+      setMessage("Address lookup temporarily unavailable.");
     } finally {
-      setLookupLoading(false);
+      if (requestId === lookupRequestIdRef.current) {
+        setLookupLoading(false);
+      }
     }
   };
 
   const selectLookupAddress = (result: UkLookupResult) => {
+    if (saveInFlightRef.current || lookupSaving) return;
+
     setValue("addressLine", result.line1, { shouldDirty: true });
     setValue("addressLine2", result.line2, { shouldDirty: true });
     setValue("city", result.city, { shouldDirty: true });
@@ -309,6 +341,22 @@ export function AddressesPage({
     setLookupSelected(true);
     setLookupPostcode(result.postcode);
     setMessage(null);
+
+    const draft: AddressInput = {
+      ...getValues(),
+      addressLine: result.line1,
+      addressLine2: result.line2,
+      city: result.city,
+      postcode: result.postcode,
+      country: UK_DEFAULT_COUNTRY,
+      addressType: activeType,
+    };
+    const parsed = addressInputSchema.safeParse(draft);
+    if (!parsed.success) {
+      setMessage(parsed.error.issues[0]?.message ?? "Unable to save address.");
+      return;
+    }
+    void persistSelectedAddress(parsed.data);
   };
 
   const isDefault = useWatch({ control, name: "isDefault" });
@@ -320,7 +368,7 @@ export function AddressesPage({
   const formShared = {
     register,
     errors,
-    isSubmitting,
+    isSubmitting: lookupSaving,
     isEditing: Boolean(editingId),
     isDefault: Boolean(isDefault),
     setValue,
@@ -329,21 +377,23 @@ export function AddressesPage({
       setExtras((prev) => ({ ...prev, ...patch })),
     lookupPostcode,
     onLookupPostcodeChange: (value: string) => {
+      if (saveInFlightRef.current || lookupSaving) return;
       setLookupPostcode(value);
       setLookupSelected(false);
     },
     lookupLoading,
     lookupResults,
     lookupSelected,
-    onSearch: () => void searchAddress(),
+    onSearch: () => {
+      if (saveInFlightRef.current || lookupSaving) return;
+      void searchAddress();
+    },
     onSelectLookup: selectLookupAddress,
     watchedLine1,
     watchedLine2,
     watchedCity,
     watchedPostcode,
     onSubmit,
-    onCancel: cancelForm,
-    onDelete: editingId ? () => void removeAddress(editingId) : undefined,
   };
 
   return (

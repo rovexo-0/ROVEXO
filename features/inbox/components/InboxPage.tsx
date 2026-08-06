@@ -875,7 +875,6 @@ export function InboxPage() {
       backHref="/account"
       showBottomNav
       bottomNavTab="saved"
-      rightAction={markAllAction}
     >
       <div
         className="inbox-hub"
@@ -937,6 +936,10 @@ export function InboxPage() {
             aria-hidden
           />
         </div>
+
+        {markAllAction ? (
+          <div className="inbox-hub__mark-all-row">{markAllAction}</div>
+        ) : null}
 
         {/* Both panes stay mounted — instant tab switch + preserved scroll. */}
         <div

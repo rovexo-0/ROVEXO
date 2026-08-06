@@ -13,8 +13,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   BackLineIcon,
-  InfoLineIcon,
 } from "@/components/icons/RvxLineIcons";
+import { RovexoHeaderCloseButton } from "@/components/navigation/RovexoHeaderCloseButton";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
@@ -1636,9 +1636,10 @@ export function ConversationHub({
             )}
           </div>
           <div className="conv-hub__menu">
-            <button type="button" className="conv-hub__icon-btn" aria-label="Info">
-              <InfoLineIcon />
-            </button>
+            <RovexoHeaderCloseButton
+              className="conv-hub__close"
+              fallbackHref={INBOX_ROUTES.hub}
+            />
           </div>
         </header>
 

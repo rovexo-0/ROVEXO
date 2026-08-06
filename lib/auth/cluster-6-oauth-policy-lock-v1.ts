@@ -66,7 +66,7 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
   publicAuthSurfaces: [
     "app/(auth)/login/page.tsx → LoginScreen (OAuth gated)",
     "app/(auth)/register/page.tsx → RegisterScreen (OAuth gated)",
-    "app/(auth)/verify-email/page.tsx → AuthForm (showOAuth=false)",
+    "app/(auth)/verify-email/page.tsx → VerifyEmailScreen (OAuth forbidden)",
     "app/(auth)/forgot-password/page.tsx → ForgotPasswordScreen",
     "app/(auth)/reset-password/page.tsx → ResetPasswordScreen",
   ] as const,

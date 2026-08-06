@@ -4,15 +4,15 @@
  * Tokens from FINAL CANONICAL IMPLEMENTATION spec (no estimates).
  */
 
-/* Wallet-only header lock: compact 44px bar · 16px pad (Design Decision #001) · 40×40 controls */
+/* Wallet header inherits ROVEXO Header Standard v1.0 (Orders SSOT). */
 .account-canonical:has(.wallet-v2) .account-canonical-header__bar--titled {
-  min-height: 44px;
-  height: 44px;
+  min-height: 48px;
+  height: 48px;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 16px;
   padding-right: 16px;
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: 40px 1fr 48px;
   gap: 8px;
 }
 
@@ -24,14 +24,14 @@
 
 .account-canonical:has(.wallet-v2) .account-canonical-header__spacer,
 .account-canonical:has(.wallet-v2) .account-canonical-header__action {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 
 .account-canonical:has(.wallet-v2) .account-canonical-header__action a,
 .account-canonical:has(.wallet-v2) .account-canonical-header__action button {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 
 .account-canonical:has(.wallet-v2) .account-canonical-header__action svg,

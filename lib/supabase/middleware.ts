@@ -255,6 +255,18 @@ export async function updateSession(request: NextRequest) {
     // /login and /register are never redirected here — see redirectIfAuthenticated().
 
     if (user && isVerifyEmailPath && user.email_confirmed_at) {
+      // Allow branded success / in-flight token UX (Email Verification UX v1.0).
+      const verifyStatus = request.nextUrl.searchParams.get("status");
+      const hasVerifyToken =
+        Boolean(request.nextUrl.searchParams.get("token_hash")) ||
+        Boolean(request.nextUrl.searchParams.get("code"));
+      if (
+        verifyStatus === "success" ||
+        verifyStatus === "verified" ||
+        hasVerifyToken
+      ) {
+        return applyPendingCookies(supabaseResponse, pendingCookies);
+      }
       const role = await resolveRole();
       if (role) {
         const homeUrl = request.nextUrl.clone();

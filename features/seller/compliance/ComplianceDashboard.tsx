@@ -15,14 +15,6 @@ type ComplianceDashboardProps = {
   snapshot: HmrcSellerSnapshot;
 };
 
-function HelpHeaderButton() {
-  return (
-    <Link href="/help" className="hmrc-rc__help-btn" aria-label="Open Help Centre">
-      <AccountIcon name="help" />
-    </Link>
-  );
-}
-
 function StatusGlyph({ tone }: { tone: string }) {
   if (tone === "green" || tone === "blue") return <span aria-hidden>✓</span>;
   if (tone === "amber") return <span aria-hidden>!</span>;
@@ -46,7 +38,6 @@ export function ComplianceDashboard({ snapshot }: ComplianceDashboardProps) {
       backHref="/account/settings"
       backLabel="Settings"
       showHeaderTitle
-      rightAction={<HelpHeaderButton />}
       bottomNavTab="account"
     >
       <div

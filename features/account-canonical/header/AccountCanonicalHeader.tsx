@@ -2,16 +2,18 @@
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
+import { RovexoHeaderCloseButton } from "@/components/navigation/RovexoHeaderCloseButton";
 import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { useAppChromeScroll } from "@/components/layout/AppChromeScrollProvider";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { ROVEXO_HEADER_STANDARD_VERSION } from "@/lib/header/rovexo-header-standard-v1";
 import { CDS_VERSION } from "@/src/components/canonical/tokens";
 
 export type AccountCanonicalHeaderProps = {
   className?: string;
   backLabel?: string;
-  /** Centered page title (Orders and similar hub sub-pages). */
+  /** Centered page title (Orders header SSOT — platform standard). */
   centeredTitle?: string;
   /** History fallback when back stack is empty. Defaults to /account. */
   fallbackHref?: string;
@@ -20,15 +22,20 @@ export type AccountCanonicalHeaderProps = {
    * Use for unsaved-changes confirmation (Edit Listing).
    */
   onBack?: () => void;
-  /** Optional trailing action (e.g. Help on Wallet). */
+  /**
+   * @deprecated Header Standard v1.0 — right slot is always Close when titled.
+   * Ignored when `centeredTitle` is set.
+   */
   rightAction?: ReactNode;
+  /** Close fallback when history is empty (defaults to fallbackHref). */
+  closeFallbackHref?: string;
 };
 
 const ACCOUNT_BACK_FALLBACK = "/account";
 
 /**
- * Account / internal module header — compact, hide on scroll down, show on scroll up.
- * Homepage uses a separate marketplace header (excluded).
+ * Account / internal module header — ROVEXO Header Standard v1.0.
+ * Back · Title · Close (Orders SSOT). Homepage marketplace header excluded.
  */
 export function AccountCanonicalHeader({
   className,
@@ -36,8 +43,10 @@ export function AccountCanonicalHeader({
   centeredTitle,
   fallbackHref = ACCOUNT_BACK_FALLBACK,
   onBack,
-  rightAction,
+  rightAction: _rightAction,
+  closeFallbackHref,
 }: AccountCanonicalHeaderProps) {
+  void _rightAction;
   const back = usePageBack({
     backHref: fallbackHref,
     backLabel,
@@ -69,6 +78,7 @@ export function AccountCanonicalHeader({
         )}
         data-cds-header={CDS_VERSION}
         data-account-canonical-header="v1"
+        data-rovexo-header-standard={ROVEXO_HEADER_STANDARD_VERSION}
         data-chrome-scroll={scroll ? "registered" : undefined}
         data-compact-header="v1"
       >
@@ -89,16 +99,10 @@ export function AccountCanonicalHeader({
           {centeredTitle ? (
             <>
               <h1 className="account-canonical-header__title">{centeredTitle}</h1>
-              {rightAction ? (
-                <div className="account-canonical-header__action">{rightAction}</div>
-              ) : (
-                <span className="account-canonical-header__spacer" aria-hidden />
-              )}
+              <div className="account-canonical-header__action">
+                <RovexoHeaderCloseButton fallbackHref={closeFallbackHref ?? fallbackHref} />
+              </div>
             </>
-          ) : rightAction ? (
-            <div className="account-canonical-header__action account-canonical-header__action--trail">
-              {rightAction}
-            </div>
           ) : null}
         </div>
       </header>

@@ -4,7 +4,6 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { CardSetupSheet } from "@/features/account/components/CardSetupSheet";
-import { WalletHelpHeaderAction } from "@/features/wallet/components/WalletProfileChrome";
 import {
   CanonicalCard,
   CanonicalInfoBlock,
@@ -208,7 +207,6 @@ export function WalletPaymentMethodsPage({
       backHref={WALLET_ROUTES.hub}
       backLabel="Balance"
       showHeaderTitle
-      rightAction={<WalletHelpHeaderAction />}
       dataMyAccountSurface="payments"
     >
       <div

@@ -24,7 +24,7 @@ function IconHeart({ filled }: { filled: boolean }) {
         d="M12 21s-6.7-4.35-9.33-7.6C.5 10.8 1.1 7.05 4.05 5.4 6.2 4.2 8.85 4.75 10.4 6.55L12 8.4l1.6-1.85C15.15 4.75 17.8 4.2 19.95 5.4c2.95 1.65 3.55 5.4 1.38 7.99C18.7 16.65 12 21 12 21Z"
         fill={filled ? "currentColor" : "none"}
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.9"
         strokeLinejoin="round"
       />
     </svg>
@@ -32,10 +32,9 @@ function IconHeart({ filled }: { filled: boolean }) {
 }
 
 /**
- * Product Page chrome ON the gallery image.
- * ← back (left) · ♥ save (buyers) · ••• menu (right).
- * Seller ••• = Edit / Sold / Pause / Relist / Delete.
- * Buyer ••• = Report Listing / Report Seller / Block / Share.
+ * Product Page chrome ON the gallery image (View Item v2.0 mockup).
+ * ← Back (left) · ♥ save (buyers) · ••• menu (right).
+ * No logo. No extra header.
  */
 export const ProductPageChrome = memo(function ProductPageChrome({
   productId,
@@ -51,10 +50,10 @@ export const ProductPageChrome = memo(function ProductPageChrome({
   const { isSaved, toggle, isPending } = useProductWatchlist(productSlug);
 
   return (
-    <div className="pd-v1__chrome" data-pd-chrome="v3" data-listing-owner={isOwner ? "true" : "false"}>
+    <div className="pd-v1__chrome" data-pd-chrome="v2" data-listing-owner={isOwner ? "true" : "false"}>
       <button
         type="button"
-        className="pd-v1__chrome-btn"
+        className="pd-v1__chrome-btn pd-v1__chrome-btn--back"
         aria-label={back.label}
         onClick={back.goBack}
       >

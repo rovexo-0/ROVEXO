@@ -235,7 +235,16 @@ async function lookupIdealPostcodes(
 ): Promise<UkLookupAddress[]> {
   const encoded = encodeURIComponent(postcode.replace(/\s+/g, ""));
   const url = `https://api.ideal-postcodes.co.uk/v1/postcodes/${encoded}?api_key=${encodeURIComponent(apiKey)}`;
-  const response = await fetch(url, { method: "GET", cache: "no-store" });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(12_000),
+    });
+  } catch {
+    throw new Error("Address lookup temporarily unavailable.");
+  }
   if (response.status === 404) return [];
   if (!response.ok) {
     throw new Error("Address lookup temporarily unavailable.");
@@ -278,7 +287,16 @@ type GetAddressResult = {
 async function lookupGetAddress(postcode: string, apiKey: string): Promise<UkLookupAddress[]> {
   const encoded = encodeURIComponent(postcode.replace(/\s+/g, ""));
   const url = `https://api.getAddress.io/find/${encoded}?api-key=${encodeURIComponent(apiKey)}&expand=true`;
-  const response = await fetch(url, { method: "GET", cache: "no-store" });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(12_000),
+    });
+  } catch {
+    throw new Error("Address lookup temporarily unavailable.");
+  }
   if (response.status === 404) return [];
   if (!response.ok) {
     throw new Error("Address lookup temporarily unavailable.");

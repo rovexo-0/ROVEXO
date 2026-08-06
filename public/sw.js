@@ -1,8 +1,15 @@
-/** Aligned with lib/app/version.ts → ROVEXO_SW_CACHE_NAME (RC1). */
-const CACHE_NAME = "rovexo-static-v15";
+/** Aligned with lib/app/version.ts → ROVEXO_SW_CACHE_NAME (RC1 · White Pearl). */
+const CACHE_NAME = "rovexo-static-v16";
 const OFFLINE_URL = "/offline";
 
-const PRECACHE_URLS = ["/", OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"];
+const PRECACHE_URLS = [
+  "/",
+  OFFLINE_URL,
+  "/icons/icon-192.png?v=wp-20260805",
+  "/icons/icon-512.png?v=wp-20260805",
+  "/icons/android-chrome-192x192.png?v=wp-20260805",
+  "/icons/android-chrome-512x512.png?v=wp-20260805",
+];
 
 /** Localhost / private LAN — never control the page (dev CSS/JS hashes change constantly). */
 function isLocalDevelopmentHost(hostname) {

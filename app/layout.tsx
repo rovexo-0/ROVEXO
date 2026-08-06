@@ -24,8 +24,10 @@ import { AuthChromeDeferred } from "@/components/layout/AuthChromeDeferred";
 import { ChunkLoadRecovery } from "@/components/runtime/ChunkLoadRecovery";
 import { CHUNK_LOAD_BOOTSTRAP_SCRIPT } from "@/components/runtime/chunk-load-bootstrap";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
+import { withWhitePearlFaviconCacheBust } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
+const faviconV = withWhitePearlFaviconCacheBust;
 
 function resolveSupabaseOrigin(): string | null {
   const configured =
@@ -97,26 +99,37 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icons/favicon-64.png", sizes: "64x64", type: "image/png" },
-      { url: "/icons/icon-64.png", sizes: "64x64", type: "image/png" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: faviconV("/favicon.ico") },
+      { url: faviconV("/favicon.svg"), type: "image/svg+xml" },
+      { url: faviconV("/icons/favicon-16.png"), sizes: "16x16", type: "image/png" },
+      { url: faviconV("/icons/favicon-32.png"), sizes: "32x32", type: "image/png" },
+      { url: faviconV("/icons/icon-32.png"), sizes: "32x32", type: "image/png" },
+      { url: faviconV("/icons/favicon-48.png"), sizes: "48x48", type: "image/png" },
+      { url: faviconV("/icons/icon-48.png"), sizes: "48x48", type: "image/png" },
+      { url: faviconV("/icons/favicon-64.png"), sizes: "64x64", type: "image/png" },
+      { url: faviconV("/icons/icon-64.png"), sizes: "64x64", type: "image/png" },
+      { url: faviconV("/icons/android-chrome-192x192.png"), sizes: "192x192", type: "image/png" },
+      { url: faviconV("/icons/icon-192.png"), sizes: "192x192", type: "image/png" },
+      { url: faviconV("/icons/android-chrome-512x512.png"), sizes: "512x512", type: "image/png" },
+      { url: faviconV("/icons/icon-512.png"), sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+      { url: faviconV("/apple-touch-icon.png"), sizes: "180x180", type: "image/png" },
+      { url: faviconV("/apple-icon.png"), sizes: "180x180", type: "image/png" },
     ],
-    shortcut: [{ url: "/favicon.ico" }],
+    shortcut: [{ url: faviconV("/favicon.ico") }],
+    other: [
+      {
+        rel: "mask-icon",
+        url: faviconV("/safari-pinned-tab.svg"),
+        color: "#9333ea",
+      },
+    ],
   },
   other: {
     "mobile-web-app-capable": "yes",
+    "msapplication-TileColor": "#050508",
+    "msapplication-config": faviconV("/browserconfig.xml"),
   },
   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
 };

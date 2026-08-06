@@ -46,7 +46,7 @@ export const ProductInformationRows = memo(function ProductInformationRows({ row
           );
 
           return (
-            <li key={row.id} className="pd-v1__info-row">
+            <li key={row.id} className="pd-v1__info-row" data-row-id={row.id}>
               {clickable ? (
                 <Link href={row.href!} className="pd-v1__info-row-btn" aria-label={`${row.label}: ${row.value}`}>
                   {inner}

@@ -265,6 +265,8 @@ export async function completePaidOrderFulfillment(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
+  /** When true, inventory was claimed in createOrderFromPaidCheckoutSession. */
+  inventoryAlreadyClaimed?: boolean;
 }): Promise<{ success: boolean; error?: string; conversationId?: string }> {
   try {
     return await runCompletePaidOrderFulfillment(input);
@@ -284,6 +286,7 @@ async function runCompletePaidOrderFulfillment(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
+  inventoryAlreadyClaimed?: boolean;
 }): Promise<{ success: boolean; error?: string; conversationId?: string }> {
   const admin = createAdminClient();
   const { data: order } = await admin
@@ -366,18 +369,20 @@ async function runCompletePaidOrderFulfillment(input: {
 
   await ensureOrderShippingPipeline(row);
 
-  // Inventory Engine v1.0 — SOLD only after payment success (never on Buy Now reserve).
-  // Bundle: mark EVERY line sold with its quantity (atomic order — all or throw).
-  const soldLines = (row.order_items ?? []).filter((line) => line.product_id);
-  if (soldLines.length === 0) {
-    return { success: false, error: "Order item missing." };
-  }
-  for (const line of soldLines) {
-    const qty = Math.max(1, Number(line.quantity) || 1);
-    const sold = await markProductSold(line.product_id!, qty);
-    if (!sold.success) {
-      console.error("[orders/post-payment] mark_product_sold failed:", sold.error);
-      throw new Error(sold.error ?? "Failed to mark listing sold after payment.");
+  // Inventory claim: createOrderFromPaidCheckoutSession claims first (race winner).
+  // Legacy awaiting_payment orders still claim here.
+  if (!input.inventoryAlreadyClaimed) {
+    const soldLines = (row.order_items ?? []).filter((line) => line.product_id);
+    if (soldLines.length === 0) {
+      return { success: false, error: "Order item missing." };
+    }
+    for (const line of soldLines) {
+      const qty = Math.max(1, Number(line.quantity) || 1);
+      const sold = await markProductSold(line.product_id!, qty);
+      if (!sold.success) {
+        console.error("[orders/post-payment] mark_product_sold failed:", sold.error);
+        throw new Error(sold.error ?? "Failed to mark listing sold after payment.");
+      }
     }
   }
 

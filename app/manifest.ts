@@ -3,33 +3,47 @@ import { getAppUrl } from "@/lib/supabase/env";
 import {
   CANONICAL_RX_PWA_SIZES,
   CANONICAL_RX_APP_ICON,
+  withWhitePearlFaviconCacheBust,
 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 import { ROVEXO_APP_VERSION, ROVEXO_RELEASE_CODE } from "@/lib/app/version";
 
 export default function manifest(): MetadataRoute.Manifest {
   const baseUrl = getAppUrl();
+  const v = withWhitePearlFaviconCacheBust;
 
   const icons: MetadataRoute.Manifest["icons"] = [
     ...CANONICAL_RX_PWA_SIZES.map((size) => ({
-      src: `/icons/icon-${size}.png`,
+      src: v(`/icons/icon-${size}.png`),
       sizes: `${size}x${size}`,
       type: "image/png" as const,
       purpose: "any" as const,
     })),
     {
-      src: "/icons/icon-maskable-512.png",
+      src: v("/icons/android-chrome-192x192.png"),
+      sizes: "192x192",
+      type: "image/png",
+      purpose: "any",
+    },
+    {
+      src: v("/icons/android-chrome-512x512.png"),
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "any",
+    },
+    {
+      src: v("/icons/icon-maskable-512.png"),
       sizes: "512x512",
       type: "image/png",
       purpose: "maskable",
     },
     {
-      src: "/icons/maskable-icon-512.png",
+      src: v("/icons/maskable-icon-512.png"),
       sizes: "512x512",
       type: "image/png",
       purpose: "maskable",
     },
     {
-      src: CANONICAL_RX_APP_ICON,
+      src: v(CANONICAL_RX_APP_ICON),
       sizes: "2048x2048",
       type: "image/png",
       purpose: "any",

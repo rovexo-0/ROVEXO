@@ -8,8 +8,8 @@ type ProductDescriptionV1Props = {
 };
 
 /**
- * Vinted-style description — title 16/600 · body 15/400 LH 24.
- * Auto-expands; Read more only when body exceeds ~12 lines.
+ * View Item v2.0 description — title 16/700 · body 15/400 LH 24.
+ * Clamp ~3 lines for mockup Read more + chevron (when body overflows).
  * memo: parent qty/offer/sheet updates must not re-run description layout measure.
  */
 export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
@@ -18,7 +18,8 @@ export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
   const bodyRef = useRef<HTMLParagraphElement>(null);
   const [needsToggle, setNeedsToggle] = useState(false);
   const [expanded, setExpanded] = useState(true);
-  const clampLines = VIEW_ITEM_PRESENTATION_TOKENS_V1.descriptionClampLines;
+  /* Mockup: Read more after ~3 lines (token default is presentation SSOT; v2 clamp is visual). */
+  const clampLines = Math.min(3, VIEW_ITEM_PRESENTATION_TOKENS_V1.descriptionClampLines);
 
   useLayoutEffect(() => {
     const el = bodyRef.current;
@@ -56,7 +57,22 @@ export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
           aria-expanded={expanded}
           onClick={() => setExpanded((current) => !current)}
         >
-          {expanded ? "Show less" : "Read more"}
+          <span>{expanded ? "Show less" : "Read more"}</span>
+          <svg
+            className="pd-v1__description-chevron"
+            data-expanded={expanded ? "true" : "false"}
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       ) : null}
     </section>

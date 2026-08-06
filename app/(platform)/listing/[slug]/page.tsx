@@ -9,6 +9,7 @@ import { productJsonLd } from "@/lib/seo/json-ld";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
+import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 }
 
 export default async function ListingPage({ params }: ListingPageProps) {
+  await awaitCheckoutSessionSelfHeal("listing-view");
   const { slug } = await params;
   // Similar Items are frozen off View Item — do not fetch unused similar products (P6 network).
   // getProductBySlug is React.cache'd — generateMetadata + page share one resolve per request.

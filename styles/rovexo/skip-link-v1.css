@@ -1,14 +1,39 @@
 /**
- * P13.1 — Skip link (keyboard / screen-reader bypass).
- * Visually hidden until focused — no layout redesign.
+ * P13.1 / COD SÂNGE — Skip link (keyboard / screen-reader bypass).
+ *
+ * Visually hidden until keyboard focus. Takes no layout space when inactive.
+ * Never use display:none / visibility:hidden as the resting state (a11y tree).
+ * Do not redesign chrome — focus reveal only.
  */
 
 .rovexo-skip-link {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  /* Resting state: invisible on mouse/touch/mobile; no reserved layout space */
+}
+
+.rovexo-skip-link:focus,
+.rovexo-skip-link:focus-visible {
+  position: fixed;
   left: 12px;
-  top: 12px;
+  top: max(12px, env(safe-area-inset-top, 0px));
   z-index: 10000;
+  width: auto;
+  height: auto;
+  margin: 0;
   padding: 10px 14px;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
   border-radius: 12px;
   background: #0f172a;
   color: #ffffff;
@@ -17,19 +42,6 @@
   line-height: 1.2;
   text-decoration: none;
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.28);
-  transform: translateY(-200%);
-  transition: transform 0.15s ease;
-}
-
-.rovexo-skip-link:focus,
-.rovexo-skip-link:focus-visible {
   outline: 2px solid #a855f7;
   outline-offset: 2px;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rovexo-skip-link {
-    transition: none;
-  }
 }

@@ -56,8 +56,8 @@ type ProductDetailPageProps = {
 };
 
 /**
- * ROVEXO View Item v1.0 — OWNER UI/UX FREEZE.
- * Bundle Engine extends only: stock>1 status, qty, Add to Bundle sheet/bar.
+ * ROVEXO View Item v2.0 — Owner-approved mockup (pixel UI).
+ * Business logic / APIs / Bundle / Offers / Buy Now unchanged.
  */
 export function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
@@ -99,6 +99,13 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
   });
   const displayPrice = amount;
   const inclLabel = formatListingPriceIncl(displayPrice, shippingForIncl);
+  const discountPercent = useMemo(() => {
+    const original = product.originalPrice;
+    if (original == null || !Number.isFinite(original) || original <= displayPrice || displayPrice <= 0) {
+      return null;
+    }
+    return Math.max(1, Math.round(((original - displayPrice) / original) * 100));
+  }, [displayPrice, product.originalPrice]);
 
   const infoRows = useMemo(() => buildProductInformationRows(product), [product]);
 
@@ -312,7 +319,9 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
       data-pd-detail-version="cod-sange-v3.1"
       data-product-page-freeze="FROZEN"
       data-view-item-ui-lock="FROZEN"
-      data-view-item-version="1.0"
+      data-view-item-version="2.0"
+      data-view-item-canonical="view-item-v2.0-final"
+      data-view-item-mockup="v2.0"
       data-bundle-engine={BUNDLE_ENGINE_V1.version}
       data-add-to-cart="removed-forever"
       data-dynamic-offer-action="v1.0"
@@ -333,7 +342,11 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
             sellerUsername={product.sellerUsername ?? null}
             isOwner={isOwnListing}
           />
-          <ProductGalleryV1 images={product.images} title={product.title} />
+          <ProductGalleryV1
+            images={product.images}
+            title={product.title}
+            discountPercent={discountPercent}
+          />
         </div>
 
         <main className="pd-v1__main" data-pd-scroll="document">
@@ -350,23 +363,24 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
             <h1 id="pd-product-title" className="pd-v1__title">
               {product.title}
             </h1>
-            <p className="pd-v1__price">{formatListingPrice(amount)}</p>
-            {!isSold ? (
-              <ProductStockStatus stock={product.stock} availability={product.availability} />
-            ) : null}
             <div className="pd-v1__price-row">
-              {capabilities.buyNow && !isSold ? (
-                <p className="pd-v1__price-incl">
-                  <span>{inclLabel}</span>
-                </p>
-              ) : (
-                <span />
-              )}
+              <div className="pd-v1__price-col">
+                <p className="pd-v1__price">{formatListingPrice(amount)}</p>
+                {capabilities.buyNow && !isSold ? (
+                  <p className="pd-v1__price-incl">
+                    <span>{inclLabel}</span>
+                  </p>
+                ) : null}
+              </div>
               <ProductViewsLive slug={product.slug} initialViews={product.views ?? 0} />
             </div>
           </section>
 
           <ProductStoreSection product={product} />
+
+          {!isSold ? (
+            <ProductStockStatus stock={product.stock} availability={product.availability} />
+          ) : null}
 
           <ProductDescriptionV1 description={product.description} />
 

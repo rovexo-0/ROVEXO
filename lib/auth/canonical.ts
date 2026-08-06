@@ -64,6 +64,13 @@ export {
   type Cluster6AuthenticationScopeLockV1,
 } from "@/lib/auth/cluster-6-authentication-scope-lock-v1";
 
+export {
+  EMAIL_VERIFICATION_UX_V1,
+  authVerifyEmailRedirectUrl,
+  isEmailConfirmationOtpType,
+  type EmailVerificationUxV1,
+} from "@/lib/auth/email-verification-ux-v1";
+
 export const AUTH_MODULE_VERSION = AUTH_MASTER_SPEC_VERSION;
 
 export const AUTH_ROUTES = {

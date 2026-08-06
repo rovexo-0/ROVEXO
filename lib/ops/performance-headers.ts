@@ -22,6 +22,9 @@ export function buildPerformanceRouteHeaders(): Array<{
     { source: "/placeholder-product.svg", headers: immutable },
     { source: "/favicon.ico", headers: immutable },
     { source: "/favicon.svg", headers: immutable },
+    { source: "/safari-pinned-tab.svg", headers: immutable },
+    { source: "/browserconfig.xml", headers: immutable },
+    { source: "/site.webmanifest", headers: immutable },
     { source: "/apple-touch-icon.png", headers: immutable },
     { source: "/apple-icon.png", headers: immutable },
   ];

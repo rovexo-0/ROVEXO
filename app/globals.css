@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* COD SÂNGE — Skip link always loaded with AppShellLayout (all routes). */
+@import "../styles/rovexo/skip-link-v1.css";
+
 @theme inline {
   --color-primary: var(--ds-color-primary);
   --color-primary-foreground: var(--ds-color-primary-foreground);

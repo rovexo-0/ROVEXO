@@ -1,3 +1,8 @@
+/**
+ * Inventory Engine v1.0 — reserve / release / mark-sold wrappers.
+ * Release is idempotent: published + reserved=false is a no-op (never corrupts stock).
+ */
+
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isLowStock } from "@/lib/sell/inventory";
 import { notifyLowStock } from "@/lib/inventory/notifications";
@@ -11,49 +16,94 @@ export function isReservedListing(status: string, reservedFlag?: boolean | null)
   return status === "reserved" || reservedFlag === true;
 }
 
+export type ReleaseInventoryResult = {
+  released: boolean;
+  reason:
+    | "released"
+    | "already_published"
+    | "not_reserved"
+    | "sold"
+    | "deleted"
+    | "not_found"
+    | "rpc_error";
+};
+
 /**
- * Inventory Engine v1.0 — RESERVE
- * Sets status=reserved + reserved=true. Never status=sold. Never stock=0.
+ * Inventory Engine v1.0 — RESERVE (LEGACY RPC WRAPPER)
+ *
+ * Cod Sânge Checkout Race Condition: Buy Now / Checkout / Payment / Order
+ * MUST NOT call this. Listing stays published until payment claim.
+ * Retained only for heal/compat tooling — not a commerce path.
  */
 export async function reserveProductInventory(
   productId: string,
   quantity = 1,
 ): Promise<{ success: boolean; error?: string }> {
+  console.error(
+    "[RVX][INVENTORY] FORBIDDEN commerce reserveProductInventory call",
+    productId,
+    quantity,
+  );
+  return {
+    success: false,
+    error: "Checkout Race Condition v1.0 — Buy Now must not reserve inventory.",
+  };
+}
+
+/**
+ * Inventory Engine v1.0 — UNLOCK (payment fail / timeout / expire / cancel)
+ * reserved → published, reserved=false, stock unchanged.
+ *
+ * Idempotent: safe to call twice. Never increments stock. Never touches sold/deleted.
+ */
+export async function releaseProductInventory(
+  productId: string,
+  quantity = 1,
+): Promise<ReleaseInventoryResult> {
   const admin = createAdminClient();
-  const { data, error } = await admin.rpc("reserve_product_inventory", {
+
+  const { data: product, error: readError } = await admin
+    .from("products")
+    .select("id, status, reserved")
+    .eq("id", productId)
+    .maybeSingle();
+
+  if (readError || !product) {
+    return { released: false, reason: "not_found" };
+  }
+
+  if (product.status === "sold") {
+    return { released: false, reason: "sold" };
+  }
+
+  if (product.status === "deleted") {
+    return { released: false, reason: "deleted" };
+  }
+
+  if (product.status === "published" && product.reserved !== true) {
+    return { released: false, reason: "already_published" };
+  }
+
+  if (product.status !== "reserved" && product.reserved !== true) {
+    return { released: false, reason: "not_reserved" };
+  }
+
+  const { error } = await admin.rpc("release_product_inventory", {
     p_product_id: productId,
     p_quantity: quantity,
   });
 
   if (error) {
-    return { success: false, error: error.message };
+    return { released: false, reason: "rpc_error" };
   }
 
-  if (!data) {
-    return { success: false, error: "Insufficient stock." };
-  }
-
-  return { success: true };
+  return { released: true, reason: "released" };
 }
 
 /**
- * Inventory Engine v1.0 — UNLOCK (payment fail / timeout)
- * reserved → published, reserved=false, stock unchanged.
- */
-export async function releaseProductInventory(
-  productId: string,
-  quantity = 1,
-): Promise<void> {
-  const admin = createAdminClient();
-  await admin.rpc("release_product_inventory", {
-    p_product_id: productId,
-    p_quantity: quantity,
-  });
-}
-
-/**
- * Inventory Engine v1.0 — MARK SOLD (payment success only)
- * Decrements stock by quantity. Keeps listing published (including stock 0 = Out of Stock).
+ * Checkout Race Condition v1.0 — MARK SOLD (payment success claim only)
+ * FOR UPDATE claim: decrement stock; remaining 0 → status=sold (marketplace hide).
+ * Remaining > 0 → stay published. Concurrent loser → false (ITEM_JUST_SOLD).
  */
 export async function markProductSold(
   productId: string,
@@ -70,7 +120,7 @@ export async function markProductSold(
   }
 
   if (!data) {
-    return { success: false, error: "Unable to mark listing sold." };
+    return { success: false, error: "ITEM_JUST_SOLD" };
   }
 
   const { data: product } = await admin
@@ -93,4 +143,49 @@ export async function markProductSold(
   }
 
   return { success: true };
+}
+
+/**
+ * Rollback inventory claim when order insert / virtual debit fails after claim.
+ */
+export async function restoreProductInventoryClaim(
+  productId: string,
+  quantity = 1,
+): Promise<{ success: boolean; error?: string }> {
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("restore_product_inventory_claim", {
+    p_product_id: productId,
+    p_quantity: quantity,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  if (!data) {
+    return { success: false, error: "Unable to restore inventory claim." };
+  }
+
+  return { success: true };
+}
+
+/** Claim every line before order insert. On any fail → restore successes → ITEM_JUST_SOLD. */
+export async function claimProductsForPaidSale(
+  lines: Array<{ productId: string; quantity: number }>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const claimed: Array<{ productId: string; quantity: number }> = [];
+
+  for (const line of lines) {
+    const qty = Math.max(1, Math.floor(line.quantity) || 1);
+    const sold = await markProductSold(line.productId, qty);
+    if (!sold.success) {
+      await Promise.all(
+        claimed.map((row) => restoreProductInventoryClaim(row.productId, row.quantity)),
+      );
+      return { ok: false, error: "ITEM_JUST_SOLD" };
+    }
+    claimed.push({ productId: line.productId, quantity: qty });
+  }
+
+  return { ok: true };
 }

@@ -2,76 +2,72 @@
 
 import type { ReactNode } from "react";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
-import { PageBack } from "@/components/navigation/PageBack";
+import { RovexoHeaderCloseButton } from "@/components/navigation/RovexoHeaderCloseButton";
+import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { ROVEXO_HEADER_STANDARD_VERSION } from "@/lib/header/rovexo-header-standard-v1";
 
 export type CanonicalPageHeaderProps = {
   title: string;
   backHref?: string;
   backLabel?: string;
   onBack?: () => void;
+  /**
+   * @deprecated Header Standard v1.0 — right slot is always Close.
+   * Ignored; Close is injected.
+   */
   rightAction?: ReactNode;
   className?: string;
   titleId?: string;
+  closeFallbackHref?: string;
 };
 
 /**
- * Platform-wide page header — back (left), title (center), optional action (right).
- * Back uses browser history when available; otherwise navigates to `backHref` (default `/`).
+ * Platform-wide page header — ROVEXO Header Standard v1.0 (Orders SSOT).
+ * Back · Title · Close. Homepage marketplace header excluded.
  */
 export function CanonicalPageHeader({
   title,
   backHref = "/",
   backLabel = "Back",
   onBack,
-  rightAction,
+  rightAction: _rightAction,
   className,
   titleId,
+  closeFallbackHref,
 }: CanonicalPageHeaderProps) {
+  void _rightAction;
+  const back = usePageBack({
+    backHref,
+    backLabel,
+    preferHistory: true,
+  });
+
   return (
     <header
       className={cn("rx-page-header rx-canon-header sticky top-0 z-50", className)}
       data-canonical-page-header="v1"
+      data-rovexo-header-standard={ROVEXO_HEADER_STANDARD_VERSION}
     >
-      <div
-        className={cn(
-          "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
-          "pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]",
-        )}
-      >
-        <div className="justify-self-start">
-          {onBack ? (
-            <button
-              type="button"
-              onClick={onBack}
-              className={cn(
-                "inline-flex h-12 w-12 items-center justify-center rounded-full text-text-primary",
-                focusRing,
-              )}
-              aria-label={backLabel}
-            >
-              <BackLineIcon />
-            </button>
-          ) : (
-            <PageBack
-              backHref={backHref}
-              backLabel={backLabel}
-              preferHistory
-              className="justify-self-start"
-            />
-          )}
+      <div className="rx-page-header__bar">
+        <div className="rx-page-header__back">
+          <button
+            type="button"
+            onClick={onBack ?? back.goBack}
+            className={cn("cds-header__back", focusRing)}
+            aria-label={onBack ? backLabel : back.label}
+          >
+            <BackLineIcon />
+          </button>
         </div>
 
-        <h1
-          id={titleId}
-          className="truncate text-center text-lg font-semibold text-text-primary"
-        >
+        <h1 id={titleId} className="rx-page-header__title">
           {title}
         </h1>
 
-        <div className="flex min-h-12 min-w-12 items-center justify-end justify-self-end">
-          {rightAction ?? <span aria-hidden className="w-12" />}
+        <div className="rx-page-header__action">
+          <RovexoHeaderCloseButton fallbackHref={closeFallbackHref ?? backHref} />
         </div>
       </div>
     </header>

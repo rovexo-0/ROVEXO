@@ -6,7 +6,10 @@
 
 import "server-only";
 
-import { reserveProductInventory, releaseProductInventory } from "@/lib/inventory/service";
+import {
+  releaseProductInventory,
+  isPurchasable,
+} from "@/lib/inventory/service";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 import type { BundleCheckoutSnapshotV1 } from "@/lib/bundle/bundle-snapshot-v1";
@@ -43,47 +46,60 @@ async function writeReservedQuantities(
 }
 
 /**
- * Reserve every line in parallel. On any failure → release successes → STOP.
+ * Checkout Race Condition v1.0 — verify only (no marketplace-hiding reserve).
+ */
+export async function verifyBundleInventoryAvailable(
+  snapshot: BundleCheckoutSnapshotV1,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const admin = db();
+  const productIds = snapshot.lines.map((line) => line.productId);
+  const { data: products, error } = await admin
+    .from("products")
+    .select("id, stock, status")
+    .in("id", productIds);
+
+  if (error || !products || products.length !== productIds.length) {
+    return { ok: false, message: "Some items are no longer available." };
+  }
+
+  const byId = new Map(products.map((row) => [row.id as string, row]));
+  for (const line of snapshot.lines) {
+    const product = byId.get(line.productId);
+    const stock = Number(product?.stock ?? 0);
+    const status = String(product?.status ?? "");
+    if (!product || !isPurchasable(stock, status) || stock < line.quantity) {
+      bundleCheckoutLog("Concurrency Conflict", {
+        bundleId: snapshot.bundleId,
+        productId: line.productId,
+        error: "not_purchasable",
+      });
+      return { ok: false, message: "Some items are no longer available." };
+    }
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Legacy reserve path — retained for heal/compat. Buy Now must use verify only.
+ * @deprecated Checkout Race Condition v1.0 — do not hide listings at Buy Now.
  */
 export async function reserveBundleInventoryAtomic(
   snapshot: BundleCheckoutSnapshotV1,
 ): Promise<{ ok: true; handle: BundleReservationHandle } | { ok: false; message: string }> {
-  const results = await Promise.all(
-    snapshot.lines.map(async (line) => {
-      const result = await reserveProductInventory(line.productId, line.quantity);
-      return { line, result };
-    }),
-  );
+  const verified = await verifyBundleInventoryAvailable(snapshot);
+  if (!verified.ok) return verified;
 
-  const failed = results.find((row) => !row.result.success);
-  if (failed) {
-    bundleCheckoutLog("Concurrency Conflict", {
-      bundleId: snapshot.bundleId,
-      productId: failed.line.productId,
-      error: failed.result.error,
-    });
-    const succeeded = results
-      .filter((row) => row.result.success)
-      .map((row) => ({ productId: row.line.productId, quantity: row.line.quantity }));
-    await Promise.all(
-      succeeded.map((line) => releaseProductInventory(line.productId, line.quantity)),
-    );
-    await writeReservedQuantities(
-      snapshot.bundleId,
-      succeeded.map((line) => ({ productId: line.productId, quantity: 0 })),
-    );
-    return { ok: false, message: "Some items are no longer available." };
-  }
-
+  // No inventory reserve — listing stays published until payment claim.
   const locked = snapshot.lines.map((line) => ({
     productId: line.productId,
     quantity: line.quantity,
   }));
-  await writeReservedQuantities(snapshot.bundleId, locked);
 
   bundleCheckoutLog("Reservation Created", {
     bundleId: snapshot.bundleId,
     lines: locked.length,
+    mode: "verify_only_no_reserve",
   });
 
   return {

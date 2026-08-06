@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sanitizeNextPath } from "@/lib/auth/redirects";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 import { mfaChallengeHref, readMfaAssurance } from "@/lib/auth/mfa";
+import { isEmailConfirmationOtpType } from "@/lib/auth/email-verification-ux-v1";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -10,8 +11,21 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash");
   const otpType = searchParams.get("type");
   const next = sanitizeNextPath(searchParams.get("next"));
+  const nextRaw = searchParams.get("next");
+  const isPasswordRecovery =
+    otpType === "recovery" ||
+    (nextRaw != null && sanitizeNextPath(nextRaw) === "/reset-password");
 
   const supabase = await createClient();
+
+  // Email confirmation → branded `/verify-email` (never Supabase hosted UI).
+  // Recovery stays on callback → reset-password.
+  if (tokenHash && otpType && isEmailConfirmationOtpType(otpType) && !isPasswordRecovery) {
+    const verifyUrl = new URL(`${origin}/verify-email`);
+    verifyUrl.searchParams.set("token_hash", tokenHash);
+    verifyUrl.searchParams.set("type", otpType);
+    return NextResponse.redirect(verifyUrl);
+  }
 
   if (tokenHash && otpType) {
     const { error } = await supabase.auth.verifyOtp({
@@ -20,8 +34,7 @@ export async function GET(request: Request) {
     });
 
     if (error) {
-      const resetNext = sanitizeNextPath(searchParams.get("next"), "/reset-password");
-      if (resetNext === "/reset-password") {
+      if (isPasswordRecovery) {
         const normalized = error.message.toLowerCase();
         const reason = normalized.includes("expired") ? "expired" : "invalid";
         return NextResponse.redirect(`${origin}/reset-password?error=${reason}`);
@@ -32,8 +45,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      const resetNext = sanitizeNextPath(searchParams.get("next"), "/reset-password");
-      if (resetNext === "/reset-password") {
+      if (isPasswordRecovery) {
         const normalized = error.message.toLowerCase();
         const reason = normalized.includes("expired") ? "expired" : "invalid";
         return NextResponse.redirect(`${origin}/reset-password?error=${reason}`);

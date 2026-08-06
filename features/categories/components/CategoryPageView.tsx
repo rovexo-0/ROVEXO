@@ -4,11 +4,8 @@ import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
-import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
-import { CategoryHubEditorialSection } from "@/features/seo/components/CategoryHubEditorial";
 import { MarketplaceNoProductsEmpty } from "@/features/search/components/MarketplaceNoProductsEmpty";
-import { categoryHubInternalLinkGroups } from "@/lib/seo/internal-links";
-import { getCategoryHubEditorial } from "@/lib/seo/category-hub-editorial-v1";
+import { CATEGORY_RESULTS_V1_FREEZE } from "@/lib/categories/category-results-v1-freeze";
 import "@/styles/rovexo/search-results-v1.css";
 
 type CategoryPageViewProps = {
@@ -18,20 +15,25 @@ type CategoryPageViewProps = {
 };
 
 /**
- * Category page = Listings first (P12.1).
- * Editorial + FAQ + capped internal links after the grid.
- * Empty state: Owner Global Empty State Lock (Search & Browse).
+ * Category Results v1.0 FINAL — PRODUCTION UI LOCK ACTIVE.
+ * Listings only · RX Bear empty state frozen · no editorial below.
+ * SSOT: lib/categories/category-results-v1-freeze.ts
  */
 export function CategoryPageView({ category, products, total }: CategoryPageViewProps) {
-  const { node, breadcrumbs } = category;
-  const slugPath = breadcrumbs.map((crumb) => crumb.slug);
-  const editorial = getCategoryHubEditorial(slugPath);
-  const internalLinkGroups = categoryHubInternalLinkGroups(slugPath);
+  const { node } = category;
+  const freezeAttrs = {
+    "data-category-results-freeze": CATEGORY_RESULTS_V1_FREEZE.canonicalVersion,
+    "data-category-results-lock": "PRODUCTION_UI_LOCK_ACTIVE",
+  } as const;
 
   if (products.length === 0) {
     return (
       <HubPageMain className="srch-results srch-results--empty flex w-full max-w-none flex-col px-0 py-0">
-        <div data-empty-state="no-products-v1" className="flex min-h-0 flex-1 flex-col">
+        <div
+          data-empty-state="no-products-v1"
+          className="flex min-h-0 flex-1 flex-col"
+          {...freezeAttrs}
+        >
           <div className="srch-results__empty-chrome">
             <Link href="/browse" className="srch-results__empty-back" aria-label="Back to Browse">
               <svg
@@ -70,7 +72,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
 
   return (
     <HubPageMain className="flex w-full max-w-none flex-col gap-ds-3 px-[16px] py-ds-3">
-      <section aria-labelledby="listings-heading">
+      <section aria-labelledby="listings-heading" {...freezeAttrs}>
         <div className="mb-ds-2 flex items-baseline justify-between gap-ds-2">
           <h1 id="listings-heading" className="text-base font-semibold text-text-primary">
             {node.name}
@@ -90,10 +92,6 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           ))}
         </div>
       </section>
-
-      {editorial ? <CategoryHubEditorialSection editorial={editorial} /> : null}
-
-      <InternalLinksSection groups={internalLinkGroups} />
     </HubPageMain>
   );
 }

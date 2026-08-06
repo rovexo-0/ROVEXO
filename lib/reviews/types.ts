@@ -12,8 +12,15 @@ export type Review = {
   reviewerName?: string;
   reviewerUsername?: string | null;
   reviewerAvatarUrl?: string | null;
-  /** Every ROVEXO order-backed review is a Verified Purchase. */
+  /**
+   * Verified Purchase — only when order completed + buyer authored + listing matches.
+   * Store v2.0: display badge only when true.
+   */
   verifiedPurchase: boolean;
+  /** Listing linked to the review (for Store v2.0 product thumbnail). */
+  productSlug?: string | null;
+  productImageUrl?: string | null;
+  productTitle?: string | null;
   replyText?: string | null;
   replyAt?: string | null;
   replyAuthorId?: string | null;

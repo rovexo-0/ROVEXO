@@ -17,6 +17,10 @@ export type AccountCanonicalShellProps = {
   backLabel?: string;
   /** Optional back interceptor (e.g. unsaved changes on Edit Listing). */
   onBack?: () => void;
+  /**
+   * @deprecated Header Standard v1.0 — right slot is always Close.
+   * Ignored by AccountCanonicalHeader when titled.
+   */
   rightAction?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -24,9 +28,12 @@ export type AccountCanonicalShellProps = {
   bottomNavTab?: BottomNavTab;
   /** When false, hides platform bottom nav (e.g. full-screen Transaction Hub). */
   showBottomNav?: boolean;
-  /** My Account hub ? no back header */
+  /** My Account hub — no back header */
   hideBack?: boolean;
-  /** Centered title in header row (e.g. Orders, Settings). */
+  /**
+   * Centered title in header (Header Standard v1.0).
+   * Defaults to true — Orders SSOT: Back · Title · Close.
+   */
   showHeaderTitle?: boolean;
   intro?: string;
   /** My Account Master Template v1.0 — set by MyAccountTemplate. */
@@ -44,19 +51,21 @@ export function AccountCanonicalShell({
   backHref = "/account",
   backLabel = "Back",
   onBack,
-  rightAction,
+  rightAction: _rightAction,
   children,
   className,
   contentClassName,
   bottomNavTab = "account",
   showBottomNav = true,
   hideBack = false,
-  showHeaderTitle = false,
+  showHeaderTitle = true,
   intro,
   dataMyAccountTemplate,
   dataMyAccountMaster,
   dataMyAccountSurface,
 }: AccountCanonicalShellProps) {
+  void _rightAction;
+  void showHeaderTitle;
   const { tx } = useTranslation();
 
   return (
@@ -79,10 +88,9 @@ export function AccountCanonicalShell({
             <div className="cds-layout__header">
               <AccountCanonicalHeader
                 backLabel={tx(backLabel)}
-                centeredTitle={showHeaderTitle ? tx(title) : undefined}
+                centeredTitle={tx(title)}
                 fallbackHref={backHref}
                 onBack={onBack}
-                rightAction={rightAction}
               />
             </div>
           ) : null}

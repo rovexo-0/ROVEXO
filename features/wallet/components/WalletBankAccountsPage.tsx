@@ -5,7 +5,6 @@ import { AccountCanonicalShell, AccountPageStack } from "@/features/account-cano
 import {
   WalletBankAccountsIcon,
   WalletBusinessAccountIcon,
-  WalletHelpHeaderAction,
   WalletPersonalAccountIcon,
   WalletSecurityIcon,
 } from "@/features/wallet/components/WalletProfileChrome";
@@ -49,7 +48,6 @@ export function WalletBankAccountsPage({
       backHref={backHref}
       backLabel="Balance"
       showHeaderTitle
-      rightAction={<WalletHelpHeaderAction />}
       dataMyAccountSurface="bank-accounts"
     >
       <div

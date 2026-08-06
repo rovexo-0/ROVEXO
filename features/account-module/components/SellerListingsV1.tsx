@@ -7,29 +7,46 @@ import {
   CanonicalModal,
 } from "@/src/components/canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
+import { useToast } from "@/components/ui/Toast";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ShareListingSheet } from "@/components/share/ShareListingSheet";
+import { useCallback, useMemo, useState } from "react";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { PromotionPicker } from "@/features/seller/listings/components/PromotionPicker";
-import { RestockListingDialog } from "@/features/seller/listings/components/RestockListingDialog";
+import type { SellerListingOverflowAction } from "@/features/seller/listings/components/SellerListingOverflowMenu";
 import { cn } from "@/lib/cn";
 import type { PromotionType } from "@/lib/promotions/config";
 import type { ListingFilter, SellerListing } from "@/lib/listings/types";
 import type { SellerListingsData } from "@/lib/seller/listings-queries";
+import { editListingHref } from "@/lib/sell/canonical-edit-listing-engine-v1";
 import { formatSellerStockLabel } from "@/lib/sell/inventory";
+import type { ProductStatus } from "@/lib/supabase/types/database";
 import { formatCurrency } from "@/lib/wallet/utils";
 import "@/styles/rovexo/orders-page-v1.css";
+
+const SellerListingOverflowMenu = dynamic(
+  () =>
+    import("@/features/seller/listings/components/SellerListingOverflowMenu").then(
+      (m) => m.SellerListingOverflowMenu,
+    ),
+  { ssr: false },
+);
+
+const ShareListingSheet = dynamic(
+  () =>
+    import("@/components/share/ShareListingSheet").then((m) => m.ShareListingSheet),
+  { ssr: false },
+);
 
 const LISTING_TABS: { id: Extract<ListingFilter, "published" | "sold">; label: string }[] = [
   { id: "published", label: "Active" },
   { id: "sold", label: "Sold" },
 ];
 
-function listingStatusLabel(listing: SellerListing): string {
-  if (listing.status === "sold") return "Sold";
-  if (listing.status === "paused") return "Paused";
+function listingStatusLabel(status: ProductStatus | string): string {
+  if (status === "sold") return "Sold";
+  if (status === "paused") return "Paused";
   return "Active";
 }
 
@@ -49,15 +66,15 @@ type SellerListingsV1Props = {
 
 export function SellerListingsV1({ data }: SellerListingsV1Props) {
   const router = useRouter();
+  const { pushToast } = useToast();
   const searchParams = useSearchParams();
   const filterParam = searchParams.get("filter");
   const activeFilter: Extract<ListingFilter, "published" | "sold"> =
     filterParam === "sold" ? "sold" : "published";
-  const listings = data.listings;
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, ProductStatus>>({});
   const [pendingDelete, setPendingDelete] = useState<SellerListing | null>(null);
-  const [restockTarget, setRestockTarget] = useState<SellerListing | null>(null);
   const [shareTarget, setShareTarget] = useState<SellerListing | null>(null);
   const [promotionTarget, setPromotionTarget] = useState<{
     listingId: string;
@@ -67,19 +84,17 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!openMenuId) return;
-    const handlePointer = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handlePointer);
-    return () => document.removeEventListener("mousedown", handlePointer);
-  }, [openMenuId]);
+  const listings = useMemo(
+    () =>
+      data.listings.map((listing) => {
+        const override = statusOverrides[listing.id];
+        return override ? { ...listing, status: override } : listing;
+      }),
+    [data.listings, statusOverrides],
+  );
+
+  const closeMenu = useCallback(() => setOpenMenuId(null), []);
 
   const closeDialog = () => {
     if (isDeleting) return;
@@ -98,6 +113,11 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
         throw new Error(payload?.error ?? "Unable to delete listing.");
       }
       setPendingDelete(null);
+      setStatusOverrides((current) => {
+        const next = { ...current };
+        delete next[pendingDelete.id];
+        return next;
+      });
       router.refresh();
     } catch (error) {
       setDeleteError(error instanceof Error ? error.message : "Unable to delete listing.");
@@ -109,7 +129,6 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
   const startPromotionCheckout = useCallback(
     async (listingId: string, type: PromotionType, durationId: string, scheduledStartAt?: string | null) => {
       setBusyId(listingId);
-      setActionError(null);
       try {
         const response = await fetch("/api/promotions/checkout", {
           method: "POST",
@@ -118,116 +137,143 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
         });
         const payload = (await response.json()) as { success?: boolean; url?: string; error?: string };
         if (!response.ok || !payload.success || !payload.url) {
-          setActionError(payload.error ?? "Unable to start promotion.");
+          pushToast({
+            title: payload.error ?? "Unable to start boost.",
+            variant: "error",
+          });
           return;
         }
         window.location.href = payload.url;
       } catch {
-        setActionError("Unable to start promotion.");
+        pushToast({ title: "Unable to start boost.", variant: "error" });
       } finally {
         setBusyId(null);
         setPromotionTarget(null);
       }
     },
-    [],
+    [pushToast],
   );
 
-  const runMenuAction = async (action: string, listing: SellerListing) => {
-    setOpenMenuId(null);
-    setActionError(null);
-
-    if (action === "edit") {
-      router.push(`/seller/listings/${listing.id}/edit`);
-      return;
-    }
-
-    if (action === "restock") {
-      setRestockTarget(listing);
-      return;
-    }
-
-    if (action === "share") {
-      setShareTarget(listing);
-      return;
-    }
-
-    if (action === "promote") {
-      if (listing.status !== "published") {
-        setActionError("Only active listings can be promoted.");
+  const runMenuAction = useCallback(
+    async (action: SellerListingOverflowAction, listing: SellerListing) => {
+      if (action === "edit") {
+        setOpenMenuId(null);
+        router.push(editListingHref(listing.id));
         return;
       }
-      setPromotionTarget({ listingId: listing.id, title: listing.title, type: "bump" });
-      return;
-    }
 
-    if (action === "sold") {
-      setBusyId(listing.id);
-      try {
-        const response = await fetch(`/api/listings/${listing.id}/status`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "sold" }),
-        });
-        if (!response.ok) {
-          setActionError("Unable to mark listing as sold.");
+      if (action === "view") {
+        setOpenMenuId(null);
+        router.push(`/listing/${listing.slug}`);
+        return;
+      }
+
+      if (action === "share") {
+        setOpenMenuId(null);
+        setShareTarget(listing);
+        return;
+      }
+
+      if (action === "boost") {
+        if (listing.status !== "published") {
+          pushToast({
+            title: "Only active listings can be boosted.",
+            variant: "error",
+          });
           return;
         }
-        router.refresh();
-      } catch {
-        setActionError("Unable to mark listing as sold.");
-      } finally {
-        setBusyId(null);
-      }
-      return;
-    }
-
-    if (action === "pause") {
-      setBusyId(listing.id);
-      try {
-        const response = await fetch(`/api/listings/${listing.id}/status`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "pause" }),
-        });
-        if (!response.ok) {
-          setActionError("Unable to pause listing.");
+        if (listing.isBumped) {
+          pushToast({
+            title: listing.bumpRemainingLabel
+              ? `Boost active — ${listing.bumpRemainingLabel} remaining.`
+              : "This listing is already boosted.",
+            variant: "info",
+          });
           return;
         }
-        router.refresh();
-      } catch {
-        setActionError("Unable to pause listing.");
-      } finally {
-        setBusyId(null);
+        setOpenMenuId(null);
+        setPromotionTarget({ listingId: listing.id, title: listing.title, type: "bump" });
+        return;
       }
-      return;
-    }
 
-    if (action === "relist") {
-      setBusyId(listing.id);
-      try {
-        const response = await fetch(`/api/listings/${listing.id}/status`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "reactivate" }),
-        });
-        if (!response.ok) {
-          setActionError("Unable to relist listing.");
-          return;
+      if (action === "pause") {
+        setBusyId(listing.id);
+        try {
+          const response = await fetch(`/api/listings/${listing.id}/status`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "pause" }),
+          });
+          if (!response.ok) {
+            pushToast({ title: "Unable to pause listing.", variant: "error" });
+            return;
+          }
+          setStatusOverrides((current) => ({ ...current, [listing.id]: "paused" }));
+          setOpenMenuId(null);
+        } catch {
+          pushToast({ title: "Unable to pause listing.", variant: "error" });
+        } finally {
+          setBusyId(null);
         }
-        router.refresh();
-      } catch {
-        setActionError("Unable to relist listing.");
-      } finally {
-        setBusyId(null);
+        return;
       }
-      return;
-    }
 
-    if (action === "delete") {
-      setDeleteError(null);
-      setPendingDelete(listing);
-    }
-  };
+      if (action === "resume") {
+        setBusyId(listing.id);
+        try {
+          const response = await fetch(`/api/listings/${listing.id}/status`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "reactivate" }),
+          });
+          if (!response.ok) {
+            pushToast({ title: "Unable to resume listing.", variant: "error" });
+            return;
+          }
+          setStatusOverrides((current) => ({ ...current, [listing.id]: "published" }));
+          setOpenMenuId(null);
+        } catch {
+          pushToast({ title: "Unable to resume listing.", variant: "error" });
+        } finally {
+          setBusyId(null);
+        }
+        return;
+      }
+
+      if (action === "duplicate") {
+        setBusyId(listing.id);
+        try {
+          const response = await fetch(`/api/listings/${listing.id}/duplicate`, {
+            method: "POST",
+          });
+          const payload = (await response.json().catch(() => null)) as
+            | { listing?: { id?: string }; error?: string }
+            | null;
+          if (!response.ok || !payload?.listing?.id) {
+            pushToast({
+              title: payload?.error ?? "Unable to duplicate listing.",
+              variant: "error",
+            });
+            return;
+          }
+          setOpenMenuId(null);
+          router.push(editListingHref(payload.listing.id));
+        } catch {
+          pushToast({ title: "Unable to duplicate listing.", variant: "error" });
+        } finally {
+          setBusyId(null);
+        }
+        return;
+      }
+
+      if (action === "delete") {
+        setOpenMenuId(null);
+        setDeleteError(null);
+        setPendingDelete(listing);
+      }
+    },
+    [pushToast, router],
+  );
 
   return (
     <AccountCanonicalShell title="My Listings" backHref="/account" showHeaderTitle>
@@ -246,12 +292,6 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
               </Link>
             ))}
           </div>
-
-          {actionError ? (
-            <CanonicalInfoBlock variant="error">
-              <p>{actionError}</p>
-            </CanonicalInfoBlock>
-          ) : null}
 
           {listings.length === 0 ? (
             <CanonicalInfoBlock variant="description">
@@ -283,102 +323,35 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                     </Link>
                     <p className="cds-menu-row__subtitle">
                       {formatCurrency(listing.price)} · {formatSellerStockLabel(listing.stock)} ·{" "}
-                      {listingStatusLabel(listing)} · {listing.views} views
+                      {listingStatusLabel(listing.status)} · {listing.views} views
                     </p>
                   </div>
 
-                  <div
-                    className="relative shrink-0"
-                    ref={openMenuId === listing.id ? menuRef : undefined}
-                  >
+                  <div className="relative shrink-0">
                     <button
                       type="button"
+                      data-listing-overflow-trigger={listing.id}
                       className="cds-menu-row__trailing inline-flex h-10 w-10 items-center justify-center rounded-full text-text-secondary hover:bg-surface-muted"
                       aria-label={`Actions for ${listing.title}`}
                       aria-expanded={openMenuId === listing.id}
                       aria-haspopup="menu"
                       disabled={busyId === listing.id}
-                      onClick={() => setOpenMenuId((current) => (current === listing.id ? null : listing.id))}
+                      onClick={() =>
+                        setOpenMenuId((current) => (current === listing.id ? null : listing.id))
+                      }
                     >
                       <MoreIcon className="h-5 w-5" />
                     </button>
 
                     {openMenuId === listing.id ? (
-                      <div
-                        className="absolute right-0 top-full z-20 mt-ds-1 min-w-[160px] overflow-hidden rounded-ds-lg border border-border bg-background shadow-ds-md"
-                        role="menu"
-                      >
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                          onClick={() => void runMenuAction("edit", listing)}
-                        >
-                          Edit Listing
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                          onClick={() => void runMenuAction("restock", listing)}
-                        >
-                          Restock
-                        </button>
-                        {listing.status === "published" || listing.status === "paused" ? (
-                          <button
-                            type="button"
-                            role="menuitem"
-                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                            onClick={() => void runMenuAction("sold", listing)}
-                          >
-                            Mark as Sold
-                          </button>
-                        ) : null}
-                        {listing.status === "published" ? (
-                          <button
-                            type="button"
-                            role="menuitem"
-                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                            onClick={() => void runMenuAction("pause", listing)}
-                          >
-                            Pause Listing
-                          </button>
-                        ) : null}
-                        {listing.status === "paused" || listing.status === "sold" ? (
-                          <button
-                            type="button"
-                            role="menuitem"
-                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                            onClick={() => void runMenuAction("relist", listing)}
-                          >
-                            Relist
-                          </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                          onClick={() => void runMenuAction("delete", listing)}
-                        >
-                          Delete Listing
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                          onClick={() => void runMenuAction("promote", listing)}
-                        >
-                          Promote
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
-                          onClick={() => void runMenuAction("share", listing)}
-                        >
-                          Share
-                        </button>
-                      </div>
+                      <SellerListingOverflowMenu
+                        listingId={listing.id}
+                        listingTitle={listing.title}
+                        status={listing.status}
+                        busy={busyId === listing.id}
+                        onClose={closeMenu}
+                        onAction={(action) => void runMenuAction(action, listing)}
+                      />
                     ) : null}
                   </div>
                 </div>
@@ -406,15 +379,6 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
         ) : null}
       </CanonicalModal>
 
-      <RestockListingDialog
-        open={restockTarget !== null}
-        listingId={restockTarget?.id ?? ""}
-        listingTitle={restockTarget?.title ?? ""}
-        currentQuantity={restockTarget?.stock ?? 0}
-        onClose={() => setRestockTarget(null)}
-        onSaved={() => router.refresh()}
-      />
-
       <ShareListingSheet
         open={shareTarget !== null}
         onClose={() => setShareTarget(null)}
@@ -433,7 +397,12 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
         onCancel={() => setPromotionTarget(null)}
         onSelect={(durationId, scheduledStartAt) => {
           if (!promotionTarget) return;
-          void startPromotionCheckout(promotionTarget.listingId, promotionTarget.type, durationId, scheduledStartAt);
+          void startPromotionCheckout(
+            promotionTarget.listingId,
+            promotionTarget.type,
+            durationId,
+            scheduledStartAt,
+          );
         }}
       />
     </AccountCanonicalShell>

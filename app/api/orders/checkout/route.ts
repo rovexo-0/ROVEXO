@@ -6,6 +6,11 @@ import { getOrderById } from "@/lib/orders/store";
 import { mapOrderCheckoutErrorToRvx } from "@/lib/checkout/map-order-checkout-error-v1";
 import { formatBuyNowUserError, RVX_UNCLASSIFIED } from "@/lib/checkout/buy-now-guard-v1";
 import { RVX_LOG } from "@/lib/checkout/rvx-logger-v1";
+import {
+  CHECKOUT_RACE_CONDITION_V1,
+  isItemJustSoldError,
+  itemJustSoldPayload,
+} from "@/lib/checkout/checkout-race-condition-v1";
 
 export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "orders-checkout", 10, 60_000);
@@ -71,6 +76,12 @@ export async function POST(request: Request) {
     });
 
     if ("error" in result) {
+      if (isItemJustSoldError(result.error)) {
+        RVX_LOG("STOP", CHECKOUT_RACE_CONDITION_V1.conflictCode);
+        return NextResponse.json(itemJustSoldPayload(), {
+          status: CHECKOUT_RACE_CONDITION_V1.httpConflict,
+        });
+      }
       const mapped = mapOrderCheckoutErrorToRvx(result.error);
       RVX_LOG("STOP", mapped.code);
       return NextResponse.json(

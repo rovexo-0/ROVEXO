@@ -207,6 +207,73 @@ html.rx-scroll-locked {
   overflow: visible;
 }
 
+/*
+ * Checkout P0 scroll — COD SÂNGE (runtime-proven)
+ *
+ * FIRST preventer (iOS Safari): nested `.ckt-v1` / `.ckt-v1__main` with
+ * `overflow-y: auto` and height:auto. They become empty scrollports that
+ * capture touch without moving, so the document never scrolls.
+ *
+ * Correct model (same as View Item / PDP):
+ *   html/body = ONLY vertical scrollport (overflow-y:auto)
+ *   .ckt-v1 / shell / main = overflow:visible (must NOT be nested scrollports)
+ *   header sticky · Pay footer fixed · main padding clears footer
+ */
+html:has(.ckt-v1),
+body:has(.ckt-v1) {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100%;
+  overflow-x: clip !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+}
+
+body:has(.ckt-v1) {
+  /* layout.tsx uses flex flex-col — can trap vertical scroll on iOS Safari */
+  position: static !important;
+  display: block !important;
+}
+
+.checkout-v1-shell,
+.checkout-v1-shell.rx-page,
+body:has(.ckt-v1) .rx-page.checkout-v1-shell,
+.ckt-v1 {
+  min-height: 100dvh;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.ckt-v1 .ckt-v1__main,
+.ckt-v1 .ckt-v1__main.rx-scroll-page,
+.ckt-v1 .ckt-v1__main.rx-scroll-page--no-nav,
+.ckt-v1 .ckt-v1__main.rx-scroll-page--with-nav,
+.ckt-v1 main.ckt-v1__main {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0;
+  overflow: visible !important;
+  padding-bottom: var(--ckt-sticky-footer-clearance, calc(100px + env(safe-area-inset-bottom, 0px))) !important;
+  scroll-padding-bottom: var(
+    --ckt-sticky-footer-clearance,
+    calc(100px + env(safe-area-inset-bottom, 0px))
+  ) !important;
+}
+
+/* Keyboard: keep Checkout fields above sticky Pay */
+.ckt-v1 input:not([type="hidden"]):not([disabled]),
+.ckt-v1 textarea:not([disabled]),
+.ckt-v1 select:not([disabled]),
+.ckt-v1 [contenteditable="true"] {
+  scroll-margin-bottom: calc(
+    var(--ckt-sticky-footer-clearance, 100px) + 1rem
+  );
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4rem);
+}
+
 /* Keyboard: keep focused fields visible */
 input:not([type="hidden"]):not([disabled]),
 textarea:not([disabled]),

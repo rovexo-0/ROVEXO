@@ -20,7 +20,7 @@ export const ProductViewsLive = memo(function ProductViewsLive({
 
   return (
     <p className="pd-v1__views" data-view-live={slug} aria-label={label}>
-      <EyeLineIcon width={14} height={14} aria-hidden />
+      <EyeLineIcon width={16} height={16} aria-hidden />
       <span>{label}</span>
     </p>
   );

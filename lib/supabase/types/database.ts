@@ -5440,6 +5440,10 @@ export type Database = {
         Args: { p_product_id: string; p_quantity?: number }
         Returns: boolean
       }
+      restore_product_inventory_claim: {
+        Args: { p_product_id: string; p_quantity?: number }
+        Returns: boolean
+      }
       reserve_product_inventory: {
         Args: { p_product_id: string; p_quantity?: number }
         Returns: boolean

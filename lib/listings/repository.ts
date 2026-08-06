@@ -277,8 +277,11 @@ export async function getSellerListings(
       listings = listings.filter((listing) => listing.status === "sold");
       break;
     case "published":
+      // Active tab: published + paused (paused must remain visible in My Listings for Resume).
       listings = listings.filter(
-        (listing) => listing.status === "published" && listing.stock > 0,
+        (listing) =>
+          listing.status === "paused" ||
+          (listing.status === "published" && listing.stock > 0),
       );
       break;
     case "pending":
@@ -941,6 +944,10 @@ export async function duplicateSellerListing(
     price: existing.price,
     acceptOffers: existing.acceptOffers,
     categoryId: existing.categoryId,
+    freeDelivery: existing.freeDelivery,
+    shippingMethod: existing.shippingMethod ?? undefined,
+    shippingPrice: existing.shippingPrice,
+    parcelSize: existing.parcelSize ?? undefined,
     status: "draft",
     inventory: {
       sku: existing.sku ? `${existing.sku}-COPY` : null,

@@ -5,6 +5,7 @@ import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
 import { isBusinessVerifiedAccount } from "@/lib/verified/evaluate";
 import { SUPREME_BLOOD_CODE_XIII_V1 } from "@/lib/supreme-blood-code-xiii-v1";
 import { redirect } from "next/navigation";
+import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
 
 type WalletRouteProps = {
   searchParams: Promise<{ connect?: string }>;
@@ -16,6 +17,7 @@ type WalletRouteProps = {
  */
 export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   void SUPREME_BLOOD_CODE_XIII_V1.officialRoute;
+  await awaitCheckoutSessionSelfHeal("wallet");
   const profile = await fetchProfile();
 
   if (!profile) {

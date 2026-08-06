@@ -41,7 +41,7 @@ type ProductActionBarV1Props = {
 type ActionButtonProps = {
   label: string;
   icon?: ReactNode;
-  variant: "primary" | "secondary" | "danger" | "disabled";
+  variant: "primary" | "secondary" | "offer" | "danger" | "disabled";
   disabled?: boolean;
   loading?: boolean;
   onClick?: () => void;
@@ -64,6 +64,7 @@ function ActionButton({
         "pd-v1__action-btn",
         variant === "primary" && "pd-v1__action-btn--buy",
         variant === "secondary" && "pd-v1__action-btn--secondary",
+        variant === "offer" && "pd-v1__action-btn--offer",
         variant === "danger" && "pd-v1__action-btn--danger",
         variant === "disabled" && "pd-v1__action-btn--oos",
         loading && "pd-v1__action-btn--loading",
@@ -314,7 +315,7 @@ export const ProductActionBarV1 = memo(function ProductActionBarV1({
               key={button.id}
               label={PRODUCT_ACTION_BAR_COPY.makeOffer}
               icon={<TagLineIcon aria-hidden />}
-              variant="secondary"
+              variant="offer"
               disabled={offerDisabled || !onMakeOffer}
               onClick={onMakeOffer}
             />

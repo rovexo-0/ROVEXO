@@ -1,0 +1,82 @@
+/**
+ * My Listings overflow menu — presentation only (COD SÂNGE).
+ * Does not change card / page layout tokens.
+ */
+
+.ml-overflow-menu {
+  /* Portaled to document.body — fixed avoids .cds-card overflow:hidden clip */
+  position: fixed;
+  z-index: 40;
+  min-width: 212px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 8px 24px rgb(15 23 42 / 0.12);
+  overflow: hidden;
+  transform-origin: top right;
+  animation: ml-overflow-in 150ms ease forwards;
+}
+
+@keyframes ml-overflow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-overflow-menu {
+    animation: none;
+  }
+}
+
+.ml-overflow-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  border: 0;
+  border-bottom: 1px solid #eeeeee;
+  background: #ffffff;
+  color: #111111;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ml-overflow-menu__item:last-child {
+  border-bottom: 0;
+}
+
+.ml-overflow-menu__item:hover,
+.ml-overflow-menu__item:focus-visible {
+  background: #f7f7f8;
+  outline: none;
+}
+
+.ml-overflow-menu__item:active {
+  background: #f0f0f2;
+}
+
+.ml-overflow-menu__item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ml-overflow-menu__item--danger {
+  color: #dc2626;
+  font-weight: 400;
+}

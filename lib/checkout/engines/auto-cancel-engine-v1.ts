@@ -20,6 +20,9 @@ export { BUY_NOW_AUTO_CANCEL_MINUTES, CHECKOUT_SESSION_TTL_SECONDS };
 export async function AUTO_CANCEL_ENGINE_run(): Promise<{
   cancelled: number;
   sessionsExpired: number;
+  sessionsRestored: number;
+  sessionsFailed: number;
+  ok: boolean;
 }> {
   const sessions = await CHECKOUT_SESSION_ENGINE_expireAll();
 
@@ -43,9 +46,15 @@ export async function AUTO_CANCEL_ENGINE_run(): Promise<{
 
   FINANCIAL_LOGGER(
     "FINISHED",
-    `auto-cancelled=${cancelled} sessions-expired=${sessions.expired}`,
+    `auto-cancelled=${cancelled} sessions-expired=${sessions.expired} restored=${sessions.restored} failures=${sessions.failures} ok=${sessions.ok}`,
   );
-  return { cancelled, sessionsExpired: sessions.expired };
+  return {
+    cancelled,
+    sessionsExpired: sessions.expired,
+    sessionsRestored: sessions.restored,
+    sessionsFailed: sessions.failures,
+    ok: sessions.ok,
+  };
 }
 
 export async function AUTO_CANCEL_ENGINE_cancelOrder(

@@ -9,6 +9,8 @@ import { focusRing } from "@/components/ui/tokens";
 type ProductGalleryV1Props = {
   images: string[];
   title: string;
+  /** Percent off when originalPrice > price (e.g. 12 → "-12%"). */
+  discountPercent?: number | null;
 };
 
 type PinchTransform = {
@@ -144,7 +146,8 @@ function PinchZoomSlide({
           priority={priority}
           sizes="100vw"
           quality={90}
-          className="object-contain"
+          className="pd-v1__lightbox-image object-contain"
+          style={{ objectFit: "contain" }}
           draggable={false}
         />
       </div>
@@ -155,6 +158,7 @@ function PinchZoomSlide({
 export const ProductGalleryV1 = memo(function ProductGalleryV1({
   images: rawImages,
   title,
+  discountPercent = null,
 }: ProductGalleryV1Props) {
   const images = useMemo(() => rawImages.filter(isRenderableImageSrc), [rawImages]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -301,8 +305,13 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
             ))}
           </div>
           <span className="pd-v1__gallery-counter" aria-live="polite">
-            {activeIndex + 1} / {images.length}
+            {activeIndex + 1}/{images.length}
           </span>
+          {discountPercent != null && discountPercent > 0 ? (
+            <span className="pd-v1__gallery-discount" aria-label={`${discountPercent} percent off`}>
+              -{discountPercent}%
+            </span>
+          ) : null}
         </div>
 
         {images.length > 1 ? (
@@ -321,7 +330,7 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
                   scrollMainTo(index);
                 }}
               >
-                <SafeImage src={image} alt="" fill loading="lazy" sizes="56px" className="object-cover" />
+                <SafeImage src={image} alt="" fill loading="lazy" sizes="64px" className="object-cover" />
               </button>
             ))}
           </div>

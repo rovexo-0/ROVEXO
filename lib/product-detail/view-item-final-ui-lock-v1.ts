@@ -1,35 +1,50 @@
 /**
- * ROVEXO VIEW ITEM — FINAL UI LOCK + OWNER UI/UX FREEZE (COD SÂNGE)
+ * ROVEXO VIEW ITEM — FINAL UI LOCK + OWNER FREEZE CERTIFICATE (COD SÂNGE)
  *
- * STATUS: FROZEN · OWNER LOCKED
+ * STATUS: PRODUCTION UI LOCK ACTIVE
+ * CANONICAL VERSION: view-item-v2.0-final
  * Route: /listing/[slug]
  * UI: features/product-detail/ProductDetailPage.tsx
  * Freeze SSOT: lib/product-detail/view-item-ui-ux-freeze-v1.ts
  *
  * Do NOT redesign · Do NOT move sections · Do NOT change spacing/buttons.
- * Future Bundle / Multi-Stock / Offers / Checkout extend this layout only.
+ * Post-freeze: bug · security · a11y · performance · browser only.
+ * NO COMMIT / PUSH / DEPLOY until Owner unfreeze approval.
  */
 
 export const VIEW_ITEM_FINAL_UI_LOCK_V1 = {
-  version: "1.0",
-  status: "FROZEN",
+  version: "2.0",
+  canonicalVersion: "view-item-v2.0-final",
+  status: "PRODUCTION_UI_LOCK_ACTIVE",
+  freezeStatus: "FROZEN",
   ownerApproved: true,
+  ownerVerified: true,
   freezeLocked: true,
+  productionReady: true,
   uiUxFreeze: "lib/product-detail/view-item-ui-ux-freeze-v1.ts",
   route: "/listing/[slug]",
   officialLocal: "http://localhost:3000/listing/[slug]",
   parentFreeze: "lib/product-detail/product-page-canonical-freeze-v1.ts",
   page: "features/product-detail/ProductDetailPage.tsx",
 
+  lockedComponents: [
+    "ProductPageChrome",
+    "ProductGalleryV1",
+    "ProductDescriptionV1",
+    "ProductInformationRows",
+    "ProductStockStatus",
+    "ProductActionBarV1",
+  ] as const,
+
   /** Exact scroll order — Product Information rows are dynamic (populated only). */
   layoutOrder: [
     "Image Gallery",
     "Title",
     "Price",
-    "Stock Status",
     "Total incl.",
     "View Counter",
     "Seller Card",
+    "Stock Status",
     "Description",
     "Product Information (dynamic field map)",
     "Quantity (stock > 1 only)",
@@ -54,9 +69,10 @@ export const VIEW_ITEM_FINAL_UI_LOCK_V1 = {
   ] as const,
 
   stock: {
-    displayOnceUnderPrice: true,
+    displayOnceUnderPrice: false,
+    displayBelowSeller: true,
     forbiddenInSpecificationTable: true,
-    copyInStock: "✓ In Stock",
+    copyInStock: "In Stock",
     copyOnlyOne: "Only 1 available",
     copyNAvailable: "{n} available",
   } as const,
@@ -87,6 +103,21 @@ export const VIEW_ITEM_FINAL_UI_LOCK_V1 = {
   actions: {
     fixedBottom: true,
     redesignForbidden: true,
+  } as const,
+
+  lightbox: {
+    fullscreen: true,
+    swipe: true,
+    zoom: true,
+    counter: true,
+    closeButton: true,
+    imageMustRender: true,
+  } as const,
+
+  changeControl: {
+    commit: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
+    push: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
+    deploy: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
   } as const,
 } as const;
 

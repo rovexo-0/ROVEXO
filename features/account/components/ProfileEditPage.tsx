@@ -18,6 +18,7 @@ import {
   ACCOUNT_SETTINGS_USERNAME_UNAVAILABLE,
   accountSettingsExtrasStorageKey,
   formatDobDisplay,
+  formatDobInputAsTyping,
   formatUsernameDisplay,
   isAccountSettingsFormDirty,
   isAtLeastAge,
@@ -249,7 +250,18 @@ export function ProfileEditPage({
 
     if (snapshot.dob.trim()) {
       const parsedDob = parseDobDdMmYyyy(snapshot.dob);
-      if (!parsedDob || !isAtLeastAge(parsedDob)) {
+      if (!parsedDob) {
+        captureScroll();
+        setForm(currentBaseline);
+        snapshotRef.current = currentBaseline;
+        setEditor("dob");
+        setSaveStatus("error");
+        setSaveMessage("Enter date of birth as DD/MM/YYYY.");
+        restoreScroll();
+        scheduleDismiss(ACCOUNT_SETTINGS_ERROR_DISMISS_MS);
+        return;
+      }
+      if (!isAtLeastAge(parsedDob)) {
         captureScroll();
         setForm(currentBaseline);
         snapshotRef.current = currentBaseline;
@@ -415,7 +427,7 @@ export function ProfileEditPage({
         return;
       }
       try {
-        const response = await fetch(`/api/profile/username-available?username=${encodeURIComponent(clean)}`);
+        const response = await fetch(`/api/profile/username?username=${encodeURIComponent(clean)}`);
         const payload = (await response.json().catch(() => null)) as { available?: boolean } | null;
         if (!response.ok) {
           setUsernameOk(false);
@@ -592,10 +604,12 @@ export function ProfileEditPage({
               label="Date of Birth"
               value={form.dob}
               placeholder="DD/MM/YYYY"
-              onChange={(event) => updateField("dob", event.target.value)}
+              inputMode="numeric"
+              autoComplete="bday"
+              onChange={(event) => updateField("dob", formatDobInputAsTyping(event.target.value))}
               onBlur={scheduleSave}
             />
-            <p className="as-v1-hint">Minimum age 18+.</p>
+            <p className="as-v1-hint">Minimum age 18+ · DD/MM/YYYY</p>
           </SettingsRow>
 
           <SettingsRow

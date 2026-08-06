@@ -7,13 +7,13 @@
 .account-canonical:has(.inbox-hub) .account-canonical-header__bar--titled {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  grid-template-columns: 40px 1fr 48px;
   gap: 8px;
   align-items: center;
   width: 100%;
   max-width: none;
-  min-height: calc(44px + env(safe-area-inset-top, 0px));
-  height: calc(44px + env(safe-area-inset-top, 0px));
+  min-height: calc(48px + env(safe-area-inset-top, 0px));
+  height: calc(48px + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
   /* Header → Tabs gap owned by content padding-top (12px) — no extra header bottom pad. */
   padding-bottom: 0;
@@ -25,8 +25,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
 }
 
@@ -34,9 +34,9 @@
 .account-canonical:has(.inbox-hub) .account-canonical-header__spacer {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
+  justify-content: flex-end;
+  width: 48px;
+  height: 48px;
 }
 
 .account-canonical:has(.inbox-hub) .account-canonical-header__action a,
@@ -173,6 +173,13 @@
   padding: 6px 4px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.inbox-hub__mark-all-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 0 var(--inbox-pad-x, 16px) 8px;
 }
 
 .inbox-hub__mark-all:disabled {

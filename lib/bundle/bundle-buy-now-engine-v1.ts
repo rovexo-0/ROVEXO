@@ -29,8 +29,7 @@ import { AUTO_CANCEL_ENGINE_run } from "@/lib/checkout/engines/auto-cancel-engin
 import { amountsMatch } from "@/lib/checkout/buy-now-absolute-law-v1";
 import { revalidateBundleForCheckout } from "@/lib/bundle/bundle-checkout-integrity-v1";
 import {
-  releaseBundleInventoryAtomic,
-  reserveBundleInventoryAtomic,
+  verifyBundleInventoryAvailable,
 } from "@/lib/bundle/bundle-reservation-engine-v1";
 import {
   allocateLockedBundleLinePrices,
@@ -296,7 +295,7 @@ export async function BUNDLE_BUY_NOW_ENGINE(input: {
     await CHECKOUT_SESSION_ENGINE_destroy({ session: existing, status: "cancelled" });
   }
 
-  const reserved = await reserveBundleInventoryAtomic(snapshot);
+  const reserved = await verifyBundleInventoryAvailable(snapshot);
   if (!reserved.ok) {
     return fail("RVX-2007", reserved.message);
   }
@@ -317,7 +316,6 @@ export async function BUNDLE_BUY_NOW_ENGINE(input: {
   });
 
   if (!sessionResult.ok) {
-    await releaseBundleInventoryAtomic(reserved.handle);
     return fail("RVX-2008", sessionResult.reason);
   }
 

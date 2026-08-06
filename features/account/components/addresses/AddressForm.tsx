@@ -8,7 +8,6 @@ import {
   CanonicalSwitch,
 } from "@/src/components/canonical";
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
-import { MY_ACCOUNT_PRIMARY_BUTTON_DOM } from "@/lib/design-system/my-account-primary-button-v1";
 import type { AddressInput } from "@/lib/account/schemas";
 import type { UkLookupResult } from "@/features/account/components/addresses/types";
 import { cn } from "@/lib/cn";
@@ -38,19 +37,18 @@ type AddressFormProps = {
   watchedLine2?: string;
   watchedCity?: string;
   watchedPostcode?: string;
+  /** Blocks Enter-key form submit; save is lookup-select only. */
   onSubmit: FormEventHandler<HTMLFormElement>;
-  onCancel: () => void;
-  onDelete?: () => void;
 };
 
 /**
  * Personal Add / Edit Address form (Owner contract fields).
+ * Address Lookup: select → populate → save immediately (no Save / Cancel).
  */
 export function AddressForm({
   register,
   errors,
   isSubmitting,
-  isEditing,
   isDefault,
   setValue,
   extras,
@@ -67,7 +65,6 @@ export function AddressForm({
   watchedCity,
   watchedPostcode,
   onSubmit,
-  onCancel,
 }: AddressFormProps) {
   return (
     <form className="addresses-v1-form" onSubmit={onSubmit} noValidate data-addresses-form="personal">
@@ -94,13 +91,25 @@ export function AddressForm({
         label="Postcode"
         value={lookupPostcode}
         onChange={(event) => onLookupPostcodeChange(event.target.value)}
+        disabled={isSubmitting}
       />
-      <CanonicalButton type="button" fullWidth loading={lookupLoading} onClick={onSearch}>
+      <CanonicalButton
+        type="button"
+        fullWidth
+        loading={lookupLoading}
+        disabled={isSubmitting}
+        onClick={onSearch}
+      >
         {lookupLoading ? "Searching…" : "Search Address"}
       </CanonicalButton>
 
       {lookupResults.length ? (
-        <ul className="addresses-v1-lookup-results" role="listbox" aria-label="Select Address">
+        <ul
+          className="addresses-v1-lookup-results"
+          role="listbox"
+          aria-label="Select Address"
+          aria-busy={isSubmitting || undefined}
+        >
           {lookupResults.map((result) => {
             const selected =
               lookupSelected &&
@@ -112,13 +121,14 @@ export function AddressForm({
                   type="button"
                   role="option"
                   aria-selected={selected}
+                  disabled={isSubmitting}
                   className={cn(
                     "addresses-v1-lookup-result",
                     selected && "addresses-v1-lookup-result--selected",
                   )}
                   onClick={() => onSelectLookup(result)}
                 >
-                  {result.label}
+                  {isSubmitting && selected ? "Saving…" : result.label}
                 </button>
               </li>
             );
@@ -148,6 +158,7 @@ export function AddressForm({
         label="County (optional)"
         value={extras.county}
         onChange={(event) => onExtrasChange({ county: event.target.value })}
+        disabled={isSubmitting}
       />
       <CanonicalInput
         id="phone"
@@ -156,6 +167,7 @@ export function AddressForm({
         value={extras.phone}
         onChange={(event) => onExtrasChange({ phone: event.target.value })}
         autoComplete="tel"
+        disabled={isSubmitting}
       />
 
       <CanonicalSwitch
@@ -163,21 +175,12 @@ export function AddressForm({
         label="Set as default"
         checked={Boolean(isDefault)}
         onChange={(checked) => setValue("isDefault", checked, { shouldDirty: true })}
+        disabled={isSubmitting}
       />
 
-      <div className="addresses-v1-form__actions">
-        <CanonicalButton
-          type="submit"
-          fullWidth
-          loading={isSubmitting}
-          data-my-account-primary={MY_ACCOUNT_PRIMARY_BUTTON_DOM}
-        >
-          {isSubmitting ? "Saving…" : isEditing ? "Save Changes" : "Save Address"}
-        </CanonicalButton>
-        <CanonicalButton type="button" variant="ghost" fullWidth onClick={onCancel}>
-          Cancel
-        </CanonicalButton>
-      </div>
+      <p className="sr-only" aria-live="polite">
+        {isSubmitting ? "Saving address…" : null}
+      </p>
     </form>
   );
 }

@@ -247,9 +247,9 @@ export function maskPhoneNumber(phone: string | null | undefined): string {
   return `${prefix}${stars}${suffix}`;
 }
 
-/** Parse DD/MM/YYYY → Date or null. */
+/** Parse DD/MM/YYYY or DD-MM-YYYY → Date or null. */
 export function parseDobDdMmYyyy(value: string): Date | null {
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  const match = /^(\d{2})[/-](\d{2})[/-](\d{4})$/.exec(value.trim());
   if (!match) return null;
   const day = Number(match[1]);
   const month = Number(match[2]);
@@ -263,6 +263,17 @@ export function parseDobDdMmYyyy(value: string): Date | null {
     return null;
   }
   return date;
+}
+
+/**
+ * Auto-format DOB while typing → DD/MM/YYYY.
+ * Accepts digits and optional / or - separators; inserts / as the user types.
+ */
+export function formatDobInputAsTyping(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
 /** Display: 22 January 1988 */

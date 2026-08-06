@@ -23,6 +23,11 @@ import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 import { mfaChallengeHref, readMfaAssurance } from "@/lib/auth/mfa";
+import {
+  authVerifyEmailRedirectUrl,
+  isEmailConfirmationOtpType,
+} from "@/lib/auth/email-verification-ux-v1";
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 /** Canonical Register consent = Terms (mandatory) + Marketing (optional). GDPR UI permanently removed (AUTH UI v1.2). */
 const registerSchema = z
@@ -60,6 +65,66 @@ export type AuthActionState = {
 
 function authCallbackUrl(next: string): string {
   return `${getAppUrl()}/auth/callback?next=${encodeURIComponent(sanitizeNextPath(next))}`;
+}
+
+/** Email confirmation landing — branded `/verify-email` (never Supabase hosted UI). */
+function authEmailVerificationRedirectUrl(): string {
+  return authVerifyEmailRedirectUrl(getAppUrl());
+}
+
+export type ConfirmEmailVerificationResult =
+  | { ok: true }
+  | { ok: false; reason: "expired" | "invalid" };
+
+/**
+ * Token validation for email confirmation — same verifyOtp / exchangeCodeForSession
+ * as `/auth/callback`, branded UX only. Never returns raw Supabase errors.
+ */
+export async function confirmEmailVerification(input: {
+  tokenHash?: string | null;
+  type?: string | null;
+  code?: string | null;
+}): Promise<ConfirmEmailVerificationResult> {
+  const supabase = await createClient();
+  const tokenHash = input.tokenHash?.trim() || null;
+  const otpType = input.type?.trim() || null;
+  const code = input.code?.trim() || null;
+
+  if (tokenHash && otpType && isEmailConfirmationOtpType(otpType)) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: otpType as "email" | "signup" | "invite" | "email_change",
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      return {
+        ok: false,
+        reason: normalized.includes("expired") ? "expired" : "invalid",
+      };
+    }
+  } else if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      return {
+        ok: false,
+        reason: normalized.includes("expired") ? "expired" : "invalid",
+      };
+    }
+  } else {
+    return { ok: false, reason: "invalid" };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user?.id) {
+    await syncAutoVerifiedProfile(user.id);
+  }
+
+  revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 async function clientIpFromHeaders(): Promise<string> {
@@ -109,7 +174,7 @@ export async function signUp(
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: authCallbackUrl("/"),
+      emailRedirectTo: authEmailVerificationRedirectUrl(),
     },
   });
 
@@ -479,7 +544,7 @@ export async function resendVerificationEmail(
     type: "signup",
     email: parsed.data.email,
     options: {
-      emailRedirectTo: authCallbackUrl("/"),
+      emailRedirectTo: authEmailVerificationRedirectUrl(),
     },
   });
 

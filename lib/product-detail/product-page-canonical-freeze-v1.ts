@@ -1,22 +1,28 @@
 /**
- * ROVEXO v1.0 — PRODUCT PAGE / VIEW ITEM OWNER UI/UX FREEZE
+ * ROVEXO v1.0 — PRODUCT PAGE / VIEW ITEM OWNER FREEZE CERTIFICATE
  *
- * STATUS: FROZEN · OWNER LOCKED · CANONICAL (VIEW ITEM v1.0)
+ * STATUS: PRODUCTION UI LOCK ACTIVE
+ * CANONICAL VERSION: view-item-v2.0-final
  * Route: /listing/[slug]
  * UI: features/product-detail/ProductDetailPage.tsx
  * Freeze: lib/product-detail/view-item-ui-ux-freeze-v1.ts
  *
  * Absolute: Less is more. Premium > complexity. If it looks premium, do not touch it.
  * Delivery on View Item: REMOVED (Checkout / Order Tracking only).
- * Bug fixes only after freeze — no UI/UX redesign without Owner lift.
+ * Post-freeze: bug · security · a11y · performance · browser only.
+ * NO COMMIT / PUSH / DEPLOY until Owner unfreeze approval.
  */
 
 export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   version: "cod-sange-v3.1",
-  status: "FROZEN",
-  viewItemVersion: "1.0",
+  status: "PRODUCTION_UI_LOCK_ACTIVE",
+  freezeStatus: "FROZEN",
+  viewItemVersion: "2.0",
+  canonicalVersion: "view-item-v2.0-final",
   ownerCertified: true,
+  ownerVerified: true,
   freezeLocked: true,
+  productionReady: true,
   viewItemUiUxFreeze: "lib/product-detail/view-item-ui-ux-freeze-v1.ts",
   viewItemFinalUiLock: "lib/product-detail/view-item-final-ui-lock-v1.ts",
   officialLocal: "http://localhost:3000/listing/[slug]",
@@ -28,14 +34,15 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
     "DELETE Shipping calculated at checkout",
     "DELETE Delivery section from View Item",
     "DELETE Old Header",
-    "Transparent chrome ← / •••",
-    "Views right-aligned",
-    "£incl. only",
-    "Stock once under price",
+    "Overlay chrome ← / ♥ / •••",
+    "Views right-aligned with price",
+    "£incl. green under price",
+    "Stock line below seller (green dot)",
     "Seller Card before Description",
     "Quantity only when stock > 1",
     "Dynamic Product Information field map",
     "Document scroll clears sticky actions",
+    "Make Offer solid green · Buy Now solid purple",
   ] as const,
   deliveryRemovedFromViewItem: true,
   lockedLayoutOrder: [
@@ -101,15 +108,22 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
     "unnecessary text",
     "colour redesign",
   ] as const,
+  changeControl: {
+    commit: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
+    push: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
+    deploy: "FORBIDDEN_UNTIL_OWNER_UNFREEZE",
+  } as const,
   productionGatesBeforeCommit: [
     "TypeScript",
     "ESLint",
     "Build",
+    "Related tests",
     "Responsive QA",
     "Mobile QA",
     "Desktop QA",
     "Regression Testing",
     "Owner Approval",
+    "Owner Unfreeze Approval",
   ] as const,
   ssot: {
     freeze: "lib/product-detail/product-page-canonical-freeze-v1.ts",

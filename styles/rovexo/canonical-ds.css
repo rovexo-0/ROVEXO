@@ -181,23 +181,37 @@
   min-height: 48px;
 }
 
-/* Account module header — compact premium ~44px (Owner). Token --fw-header-height stays 64 for contract SSOT. */
+/* Account module header — ROVEXO Header Standard v1.0 (Orders SSOT). */
 .account-canonical-header__bar {
   display: flex;
   align-items: center;
-  min-height: 44px;
-  height: 44px;
+  min-height: 48px;
+  height: 48px;
   padding: max(var(--cds-space-safe-top), 4px) var(--cds-space-page-x) 0;
 }
 
 .account-canonical-header__bar--titled {
+  box-sizing: border-box;
   display: grid;
-  min-height: 44px;
-  height: 44px;
-  grid-template-columns: 44px 1fr 44px;
+  min-height: 48px;
+  height: 48px;
+  grid-template-columns: 40px 1fr 48px;
   align-items: center;
   gap: 8px;
   padding: max(var(--cds-space-safe-top), 4px) var(--cds-space-page-x) 4px;
+}
+
+.account-canonical-header--titled .cds-header__back {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 12px;
+}
+
+.account-canonical-header--titled .cds-header__back svg {
+  width: 22px;
+  height: 22px;
 }
 
 .account-canonical-header__title {
@@ -207,22 +221,23 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
-  color: var(--cds-color-text-primary);
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .account-canonical-header__spacer {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
 }
 
 .account-canonical-header__action {
   display: inline-flex;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .account-canonical-header__action--trail {
@@ -232,22 +247,21 @@
 .account-canonical-header__action a,
 .account-canonical-header__action button {
   display: inline-flex;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 12px;
+  border-radius: 999px;
   background: transparent;
-  color: var(--cds-color-text-primary);
+  color: #111111;
   text-decoration: none;
   cursor: pointer;
-  transition: background 200ms ease, color 200ms ease;
 }
 
 .account-canonical-header__action a:hover,
 .account-canonical-header__action button:hover {
-  background: rgb(15 23 42 / 0.05);
+  background: transparent;
 }
 
 .account-canonical-header__action a:focus-visible,
@@ -257,8 +271,8 @@
 }
 
 .account-canonical-header__action svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .cds-layout--account-canonical .cds-layout__content--account-canonical {

@@ -380,9 +380,95 @@ export async function replyToReview(
   return { review: mapReview(updated) };
 }
 
+async function enrichSellerReviewsForStore(reviews: Review[]): Promise<Review[]> {
+  if (reviews.length === 0) return reviews;
+
+  const admin = createAdminClient();
+  const productIds = [
+    ...new Set(reviews.map((r) => r.productId).filter((id): id is string => Boolean(id))),
+  ];
+  const orderIds = [...new Set(reviews.map((r) => r.orderId).filter(Boolean))];
+
+  const productById = new Map<
+    string,
+    { slug: string; title: string; imageUrl: string | null }
+  >();
+  const orderById = new Map<
+    string,
+    { status: string; buyerId: string; productIds: Set<string> }
+  >();
+
+  if (productIds.length > 0) {
+    const { data: products } = await admin
+      .from("products")
+      .select("id, slug, title, product_images ( url, thumbnail_url, sort_order, is_primary )")
+      .in("id", productIds);
+
+    for (const row of products ?? []) {
+      const images = [...((row.product_images as Array<Record<string, unknown>>) ?? [])].sort(
+        (a, b) =>
+          Number(b.is_primary) - Number(a.is_primary) ||
+          Number(a.sort_order) - Number(b.sort_order),
+      );
+      const primary = images[0];
+      productById.set(String(row.id), {
+        slug: String(row.slug ?? ""),
+        title: String(row.title ?? ""),
+        imageUrl:
+          (primary?.thumbnail_url as string | undefined) ??
+          (primary?.url as string | undefined) ??
+          null,
+      });
+    }
+  }
+
+  if (orderIds.length > 0) {
+    const { data: orders } = await admin
+      .from("orders")
+      .select("id, status, buyer_id, order_items ( product_id )")
+      .in("id", orderIds);
+
+    for (const row of orders ?? []) {
+      const itemProductIds = new Set(
+        ((row.order_items as Array<{ product_id?: string }> | null) ?? [])
+          .map((item) => item.product_id)
+          .filter((id): id is string => Boolean(id)),
+      );
+      orderById.set(String(row.id), {
+        status: String(row.status ?? ""),
+        buyerId: String(row.buyer_id ?? ""),
+        productIds: itemProductIds,
+      });
+    }
+  }
+
+  return reviews.map((review) => {
+    const product = review.productId ? productById.get(review.productId) : undefined;
+    const order = orderById.get(review.orderId);
+    const listingMatches =
+      Boolean(review.productId) &&
+      (order?.productIds.has(review.productId!) ||
+        (!order?.productIds.size && Boolean(review.productId)));
+    const verifiedPurchase = Boolean(
+      order &&
+        order.status === "completed" &&
+        order.buyerId === review.reviewerId &&
+        listingMatches,
+    );
+
+    return {
+      ...review,
+      verifiedPurchase,
+      productSlug: product?.slug || null,
+      productImageUrl: product?.imageUrl ?? null,
+      productTitle: product?.title ?? null,
+    };
+  });
+}
+
 export async function listSellerReviews(
   sellerId: string,
-  limit = 20,
+  limit = 50,
 ): Promise<Review[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -397,12 +483,14 @@ export async function listSellerReviews(
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  return (data ?? []).map((row) =>
+  const mapped = (data ?? []).map((row) =>
     mapReview({
       ...row,
       reviewer: row.reviewer as { full_name: string; avatar_url?: string | null } | null,
     }),
   );
+
+  return enrichSellerReviewsForStore(mapped);
 }
 
 export async function listOrderReviews(

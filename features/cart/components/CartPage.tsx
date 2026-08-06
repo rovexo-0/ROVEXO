@@ -151,21 +151,19 @@ export function CartPage({ cart }: CartPageProps) {
       backHref="/"
       showHeaderTitle
       className="cart-v1-shell"
-      rightAction={
-        cart.items.length > 0 ? (
-          <button
-            type="button"
-            className="cart-v1__edit min-h-12 px-ds-2 text-sm font-semibold text-primary"
-            onClick={() => setEditMode((value) => !value)}
-          >
-            {editMode ? "Done" : "Edit"}
-          </button>
-        ) : (
-          <span aria-hidden className="w-12" />
-        )
-      }
     >
       <div className="cart-v1" data-cart-version="v1.0">
+        {cart.items.length > 0 ? (
+          <div className="cart-v1__toolbar">
+            <button
+              type="button"
+              className="cart-v1__edit min-h-12 px-ds-2 text-sm font-semibold text-primary"
+              onClick={() => setEditMode((value) => !value)}
+            >
+              {editMode ? "Done" : "Edit"}
+            </button>
+          </div>
+        ) : null}
         <ScrollContainer as="div" withBottomNav className="cart-v1__main">
           {cart.items.length === 0 ? (
             <EmptyState

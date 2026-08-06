@@ -132,4 +132,33 @@ export async function register() {
   runStartupCertificationGate("Suggest SSOT Runtime Catalog Index", () => {
     assertRuntimeCatalogIndexOrBlock();
   });
+
+  /**
+   * Checkout inventory crash recovery — expire ALL stale sessions + heal
+   * orphan reserved listings (Absolute Law: no reserved without paid order).
+   * Non-blocking: never fail boot if cleanup errors.
+   */
+  try {
+    const { CHECKOUT_SESSION_ENGINE_expireAll } = await import(
+      "@/lib/checkout/engines/checkout-session-engine-v1"
+    );
+    void CHECKOUT_SESSION_ENGINE_expireAll()
+      .then((result) => {
+        console.info(
+          `[RVX][INVENTORY] startup expireAll expired=${result.expired} restored=${result.restored} failures=${result.failures} ok=${result.ok}`,
+        );
+        if (!result.ok) {
+          console.error(
+            `[RVX][INVENTORY] startup expireAll incomplete failures=${result.failures}`,
+          );
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "expireAll failed";
+        console.error(`[RVX][INVENTORY] startup expireAll failed reason=${message}`);
+      });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "expireAll import failed";
+    console.error(`[RVX][INVENTORY] startup expireAll unavailable reason=${message}`);
+  }
 }
