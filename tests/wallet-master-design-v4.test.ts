@@ -27,8 +27,8 @@ describe("Wallet Master Design System Contract v4.0 — Profile inheritance", ()
   it("Payment Methods and Bank Accounts share Profile chrome", () => {
     const payments = readSource("features/wallet/components/WalletPaymentMethodsPage.tsx");
     const banks = readSource("features/wallet/components/WalletBankAccountsPage.tsx");
-    expect(payments).toContain("WalletHelpHeaderAction");
-    expect(banks).toContain("WalletHelpHeaderAction");
+    expect(payments).toContain("AccountCanonicalShell");
+    expect(banks).toContain("AccountCanonicalShell");
     expect(payments).toContain('data-design-master="profile"');
     expect(banks).toContain('data-design-master="profile"');
     expect(payments).toContain("CanonicalMenuRow");
@@ -52,8 +52,9 @@ describe("Wallet Master Design System Contract v4.0 — Profile inheritance", ()
     // Payment Methods + Bank Accounts v5 — Fail Closed v2: soft Empty State, never Retry panel
     const pmError = readSource("app/(platform)/wallet/payment-methods/error.tsx");
     expect(pmError).toContain("AccountCanonicalShell");
-    expect(pmError).toContain("No payment methods added yet.");
+    expect(pmError).toContain("No cards added yet");
     expect(pmError).not.toContain("FailClosedPanel");
+    expect(pmError).not.toContain("Card setup is temporarily paused");
     const baError = readSource("app/(platform)/wallet/bank-accounts/error.tsx");
     expect(baError).toContain("AccountCanonicalShell");
     expect(baError).toContain("Add Bank Account");

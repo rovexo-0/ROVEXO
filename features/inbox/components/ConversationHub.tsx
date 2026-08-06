@@ -31,6 +31,7 @@ import {
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useToast } from "@/components/ui/Toast";
+import { ProductFullscreenImageViewer } from "@/features/product-detail/ProductFullscreenImageViewer";
 import { cn } from "@/lib/cn";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
@@ -144,7 +145,13 @@ type LoadState = "ready" | "loading" | "error" | "offline";
 
 const HISTORY_PAGE = 40;
 
-function MessagePhotoBubble({ content }: { content: string }) {
+function MessagePhotoBubble({
+  content,
+  onOpen,
+}: {
+  content: string;
+  onOpen: (originalUrl: string) => void;
+}) {
   const [src, setSrc] = useState<string | null>(() =>
     isRenderableMessagePhotoSrc(content) ? content : null,
   );
@@ -174,14 +181,21 @@ function MessagePhotoBubble({ content }: { content: string }) {
 
   if (src && isRenderableImageSrc(src)) {
     return (
-      <SafeImage
-        src={src}
-        alt=""
-        width={200}
-        height={200}
-        className="conv-hub__bubble-photo"
-        sizes="200px"
-      />
+      <button
+        type="button"
+        className="conv-hub__bubble-photo-btn"
+        aria-label="Open photo fullscreen"
+        onClick={() => onOpen(src)}
+      >
+        <SafeImage
+          src={src}
+          alt=""
+          width={200}
+          height={200}
+          className="conv-hub__bubble-photo"
+          sizes="200px"
+        />
+      </button>
     );
   }
 
@@ -196,10 +210,12 @@ function MessageBubble({
   message,
   avatarSrc,
   avatarName,
+  onOpenPhoto,
 }: {
   message: ChatMessage;
   avatarSrc?: string | null;
   avatarName: string;
+  onOpenPhoto: (originalUrl: string) => void;
 }) {
   /** Canonical mockup: Buyer left · Seller right. */
   const isBuyer = message.senderRole === "buyer";
@@ -220,7 +236,11 @@ function MessageBubble({
       {isBuyer ? avatar : null}
       <div className="conv-hub__msg-stack">
         <div className={cn("conv-hub__bubble", isBuyer ? "conv-hub__bubble--buyer" : "conv-hub__bubble--seller")}>
-          {isPhoto ? <MessagePhotoBubble content={message.content} /> : content}
+          {isPhoto ? (
+            <MessagePhotoBubble content={message.content} onOpen={onOpenPhoto} />
+          ) : (
+            content
+          )}
         </div>
         <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
@@ -315,6 +335,12 @@ export function ConversationHub({
   }, [pushToast]);
 
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
+  const [imageViewer, setImageViewer] = useState<{
+    open: boolean;
+    images: string[];
+    initialIndex: number;
+    title: string;
+  }>({ open: false, images: [], initialIndex: 0, title: "Photo" });
   const [labelViewer, setLabelViewer] = useState<{
     pdfUrl: string | null;
     orderId: string;
@@ -1697,13 +1723,30 @@ export function ConversationHub({
             }}
           >
             <span className="conv-hub__product-thumb">
-              <SafeImage
-                src={view.product.imageUrl || "/placeholder-product.svg"}
-                alt={view.product.title}
-                fill
-                sizes="52px"
-                className="conv-hub__product-thumb-img"
-              />
+              <button
+                type="button"
+                className="conv-hub__product-thumb-btn"
+                aria-label={`Open ${view.product.title} photo fullscreen`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const url = view.product.imageUrl;
+                  if (!isRenderableImageSrc(url)) return;
+                  setImageViewer({
+                    open: true,
+                    images: [url],
+                    initialIndex: 0,
+                    title: view.product.title,
+                  });
+                }}
+              >
+                <SafeImage
+                  src={view.product.imageUrl || "/placeholder-product.svg"}
+                  alt={view.product.title}
+                  fill
+                  sizes="52px"
+                  className="conv-hub__product-thumb-img"
+                />
+              </button>
             </span>
             <span className="conv-hub__product-body">
               <span className="conv-hub__product-title">{view.product.title}</span>
@@ -1970,6 +2013,14 @@ export function ConversationHub({
                     message={item.message}
                     avatarSrc={msgAvatar.src}
                     avatarName={msgAvatar.name}
+                    onOpenPhoto={(originalUrl) => {
+                      setImageViewer({
+                        open: true,
+                        images: [originalUrl],
+                        initialIndex: 0,
+                        title: "Photo",
+                      });
+                    }}
                   />
                 );
               })
@@ -2144,6 +2195,13 @@ export function ConversationHub({
           offerId={acceptedOffer?.id ?? null}
           acceptedOfferPrice={acceptedOffer?.amount ?? null}
           sessionUnavailable={demoMode}
+        />
+        <ProductFullscreenImageViewer
+          open={imageViewer.open}
+          onClose={() => setImageViewer((current) => ({ ...current, open: false, images: [] }))}
+          images={imageViewer.images}
+          title={imageViewer.title}
+          initialIndex={imageViewer.initialIndex}
         />
         <PlatformFeeSheet
           open={feeSheetOpen}

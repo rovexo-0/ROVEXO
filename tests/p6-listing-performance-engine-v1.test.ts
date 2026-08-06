@@ -40,10 +40,10 @@ describe("P6 Listing Performance Engine v1", () => {
   });
 
   it("keeps lightbox slides stable across activeIndex (no remount key)", () => {
-    const gallery = readSource("features/product-detail/ProductGalleryV1.tsx");
-    expect(gallery).toContain("isActive={index === activeIndex}");
-    expect(gallery).not.toMatch(/key=\{`\$\{image\}-\$\{index\}-\$\{index === activeIndex\}`\}/);
-    expect(gallery).toContain("if (isActive !== wasActive)");
+    const viewer = readSource("features/product-detail/ProductFullscreenImageViewer.tsx");
+    expect(viewer).toContain("isActive={index === activeIndex}");
+    expect(viewer).not.toMatch(/key=\{`\$\{image\}-\$\{index\}-\$\{index === activeIndex\}`\}/);
+    expect(viewer).toContain("if (isActive !== wasActive)");
   });
 
   it("stabilises offer negotiation action callbacks", () => {

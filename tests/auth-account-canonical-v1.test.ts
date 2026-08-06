@@ -91,7 +91,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(menu).toContain('"Addresses"');
     expect(menu).toContain('"Notifications"');
     expect(menu).not.toContain('title: "Verification"');
-    expect(menu).not.toContain('title: "Payment Methods"');
+    expect(menu).toContain('title: "Payment Methods"');
     expect(menu).not.toContain('title: "Report a Problem"');
     expect(menu).not.toContain('title: "Feedback"');
     expect(menu).not.toContain('"Appearance"');

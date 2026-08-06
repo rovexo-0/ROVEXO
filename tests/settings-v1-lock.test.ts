@@ -51,9 +51,13 @@ describe("Settings v1.0 lock — hub + Master Engine", () => {
 
   it("wires fail-closed on the settings hub shell", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
+    const route = readSource("app/(platform)/account/settings/page.tsx");
     expect(settings).toContain("resolveSettingsHubVisibility");
     expect(settings).toContain("FailClosedPanel");
     expect(settings).toContain("loadFailed");
     expect(settings).toContain("MyAccountTemplate");
+    expect(route).toContain("fetchCurrentProfile");
+    expect(route).not.toContain("loadFailed={");
+    expect(route).not.toContain('from "@/lib/profile/queries"');
   });
 });

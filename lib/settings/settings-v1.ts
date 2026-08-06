@@ -136,6 +136,7 @@ export const SETTINGS_ICON_TONES = Object.keys(SETTINGS_ICON_TONE_COLORS) as Set
 export const SETTINGS_ICON_TONE_BY_ROW: Record<string, SettingsIconTone> = {
   profile: "purple",
   addresses: "blue",
+  "payment-methods": "rovexo-blue",
   notifications: "orange",
   privacy: "green",
   security: "red",

@@ -294,6 +294,19 @@
   flex-shrink: 0;
 }
 
+.conv-hub__product-thumb-btn {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+}
+
 .conv-hub__product-thumb-img {
   object-fit: cover;
 }
@@ -1633,6 +1646,19 @@
 .conv-hub__composer-pending-remove:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.conv-hub__bubble-photo-btn {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .conv-hub__bubble-photo {

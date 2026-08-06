@@ -1,4 +1,4 @@
-/* Payment Methods v5.0 — Profile Master + Full Width + Empty/Success states */
+/* Payment Methods v5.0 — Empty State Freeze · Compact · Full Width */
 
 .wallet-profile-help {
   display: inline-flex;
@@ -19,7 +19,13 @@
 .pm-profile {
   width: 100%;
   max-width: none;
+  min-height: 0;
   background: #ffffff;
+}
+
+.pm-profile__stack {
+  gap: 16px;
+  min-height: 0;
 }
 
 .pm-profile__list {
@@ -28,15 +34,35 @@
 }
 
 .pm-profile__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   max-width: none;
-  padding: 8px 0 16px;
+  min-height: 0;
+  padding: 8px 0 4px;
+  text-align: center;
+}
+
+.pm-profile__empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 0 12px;
+  color: #9333ea;
+}
+
+.pm-profile__empty-icon-svg {
+  width: 28px;
+  height: 28px;
 }
 
 .pm-profile__empty-title {
   margin: 0;
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.25;
   color: #1a1a1a;
 }
@@ -49,9 +75,24 @@
   color: #64748b;
 }
 
+.pm-profile__empty .rx-primary-button,
+.pm-profile__empty button {
+  width: 100%;
+  max-width: none;
+}
+
 .pm-profile__cta {
   width: 100%;
   max-width: none;
-  margin-top: 8px;
+  margin-top: 0;
 }
 
+.pm-profile__stripe-footer {
+  margin: 0;
+  padding: 0 0 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  color: #94a3b8;
+}

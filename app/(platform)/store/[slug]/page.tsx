@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
-import { ProStorePage } from "@/features/store/components/ProStorePage";
-import { getPublicTrustSummary } from "@/lib/trust/service";
+import { StoreVisitPageV2 } from "@/features/store/components/StoreVisitPageV2";
 import { storePageJsonLd, storePageMetadata } from "@/lib/seo/engine";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
+import { loadStoreVisitPayload } from "@/lib/store/load-store-visit-payload";
 import {
   resolveStoreByRouteParam,
-  storeMemberSinceLabel,
   type StoreRecord,
 } from "@/lib/store/store-repository";
 
@@ -37,19 +36,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 /**
- * Canonical STORE PAGE — SSOT:
- * PRODUCT.seller_id → store_id → store_slug → this route.
- * Param may be store_id (UUID) or store_slug.
+ * Canonical STORE PAGE — SSOT Release 2:
+ * `/store/[slug]` → loadStoreVisitPayload → StoreVisitPageV2
+ * SEO (generateMetadata + Store/ItemList JSON-LD) preserved.
+ * Legacy store page component retired from this route.
  */
 export default async function StorePage({ params }: PageProps) {
   const { slug } = await params;
-  const store = await resolveStoreByRouteParam(slug).catch(() => null);
+  const payload = await loadStoreVisitPayload(slug);
 
-  if (!store) {
+  if (payload.kind === "unavailable") {
     return <StoreUnavailablePage kind="store" />;
   }
 
-  const trustSummary = await getPublicTrustSummary(store.sellerId).catch(() => undefined);
+  const { store, listings, reviews, memberSinceLabel, isOwnStore, isFollowing, followerCount, followingCount, loadFailed } =
+    payload;
+
+  // SEO ItemList uses repository store.listings (same source as pre-cutover).
   const jsonLd = storePageJsonLd({
     name: store.storeName,
     slug: store.storeSlug || store.storeId,
@@ -59,24 +62,22 @@ export default async function StorePage({ params }: PageProps) {
     reviewCount: store.reviewCount,
   });
 
-  void storeMemberSinceLabel(store.memberSinceIso);
-
   return (
     <>
-      <JsonLdScript id="jsonld-app-(platform)-store-slug-page-tsx" data={[jsonLd.store, jsonLd.itemList].filter(Boolean)} />
-      <ProStorePage
-        storeName={store.storeName}
-        username={store.storeSlug}
-        avatarUrl={store.avatarUrl}
-        verified={store.verified}
-        bio={store.bio}
-        website={store.website}
-        rating={store.rating}
-        reviewCount={store.reviewCount}
-        listingCount={store.listingCount}
-        salesCount={store.salesCount}
-        listings={store.listings}
-        sellerTrust={trustSummary}
+      <JsonLdScript
+        id="jsonld-app-(platform)-store-slug-page-tsx"
+        data={[jsonLd.store, jsonLd.itemList].filter(Boolean)}
+      />
+      <StoreVisitPageV2
+        store={store}
+        listings={listings}
+        reviews={reviews}
+        memberSinceLabel={memberSinceLabel}
+        isOwnStore={isOwnStore}
+        initialFollowing={isFollowing}
+        followerCount={followerCount}
+        followingCount={followingCount}
+        loadFailed={loadFailed}
       />
     </>
   );

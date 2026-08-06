@@ -5,7 +5,8 @@
  * ONLY CONTENT / NAVIGATION MAY DIFFER. DESIGN NEVER DOES.
  *
  * Navigation-only removals (backends retained): Verification, Marketplace prefs,
- * Finance entries, Report a Problem, Feedback.
+ * Finance hub entries (Balance / Bank), Report a Problem, Feedback.
+ * Payment Methods remains reachable from Settings → existing WalletPaymentMethodsPage SSOT.
  * Accessibility lives in Legal Centre (not Settings → Account).
  */
 
@@ -104,6 +105,14 @@ export function buildSettingsMenuSections(
           href: href(R.addresses),
           icon: "location",
           tone: "blue",
+        },
+        {
+          id: "payment-methods",
+          title: "Payment Methods",
+          subtitle: "Cards and checkout payment options.",
+          href: withReturn(R.paymentMethods, "/account/settings"),
+          icon: "credit-card",
+          tone: "rovexo-blue",
         },
         {
           id: "currency",

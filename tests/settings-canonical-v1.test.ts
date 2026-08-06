@@ -46,7 +46,9 @@ describe("Settings canonical v1.0 hub — Master Engine lock", () => {
     expect(hrefs).toContain("/account/preferences/currency");
     expect(hrefs).not.toContain("/account/profile#currency");
     expect(hrefs).not.toContain("/trust");
-    expect(hrefs).not.toContain("/wallet/payment-methods");
+    expect(hrefs.some((h) => h === "/wallet/payment-methods" || h.startsWith("/wallet/payment-methods?"))).toBe(
+      true,
+    );
     expect(hrefs).not.toContain("/account/promotion-tools");
     expect(hrefs).not.toContain("/wallet");
     expect(hrefs).toContain("/help");

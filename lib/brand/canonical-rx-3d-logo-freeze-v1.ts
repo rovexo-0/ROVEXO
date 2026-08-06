@@ -93,7 +93,7 @@ export const CANONICAL_RX_APP_ICON = "/brand/canonical-rx/app-icon-v1.png" as co
  * Favicon / PWA icon cache bust — White Pearl unification.
  * Appended to metadata + manifest icon URLs so browsers drop stale immutable icons.
  */
-export const ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST = "wp-20260805" as const;
+export const ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST = "wp-20260806" as const;
 
 export function withWhitePearlFaviconCacheBust(path: string): string {
   const sep = path.includes("?") ? "&" : "?";

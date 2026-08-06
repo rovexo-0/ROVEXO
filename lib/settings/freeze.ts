@@ -53,6 +53,7 @@ export const SETTINGS_MENU_ROW_TITLES = [
   "Privacy",
   "Notifications",
   "Addresses",
+  "Payment Methods",
   "Currency & Region",
   "Blocked Users",
   "Help Centre",

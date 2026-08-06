@@ -62,7 +62,8 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(menu).toContain('"Privacy"');
     expect(menu).toContain('"Security"');
     expect(menu).not.toContain('title: "Verification"');
-    expect(menu).not.toContain('title: "Payment Methods"');
+    expect(menu).toContain('title: "Payment Methods"');
+    expect(menu).toContain('withReturn(R.paymentMethods, "/account/settings")');
     expect(menu).toContain('title: "HMRC Reporting"');
     expect(menu).not.toContain('title: "Accessibility"');
     expect(menu).toContain('"LEGAL"');
