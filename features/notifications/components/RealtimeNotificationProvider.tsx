@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { subscribeToUserNotifications, removeNotificationChannel } from "@/lib/notifications/realtime";
 import {
   subscribeToUserConversationUnread,
@@ -166,6 +167,7 @@ export function RealtimeNotificationProvider({
   initialNotifications = [],
   enabled = true,
 }: RealtimeNotificationProviderProps) {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [badgeCounts, setBadgeCounts] = useState<DashboardBadgeCounts | null>(null);
@@ -246,7 +248,9 @@ export function RealtimeNotificationProvider({
     };
 
     const connect = async () => {
-      if (!isSupabaseConfigured() || !isDocumentVisible() || cancelled) return;
+      if (!isSupabaseConfigured() || cancelled) return;
+      // Foreground only for new subscribe; keep existing channels when backgrounded.
+      if (!isDocumentVisible()) return;
 
       let supabase;
       try {
@@ -260,12 +264,13 @@ export function RealtimeNotificationProvider({
       } = await supabase.auth.getUser();
       if (!user || cancelled || !isDocumentVisible()) return;
 
+      // Avoid duplicate channels: tear down before re-subscribe.
       disconnect();
 
       let lastInboxSyncAt = 0;
       const onRealtimeChange = () => {
         if (!isDocumentVisible()) return;
-        void refresh();
+        void refresh({ includeTray: true });
         const now = Date.now();
         // Debounced bridge so Inbox list refreshes when unread RT fires (no storm).
         if (now - lastInboxSyncAt < 400) return;
@@ -300,25 +305,48 @@ export function RealtimeNotificationProvider({
 
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
-        void flushOfflineNotificationQueue().then(() => refresh());
+        void flushOfflineNotificationQueue().then(() => refresh({ includeTray: true }));
         void connect();
-      } else {
-        disconnect();
       }
+      // Do NOT disconnect on hidden — sleep/wake + brief background must not drop RT.
     };
 
     if (isDocumentVisible()) void connect();
 
     const onOnline = () => {
       triggerCheckoutSessionSelfHeal("realtime-online");
-      void flushOfflineNotificationQueue().then(() => refresh());
+      void flushOfflineNotificationQueue().then(() => refresh({ includeTray: true }));
       void connect();
     };
+
+    let authUnsub: (() => void) | null = null;
+    try {
+      const supabase = createClient();
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+        if (cancelled) return;
+        if (event === "SIGNED_OUT") {
+          disconnect();
+          return;
+        }
+        if (event === "SIGNED_IN") {
+          void connect();
+          void refresh({ includeTray: true });
+          return;
+        }
+        // After sleep/wake token refresh: only resubscribe if channels were dropped.
+        if (event === "TOKEN_REFRESHED" && !channel) {
+          void connect();
+        }
+      });
+      authUnsub = () => data.subscription.unsubscribe();
+    } catch {
+      authUnsub = null;
+    }
 
     window.addEventListener("online", onOnline);
     document.addEventListener("visibilitychange", onVisibility);
     const onInboxSync = () => {
-      void refresh();
+      void refresh({ includeTray: true });
     };
     window.addEventListener("rovexo:inbox-sync", onInboxSync);
 
@@ -327,6 +355,7 @@ export function RealtimeNotificationProvider({
       window.removeEventListener("online", onOnline);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("rovexo:inbox-sync", onInboxSync);
+      authUnsub?.();
       disconnect();
     };
   }, [enabled, refresh]);
@@ -336,14 +365,23 @@ export function RealtimeNotificationProvider({
     if (!("serviceWorker" in navigator)) return;
 
     const onMessage = (event: MessageEvent) => {
-      if ((event.data as { type?: string })?.type === "notification-sync") {
+      const data = event.data as { type?: string; href?: string } | null;
+      if (!data) return;
+      if (data.type === "notification-sync") {
         void refresh();
+        return;
+      }
+      if (data.type === "notification-open" && typeof data.href === "string" && data.href) {
+        void refresh();
+        if (data.href.startsWith("/") && !data.href.startsWith("//")) {
+          router.push(data.href);
+        }
       }
     };
 
     navigator.serviceWorker.addEventListener("message", onMessage);
     return () => navigator.serviceWorker.removeEventListener("message", onMessage);
-  }, [enabled, refresh]);
+  }, [enabled, refresh, router]);
 
   const value = useMemo(
     () => ({

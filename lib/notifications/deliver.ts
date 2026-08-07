@@ -1,5 +1,6 @@
 import { queueEmail } from "@/lib/email/service";
 import { sendPushNotification } from "@/lib/push/service";
+import { resolvePushNotificationHref } from "@/lib/push/resolve-push-notification-href-v1";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PushPriority } from "@/lib/push/vapid";
 
@@ -66,10 +67,15 @@ export async function deliverNotificationChannels(input: DeliverChannelsInput): 
   }
 
   if (!input.skipPush) {
+    const href = resolvePushNotificationHref(input.href, {
+      title: input.title,
+      subtitle: input.subtitle,
+      type: input.type,
+    });
     await sendPushNotification(input.userId, {
       title: input.title,
       body: input.subtitle,
-      href: input.href,
+      href,
       notificationId: input.notificationId,
       eventType: input.eventType,
       priority: input.priority,

@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  detectPushOsPermission,
+  isWebPushApiPresent,
+  waitForServiceWorkerReady,
+} from "@/lib/push/push-capability-v1";
+
 export type SubscribeToBrowserPushOptions = {
   /**
    * When true, may call Notification.requestPermission().
@@ -52,33 +58,82 @@ export async function subscribeToBrowserPush(
 ): Promise<boolean> {
   const allowPrompt = options.allowPrompt === true;
 
-  if (typeof window === "undefined" || !("Notification" in window)) {
+  // TEMP P0 Runtime Push Probe — remove after Owner Live Certification
+  try {
+    console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:start", {
+      allowPrompt,
+    });
+  } catch {
+    // ignore
+  }
+
+  if (typeof window === "undefined" || !isWebPushApiPresent()) {
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:abort", {
+        reason: "window_undefined_or_not_push_capable",
+        reachedRequestPermission: false,
+      });
+    } catch {
+      // ignore
+    }
     return false;
   }
 
-  const action = resolvePushPermissionAction(
-    typeof Notification.permission === "string"
-      ? (Notification.permission as PushOsPermission)
-      : "unsupported",
-    allowPrompt,
-  );
-
-  let permission: NotificationPermission =
-    typeof Notification.permission === "string" ? Notification.permission : "denied";
+  const osPermission = detectPushOsPermission();
+  const action = resolvePushPermissionAction(osPermission, allowPrompt);
 
   if (action === "abort") {
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:abort", {
+        reason: "permission_action_abort",
+        osPermission,
+        allowPrompt,
+        reachedRequestPermission: false,
+      });
+    } catch {
+      // ignore
+    }
     return false;
   }
 
+  let permission: NotificationPermission =
+    "Notification" in window && typeof Notification.permission === "string"
+      ? Notification.permission
+      : "denied";
+
   if (action === "request") {
+    if (!("Notification" in window) || typeof Notification.requestPermission !== "function") {
+      try {
+        console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:abort", {
+          reason: "notification_api_missing",
+          reachedRequestPermission: false,
+        });
+      } catch {
+        // ignore
+      }
+      return false;
+    }
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:reachedRequestPermission", {
+        reachedRequestPermission: true,
+      });
+    } catch {
+      // ignore
+    }
     permission = await Notification.requestPermission();
+  } else {
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:skipRequestPermission", {
+        reason: "action_subscribe_already_granted",
+        action,
+        reachedRequestPermission: false,
+      });
+    } catch {
+      // ignore
+    }
   }
 
   if (permission !== "granted") {
-    return false;
-  }
-
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return false;
   }
 
@@ -87,7 +142,11 @@ export async function subscribeToBrowserPush(
     return false;
   }
 
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await waitForServiceWorkerReady(10_000);
+  if (!registration) {
+    return false;
+  }
+
   let subscription = await registration.pushManager.getSubscription();
 
   if (!subscription) {
@@ -118,7 +177,10 @@ export async function subscribeToBrowserPush(
 export async function unsubscribeFromBrowserPush(): Promise<void> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
-  const registration = await navigator.serviceWorker.ready;
+  // Never await `ready` forever — that blocked Soft Permission on mobile when no SW exists.
+  const registration = await waitForServiceWorkerReady(3_000);
+  if (!registration) return;
+
   const subscription = await registration.pushManager.getSubscription();
   if (!subscription) return;
 

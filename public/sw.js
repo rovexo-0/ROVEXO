@@ -233,7 +233,7 @@ self.addEventListener("push", (event) => {
   const title = payload && payload.title ? payload.title : "ROVEXO";
   const silent = Boolean(payload && payload.silent);
   const tag = (payload && (payload.tag || payload.notificationId)) || "rovexo-default";
-  const href = payload && payload.href ? payload.href : "/";
+  const href = payload && payload.href ? payload.href : "/inbox?tab=notifications";
   const notificationId = payload && payload.notificationId ? payload.notificationId : null;
 
   const options = {
@@ -264,6 +264,42 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const data = event.notification.data || {};
-  const href = typeof data.href === "string" && data.href ? data.href : "/";
-  event.waitUntil(self.clients.openWindow(href));
+  let href = typeof data.href === "string" && data.href ? data.href : "/inbox?tab=notifications";
+  if (href === "/" || href === "") {
+    href = "/inbox?tab=notifications";
+  }
+  const notificationId = data.notificationId || null;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.postMessage({
+            type: "notification-open",
+            href,
+            notificationId,
+          });
+          return client.focus().then(() => {
+            if ("navigate" in client && typeof client.navigate === "function") {
+              return client.navigate(href);
+            }
+            return undefined;
+          });
+        }
+      }
+      return self.clients.openWindow(href);
+    }),
+  );
+});
+
+self.addEventListener("notificationclose", (event) => {
+  const data = event.notification.data || {};
+  const notificationId = data.notificationId || null;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        client.postMessage({ type: "notification-close", notificationId });
+      }
+    }),
+  );
 });

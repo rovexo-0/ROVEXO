@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { configureWebPush, isPushConfigured, webpush, type PushPriority } from "@/lib/push/vapid";
+import { resolvePushNotificationHref } from "@/lib/push/resolve-push-notification-href-v1";
 import { isWithinQuietHours } from "@/lib/notifications/quiet-hours";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 
@@ -83,10 +84,16 @@ export async function sendPushNotification(
   const vibration = payload.vibration ?? settings?.vibration ?? true;
   const silent = payload.silent ?? false;
 
+  const resolvedHref = resolvePushNotificationHref(payload.href, {
+    title: payload.title,
+    subtitle: payload.body,
+    type: payload.eventType,
+  });
+
   const pushPayload = JSON.stringify({
     title: payload.title,
     body: payload.body,
-    href: payload.href ?? "/notifications",
+    href: resolvedHref,
     tag: payload.groupKey ?? payload.notificationId ?? undefined,
     silent,
     priority,
@@ -116,7 +123,7 @@ export async function sendPushNotification(
         platform: subscription.platform,
         title: payload.title,
         body: payload.body,
-        href: payload.href ?? "",
+        href: resolvedHref,
         p256dh: subscription.p256dh,
         auth: subscription.auth,
       },

@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
+import { cleanupPushSubscriptionOnLogout } from "@/lib/push/logout-cleanup-v1";
 
 type RovexoSignOutLinkProps = {
   className?: string;
@@ -11,10 +13,23 @@ type RovexoSignOutLinkProps = {
 };
 
 export function RovexoSignOutLink({ className, label = "Log out" }: RovexoSignOutLinkProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
   return (
-    <Link href="/auth/signout" className={cn("rovexo-sign-out", className)}>
+    <button
+      type="button"
+      disabled={pending}
+      className={cn("rovexo-sign-out", className)}
+      onClick={() => {
+        startTransition(async () => {
+          await cleanupPushSubscriptionOnLogout();
+          router.push("/auth/signout");
+        });
+      }}
+    >
       <RovexoIcon icon={RovexoIcons.security.logout} variant="settings" className="rovexo-sign-out__icon" />
-      <span>{label}</span>
-    </Link>
+      <span>{pending ? "Signing out…" : label}</span>
+    </button>
   );
 }

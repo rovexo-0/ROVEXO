@@ -21,17 +21,17 @@ export async function POST(request: Request) {
     const admin = createAdminClient();
     const userAgent = request.headers.get("user-agent");
 
-    await admin.from("push_subscriptions").upsert(
-      {
-        user_id: auth.user.id,
-        endpoint: body.endpoint,
-        p256dh: body.keys.p256dh,
-        auth: body.keys.auth,
-        platform: body.platform,
-        user_agent: userAgent,
-      },
-      { onConflict: "user_id,endpoint" },
-    );
+    // Endpoint ownership: one device endpoint → one user (reassign on login switch).
+    await admin.from("push_subscriptions").delete().eq("endpoint", body.endpoint);
+
+    await admin.from("push_subscriptions").insert({
+      user_id: auth.user.id,
+      endpoint: body.endpoint,
+      p256dh: body.keys.p256dh,
+      auth: body.keys.auth,
+      platform: body.platform,
+      user_agent: userAgent,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
