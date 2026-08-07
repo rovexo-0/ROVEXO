@@ -16,6 +16,10 @@ export type PushPayload = {
   groupKey?: string;
   sound?: boolean;
   vibration?: boolean;
+  /** TEMP P0 device certification — optional correlation fields */
+  conversationId?: string;
+  offerId?: string;
+  orderId?: string;
 };
 
 export type PushSendResult = {
@@ -30,6 +34,34 @@ const MAX_PUSH_PER_USER_PER_MINUTE = 30;
 function computeRetryAt(retryCount: number): string {
   const delayMinutes = Math.min(60, 5 * 2 ** retryCount);
   return new Date(Date.now() + delayMinutes * 60 * 1000).toISOString();
+}
+
+/** TEMP P0 — unique id for Server → Apple → SW correlation. */
+function createPushTraceId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `pt_${crypto.randomUUID()}`;
+  }
+  return `pt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
+}
+
+function readQueryId(href: string | undefined, key: string): string | null {
+  if (!href) return null;
+  try {
+    const url = new URL(href, "https://www.rovexo.co.uk");
+    const value = url.searchParams.get(key);
+    return value && value.trim() ? value.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function serializeHeaders(headers: unknown): Record<string, string> | null {
+  if (!headers || typeof headers !== "object") return null;
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers as Record<string, unknown>)) {
+    out[key] = Array.isArray(value) ? value.map(String).join(", ") : String(value);
+  }
+  return out;
 }
 
 export async function sendPushNotification(
@@ -102,17 +134,25 @@ export async function sendPushNotification(
     type: payload.eventType,
   });
 
-  const pushPayload = JSON.stringify({
-    title: payload.title,
-    body: payload.body,
-    href: resolvedHref,
-    tag: payload.groupKey ?? payload.notificationId ?? undefined,
-    silent,
-    priority,
-    sound,
-    vibration,
-    notificationId: payload.notificationId,
-  });
+  // Chromium / FCM payload — base shape unchanged; pushTraceId added only for SW correlation.
+  const buildChromiumPayload = (pushTraceId: string) =>
+    JSON.stringify({
+      title: payload.title,
+      body: payload.body,
+      href: resolvedHref,
+      tag: payload.groupKey ?? payload.notificationId ?? undefined,
+      silent,
+      priority,
+      sound,
+      vibration,
+      notificationId: payload.notificationId,
+      pushTraceId,
+    });
+
+  const conversationId =
+    payload.conversationId ?? readQueryId(resolvedHref, "conversationId");
+  const offerId = payload.offerId ?? readQueryId(resolvedHref, "offerId");
+  const orderId = payload.orderId ?? readQueryId(resolvedHref, "orderId");
 
   const pushReady = isPushConfigured() && configureWebPush();
 
@@ -123,13 +163,65 @@ export async function sendPushNotification(
     }
 
     const isApple = /web\.push\.apple\.com/i.test(subscription.endpoint);
+    const pushTraceId = createPushTraceId();
+    const createdAt = new Date().toISOString();
+    const browser =
+      subscription.platform === "ios"
+        ? "safari_ios_pwa"
+        : subscription.platform === "android"
+          ? "android"
+          : isApple
+            ? "safari_web_push"
+            : /fcm\.googleapis\.com/i.test(subscription.endpoint)
+              ? "chromium_fcm"
+              : "web";
+
+    // TEMP P0: Apple gets minimal payload only (title/body/tag/data). Chromium unchanged.
+    const applePushPayload = JSON.stringify({
+      title: payload.title,
+      body: payload.body,
+      tag: payload.groupKey ?? payload.notificationId ?? undefined,
+      appleMinimal: true,
+      data: {
+        href: resolvedHref,
+        notificationId: payload.notificationId ?? null,
+        eventType: payload.eventType ?? null,
+        pushTraceId,
+        conversationId,
+        offerId,
+        orderId,
+      },
+    });
+    const pushPayloadBody = isApple ? applePushPayload : buildChromiumPayload(pushTraceId);
+    const urgency = priority === "emergency" || priority === "high" ? "high" : "normal";
+    const TTL = priority === "emergency" ? 86400 : 3600;
+    const topic = null;
+
+    const traceBase = {
+      pushTraceId,
+      notificationId: payload.notificationId ?? null,
+      conversationId,
+      offerId,
+      orderId,
+      userId,
+      subscriptionId: subscription.id,
+      endpoint: subscription.endpoint,
+      platform: subscription.platform,
+      browser,
+      createdAt,
+    };
+
+    // eslint-disable-next-line no-console -- TEMP P0 Apple device certification
+    console.info("[PUSH_TRACE]", traceBase);
+    logPushRtFlow("PUSH_TRACE", traceBase);
+
     const logBase = {
       user_id: userId,
       channel: "push",
       event_type: payload.eventType ?? "message",
       notification_id: payload.notificationId ?? null,
       priority,
-      silent,
+      silent: isApple ? false : silent,
       group_key: payload.groupKey ?? null,
       payload: {
         endpoint: subscription.endpoint,
@@ -139,14 +231,23 @@ export async function sendPushNotification(
         href: resolvedHref,
         p256dh: subscription.p256dh,
         auth: subscription.auth,
+        appleMinimal: isApple,
+        pushTraceId,
       },
     };
 
     if (!pushReady) {
-      logPushRtFlow("DELIVERY_FAILED", {
+      // eslint-disable-next-line no-console -- TEMP P0 Apple device certification
+      console.info("[PUSH_FAILED]", {
+        ...traceBase,
+        statusCode: null,
+        headers: null,
+        body: "Push not configured (missing VAPID keys)",
+        stack: null,
+      });
+      logPushRtFlow("PUSH_FAILED", {
+        ...traceBase,
         reason: "vapid_not_configured",
-        userId,
-        apple: isApple,
       });
       await admin.from("notification_delivery_log").insert({
         ...logBase,
@@ -159,6 +260,27 @@ export async function sendPushNotification(
       continue;
     }
 
+    // eslint-disable-next-line no-console -- TEMP P0 Apple device certification
+    console.info("[PUSH_SEND]", {
+      pushTraceId,
+      endpoint: subscription.endpoint,
+      platform: subscription.platform,
+      payload: pushPayloadBody,
+      headers: { urgency, TTL, topic },
+      TTL,
+      urgency,
+      topic,
+    });
+    logPushRtFlow("PUSH_SEND", {
+      pushTraceId,
+      endpoint: subscription.endpoint,
+      platform: subscription.platform,
+      TTL,
+      urgency,
+      topic,
+      apple: isApple,
+    });
+
     try {
       const response = await webpush.sendNotification(
         {
@@ -168,10 +290,10 @@ export async function sendPushNotification(
             auth: subscription.auth,
           },
         },
-        pushPayload,
+        pushPayloadBody,
         {
-          urgency: priority === "emergency" || priority === "high" ? "high" : "normal",
-          TTL: priority === "emergency" ? 86400 : 3600,
+          urgency,
+          TTL,
         },
       );
 
@@ -179,22 +301,45 @@ export async function sendPushNotification(
         typeof response === "object" && response && "statusCode" in response
           ? (response as { statusCode?: number }).statusCode
           : 201;
-      logPushRtFlow("WEBPUSH_RESPONSE", {
-        userId,
+      const responseBody =
+        typeof response === "object" && response && "body" in response
+          ? String((response as { body?: string }).body ?? "")
+          : "";
+      const responseHeaders = serializeHeaders(
+        typeof response === "object" && response && "headers" in response
+          ? (response as { headers?: unknown }).headers
+          : null,
+      );
+
+      // eslint-disable-next-line no-console -- TEMP P0 Apple device certification
+      console.info("[PUSH_SENT]", {
+        pushTraceId,
         statusCode,
+        headers: responseHeaders,
+        body: responseBody,
+        endpoint: subscription.endpoint,
+        platform: subscription.platform,
+        subscriptionId: subscription.id,
         apple: isApple,
-        silent,
-        priority,
-        endpointHost: (() => {
-          try {
-            return new URL(subscription.endpoint).host;
-          } catch {
-            return "invalid";
-          }
-        })(),
+      });
+      logPushRtFlow("PUSH_SENT", {
+        pushTraceId,
+        statusCode,
+        headers: responseHeaders,
+        body: responseBody,
+        endpoint: subscription.endpoint,
+        apple: isApple,
       });
       if (isApple) {
-        logPushRtFlow("APPLE_RESPONSE", { userId, statusCode, silent, priority });
+        logPushRtFlow("APPLE_RESPONSE", {
+          pushTraceId,
+          statusCode,
+          headers: responseHeaders,
+          body: responseBody,
+          endpoint: subscription.endpoint,
+          subscriptionId: subscription.id,
+          platform: subscription.platform,
+        });
       }
 
       await admin.from("notification_delivery_log").insert({
@@ -203,38 +348,48 @@ export async function sendPushNotification(
         delivered_at: new Date().toISOString(),
       });
       result.sent += 1;
-      logPushRtFlow("DELIVERY_SUCCESS", {
-        userId,
-        apple: isApple,
-        notificationId: payload.notificationId,
-      });
     } catch (error: unknown) {
       const statusCode = (error as { statusCode?: number })?.statusCode;
       const body = (error as { body?: string })?.body;
+      const headers = serializeHeaders((error as { headers?: unknown })?.headers);
       const errorMessage = error instanceof Error ? error.message : "Push delivery failed";
+      const stack = error instanceof Error ? error.stack ?? null : null;
 
-      logPushRtFlow("WEBPUSH_RESPONSE", {
-        userId,
-        statusCode,
-        error: errorMessage,
-        body: typeof body === "string" ? body.slice(0, 200) : undefined,
+      // eslint-disable-next-line no-console -- TEMP P0 Apple device certification
+      console.info("[PUSH_FAILED]", {
+        pushTraceId,
+        statusCode: statusCode ?? null,
+        headers,
+        body: typeof body === "string" ? body : String(body ?? ""),
+        stack,
+        endpoint: subscription.endpoint,
+        platform: subscription.platform,
+        subscriptionId: subscription.id,
         apple: isApple,
-        silent,
+        error: errorMessage,
+      });
+      logPushRtFlow("PUSH_FAILED", {
+        pushTraceId,
+        statusCode: statusCode ?? null,
+        headers,
+        body: typeof body === "string" ? body : String(body ?? ""),
+        stack,
+        endpoint: subscription.endpoint,
+        apple: isApple,
+        error: errorMessage,
       });
       if (isApple) {
         logPushRtFlow("APPLE_RESPONSE", {
-          userId,
-          statusCode,
+          pushTraceId,
+          statusCode: statusCode ?? null,
+          headers,
+          body: typeof body === "string" ? body : String(body ?? ""),
+          endpoint: subscription.endpoint,
+          subscriptionId: subscription.id,
+          platform: subscription.platform,
           error: errorMessage,
-          silent,
         });
       }
-      logPushRtFlow("DELIVERY_FAILED", {
-        userId,
-        apple: isApple,
-        statusCode,
-        error: errorMessage,
-      });
 
       if (statusCode && STALE_STATUS_CODES.has(statusCode)) {
         await admin.from("push_subscriptions").delete().eq("id", subscription.id);

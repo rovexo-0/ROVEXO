@@ -92,6 +92,12 @@ async function precacheUrls(cache) {
 }
 
 self.addEventListener("install", (event) => {
+  // TEMP P0 Apple Web Push device probe — remove after Owner Lock Screen certification
+  try {
+    console.log("[SW_INSTALL]");
+  } catch (_) {
+    /* ignore */
+  }
   event.waitUntil(
     (async () => {
       // If this SW was registered on localhost by an older build, exit immediately
@@ -118,6 +124,12 @@ if (isLocalDevelopmentHost(self.location.hostname)) {
 }
 
 self.addEventListener("activate", (event) => {
+  // TEMP P0 Apple Web Push device probe — remove after Owner Lock Screen certification
+  try {
+    console.log("[SW_ACTIVATE]");
+  } catch (_) {
+    /* ignore */
+  }
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
@@ -229,40 +241,128 @@ function parsePushPayload(event) {
 }
 
 self.addEventListener("push", (event) => {
-  const payload = parsePushPayload(event);
-  const title = payload && payload.title ? payload.title : "ROVEXO";
-  const silent = Boolean(payload && payload.silent);
-  const tag = (payload && (payload.tag || payload.notificationId)) || "rovexo-default";
-  const href = payload && payload.href ? payload.href : "/inbox?tab=notifications";
-  const notificationId = payload && payload.notificationId ? payload.notificationId : null;
-
-  const options = {
-    body: payload && payload.body ? payload.body : "",
-    data: { href, notificationId },
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
-    tag,
-    renotify: true,
-    // Muting only — NEVER skip showNotification (Apple Web Push / Lock Screen requires it).
-    silent,
-    vibrate: silent || (payload && payload.vibration === false) ? undefined : [120, 60, 120],
-  };
-
+  // TEMP P0 Apple Web Push device certification v2 — pushTraceId correlation
+  // PushMessageData may be read only once — capture text then parse.
   event.waitUntil(
-    Promise.all([
-      self.registration.showNotification(title, options),
-      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-        for (const client of clients) {
-          client.postMessage({ type: "notification-sync", notificationId });
+    (async () => {
+      let parsedPayload = undefined;
+      try {
+        if (event.data) {
+          const rawText = event.data.text();
+          try {
+            parsedPayload = rawText ? JSON.parse(rawText) : undefined;
+          } catch {
+            parsedPayload = undefined;
+          }
         }
-      }),
-    ]),
+      } catch (_) {
+        /* ignore */
+      }
+
+      const payload = parsedPayload;
+      const data = payload && payload.data && typeof payload.data === "object" ? payload.data : {};
+      const pushTraceId =
+        (payload && payload.pushTraceId) ||
+        (data && data.pushTraceId) ||
+        null;
+      const notificationId =
+        (data && data.notificationId) ||
+        (payload && payload.notificationId) ||
+        null;
+      const offerId = (data && data.offerId) || (payload && payload.offerId) || null;
+      const conversationId =
+        (data && data.conversationId) || (payload && payload.conversationId) || null;
+      const title = payload && payload.title ? payload.title : "ROVEXO";
+      const tag = (payload && (payload.tag || payload.notificationId)) || "rovexo-default";
+      const href =
+        (data && data.href) ||
+        (payload && payload.href) ||
+        "/inbox?tab=notifications";
+
+      try {
+        console.log("[SW_PUSH_RECEIVED]", {
+          pushTraceId,
+          notificationId,
+          offerId,
+          conversationId,
+          payload,
+        });
+      } catch (_) {
+        /* ignore */
+      }
+
+      // Apple diagnostic minimal: title/body/tag/data only. Chromium keeps absolute icon/badge.
+      const appleMinimal = Boolean(payload && payload.appleMinimal === true);
+      const absoluteIcon = "https://www.rovexo.co.uk/icons/icon-192.png";
+      const absoluteBadge = "https://www.rovexo.co.uk/icons/icon-192.png";
+
+      const options = appleMinimal
+        ? {
+            body: payload && payload.body ? payload.body : "",
+            tag,
+            data: {
+              href,
+              notificationId,
+              pushTraceId,
+              offerId,
+              conversationId,
+              ...data,
+            },
+          }
+        : {
+            body: payload && payload.body ? payload.body : "",
+            data: { href, notificationId, pushTraceId, offerId, conversationId },
+            icon: absoluteIcon,
+            badge: absoluteBadge,
+            tag,
+            renotify: true,
+            silent: Boolean(payload && payload.silent),
+            vibrate:
+              (payload && payload.silent) || (payload && payload.vibration === false)
+                ? undefined
+                : [120, 60, 120],
+          };
+
+      try {
+        console.log("[SW_SHOW_NOTIFICATION]", { pushTraceId, options });
+      } catch (_) {
+        /* ignore */
+      }
+      await self.registration.showNotification(title, options);
+      try {
+        console.log("[SW_SHOW_NOTIFICATION_DONE]", {
+          pushTraceId,
+          notificationId,
+          notification: {
+            tag,
+            title,
+            body: options.body,
+            data: options.data,
+          },
+        });
+      } catch (_) {
+        /* ignore */
+      }
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of clients) {
+        client.postMessage({ type: "notification-sync", notificationId, pushTraceId });
+      }
+    })(),
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
+  // TEMP P0 Apple Web Push device certification v2
   const data = event.notification.data || {};
+  try {
+    console.log("[SW_NOTIFICATION_CLICK]", {
+      pushTraceId: data.pushTraceId || null,
+      notificationId: data.notificationId || null,
+    });
+  } catch (_) {
+    /* ignore */
+  }
+  event.notification.close();
   let href = typeof data.href === "string" && data.href ? data.href : "/inbox?tab=notifications";
   if (href === "/" || href === "") {
     href = "/inbox?tab=notifications";
