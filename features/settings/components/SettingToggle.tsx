@@ -1,5 +1,3 @@
-"use client";
-
 import { CanonicalSwitch, type CanonicalSwitchProps } from "@/src/components/canonical";
 
 /**

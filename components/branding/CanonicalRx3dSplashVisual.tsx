@@ -2,8 +2,6 @@
  * PWA / launch splash visual — Canonical RX lockup (Cod Sânge v2).
  * Auth guest entry remains Login. /splash is branded flash → Login only.
  */
-"use client";
-
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { CANONICAL_LOGO_ENGINE_V1 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 import "@/styles/rovexo/canonical-rx-3d-splash.css";

@@ -22,7 +22,8 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(messagesMenu).toContain("Transaction hub.");
     expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(notificationsRoute).toContain("redirect");
-    expect(index).toContain("./inbox-hub-v1.css");
+    expect(inbox).toContain('import "@/styles/rovexo/inbox-hub-v1.css"');
+    expect(index).not.toContain("./inbox-hub-v1.css");
     expect(index).not.toContain("./messages-v1.css");
     expect(index).not.toContain("./notifications-v1.css");
   });

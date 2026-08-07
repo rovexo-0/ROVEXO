@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { CanonicalCard } from "@/src/components/canonical";
 import { shippingStatusLabel } from "@/lib/shipping";

@@ -259,6 +259,7 @@ export const ListingCard = memo(function ListingCard({
     >
       <Link
         href={url}
+        prefetch={false}
         className={cn(css.hitArea, isHomepageCard && css.hitAreaHomepage)}
         aria-label={product.title}
         onClick={go}

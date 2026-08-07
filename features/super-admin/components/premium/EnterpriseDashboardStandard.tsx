@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { SuperAdminPremiumCard } from "@/features/super-admin/components/premium/SuperAdminPremiumCard";

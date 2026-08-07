@@ -1,5 +1,3 @@
-"use client";
-
 import { CanonicalButtonLink, CanonicalCard, CanonicalSection } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 

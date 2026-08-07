@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 import type { NocHealthCard, NocHealthStatus } from "@/lib/super-admin/noc-v1/types";
 

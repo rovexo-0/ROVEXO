@@ -1,5 +1,3 @@
-"use client";
-
 import { Card } from "@/components/ui/Card";
 import type { PerformanceSnapshot } from "@/lib/super-admin/operations/types";
 

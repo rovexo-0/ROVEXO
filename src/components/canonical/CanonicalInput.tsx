@@ -1,5 +1,3 @@
-"use client";
-
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { cdsInputTypeAttr } from "./utils";

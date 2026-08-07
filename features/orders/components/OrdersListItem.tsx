@@ -74,6 +74,7 @@ export function OrdersListItem({ order, href, status, priceAmount }: OrdersListI
   return (
     <Link
       href={href}
+      prefetch={false}
       className={cn("orders-page__item", status.cssClass)}
       data-order-id={order.id}
       data-order-status={order.status}

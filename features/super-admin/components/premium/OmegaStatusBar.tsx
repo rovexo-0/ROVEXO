@@ -1,5 +1,3 @@
-"use client";
-
 import type { OmegaValidationItem } from "@/lib/super-admin/premium/omega-status";
 import { allValidationsPass, computeOmegaCertification } from "@/lib/super-admin/premium/omega-status";
 import { SuperAdminStatusBadge } from "@/features/super-admin/components/premium/SuperAdminPremiumCard";

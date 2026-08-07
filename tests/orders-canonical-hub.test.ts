@@ -39,7 +39,9 @@ describe("OrdersPage single source of truth", () => {
     expect(css).toContain("width: 40px");
     expect(css).toContain("max-width: none");
     expect(css).not.toContain("orders-page__notify");
-    expect(indexCss).toContain("orders-page-v1.css");
+    // P0-01: orders-page-v1 is page-scoped on OrdersPage (not global megabundle).
+    expect(ui).toContain('import "@/styles/rovexo/orders-page-v1.css"');
+    expect(indexCss).not.toContain("./orders-page-v1.css");
     expect(indexCss).not.toContain("orders-hub-v1.css");
     expect(indexCss).not.toContain("orders-canonical-v1.css");
 

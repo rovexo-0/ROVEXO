@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { CanonicalCard } from "@/src/components/canonical";
 import { CommerceStatusBadge } from "@/features/commerce-ui/components/CommerceStatusBadge";

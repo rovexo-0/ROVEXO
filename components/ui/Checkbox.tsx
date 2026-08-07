@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 import { forwardRef, type InputHTMLAttributes } from "react";
 import { focusRing } from "@/components/ui/tokens";

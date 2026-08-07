@@ -965,6 +965,7 @@ export function InboxPage() {
                 <li key={conversation.id}>
                   <Link
                     href={INBOX_ROUTES.conversation(conversation.id)}
+                    prefetch={false}
                     className="inbox-hub__card"
                   >
                     <span className="inbox-hub__media">

@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import type { SecuritySnapshot } from "@/lib/super-admin/operations/types";

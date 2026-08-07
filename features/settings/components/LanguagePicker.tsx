@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * LanguagePicker REMOVED — English (UK) only permanent lock.
  * Kept as empty stub so residual imports do not crash.

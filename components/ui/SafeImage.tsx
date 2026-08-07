@@ -58,6 +58,8 @@ export function SafeImage({
   fill,
   width,
   height,
+  priority,
+  fetchPriority,
   onError,
   onLoad,
   ...rest
@@ -67,6 +69,8 @@ export function SafeImage({
   const broken = failedKey === sourceKey;
 
   const usable = isUsableSafeImageSrc(src) && !broken;
+  /* P1 CWV: LCP candidates with `priority` also declare high fetch priority explicitly. */
+  const resolvedFetchPriority = fetchPriority ?? (priority ? "high" : undefined);
 
   if (!usable) {
     if (fallback === "hide") return null;
@@ -99,6 +103,8 @@ export function SafeImage({
       height={height}
       className={className}
       style={style}
+      priority={priority}
+      fetchPriority={resolvedFetchPriority}
       onLoad={(event) => {
         /* Optimizer/host failures and corrupt Storage objects can report
          * complete with 0×0 or 1×1 placeholders — treat as broken. */

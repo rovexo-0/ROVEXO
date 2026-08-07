@@ -1,5 +1,8 @@
 "use client";
 
+/* P0-01: page-scoped Make Offer CSS — not loaded via platform index. */
+import "@/styles/rovexo/make-offer-v1.css";
+
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SafeImage } from "@/components/ui/SafeImage";

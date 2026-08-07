@@ -1,5 +1,3 @@
-"use client";
-
 type MiniSparklineProps = {
   value: number;
   max: number;

@@ -1,5 +1,8 @@
 "use client";
 
+/* P0-01: page-scoped — do not also import via styles/rovexo/index.css (Turbopack dual-import). */
+import "@/styles/rovexo/conversation-hub-v1.css";
+
 import {
   useCallback,
   useEffect,
@@ -78,7 +81,7 @@ import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { invalidateShareInflight, shareInflightJson } from "@/lib/performance/fetch";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
-/* conversation-hub-v1.css loads via styles/rovexo/index.css — do not dual-import (Turbopack CSS). */
+/* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
 
 function formatCompactSystemWhen(iso: string): string {
   const date = new Date(iso);

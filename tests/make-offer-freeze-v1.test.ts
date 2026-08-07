@@ -75,6 +75,7 @@ describe("Make Offer Cod Sânge v1.0 FINAL FREEZE", () => {
     expect(css).toContain("linear-gradient(135deg, #a855f7");
     expect(css).not.toContain("#14b8a6");
     expect(css).not.toContain("teal");
-    expect(index).toContain("./make-offer-v1.css");
+    expect(sheet).toContain('import "@/styles/rovexo/make-offer-v1.css"');
+    expect(index).not.toContain("./make-offer-v1.css");
   });
 });

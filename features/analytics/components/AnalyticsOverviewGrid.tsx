@@ -1,5 +1,3 @@
-"use client";
-
 import { formatOverviewValue } from "@/lib/analytics/utils";
 import type { AnalyticsOverviewMetric } from "@/lib/analytics/types";
 import { CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";

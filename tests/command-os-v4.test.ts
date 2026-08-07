@@ -45,8 +45,12 @@ describe("ROVEXO Command OS Enterprise v4.0", () => {
     expect(api).toContain("executeCommandOsAction");
     expect(api).toContain("requireApiSuperAdmin");
 
-    const styles = readSource("styles/rovexo/index.css");
-    expect(styles).toContain("command-os-v4.css");
+    const styles = readSource("styles/rovexo/enterprise-admin-entry.css");
+    expect(styles).toContain("./command-os-v4.css");
+    expect(readSource("styles/rovexo/index.css")).not.toContain("./command-os-v4.css");
+    expect(readSource("features/command-centre/CommandCentreLayout.tsx")).toContain(
+      'import "@/styles/rovexo/enterprise-admin-entry.css"',
+    );
   });
 
   it("exposes global search across Command OS registries", () => {

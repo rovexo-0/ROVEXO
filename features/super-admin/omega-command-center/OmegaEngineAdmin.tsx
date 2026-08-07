@@ -1,5 +1,3 @@
-"use client";
-
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { getEngineTabs } from "@/lib/omega-command-center/engines";
 import { OMEGA_ENGINE_ROUTES } from "@/lib/omega-command-center/registry";

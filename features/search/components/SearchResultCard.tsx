@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
@@ -83,15 +83,23 @@ export const SearchResultCard = memo(function SearchResultCard({
     typeof props.originalPrice === "number" && props.originalPrice > props.price;
   const breadcrumbs = product.categoryBreadcrumbs ?? [];
 
+  const handleHover = useCallback(() => {
+    if (onHoverIndex != null && hoverNavIndex != null) {
+      onHoverIndex(hoverNavIndex);
+    }
+  }, [onHoverIndex, hoverNavIndex]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
   return (
     <li
       id={elementId}
       role="option"
       aria-selected={isActive}
       onMouseEnter={
-        onHoverIndex != null && hoverNavIndex != null
-          ? () => onHoverIndex(hoverNavIndex)
-          : undefined
+        onHoverIndex != null && hoverNavIndex != null ? handleHover : undefined
       }
       className={cn(
         "rx-search-result-in group relative flex gap-3 rounded-2xl border border-border bg-surface p-3",
@@ -102,6 +110,7 @@ export const SearchResultCard = memo(function SearchResultCard({
     >
       <Link
         href={props.href}
+        prefetch={false}
         aria-label={product.title}
         onClick={onNavigate}
         tabIndex={-1}
@@ -115,7 +124,7 @@ export const SearchResultCard = memo(function SearchResultCard({
           fill
           loading="lazy"
           sizes="72px"
-          onLoad={() => setImageLoaded(true)}
+          onLoad={handleImageLoad}
           className={cn(
             "object-cover transition-[opacity,transform] duration-500 ease-ds group-hover:scale-[1.05]",
             imageLoaded ? "opacity-100" : "opacity-0",

@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 import type { LiveStatusBadgeVariant } from "@/features/super-admin/command-center-v1/lib/resolve-metric-display";
 

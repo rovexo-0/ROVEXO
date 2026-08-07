@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 import { TRUST_TIER_LABELS } from "@/lib/trust/constants";
 import type { TrustTier } from "@/lib/trust/types";

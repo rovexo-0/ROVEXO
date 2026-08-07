@@ -1,5 +1,3 @@
-"use client";
-
 import type { LiveEventItem } from "@/lib/analytics/live-center/types";
 
 const EVENT_ICONS: Record<LiveEventItem["type"], string> = {

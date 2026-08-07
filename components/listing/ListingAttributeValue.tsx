@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { LISTING_ATTRIBUTE_VALUE_V1 } from "@/lib/listing-attributes/listing-attribute-value-v1";

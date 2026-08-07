@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";

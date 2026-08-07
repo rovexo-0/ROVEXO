@@ -121,7 +121,13 @@ export function CanonicalMenuRow({
 
   if (href) {
     return (
-      <Link href={href} id={id} className={rowClassName} aria-label={ariaLabel}>
+      <Link
+        href={href}
+        prefetch={false}
+        id={id}
+        className={rowClassName}
+        aria-label={ariaLabel}
+      >
         {content}
       </Link>
     );

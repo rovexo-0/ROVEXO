@@ -1,5 +1,3 @@
-"use client";
-
 import { Card } from "@/components/ui/Card";
 import type { MonetizationPlan } from "@/lib/monetization/types";
 import { MONETIZATION_PRODUCTS } from "@/lib/monetization/types";

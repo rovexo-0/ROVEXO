@@ -1,5 +1,3 @@
-"use client";
-
 import { publishPhaseLabel, type PublishPhase } from "@/lib/sell/publish-engine";
 
 type PublishingOverlayProps = {

@@ -1,5 +1,3 @@
-"use client";
-
 type StatusHeaderProps = {
   platformStatus: "healthy" | "degraded" | "unhealthy";
   generatedAt: string;

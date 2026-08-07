@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { cn } from "@/lib/cn";
 import type { TrackingTimelineItem } from "@/lib/shipping/tracking";

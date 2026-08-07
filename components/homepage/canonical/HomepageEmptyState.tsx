@@ -1,5 +1,3 @@
-"use client";
-
 import { PremiumButtonLink } from "@/components/ui/PremiumButton";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 

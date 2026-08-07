@@ -3,8 +3,6 @@
  * Size 24 · stroke 1.9 · colour via currentColor · no emoji · no grey.
  */
 
-"use client";
-
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
 import {

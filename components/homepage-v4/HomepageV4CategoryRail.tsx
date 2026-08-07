@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ROVEXO_HOMEPAGE_CATEGORIES } from "@/components/home/constants";
 import { cn } from "@/lib/cn";

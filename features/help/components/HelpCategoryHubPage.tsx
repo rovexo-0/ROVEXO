@@ -1,5 +1,3 @@
-"use client";
-
 import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { renderMarkdown } from "@/lib/help/markdown";

@@ -1,5 +1,3 @@
-"use client";
-
 import { clampStockLevel } from "@/lib/sell/inventory";
 import type { ProductDetail } from "@/lib/products/types";
 

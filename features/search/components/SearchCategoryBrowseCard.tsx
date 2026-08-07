@@ -19,6 +19,8 @@ type SearchCategoryBrowseCardProps = {
   href?: string;
   /** Prefer rail icon key when slug ≠ icon (e.g. kids → kids-fashion). */
   iconKey?: string;
+  /** Above-fold Search/Browse LCP tiles only (first grid rows). */
+  priority?: boolean;
 };
 
 function formatItemCount(count: number): string {
@@ -43,6 +45,7 @@ export const SearchCategoryBrowseCard = memo(function SearchCategoryBrowseCard({
   itemCount,
   href,
   iconKey,
+  priority = false,
 }: SearchCategoryBrowseCardProps) {
   const premiumKey = resolvePremiumKey(iconKey, slug);
   const artSrc = getSearchCategoryHeroPath(premiumKey);
@@ -50,6 +53,7 @@ export const SearchCategoryBrowseCard = memo(function SearchCategoryBrowseCard({
   return (
     <Link
       href={href ?? `/category/${encodeURIComponent(slug)}`}
+      prefetch={false}
       className={cn("srch-land__cat", focusRing)}
       aria-label={`${name}, ${formatItemCount(itemCount)}`}
     >
@@ -61,7 +65,9 @@ export const SearchCategoryBrowseCard = memo(function SearchCategoryBrowseCard({
           height={512}
           className="srch-land__cat-img"
           sizes="(max-width: 640px) 33vw, 180px"
-          unoptimized
+          /* P1 CWV: AVIF/WebP via optimizer (local PNG heroes) — same art, smaller bytes. */
+          priority={priority}
+          loading={priority ? undefined : "lazy"}
         />
       </span>
       <span className="srch-land__cat-meta">

@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 import { forwardRef, type SelectHTMLAttributes } from "react";
 import { rxInput } from "@/components/ui/tokens";

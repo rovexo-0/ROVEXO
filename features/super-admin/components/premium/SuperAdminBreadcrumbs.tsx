@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import type { SuperAdminBreadcrumb } from "@/lib/super-admin/premium/types";
 

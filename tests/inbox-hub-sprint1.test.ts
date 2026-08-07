@@ -29,7 +29,10 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
     expect(legacyNotifications).toContain("INBOX_ROUTES.notificationsTab");
     expect(conversation).toContain("ConversationHub");
     expect(css).toContain(".inbox-hub");
-    expect(index).toContain("./inbox-hub-v1.css");
+    expect(readSource("features/inbox/components/InboxPage.tsx")).toContain(
+      'import "@/styles/rovexo/inbox-hub-v1.css"',
+    );
+    expect(index).not.toContain("./inbox-hub-v1.css");
   });
 
   it("exposes canonical routes and unread counter", () => {

@@ -1,5 +1,3 @@
-"use client";
-
 import { MobileHubNavigator } from "@/features/mobile-ui";
 import type { MobilePrimaryHubId } from "@/lib/mobile-ui/types";
 import type { UserProfile } from "@/lib/profile/types";

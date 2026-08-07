@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import type { CommandCenterQuickAction } from "@/lib/super-admin/command-center-v1/types";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import type { HelpSolution, HelpTopicSlug } from "@/lib/help/types";
 import { getHelpTopic } from "@/lib/help/content/topics";

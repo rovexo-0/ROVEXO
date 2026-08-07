@@ -29,6 +29,14 @@ const SUGGESTION_ICONS = {
   location: RovexoIcons.dashboard.addresses,
 } as const;
 
+/** Stable default — inline `= [...]` recreates the array every render and busts kindsSet memo. */
+const DEFAULT_SUGGESTION_KINDS: Array<"product" | "category" | "brand" | "location"> = [
+  "product",
+  "category",
+  "brand",
+  "location",
+];
+
 type SuggestionRow =
   | { kind: "product"; key: string; product: Product }
   | { kind: "category" | "brand" | "location"; key: string; href: string; title: string };
@@ -41,7 +49,7 @@ export function SearchSuggestionList({
   onHoverIndex,
   onNavigate,
   maxProducts = 5,
-  kinds = ["product", "category", "brand", "location"],
+  kinds = DEFAULT_SUGGESTION_KINDS,
 }: SearchSuggestionListProps) {
   const kindsSet = useMemo(() => new Set(kinds), [kinds]);
 
@@ -123,6 +131,7 @@ export function SearchSuggestionList({
           >
             <Link
               href={row.href}
+              prefetch={false}
               onMouseEnter={() => onHoverIndex(currentIndex)}
               onClick={onNavigate}
               className={cn(

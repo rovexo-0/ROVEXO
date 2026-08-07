@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/cn";
 
 export function FieldError({ message }: { message?: string }) {

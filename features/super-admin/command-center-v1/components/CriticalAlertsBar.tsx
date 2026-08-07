@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import type { NocCriticalAlert } from "@/lib/super-admin/noc-v1/types";

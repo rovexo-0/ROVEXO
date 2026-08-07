@@ -97,7 +97,7 @@ const BrowseCategoriesGrid = memo(function BrowseCategoriesGrid({
         </Link>
       </div>
       <div className="srch-land__grid">
-        {ROVEXO_HOME_CATEGORY_RAIL.map((item) => (
+        {ROVEXO_HOME_CATEGORY_RAIL.map((item, index) => (
           <SearchCategoryBrowseCard
             key={item.slug}
             name={item.name}
@@ -105,6 +105,8 @@ const BrowseCategoriesGrid = memo(function BrowseCategoriesGrid({
             iconKey={item.icon}
             itemCount={countBySlug.get(item.slug) ?? 0}
             href={item.href ?? `/category/${encodeURIComponent(item.slug)}`}
+            /* First two mobile rows (3-col) are above-fold LCP candidates. */
+            priority={index < 6}
           />
         ))}
       </div>

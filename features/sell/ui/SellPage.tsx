@@ -1,5 +1,8 @@
 "use client";
 
+/* P0-01: page-scoped Sell CSS — not loaded on Homepage/Search via platform index. */
+import "@/styles/rovexo/sell.css";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { CanonicalModal } from "@/src/components/canonical";

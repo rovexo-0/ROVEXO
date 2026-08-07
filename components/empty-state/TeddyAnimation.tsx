@@ -1,5 +1,3 @@
-"use client";
-
 import styles from "./teddy-empty-state.module.css";
 import { TEDDY_EMPTY_STATE_V1 } from "@/lib/empty-state";
 

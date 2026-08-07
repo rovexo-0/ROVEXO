@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { buttonVariants } from "@/components/ui/variants";

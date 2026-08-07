@@ -1,5 +1,8 @@
 "use client";
 
+/* P0-01: page-scoped Cart CSS — not loaded on Homepage/Search via platform index. */
+import "@/styles/rovexo/cart-v1.css";
+
 import { useCallback, useMemo, useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";

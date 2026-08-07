@@ -1,5 +1,3 @@
-"use client";
-
 import { useAnimatedNumber } from "@/features/super-admin/live-analytics/hooks/useAnimatedNumber";
 
 type AnimatedNumberProps = {

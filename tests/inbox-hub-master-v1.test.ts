@@ -83,6 +83,9 @@ describe("Inbox Hub Master Implementation v1.0", () => {
       readSource("features/notifications/components/NotificationsEmptyState.tsx"),
     ).toThrow();
     expect(readSource("styles/rovexo/index.css")).toContain("./rvx-topbar-v1.css");
-    expect(readSource("styles/rovexo/index.css")).toContain("./inbox-hub-v1.css");
+    expect(readSource("features/inbox/components/InboxPage.tsx")).toContain(
+      'import "@/styles/rovexo/inbox-hub-v1.css"',
+    );
+    expect(readSource("styles/rovexo/index.css")).not.toContain("./inbox-hub-v1.css");
   });
 });

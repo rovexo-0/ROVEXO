@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Store Showcase analytics — high-level exposure only.
  * Never renders decay %, day math, or row calculations.

@@ -1,5 +1,8 @@
 "use client";
 
+/* P0-02: Enterprise/Admin CSS — load only with Command Centre (not marketplace megabundle). */
+import "@/styles/rovexo/enterprise-admin-entry.css";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, useSyncExternalStore, type ReactNode } from "react";

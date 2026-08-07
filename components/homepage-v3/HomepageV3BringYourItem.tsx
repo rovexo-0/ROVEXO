@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import { cn } from "@/lib/cn";

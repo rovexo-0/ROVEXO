@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * ROVEXO GLOBAL BUTTON RECOVERY v1.0 — PrimaryButton SSOT
  * Functional Profile geometry: 56px · radius 16 · 16/600 · full width · purple.

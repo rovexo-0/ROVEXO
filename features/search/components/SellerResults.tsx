@@ -33,6 +33,7 @@ export function SellerResults({
           <li key={seller.href} role="option" aria-selected={isActive}>
             <Link
               href={seller.href}
+              prefetch={false}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(
@@ -57,6 +58,7 @@ export function SellerResults({
           <li key={user.id} role="option" aria-selected={isActive}>
             <Link
               href={user.href}
+              prefetch={false}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(

@@ -30,6 +30,7 @@ export function StoreResults({
           <li key={store.id} role="option" aria-selected={isActive}>
             <Link
               href={store.href}
+              prefetch={false}
               onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(

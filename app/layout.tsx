@@ -47,13 +47,17 @@ const geistSans = Geist({
   subsets: ["latin"],
   display: "swap",
   preload: true,
+  /* P1 CWV: size-adjusted fallbacks reduce font-swap CLS on mobile. */
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  /* Mono is rare (e.g. shipping barcode) — do not compete with LCP sans preload. */
   preload: false,
+  adjustFontFallback: true,
 });
 
 // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
