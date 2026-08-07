@@ -283,6 +283,14 @@ export function RealtimeNotificationProvider({
         onStatus: (status) => {
           if (status === "SUBSCRIBED") {
             reconnectAttempts = 0;
+            try {
+              // eslint-disable-next-line no-console -- TEMP P0 live repair probe
+              console.info("[ROVEXO][PUSH_RT_FLOW]", "SUBSCRIBE_OK", {
+                channel: "notifications",
+              });
+            } catch {
+              /* ignore */
+            }
             triggerCheckoutSessionSelfHeal("realtime-subscribed");
             return;
           }

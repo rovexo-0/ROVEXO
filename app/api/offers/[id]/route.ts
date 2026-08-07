@@ -320,6 +320,17 @@ export async function PATCH(request: Request, context: RouteContext) {
         reason: "offer_cancelled",
       });
     }
+    const cancelNotifyUser = offer.seller_id === user.id ? offer.buyer_id : offer.seller_id;
+    void emitSmartNotification({
+      userId: cancelNotifyUser,
+      eventType: "offer_cancelled",
+      idempotencyKey: `offer-cancel:${id}:${user.id}`,
+      notificationType: "offer",
+      title: "Offer cancelled",
+      subtitle: `Offer £${Number(offer.amount).toFixed(2)} was cancelled`,
+      href,
+      payload: { offerId: id, bundleId: bundle?.bundleId ?? null },
+    });
     return NextResponse.json({ success: true, status: "cancelled", offerId: id });
   }
 

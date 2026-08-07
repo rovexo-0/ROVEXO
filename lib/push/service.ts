@@ -3,6 +3,7 @@ import { configureWebPush, isPushConfigured, webpush, type PushPriority } from "
 import { resolvePushNotificationHref } from "@/lib/push/resolve-push-notification-href-v1";
 import { isWithinQuietHours } from "@/lib/notifications/quiet-hours";
 import { checkRateLimit } from "@/lib/api/rate-limit";
+import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 
 export type PushPayload = {
   title: string;
@@ -52,7 +53,8 @@ export async function sendPushNotification(
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (!(settings?.push_enabled ?? false)) {
+  if (!(settings?.push_enabled ?? true)) {
+    logPushRtFlow("SKIP_PUSH", { reason: "push_enabled_false", userId });
     return result;
   }
 
@@ -77,12 +79,22 @@ export async function sendPushNotification(
     .eq("user_id", userId);
 
   if (!subscriptions?.length) {
+    logPushRtFlow("DELIVERY_FAILED", { reason: "no_subscriptions", userId });
     return result;
   }
 
   const sound = payload.sound ?? settings?.sound ?? true;
   const vibration = payload.vibration ?? settings?.vibration ?? true;
   const silent = payload.silent ?? false;
+
+  logPushRtFlow("DELIVERY_START", {
+    userId,
+    subscriptionCount: subscriptions.length,
+    silent,
+    priority,
+    eventType: payload.eventType,
+    platforms: subscriptions.map((s) => s.platform),
+  });
 
   const resolvedHref = resolvePushNotificationHref(payload.href, {
     title: payload.title,
@@ -110,6 +122,7 @@ export async function sendPushNotification(
       continue;
     }
 
+    const isApple = /web\.push\.apple\.com/i.test(subscription.endpoint);
     const logBase = {
       user_id: userId,
       channel: "push",
@@ -130,6 +143,11 @@ export async function sendPushNotification(
     };
 
     if (!pushReady) {
+      logPushRtFlow("DELIVERY_FAILED", {
+        reason: "vapid_not_configured",
+        userId,
+        apple: isApple,
+      });
       await admin.from("notification_delivery_log").insert({
         ...logBase,
         status: "failed",
@@ -142,7 +160,7 @@ export async function sendPushNotification(
     }
 
     try {
-      await webpush.sendNotification(
+      const response = await webpush.sendNotification(
         {
           endpoint: subscription.endpoint,
           keys: {
@@ -157,15 +175,66 @@ export async function sendPushNotification(
         },
       );
 
+      const statusCode =
+        typeof response === "object" && response && "statusCode" in response
+          ? (response as { statusCode?: number }).statusCode
+          : 201;
+      logPushRtFlow("WEBPUSH_RESPONSE", {
+        userId,
+        statusCode,
+        apple: isApple,
+        silent,
+        priority,
+        endpointHost: (() => {
+          try {
+            return new URL(subscription.endpoint).host;
+          } catch {
+            return "invalid";
+          }
+        })(),
+      });
+      if (isApple) {
+        logPushRtFlow("APPLE_RESPONSE", { userId, statusCode, silent, priority });
+      }
+
       await admin.from("notification_delivery_log").insert({
         ...logBase,
         status: "sent",
         delivered_at: new Date().toISOString(),
       });
       result.sent += 1;
+      logPushRtFlow("DELIVERY_SUCCESS", {
+        userId,
+        apple: isApple,
+        notificationId: payload.notificationId,
+      });
     } catch (error: unknown) {
       const statusCode = (error as { statusCode?: number })?.statusCode;
+      const body = (error as { body?: string })?.body;
       const errorMessage = error instanceof Error ? error.message : "Push delivery failed";
+
+      logPushRtFlow("WEBPUSH_RESPONSE", {
+        userId,
+        statusCode,
+        error: errorMessage,
+        body: typeof body === "string" ? body.slice(0, 200) : undefined,
+        apple: isApple,
+        silent,
+      });
+      if (isApple) {
+        logPushRtFlow("APPLE_RESPONSE", {
+          userId,
+          statusCode,
+          error: errorMessage,
+          silent,
+        });
+      }
+      logPushRtFlow("DELIVERY_FAILED", {
+        userId,
+        apple: isApple,
+        statusCode,
+        error: errorMessage,
+      });
 
       if (statusCode && STALE_STATUS_CODES.has(statusCode)) {
         await admin.from("push_subscriptions").delete().eq("id", subscription.id);

@@ -76,7 +76,8 @@ import { formatCurrency } from "@/lib/wallet/utils";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
-import { shareInflightJson } from "@/lib/performance/fetch";
+import { invalidateShareInflight, shareInflightJson } from "@/lib/performance/fetch";
+import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css loads via styles/rovexo/index.css — do not dual-import (Turbopack CSS). */
 
 function formatCompactSystemWhen(iso: string): string {
@@ -724,7 +725,20 @@ export function ConversationHub({
           event.type === "dispute.updated" ||
           event.type === "order.updated"
         ) {
-          void reloadRelated();
+          logPushRtFlow("REALTIME_EVENT_RECEIVED", {
+            type: event.type,
+            conversationId: conversation.id,
+            productId: conversation.product.id,
+          });
+          // Bust soft cache so peer Offer/Order UI updates without Refresh.
+          invalidateShareInflight("GET:/api/offers?");
+          invalidateShareInflight("GET:/api/orders");
+          void reloadRelated().then(() => {
+            logPushRtFlow("UI_UPDATED", {
+              type: event.type,
+              conversationId: conversation.id,
+            });
+          });
         }
       },
       {

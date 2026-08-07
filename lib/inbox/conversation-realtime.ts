@@ -122,6 +122,23 @@ export function subscribeConversationRealtime(
           filter: `product_id=eq.${productId}`,
         },
         (payload) => {
+          try {
+            // TEMP P0: postgres change received on this client; emit drives peer UI.
+            console.info("[ROVEXO][PUSH_RT_FLOW]", "REALTIME_EVENT_RECEIVED", {
+              table: "offers",
+              event: payload.eventType,
+              conversationId,
+              productId,
+            });
+            console.info("[ROVEXO][PUSH_RT_FLOW]", "REALTIME_EVENT_SENT", {
+              table: "offers",
+              hubEvent: "offer.updated",
+              conversationId,
+              productId,
+            });
+          } catch {
+            /* ignore */
+          }
           emit(handler, conversationId, "offer.updated", (payload.new ?? payload.old) as Record<
             string,
             unknown

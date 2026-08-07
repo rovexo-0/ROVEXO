@@ -171,6 +171,24 @@ export async function subscribeToBrowserPush(
     }),
   });
 
+  if (response.ok) {
+    try {
+      const { logPushRtFlow } = await import("@/lib/push/push-realtime-flow-log-v1");
+      logPushRtFlow("SUBSCRIBE_OK", {
+        endpointHost: (() => {
+          try {
+            return new URL(json.endpoint).host;
+          } catch {
+            return "invalid";
+          }
+        })(),
+        platform: detectPlatform(),
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   return response.ok;
 }
 

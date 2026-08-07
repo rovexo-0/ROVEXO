@@ -12,6 +12,7 @@ import {
   shouldSendForegroundPush,
 } from "@/lib/notifications/grouping";
 import { resolveSmartNotificationHref } from "@/lib/notifications/routing";
+import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 
 type NotificationType = Tables<"notifications">["type"];
 
@@ -41,6 +42,7 @@ export type SmartNotificationEventType =
   | "tracking_updated"
   | "offer_accepted"
   | "offer_declined"
+  | "offer_cancelled"
   | "offer_expired"
   | "item_back_in_stock"
   | "favorite_price_changed"
@@ -119,6 +121,10 @@ function eventPreferenceCategory(eventType: SmartNotificationEventType): Prefere
       return "orders";
     case "new_message":
     case "new_offer":
+    case "offer_accepted":
+    case "offer_declined":
+    case "offer_cancelled":
+    case "offer_expired":
       return "messages";
     case "payment_received":
     case "payout":
@@ -237,6 +243,13 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
       href: resolvedHref,
     });
   const silent = !shouldSendForegroundPush(priority);
+  logPushRtFlow("EVENT_CREATED", {
+    eventType: input.eventType,
+    userId: input.userId,
+    priority,
+    silent,
+    idempotencyKey: input.idempotencyKey,
+  });
 
   const persistedType =
     input.notificationType === "follower" ? ("system" as const) : input.notificationType;
@@ -256,8 +269,21 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
   });
 
   if (!notificationId) {
+    logPushRtFlow("DELIVERY_FAILED", {
+      reason: "notification_create_failed",
+      eventType: input.eventType,
+      userId: input.userId,
+    });
     return false;
   }
+
+  logPushRtFlow("NOTIFICATION_CREATED", {
+    notificationId,
+    eventType: input.eventType,
+    userId: input.userId,
+    silent,
+    priority,
+  });
 
   await admin
     .from("notification_events")
@@ -273,6 +299,18 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     .eq("user_id", input.userId)
     .maybeSingle();
 
+  // Prefer push when settings row is missing (subscribed device must still receive Lock Screen).
+  const pushEnabled = settings?.push_enabled ?? true;
+
+  logPushRtFlow("DELIVERY_START", {
+    notificationId,
+    eventType: input.eventType,
+    userId: input.userId,
+    skipPush: !pushEnabled,
+    silent,
+    priority,
+  });
+
   await deliverNotificationChannels({
     userId: input.userId,
     notificationId,
@@ -285,7 +323,7 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     silent,
     groupKey,
     email: input.email,
-    skipPush: !(settings?.push_enabled ?? false),
+    skipPush: !pushEnabled,
   });
 
   return true;

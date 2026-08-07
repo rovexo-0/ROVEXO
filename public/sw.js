@@ -243,22 +243,21 @@ self.addEventListener("push", (event) => {
     badge: "/icons/icon-192.png",
     tag,
     renotify: true,
+    // Muting only — NEVER skip showNotification (Apple Web Push / Lock Screen requires it).
     silent,
-    vibrate: payload && payload.vibration === false ? undefined : [120, 60, 120],
+    vibrate: silent || (payload && payload.vibration === false) ? undefined : [120, 60, 120],
   };
 
-  if (silent) {
-    event.waitUntil(
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
       self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
         for (const client of clients) {
           client.postMessage({ type: "notification-sync", notificationId });
         }
       }),
-    );
-    return;
-  }
-
-  event.waitUntil(self.registration.showNotification(title, options));
+    ]),
+  );
 });
 
 self.addEventListener("notificationclick", (event) => {

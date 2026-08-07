@@ -3,6 +3,7 @@ import { sendPushNotification } from "@/lib/push/service";
 import { resolvePushNotificationHref } from "@/lib/push/resolve-push-notification-href-v1";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PushPriority } from "@/lib/push/vapid";
+import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 
 export type DeliverChannelsInput = {
   userId: string;
@@ -72,7 +73,15 @@ export async function deliverNotificationChannels(input: DeliverChannelsInput): 
       subtitle: input.subtitle,
       type: input.type,
     });
-    await sendPushNotification(input.userId, {
+    logPushRtFlow("DELIVERY_START", {
+      channel: "push",
+      notificationId: input.notificationId,
+      eventType: input.eventType,
+      userId: input.userId,
+      silent: input.silent ?? false,
+      priority: input.priority ?? "normal",
+    });
+    const result = await sendPushNotification(input.userId, {
       title: input.title,
       body: input.subtitle,
       href,
@@ -81,6 +90,17 @@ export async function deliverNotificationChannels(input: DeliverChannelsInput): 
       priority: input.priority,
       silent: input.silent,
       groupKey: input.groupKey,
+    });
+    logPushRtFlow(result.sent > 0 ? "DELIVERY_SUCCESS" : "DELIVERY_FAILED", {
+      channel: "push",
+      notificationId: input.notificationId,
+      ...result,
+    });
+  } else {
+    logPushRtFlow("SKIP_PUSH", {
+      notificationId: input.notificationId,
+      eventType: input.eventType,
+      userId: input.userId,
     });
   }
 }
