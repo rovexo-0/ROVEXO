@@ -158,9 +158,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* P9 — early connection setup for marketplace media + payments (delivery only). */}
+        {/* P9 — early connection setup for marketplace media (delivery only). */}
+        {/* OPT-P0-PERF-05: Stripe js.stripe.com preconnect is route-scoped to
+            app/(platform)/wallet/payment-methods/layout.tsx (sole loadStripe owner). */}
         {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
-        <link rel="preconnect" href="https://js.stripe.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-text-primary">
         {/* beforeInteractive — root layout only; replaces raw <script> (React 19). */}
