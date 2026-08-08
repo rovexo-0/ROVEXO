@@ -2,7 +2,10 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
-import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
+import {
+  HP_CANONICAL_LISTING_PROPS,
+  HP_FEED_LISTING_IMAGE_SIZES,
+} from "@/components/homepage/canonical/constants";
 import { CanonicalFeedSkeletonGrid } from "@/components/homepage/canonical/CanonicalFeedSkeleton";
 import { HomepageEmptyState } from "@/components/homepage/canonical/HomepageEmptyState";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
@@ -14,6 +17,11 @@ import { shareInflightJson } from "@/lib/performance/fetch";
 type CanonicalMarketplaceFeedProps = {
   initialPage: ProductsPage;
   reservedIds?: string[];
+  /**
+   * P0-01-A — when true, only the first feed card may be the homepage LCP image.
+   * Must be false whenever Featured Store / Showcase already owns the single LCP slot.
+   */
+  lcpImagePriority?: boolean;
 };
 
 const EMPTY_RESERVED_IDS: string[] = [];
@@ -43,6 +51,7 @@ function resolveSeedItems(initialPage: ProductsPage, reserved: Set<string>): Pro
 export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   initialPage,
   reservedIds = EMPTY_RESERVED_IDS,
+  lcpImagePriority = false,
 }: CanonicalMarketplaceFeedProps) {
   const reserved = useMemo(() => new Set(reservedIds), [reservedIds]);
   const seedItems = useMemo(
@@ -215,8 +224,10 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
               key={product.id}
               product={product}
               variant="grid"
-              priority={index < 2}
               {...HP_CANONICAL_LISTING_PROPS}
+              imageSizes={HP_FEED_LISTING_IMAGE_SIZES}
+              /* P0-01-A: at most one homepage LCP listing; never when Showcase owns it. */
+              priority={lcpImagePriority && index === 0}
             />
           ))
         )}

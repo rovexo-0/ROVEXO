@@ -4,7 +4,10 @@ import { memo, useMemo } from "react";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import type { HomepageV4Sections } from "@/lib/homepage/v4-data";
 import { CanonicalCategoryRail } from "@/components/homepage/canonical/CanonicalCategoryRail";
-import { FeaturedStoreSection } from "@/components/homepage/canonical/featured-store/FeaturedStoreSection";
+import {
+  FeaturedStoreSection,
+  selectHomepageFeaturedStore,
+} from "@/components/homepage/canonical/featured-store/FeaturedStoreSection";
 import { CanonicalMarketplaceFeed } from "@/components/homepage/canonical/CanonicalMarketplaceFeed";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 
@@ -29,6 +32,12 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
     return [...ids];
   }, [showcases]);
 
+  /* P0-01-A: Showcase owns the single LCP listing when it renders; else feed index 0. */
+  const showcaseOwnsLcp = useMemo(
+    () => selectHomepageFeaturedStore(showcases) != null,
+    [showcases],
+  );
+
   return (
     <ScrollContainer
       id="main-content"
@@ -40,7 +49,11 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
     >
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
-      <CanonicalMarketplaceFeed initialPage={feed} reservedIds={reservedIds} />
+      <CanonicalMarketplaceFeed
+        initialPage={feed}
+        reservedIds={reservedIds}
+        lcpImagePriority={!showcaseOwnsLcp}
+      />
     </ScrollContainer>
   );
 });
