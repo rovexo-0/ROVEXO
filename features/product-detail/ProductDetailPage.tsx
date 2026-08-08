@@ -1,5 +1,6 @@
 "use client";
 
+import "@/styles/rovexo/product-detail-v1.css";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui/Toast";

@@ -8,7 +8,7 @@
 @import "./listing-card-official.css";
 @import "./store-listing-card-premium-v1.css";
 @import "./promotion-cards-v1.css";
-@import "./product-detail-v1.css";
+/* OPT-P0-CSS-01: product-detail CSS is page-scoped via ProductDetailPage. */
 /* P0-01: make-offer / wallet / orders / inbox / conversation / cart / checkout / sell
    are page-scoped at feature entry points — not global — to shrink the marketplace megabundle.
    Auth (auth-v1) remains until P0-03. Enterprise/Admin → enterprise-admin-entry.css (P0-02). */
@@ -23,7 +23,7 @@
 @import "./my-account-primary-button-v1.css";
 @import "./account-settings-v1.css";
 @import "./account-settings-canonical.css";
-@import "./hmrc-reporting-centre-v1.css";
+/* OPT-P0-CSS-01: HMRC reporting CSS owned by ComplianceDashboard (page-scoped). */
 /* Page-scoped wallet sheets (balance / withdraw / payment-methods / bank-accounts)
    load from their feature entry points — not globally — to avoid cross-module CSS bleed.
    wallet-hub-v1.css is also page-scoped via WalletHubV1 (P0-01). */
@@ -33,11 +33,11 @@
 @import "./layout.css";
 @import "./header-premium.css";
 @import "./bottom-nav-premium.css";
-@import "./dashboard.css";
+/* OPT-P0-CSS-01: dashboard CSS is page-scoped via DashboardShell. */
 @import "./mobile-scroll-v1.css";
 @import "./mobile.css";
 @import "./hero.css";
-@import "./auctions.css";
+/* OPT-P0-CSS-01: auctions CSS is page-scoped via auctions route entry. */
 @import "./chrome-scroll.css";
 @import "./sign-out.css";
 @import "./home-polish.css";

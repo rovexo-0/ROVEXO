@@ -186,13 +186,14 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
 
     expect(page).not.toContain("ScrollContainer");
     expect(page).toContain('data-pd-scroll="document"');
+    expect(page).toContain('import "@/styles/rovexo/product-detail-v1.css"');
     expect(pdCss).toContain("--pd-v1-sticky-action-safety");
     expect(pdCss.indexOf(".pd-v1 .pd-v1__main")).toBeGreaterThan(-1);
     expect(scrollCss).toContain(".pd-v1 .pd-v1__main.rx-scroll-page--no-nav");
     expect(scrollCss).toContain("padding-bottom: calc(");
-    expect(indexCss.indexOf("product-detail-v1.css")).toBeLessThan(
-      indexCss.indexOf("mobile-scroll-v1.css"),
-    );
+    /* OPT-P0-CSS-01: PDP CSS is page-scoped; mobile-scroll stays global with higher specificity. */
+    expect(indexCss).not.toContain('@import "./product-detail-v1.css"');
+    expect(indexCss).toContain("mobile-scroll-v1.css");
   });
   it("uses transparent chrome overlay — no white title header", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
