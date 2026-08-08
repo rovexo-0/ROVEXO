@@ -92,9 +92,15 @@ export const metadata: Metadata = {
     description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
     images: ["/brand/og-image.png"],
   },
-  alternates: {
-    canonical: "/",
-  },
+  // P0-02: no root canonical — pages set absolute canonical via buildPageMetadata /
+  // route metadata. A global "/" canonical was inherited by soft-unavailable pages.
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

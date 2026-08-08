@@ -24,6 +24,8 @@ import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-se
 /** Empty featured rail input — canonical Homepage does not render a featured section. */
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 const siteUrl = getAppUrl();
+/** Absolute root canonical — trailing slash per organic growth Phase 1 contract. */
+const rootCanonical = siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
 
 export const revalidate = 60;
 
@@ -41,13 +43,13 @@ export const metadata: Metadata = {
   title: HOMEPAGE_OG_TITLE,
   description: HOMEPAGE_OG_DESCRIPTION,
   alternates: {
-    canonical: siteUrl,
+    canonical: rootCanonical,
   },
   openGraph: {
     title: HOMEPAGE_OG_TITLE,
     description: HOMEPAGE_OG_DESCRIPTION,
     type: "website",
-    url: siteUrl,
+    url: rootCanonical,
     siteName: "ROVEXO",
     images: [HOMEPAGE_OG_IMAGE],
   },
@@ -94,7 +96,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     preferredStores,
   });
 
-  const structuredData = homePageJsonLd(sections.feed.items, siteUrl);
+  const structuredData = homePageJsonLd(sections.feed.items, rootCanonical);
 
   return (
     <BetaAppShell

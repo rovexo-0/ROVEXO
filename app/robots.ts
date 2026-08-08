@@ -1,6 +1,14 @@
 import type { MetadataRoute } from "next";
+import { AUTH_PROTECTED_PREFIXES } from "@/lib/auth/protected-routes";
 import { getAppUrl } from "@/lib/supabase/env";
 import { isLaunchPrivateMode } from "@/lib/launch-certification/private-mode";
+
+/** Trailing-slash Disallow entries aligned with middleware auth surfaces. */
+function protectedPathDisallows(): string[] {
+  return AUTH_PROTECTED_PREFIXES.map((prefix) =>
+    prefix.endsWith("/") ? prefix : `${prefix}/`,
+  );
+}
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getAppUrl();
@@ -17,24 +25,15 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/admin/",
+          ...protectedPathDisallows(),
           "/api/",
-          "/checkout/",
-          "/account/",
-          "/seller/",
-          "/business/",
-          "/messages/",
-          "/orders/",
-          "/saved/",
-          "/notifications/",
-          "/resolution/",
+          "/staff/",
           "/login",
           "/register",
           "/forgot-password",
           "/reset-password",
           "/verify-email",
           "/auctions",
-          "/sell/auction",
         ],
       },
     ],

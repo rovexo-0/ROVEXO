@@ -19,6 +19,14 @@ export function productJsonLd(
         description: product.description,
         image: product.images,
         sku: product.slug,
+        ...(product.brand?.trim()
+          ? {
+              brand: {
+                "@type": "Brand",
+                name: product.brand.trim(),
+              },
+            }
+          : {}),
         offers: {
           "@type": "Offer",
           url,

@@ -98,6 +98,49 @@ export { buildSeoAnalyticsSnapshot } from "@/lib/seo/engine/analytics";
 export { buildSeoHealthCenterReport, type SeoHealthCenterReport } from "@/lib/seo/engine/health-center";
 export { runSeoRegressionSuite } from "@/lib/seo/engine/regression";
 
+/** Wave 0 — Core SEO Governance */
+export {
+  evaluateSeoEligibility,
+  evaluateListingSeoEligibility,
+  absoluteCanonicalFromPath,
+  type SeoEligibilityInput,
+  type SeoEligibilityResult,
+  type SeoEligibilityPageType,
+} from "@/lib/seo/engine/eligibility";
+
+export {
+  evaluateSeoProtection,
+  isSeoIndexExcludedPath,
+  type SeoProtectionInput,
+  type SeoProtectionResult,
+  type SeoProtectionVerdict,
+} from "@/lib/seo/engine/protection";
+
+export {
+  resolveSeoCanonical,
+  canonicalForHomepage,
+  canonicalForCategory,
+  canonicalForBrand,
+  canonicalForListing,
+  canonicalForStore,
+  canonicalForSeller,
+  canonicalForLocation,
+  CANONICAL_STRIP_PARAMS,
+  type SeoCanonicalResult,
+  type ResolveCanonicalInput,
+} from "@/lib/seo/engine/canonical";
+
+export {
+  SEO_LIFECYCLE_STATES,
+  SEO_LIFECYCLE_POLICIES,
+  resolveLifecyclePolicy,
+  resolveListingLifecycle,
+  lifecycleFromProductStatus,
+  type SeoLifecycleState,
+  type SeoLifecyclePolicy,
+  type SeoIndexationDecision,
+} from "@/lib/seo/engine/lifecycle";
+
 export {
   buildBrandPage,
   fetchBrandBySlug,

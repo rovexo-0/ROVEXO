@@ -25,11 +25,13 @@ import {
   optimizeInternalLinks,
 } from "@/lib/seo/engine/link-optimizer";
 import { safeStructuredDataJson, validateJsonLdGraph } from "@/lib/seo/engine/structured-data";
+import { evaluateSeoEligibility } from "@/lib/seo/engine/eligibility";
 import type { InternalLinkGroup } from "@/lib/seo/internal-links";
 import type { CrawlBudgetAssignment } from "@/lib/seo/engine/crawl-budget";
 import type { SeoQualityScore } from "@/lib/seo/engine/quality";
 import type { FacetEvaluation } from "@/lib/seo/engine/faceted-seo";
 import type { SearchDemandScore } from "@/lib/seo/engine/search-demand";
+import type { SeoEligibilityResult } from "@/lib/seo/engine/eligibility";
 
 export type OrganicGrowthPageContext = {
   page: OrganicLandingPage;
@@ -45,6 +47,8 @@ export type OrganicGrowthPageContext = {
   crawlBudget: CrawlBudgetAssignment;
   structuredDataValid: boolean;
   indexable: boolean;
+  /** Wave 0 final governance decision. */
+  eligibility: SeoEligibilityResult;
 };
 
 /** Full v4 organic growth pipeline for any landing page. */
@@ -102,7 +106,7 @@ export function buildOrganicGrowthContext(
   const structuredDataIssues = validateJsonLdGraph(provisionalJsonLd);
   const structuredDataValid = !structuredDataIssues.some((issue) => issue.severity === "critical");
 
-  const indexable =
+  const indexablePipeline =
     quality.indexable &&
     zeroDecision.indexable &&
     facet.decision === "index" &&
@@ -121,10 +125,26 @@ export function buildOrganicGrowthContext(
         ? enrichedPage.canonicalPath
         : enrichedPage.path;
 
+  // Wave 0 — final eligibility gate (protection → lifecycle → inventory/quality).
+  const eligibility = evaluateSeoEligibility({
+    pageType: enrichedPage.kind,
+    path: enrichedPage.path,
+    preferredCanonicalPath: canonicalPath,
+    listingCount: total,
+    qualityScore: quality.score,
+    duplicateRisk,
+    facetCount: enrichedPage.facetTypes.length,
+    taxonomyValid: true,
+    intentOk: true,
+  });
+
+  const indexable =
+    indexablePipeline && eligibility.eligible && eligibility.indexation === "INDEX";
+
   const metadata = buildPageMetadata({
     title: title.includes("ROVEXO") ? title : `${title} | ROVEXO`,
     description,
-    path: canonicalPath,
+    path: eligibility.canonical.valid ? eligibility.canonical.canonicalPath : canonicalPath,
     imageUrl: buildDynamicOgImageUrl({ title, path: enrichedPage.path }),
     noIndex: !indexable,
   });
@@ -145,7 +165,9 @@ export function buildOrganicGrowthContext(
         }
       : null;
 
-  const jsonLd = safeStructuredDataJson([...provisionalJsonLd, itemList]);
+  const jsonLd = safeStructuredDataJson(
+    eligibility.structuredDataEligible ? [...provisionalJsonLd, itemList] : [],
+  );
   const validationIssues = validateJsonLdGraph(jsonLd);
   const crawlBudget = assignCrawlBudget({ page: enrichedPage, quality, freshness });
 
@@ -163,6 +185,7 @@ export function buildOrganicGrowthContext(
     crawlBudget,
     structuredDataValid: !validationIssues.some((issue) => issue.severity === "critical"),
     indexable,
+    eligibility,
   };
 }
 

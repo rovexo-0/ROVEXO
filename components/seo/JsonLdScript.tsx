@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 type JsonLdScriptProps = {
   id: string;
   /** Structured data object, array, or pre-stringified JSON-LD payload. */
@@ -8,7 +6,8 @@ type JsonLdScriptProps = {
 
 /**
  * Canonical JSON-LD injection for App Router (Next.js 16 / React 19).
- * Uses `next/script` so React does not warn about raw <script> in components.
+ * Server-rendered `<script type="application/ld+json">` so crawlers receive
+ * structured data in the initial HTML (no delayed client injection).
  * Payload is scrubbed for XSS (`<` → `\u003c`) per Next.js JSON-LD guide.
  */
 export function JsonLdScript({ id, data }: JsonLdScriptProps) {
@@ -18,10 +17,9 @@ export function JsonLdScript({ id, data }: JsonLdScriptProps) {
       : JSON.stringify(data).replace(/</g, "\\u003c");
 
   return (
-    <Script
+    <script
       id={id}
       type="application/ld+json"
-      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: json }}
     />
   );

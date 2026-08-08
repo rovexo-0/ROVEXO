@@ -159,13 +159,10 @@ export async function updateSession(request: NextRequest) {
       return applyPendingCookies(NextResponse.redirect(target), pendingCookies);
     }
 
-    // Cold start: logged-out users opening the app land on Login (not Homepage).
-    if (!user && (pathname === "/" || pathname === "")) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      loginUrl.search = "";
-      return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
-    }
+    // P0-01 (Owner-approved): "/" is the public marketplace Homepage.
+    // Guests may crawl/render `/` with public catalogue data only.
+    // AUTH_PROTECTED_PREFIXES (account/wallet/orders/inbox/sell/admin/…) stay gated below.
+    // Splash/Welcome remain redirected to Login above. Do not widen this to other routes.
 
     if (pathname.startsWith("/auctions/") && pathname !== "/auctions") {
       const auctionsUrl = request.nextUrl.clone();
