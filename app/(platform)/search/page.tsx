@@ -28,7 +28,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     return buildPageMetadata({
       title: `Search results for “${q.trim()}”`,
       description: `Find ${q.trim()} and more on ROVEXO.`,
-      path: `/search?q=${encodeURIComponent(q.trim())}`,
+      path: "/search",
       noIndex: true,
     });
   }
@@ -36,7 +36,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     return buildPageMetadata({
       title: `Browse ${category.trim()}`,
       description: `Browse ${category.trim()} on ROVEXO.`,
-      path: `/search?category=${encodeURIComponent(category.trim())}`,
+      path: "/search",
       noIndex: true,
     });
   }
