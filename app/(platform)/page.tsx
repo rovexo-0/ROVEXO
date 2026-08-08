@@ -19,7 +19,6 @@ import { getAuthContext, getUserRole } from "@/lib/auth/session";
 import { getPlatformVisualConfig, getDefaultPlatformVisualConfig } from "@/lib/platform-visual/reader";
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
 import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
-import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
 
 /** Empty featured rail input — canonical Homepage does not render a featured section. */
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
@@ -68,8 +67,8 @@ type HomePageProps = {
 };
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  // Checkout TTL Absolute Law — self-heal before marketplace feed (no daily-cron dependency).
-  await awaitCheckoutSessionSelfHeal("homepage");
+  // OPT-P0-B-1: Checkout self-heal is NOT awaited on Homepage critical path.
+  // Ownership remains: listing / orders / wallet / seller / Buy Now / expire-stale / client trigger.
 
   const params = await searchParams;
   let previewMode: "live" | "draft" = "live";
