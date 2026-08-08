@@ -26,6 +26,14 @@ export const OFFICIAL_BRAND_PRIMARY_EMBLEM =
 /** Level III — RX only (Navigation / Headers / PWA) */
 export const OFFICIAL_BRAND_APP_ICON = "/brand/canonical-rx/app-icon-v1.png" as const;
 
+/**
+ * OPT-P0-LOGO-01 — Header chrome display asset ONLY.
+ * Sized for ~28–49 CSS-px rendering (112×112 Retina). Never the 2048 master PNG.
+ * Master Level III identity remains OFFICIAL_BRAND_APP_ICON.
+ */
+export const OFFICIAL_BRAND_HEADER_DISPLAY_ASSET =
+  "/brand/canonical-rx/app-icon-header-display-v1.webp" as const;
+
 /** Level IV — Simplified RX (Favicon 16–48) */
 export const OFFICIAL_BRAND_FAVICON_SOURCE =
   "/brand/canonical-rx/favicon-rx-v1.png" as const;

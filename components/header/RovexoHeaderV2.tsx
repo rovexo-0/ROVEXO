@@ -8,7 +8,10 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 import { SEARCH_PRIORITY_FREEZE_V1 } from "@/lib/header/search-priority-freeze-v1";
-import { OFFICIAL_BRAND_APP_ICON } from "@/lib/brand/official-brand-application-v1";
+import {
+  OFFICIAL_BRAND_APP_ICON,
+  OFFICIAL_BRAND_HEADER_DISPLAY_ASSET,
+} from "@/lib/brand/official-brand-application-v1";
 import "@/styles/rovexo/header-v2.css";
 
 export type RovexoHeaderV2Props = {
@@ -77,6 +80,8 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
 
   void HEADER_MASTER_FREEZE_V1.searchFirstMinimalist;
   void SEARCH_PRIORITY_FREEZE_V1.identicalMarketplaceChrome;
+  /* Brand freezes XXXVIII/XXXIX/XLI — Level III identity remains the master constant. */
+  void OFFICIAL_BRAND_APP_ICON;
 
   return (
     <HeaderScrollShell isAccountLayout={isAccountLayout}>
@@ -89,14 +94,12 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
         data-brand-level="III_APP_ICON"
       >
         <SafeImage
-          src={OFFICIAL_BRAND_APP_ICON}
+          src={OFFICIAL_BRAND_HEADER_DISPLAY_ASSET}
           alt="ROVEXO"
           width={28}
           height={28}
           className="rx-h2__logo-img"
           priority
-          quality={100}
-          unoptimized
         />
       </Link>
 
