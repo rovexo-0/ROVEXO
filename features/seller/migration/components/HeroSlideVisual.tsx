@@ -4,6 +4,7 @@ import { memo } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import type { RovexoIconRef } from "@/lib/icons/types";
 import { cn } from "@/lib/cn";
+import "@/styles/rovexo/hero.css";
 
 type HeroSlideVisualProps = {
   slideId: string;

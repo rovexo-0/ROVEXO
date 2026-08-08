@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MyAccountTemplate } from "@/features/account-canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import "@/styles/rovexo/rovexo-ideas-v1.css";
 import {
   ROVEXO_IDEAS_DOM,
   ROVEXO_IDEAS_EMPTY_COPY,

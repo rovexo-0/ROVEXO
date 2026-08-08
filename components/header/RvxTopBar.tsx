@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { OFFICIAL_BRAND_APP_ICON } from "@/lib/brand/official-brand-application-v1";
+import "@/styles/rovexo/rvx-topbar-v1.css";
 
 export function RvxTopBar({ children }: { children: ReactNode }) {
   return (

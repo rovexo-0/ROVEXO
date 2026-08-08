@@ -34,11 +34,14 @@ describe("My Account Primary Button — Global Button Recovery v1.0", () => {
     expect(myAccountPrimaryButtonSnapshot().locks.onePrimaryButtonSystem).toBe(true);
   });
 
-  it("ships Global primary CSS via index (My Account file delegates)", () => {
+  it("ships Global primary CSS via index (My Account file is page-isolated no-op)", () => {
     const index = readSource("styles/rovexo/index.css");
     const global = readSource("styles/rovexo/primary-button-v1.css");
+    const myAccount = readSource("styles/rovexo/my-account-primary-button-v1.css");
     expect(index).toContain("primary-button-v1.css");
-    expect(index).toContain("my-account-primary-button-v1.css");
+    /* OPT-P0-CSS-02: intentional no-op sheet removed from Homepage megabundle. */
+    expect(index).not.toContain('@import "./my-account-primary-button-v1.css"');
+    expect(myAccount).toContain("Intentional no-op");
     expect(global).toContain(MY_ACCOUNT_PRIMARY_GRADIENT);
     expect(global).toContain("--rx-primary-height: 56px");
     expect(global).toContain(".cds-button--primary");

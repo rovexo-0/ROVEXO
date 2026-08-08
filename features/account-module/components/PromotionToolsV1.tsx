@@ -24,6 +24,7 @@ import {
   type PromotionPaymentMethodId,
 } from "@/lib/promotions/payment-safe";
 import { resolvePromotionSuccessContent } from "@/lib/promotions/success-copy";
+import "@/styles/rovexo/promotion-cards-v1.css";
 import "@/styles/rovexo/store-showcase-v1.css";
 import "@/styles/rovexo/promotion-payment-v1.css";
 

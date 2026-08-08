@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import "@/styles/rovexo/account-module-v1.css";
 
 type CanonicalSettingsSectionProps = {
   title: string;

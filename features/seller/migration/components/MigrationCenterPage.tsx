@@ -19,6 +19,7 @@ import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import "@/styles/rovexo/bring-your-item.css";
 
 const MigrationPlatformStep = dynamic(
   () =>

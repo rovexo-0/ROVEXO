@@ -76,9 +76,10 @@ describe("Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0", () => {
     expect(page).not.toContain('"Submit Idea"');
     expect(ROVEXO_IDEAS_SHARE_CTA).toBe("Share Your Idea");
     expect(ROVEXO_IDEAS_EMPTY_COPY.title).toBe("Hmm... we're waiting for your ideas!");
+    expect(page).toContain('import "@/styles/rovexo/rovexo-ideas-v1.css"');
     expect(css).toContain(".rx-ideas__hero");
     expect(css).toContain("rx-ideas__fade-in");
-    expect(indexCss).toContain("rovexo-ideas-v1.css");
+    expect(indexCss).not.toContain('@import "./rovexo-ideas-v1.css"');
     expect(ROVEXO_IDEAS_DOM).toBe("v1.0-ideas-community");
     expect(ROVEXO_IDEAS_HERO.bearSrc).toBe("/ideas/rx-bear-hero.png");
   });

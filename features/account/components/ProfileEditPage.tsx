@@ -5,6 +5,7 @@ import { MyAccountTemplate } from "@/features/account-canonical";
 import { CanonicalProfileAvatar } from "@/features/profile/components/CanonicalProfileAvatar";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalInput, CanonicalSelector } from "@/src/components/canonical";
+import "@/styles/rovexo/account-settings-v1.css";
 import {
   ACCOUNT_SETTINGS_COUNTRY_V1,
   ACCOUNT_SETTINGS_CURRENCY_ACTIVE,

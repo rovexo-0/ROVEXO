@@ -7,6 +7,7 @@ import { PromotionListingPicker } from "@/components/promotions/cards-v1/Promoti
 import { PromotionTrustFooter } from "@/components/promotions/cards-v1/PromotionTrustFooter";
 import type { ResolvedPromotionCatalog, ResolvedPromotionCatalogEntry } from "@/lib/promotions/catalog";
 import type { SellerListing } from "@/lib/listings/types";
+import "@/styles/rovexo/promotion-cards-v1.css";
 
 type PromotionCardsPageProps = {
   catalog: ResolvedPromotionCatalog;

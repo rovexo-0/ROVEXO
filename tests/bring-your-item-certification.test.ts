@@ -85,7 +85,10 @@ describe("Bring Your Item — Phase 1 UX certification", () => {
 
   it("loads dedicated Bring Your Item styles", () => {
     const styles = readSource("styles/rovexo/index.css");
-    expect(styles).toContain("bring-your-item.css");
+    const owner = readSource("features/seller/migration/components/MigrationCenterPage.tsx");
+    /* OPT-P0-CSS-02: BYI CSS is page-scoped at MigrationCenterPage. */
+    expect(styles).not.toContain('@import "./bring-your-item.css"');
+    expect(owner).toContain('import "@/styles/rovexo/bring-your-item.css"');
   });
 });
 

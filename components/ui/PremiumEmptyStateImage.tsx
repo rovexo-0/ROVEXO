@@ -5,6 +5,7 @@ import {
   type PremiumEmptyStateId,
 } from "@/lib/premium-design/empty-state-library";
 import { cn } from "@/lib/cn";
+import "@/styles/rovexo/premium-empty-state.css";
 
 type PremiumEmptyStateImageProps = {
   id: PremiumEmptyStateId;

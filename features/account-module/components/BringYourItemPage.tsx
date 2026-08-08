@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import "@/styles/rovexo/account-module-v1.css";
 
 import { Skeleton, SkeletonButton, SkeletonText } from "@/components/ui/Skeleton";
 import { MigrationBulkPublishPanel } from "@/features/seller/migration/components/MigrationBulkPublishPanel";

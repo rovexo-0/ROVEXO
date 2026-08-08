@@ -6,6 +6,7 @@ import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
 import { cleanupPushSubscriptionOnLogout } from "@/lib/push/logout-cleanup-v1";
+import "@/styles/rovexo/sign-out.css";
 
 type RovexoSignOutLinkProps = {
   className?: string;

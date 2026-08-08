@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { PlatformThemeTokens } from "@/lib/platform-visual/types";
 import { themeTokensToCssVars } from "@/lib/platform-visual/styles";
 import { cn } from "@/lib/cn";
+import "@/styles/rovexo/platform-visual.css";
 
 type VisualThemeScopeProps = {
   theme: PlatformThemeTokens;
