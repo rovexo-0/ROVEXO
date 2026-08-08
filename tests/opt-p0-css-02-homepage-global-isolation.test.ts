@@ -49,7 +49,6 @@ const REQUIRED_IN_HOMEPAGE_INDEX = [
   "full-width-engine-v1.css",
   "phone-width-v1-freeze.css",
   "home-polish.css",
-  "auth-v1.css",
   "store-listing-card-premium-v1.css",
   "category-rail.css",
   "primary-button-v1.css",
@@ -105,9 +104,9 @@ describe("OPT-P0-CSS-02 Homepage global CSS isolation", () => {
     expect(readSource("next.config.ts")).not.toContain("OPT-P0-CSS-02");
   });
 
-  it("E: Auth CSS remains in the global platform path (deferred to OPT-P0-CSS-03)", () => {
+  it("E: Auth CSS left Homepage index (completed by OPT-P0-CSS-03)", () => {
     const index = readSource("styles/rovexo/index.css");
-    expect(index).toContain('@import "./auth-v1.css"');
+    expect(index).not.toContain('@import "./auth-v1.css"');
     expect(existsSync(join(process.cwd(), "styles/rovexo/auth-v1.css"))).toBe(true);
   });
 

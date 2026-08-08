@@ -8,6 +8,8 @@ import { MailLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import { requestPasswordReset, type AuthActionState } from "@/lib/auth/actions";
+/* OPT-P0-CSS-03: Auth field/button classes live in auth-v1; this platform page renders Auth UI. */
+import "@/styles/rovexo/auth-v1.css";
 
 type AccountSecurityResetViaEmailPageProps = {
   email: string;

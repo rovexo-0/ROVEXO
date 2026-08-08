@@ -11,8 +11,8 @@
 /* OPT-P0-CSS-01: product-detail CSS is page-scoped via ProductDetailPage. */
 /* P0-01: make-offer / wallet / orders / inbox / conversation / cart / checkout / sell
    are page-scoped at feature entry points — not global — to shrink the marketplace megabundle.
-   Auth (auth-v1) remains until P0-03 / OPT-P0-CSS-03 AUTH FINAL. Enterprise/Admin → enterprise-admin-entry.css (P0-02). */
-@import "./auth-v1.css";
+   Enterprise/Admin → enterprise-admin-entry.css (P0-02). */
+/* OPT-P0-CSS-03: auth-v1.css — owned by app/(auth)/layout.tsx → auth-entry.css (not Homepage). */
 /* OPT-P0-CSS-02: account-hub-v1 / account-module-v1 — page-scoped or dead (not Homepage). */
 @import "./platform-canonical-ui.css";
 @import "./canonical-ds.css";
