@@ -35,7 +35,11 @@ describe("Organic Growth Phase 1 — SEO foundation", () => {
   it("P0-02: homepage declares absolute trailing-slash root canonical", () => {
     const home = readSource("app/(platform)/page.tsx");
     expect(home).toContain("rootCanonical");
-    expect(home).toContain('canonical: rootCanonical');
+    expect(home).toContain("canonicalForHomepage");
+    // Next Metadata alternates.canonical strips `/` → origin; emit exact SSOT via link.
+    expect(home).toContain('rel="canonical"');
+    expect(home).toContain("href={rootCanonical}");
+    expect(home).not.toMatch(/alternates:\s*\{[^}]*canonical:\s*rootCanonical/);
   });
 
   it("P0-01: guest `/` cold-start login redirect removed (Owner crawlability unlock)", () => {

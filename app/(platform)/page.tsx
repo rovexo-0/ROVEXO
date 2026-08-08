@@ -12,7 +12,7 @@ import {
 } from "@/lib/products/queries";
 import { resolveHomepageV4Sections } from "@/lib/homepage/v4-data";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
-import { getAppUrl } from "@/lib/supabase/env";
+import { canonicalForHomepage } from "@/lib/seo/engine/canonical";
 import type { ProductsPage } from "@/lib/products/types";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
@@ -23,9 +23,13 @@ import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-se
 
 /** Empty featured rail input — canonical Homepage does not render a featured section. */
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
-const siteUrl = getAppUrl();
-/** Absolute root canonical — trailing slash per organic growth Phase 1 contract. */
-const rootCanonical = siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
+/**
+ * Wave 0 SSOT — absolute root with trailing slash (`https://www.rovexo.co.uk/`).
+ * Do NOT pass this through Metadata `alternates.canonical`: Next.js
+ * `resolveAbsoluteUrlWithPathname` collapses pathname `/` to `origin` (no slash)
+ * when `trailingSlash` is false. Emit via `<link rel="canonical">` instead.
+ */
+const rootCanonical = canonicalForHomepage().canonicalUrl;
 
 export const revalidate = 60;
 
@@ -42,9 +46,7 @@ const HOMEPAGE_OG_IMAGE = {
 export const metadata: Metadata = {
   title: HOMEPAGE_OG_TITLE,
   description: HOMEPAGE_OG_DESCRIPTION,
-  alternates: {
-    canonical: rootCanonical,
-  },
+  // No alternates.canonical — see rootCanonical comment (Next strips homepage slash).
   openGraph: {
     title: HOMEPAGE_OG_TITLE,
     description: HOMEPAGE_OG_DESCRIPTION,
@@ -105,6 +107,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       visualConfig={visualConfig}
       menuItems={HP_CANONICAL_BOTTOM_NAV}
     >
+      <link rel="canonical" href={rootCanonical} />
       <JsonLdScript id="jsonld-app-(platform)-page-tsx" data={structuredData} />
       <HomePageShell header={null} bottomNav={null}>
         <CanonicalHomepage {...sections} />
