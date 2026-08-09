@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { invalidateAuthProfileCache } from "@/features/auth/providers/AuthProvider";
+import { clearClientSessionOnLogout } from "@/features/auth/providers/AuthProvider";
 import { signOut } from "@/lib/auth/actions";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -16,7 +16,7 @@ export function AccountCenterLogoutButton() {
       className={cn("account-center-logout", focusRing)}
       onClick={() =>
         startTransition(() => {
-          invalidateAuthProfileCache();
+          clearClientSessionOnLogout();
           void signOut();
         })
       }

@@ -13,6 +13,8 @@ import {
 } from "@/lib/bundle/bundle-domain-v1";
 import { readBundleMirror, writeBundleMirror, fetchBundleSnapshotShared } from "@/lib/bundle/bundle-mirror-v1";
 import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
+import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
+import { resolveAuthProviderSessionPhase } from "@/lib/auth/auth-provider-session-phase-v1";
 
 type SheetProps = {
   open: boolean;
@@ -113,6 +115,8 @@ export function BundleSellerConflictDialog({ open, onContinue, onCancel }: Confl
 }
 
 export function useActiveBundle(): BundleSnapshotV1 | null {
+  const auth = useAuthOptional();
+  const sessionPhase = resolveAuthProviderSessionPhase(auth);
   const [bundle, setBundle] = useState<BundleSnapshotV1 | null>(null);
 
   useEffect(() => {
@@ -123,6 +127,28 @@ export function useActiveBundle(): BundleSnapshotV1 | null {
       hydrateGen += 1;
       setBundle(readBundleMirror());
     };
+
+    // OPT-P0-PERF-07: PENDING waits; GUEST discards private mirror (no GET).
+    if (sessionPhase === "pending") {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (sessionPhase === "guest") {
+      writeBundleMirror(null);
+      const timer = window.setTimeout(() => {
+        if (!cancelled) setBundle(null);
+      }, 0);
+      window.addEventListener("rovexo:bundle-sync", syncMirror);
+      window.addEventListener("storage", syncMirror);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(timer);
+        window.removeEventListener("rovexo:bundle-sync", syncMirror);
+        window.removeEventListener("storage", syncMirror);
+      };
+    }
 
     const hydrate = async () => {
       const gen = ++hydrateGen;
@@ -160,7 +186,7 @@ export function useActiveBundle(): BundleSnapshotV1 | null {
       window.removeEventListener("rovexo:bundle-sync", syncMirror);
       window.removeEventListener("storage", syncMirror);
     };
-  }, []);
+  }, [sessionPhase, auth?.profile?.id]);
 
   return bundle;
 }

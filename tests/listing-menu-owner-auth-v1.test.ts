@@ -30,12 +30,12 @@ describe("Listing overflow menu ownership auth (COD SÂNGE)", () => {
     expect(report).toBeGreaterThan(edit);
   });
 
-  it("AuthProvider invalidates stale profile on auth routes and force-loads after", () => {
+  it("AuthProvider invalidates stale profile on auth routes and loads after when unknown", () => {
     const auth = read("features/auth/providers/AuthProvider.tsx");
     expect(auth).toContain("export function invalidateAuthProfileCache");
     expect(auth).toContain("if (deferProfile)");
     expect(auth).toContain("invalidateAuthProfileCache()");
-    expect(auth).toContain("loadProfileOnce(true)");
+    expect(auth).toContain("loadProfileOnce(false)");
     expect(auth).toContain("Drop stale viewer identity at auth boundaries");
   });
 
@@ -44,7 +44,7 @@ describe("Listing overflow menu ownership auth (COD SÂNGE)", () => {
     const center = read("features/account-center/components/AccountCenterLogoutButton.tsx");
     const dash = read("features/dashboard/components/LogoutButton.tsx");
     for (const src of [profileMenu, center, dash]) {
-      expect(src).toContain("invalidateAuthProfileCache");
+      expect(src).toContain("clearClientSessionOnLogout");
       expect(src).toContain("signOut");
     }
   });

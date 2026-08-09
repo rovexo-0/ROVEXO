@@ -6,6 +6,8 @@
  *
  * Hydrate: one GET /api/saved (list) shared across cards — replaces N× GET ?slug= waterfall.
  * Remount truth still comes from DB via that list endpoint (same Saved SSOT).
+ *
+ * OPT-P0-PERF-07: gate GET hydrate on AuthProvider session phase (never PENDING as guest).
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -15,6 +17,8 @@ import {
   loadSavedSlugSet,
   markSavedInCache,
 } from "@/lib/saved/saved-status-cache";
+import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
+import { resolveAuthProviderSessionPhase } from "@/lib/auth/auth-provider-session-phase-v1";
 
 export function useProductWatchlist(
   productOrSlug: Product | string | null | undefined,
@@ -27,11 +31,23 @@ export function useProductWatchlist(
         ? productOrSlug
         : productOrSlug.slug;
 
+  const auth = useAuthOptional();
+  const sessionPhase = resolveAuthProviderSessionPhase(auth);
   const [isSaved, setIsSaved] = useState(initialSaved);
   const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
+    // PENDING — wait for AuthProvider; never guest-skip prematurely.
+    if (sessionPhase === "pending") return;
+    // GUEST — no private GET; hearts stay false (no prior-user leakage).
+    if (sessionPhase === "guest") {
+      const timer = window.setTimeout(() => {
+        setIsSaved(false);
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
     let cancelled = false;
 
     void loadSavedSlugSet()
@@ -43,7 +59,7 @@ export function useProductWatchlist(
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, sessionPhase, auth?.profile?.id]);
 
   const toggle = useCallback(async () => {
     if (!slug || isPending) return;

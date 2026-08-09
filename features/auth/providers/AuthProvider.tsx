@@ -12,6 +12,17 @@ import {
 import { usePathname } from "next/navigation";
 import type { UserRole } from "@/lib/supabase/types/database";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
+import {
+  clearPrivateClientSessionCachesOnLogout,
+  preparePrivateClientSessionCachesForAuthHydrate,
+} from "@/lib/auth/private-client-session-cache-v1";
+import {
+  resolveAuthProviderSessionPhase,
+  type AuthProviderSessionPhase,
+} from "@/lib/auth/auth-provider-session-phase-v1";
+
+export type { AuthProviderSessionPhase };
+export { resolveAuthProviderSessionPhase };
 
 export type AuthProfile = {
   id: string;
@@ -62,6 +73,15 @@ export function invalidateAuthProfileCache(): void {
   cachedProfile = undefined;
   cachedError = null;
   inflight = null;
+}
+
+/**
+ * Logout boundary — profile identity + private client caches (saved/badge/bundle).
+ * OPT-P0-PERF-07: guest must never inherit prior private UI state.
+ */
+export function clearClientSessionOnLogout(): void {
+  invalidateAuthProfileCache();
+  clearPrivateClientSessionCachesOnLogout();
 }
 
 async function loadProfileOnce(force = false): Promise<AuthProfile | null> {
@@ -150,11 +170,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    // Leaving auth routes (or first app mount): force fetch so viewer id matches session.
+    // Leaving auth routes / first app mount: fetch only when identity unknown.
+    // OPT-P0-PERF-07: proven GUEST (cachedProfile === null) must not re-hit /api/profile.
     // Soft nav within app keeps deferProfile=false → effect does not re-run → one fetch.
+    // Auth routes invalidate to undefined → next platform mount fetches once for session truth.
     void (async () => {
-      const next = await loadProfileOnce(true);
+      const next = await loadProfileOnce(false);
       if (cancelled) return;
+      if (next) {
+        // Login / auth hydrate — drop guest empty-Set / badge TTL before consumers run.
+        preparePrivateClientSessionCachesForAuthHydrate();
+      }
       setProfile(next);
       setError(cachedError);
       setLoading(false);

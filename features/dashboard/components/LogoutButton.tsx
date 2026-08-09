@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { ProfileMenuIcon } from "@/features/account-center/components/ProfileMenuIcons";
 import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
-import { invalidateAuthProfileCache } from "@/features/auth/providers/AuthProvider";
+import { clearClientSessionOnLogout } from "@/features/auth/providers/AuthProvider";
 import { signOut } from "@/lib/auth/actions";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -19,7 +19,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
   const handleSignOut = () => {
     startTransition(async () => {
       setLogoutOpen(false);
-      invalidateAuthProfileCache();
+      clearClientSessionOnLogout();
       await signOut();
     });
   };

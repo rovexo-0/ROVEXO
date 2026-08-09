@@ -24,6 +24,16 @@ import type { Notification } from "@/lib/notifications/types";
 import type { DashboardBadgeCounts } from "@/lib/notifications/badge-counts";
 import type { MobileBadges } from "@/lib/mobile-ui/types";
 import { triggerCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-client-v1";
+import { useAuth } from "@/features/auth/providers/AuthProvider";
+import { resolveAuthProviderSessionPhase } from "@/lib/auth/auth-provider-session-phase-v1";
+import {
+  clearInboxBadgeModuleCache,
+  peekInboxBadgeModuleCache,
+  readInboxBadgeInflight,
+  setInboxBadgeInflight,
+  writeInboxBadgeModuleCache,
+} from "@/lib/notifications/inbox-badge-client-cache-v1";
+import { clearPrivateClientSessionCachesOnLogout, preparePrivateClientSessionCachesForAuthHydrate } from "@/lib/auth/private-client-session-cache-v1";
 
 type RealtimeNotificationContextValue = {
   unreadCount: number;
@@ -53,30 +63,16 @@ type RealtimeNotificationProviderProps = {
 };
 
 /** Coalesce badge-only fetches — never abort mid-flight (DEFECT #007). */
-let inboxBadgeInflight: Promise<{
-  messages: number;
-  notifications: number;
-  ok: boolean;
-}> | null = null;
-
-/** Short TTL so BetaAppShell remounts (per-page shell) do not re-hit the API. */
-const INBOX_BADGE_TTL_MS = 2_500;
-let inboxBadgeCache: {
-  at: number;
-  value: { messages: number; notifications: number; ok: boolean };
-} | null = null;
-
 function fetchInboxBadgeCounts(signal?: AbortSignal): Promise<{
   messages: number;
   notifications: number;
   ok: boolean;
 }> {
-  const now = Date.now();
-  if (inboxBadgeCache && now - inboxBadgeCache.at < INBOX_BADGE_TTL_MS) {
-    return Promise.resolve(inboxBadgeCache.value);
-  }
-  if (inboxBadgeInflight) return inboxBadgeInflight;
-  inboxBadgeInflight = (async () => {
+  const cached = peekInboxBadgeModuleCache();
+  if (cached) return Promise.resolve(cached);
+  const existing = readInboxBadgeInflight();
+  if (existing) return existing;
+  const inflight = (async () => {
     const res = await fetch("/api/inbox/badge", { cache: "no-store", signal });
     if (!res.ok) return { messages: 0, notifications: 0, ok: false };
     const payload = (await res.json()) as {
@@ -88,12 +84,13 @@ function fetchInboxBadgeCounts(signal?: AbortSignal): Promise<{
       notifications: Math.max(0, Number(payload.notifications) || 0),
       ok: true,
     };
-    inboxBadgeCache = { at: Date.now(), value };
+    writeInboxBadgeModuleCache(value);
     return value;
   })().finally(() => {
-    inboxBadgeInflight = null;
+    setInboxBadgeInflight(null);
   });
-  return inboxBadgeInflight;
+  setInboxBadgeInflight(inflight);
+  return inflight;
 }
 
 async function fetchBadgeState(
@@ -168,6 +165,8 @@ export function RealtimeNotificationProvider({
   enabled = true,
 }: RealtimeNotificationProviderProps) {
   const router = useRouter();
+  const auth = useAuth();
+  const sessionPhase = resolveAuthProviderSessionPhase(auth);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [badgeCounts, setBadgeCounts] = useState<DashboardBadgeCounts | null>(null);
@@ -175,6 +174,14 @@ export function RealtimeNotificationProvider({
     ...EMPTY_BADGES,
     notifications: initialUnreadCount,
   });
+
+  const resetBadgeUiToGuest = useCallback(() => {
+    clearInboxBadgeModuleCache();
+    setUnreadCount(0);
+    setNotifications([]);
+    setBadgeCounts(null);
+    setMobileBadges(EMPTY_BADGES);
+  }, []);
 
   const applyState = useCallback(
     (state: Awaited<ReturnType<typeof fetchBadgeState>>, includeTray: boolean) => {
@@ -205,6 +212,13 @@ export function RealtimeNotificationProvider({
 
   const refresh = useCallback(async (opts?: { includeTray?: boolean }) => {
     if (!enabled || !isDocumentVisible()) return;
+    // OPT-P0-PERF-07: never treat PENDING as guest; never badge-fetch as guest.
+    const phase = resolveAuthProviderSessionPhase(auth);
+    if (phase === "pending") return;
+    if (phase === "guest") {
+      resetBadgeUiToGuest();
+      return;
+    }
     const includeTray = opts?.includeTray === true;
     try {
       const state = await fetchBadgeState(undefined, { includeTray });
@@ -213,15 +227,22 @@ export function RealtimeNotificationProvider({
       if ((error as Error).name === "AbortError") return;
       // ignore network errors
     }
-  }, [applyState, enabled]);
+  }, [applyState, auth, enabled, resetBadgeUiToGuest]);
 
   useEffect(() => {
     if (!enabled) return;
+    if (sessionPhase === "pending") return;
+    if (sessionPhase === "guest") {
+      const timer = window.setTimeout(() => {
+        resetBadgeUiToGuest();
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
     const timer = window.setTimeout(() => {
       void refresh();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [enabled, refresh]);
+  }, [enabled, refresh, resetBadgeUiToGuest, sessionPhase]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -334,9 +355,12 @@ export function RealtimeNotificationProvider({
         if (cancelled) return;
         if (event === "SIGNED_OUT") {
           disconnect();
+          clearPrivateClientSessionCachesOnLogout();
+          resetBadgeUiToGuest();
           return;
         }
         if (event === "SIGNED_IN") {
+          preparePrivateClientSessionCachesForAuthHydrate();
           void connect();
           void refresh({ includeTray: true });
           return;
@@ -366,7 +390,7 @@ export function RealtimeNotificationProvider({
       authUnsub?.();
       disconnect();
     };
-  }, [enabled, refresh]);
+  }, [enabled, refresh, resetBadgeUiToGuest]);
 
   useEffect(() => {
     if (!enabled) return;
