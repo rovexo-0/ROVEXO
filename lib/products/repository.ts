@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
+import { createPublicCatalogueClient } from "@/lib/supabase/public-catalogue-client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { Tables } from "@/lib/supabase/types/database";
 import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
@@ -357,7 +358,9 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
 
   void refreshExpiredPromotions();
 
-  const supabase = await createClient();
+  // PUBLIC catalogue — cookie-free service role with identical public filters.
+  // USER-SPECIFIC identity must never enter this path (CDN/ISR document).
+  const supabase = createPublicCatalogueClient();
   const pageSize = HOMEPAGE_FEED_PAGE_SIZE;
   const targetFrom = (page - 1) * pageSize;
   let scanFrom = targetFrom;
@@ -414,7 +417,10 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
       ...product,
       homepagePriorityScore: computeHomepagePriorityScore(product),
     })),
-  ).sort(compareHomepageFeedProducts);
+  )
+    .sort(compareHomepageFeedProducts)
+    // Eligibility already consumed sellerEmail server-side; redact before public document.
+    .map((product) => ({ ...product, sellerEmail: null }));
 
   /* Empty page or exhausted scan → stop pagination (never infinite hasMore). */
   if (items.length === 0) {
@@ -436,7 +442,8 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
 
   void refreshExpiredPromotions();
 
-  const supabase = await createClient();
+  // PUBLIC catalogue — cookie-free service role with identical public filters.
+  const supabase = createPublicCatalogueClient();
   const now = new Date().toISOString();
 
   const { data: anchorRows, error: anchorError } = await supabase
@@ -481,7 +488,12 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
     featuredSellerIds: new Set(featuredSellerIds),
   });
 
-  return enrichShowcaseSellerSections(sections);
+  const result = await enrichShowcaseSellerSections(sections);
+  // Eligibility already consumed sellerEmail server-side; redact before public document.
+  return result.map((section) => ({
+    ...section,
+    listings: section.listings.map((product) => ({ ...product, sellerEmail: null })),
+  }));
 }
 
 // Wrapped in React.cache so the listing page's generateMetadata() and the page

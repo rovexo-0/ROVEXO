@@ -100,17 +100,23 @@ export async function updateSession(request: NextRequest) {
     let user: User | null = null;
 
     try {
-      const {
-        data: { user: authUser },
-        error: userError,
-      } = await supabase.auth.getUser();
+      // Anonymous fast-path: no Supabase auth cookie → skip getUser() network RTT.
+      // Auth is unchanged when cookies exist (refresh, MFA, protected gates still run).
+      const hasAuthCookie = request.cookies.getAll().some((cookie) =>
+        cookie.name.includes("-auth-token"),
+      );
+
+      let userError: { message?: string } | null = null;
+      if (hasAuthCookie) {
+        const result = await supabase.auth.getUser();
+        user = result.data.user;
+        userError = result.error;
+      }
 
       if (userError && isInvalidOrExpiredRefreshError(userError)) {
         // Clear dead refresh cookies so /login and guests never loop or 500.
         await supabase.auth.signOut({ scope: "local" });
         user = null;
-      } else {
-        user = authUser;
       }
     } catch (authError) {
       if (isInvalidOrExpiredRefreshError(authError)) {

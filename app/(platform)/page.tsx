@@ -6,22 +6,11 @@ import { CanonicalHomepage } from "@/components/homepage/canonical";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
-import {
-  fetchHomepageFeed,
-  fetchShowcaseSellerSections,
-} from "@/lib/products/queries";
-import { resolveHomepageV4Sections } from "@/lib/homepage/v4-data";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import { canonicalForHomepage } from "@/lib/seo/engine/canonical";
-import type { ProductsPage } from "@/lib/products/types";
-import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
-import { getAuthContext, getUserRole } from "@/lib/auth/session";
-import { getPlatformVisualConfig, getDefaultPlatformVisualConfig } from "@/lib/platform-visual/reader";
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
-import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
+import { loadHomepageDocumentData } from "@/lib/homepage/load-homepage-document";
 
-/** Empty featured rail input — canonical Homepage does not render a featured section. */
-const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 /**
  * Wave 0 SSOT — absolute root with trailing slash (`https://www.rovexo.co.uk/`).
  * Do NOT pass this through Metadata `alternates.canonical`: Next.js
@@ -30,6 +19,11 @@ const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
  */
 const rootCanonical = canonicalForHomepage().canonicalUrl;
 
+/**
+ * PUBLIC ISR document — cookie-free catalogue path only.
+ * User-specific UI (auth, saved, badges, header) hydrates client-side.
+ * Draft visual preview: middleware rewrites `/?visualPreview=draft` → private route.
+ */
 export const revalidate = 60;
 
 const HOMEPAGE_OG_TITLE = "ROVEXO – Buy & Sell with Confidence";
@@ -62,39 +56,12 @@ export const metadata: Metadata = {
   },
 };
 
-type HomePageProps = {
-  searchParams: Promise<{ visualPreview?: string }>;
-};
-
-export default async function HomePage({ searchParams }: HomePageProps) {
+export default async function HomePage() {
   // OPT-P0-B-1: Checkout self-heal is NOT awaited on Homepage critical path.
   // Ownership remains: listing / orders / wallet / seller / Buy Now / expire-stale / client trigger.
-
-  const params = await searchParams;
-  let previewMode: "live" | "draft" = "live";
-
-  if (params.visualPreview === "draft") {
-    const auth = await getAuthContext();
-    const role = auth ? await getUserRole(auth.user.id) : null;
-    if (role === "super_admin") {
-      previewMode = "draft";
-    }
-  }
-
-  // P1: skip unused recommended-section SSR query — CanonicalHomepage has no featured rail;
-  // feed + showcase remain the live data path (identical UI/UX).
-  const [visualConfig, feedResult, showcaseFromDb, preferredStores] = await Promise.all([
-    getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
-    fetchHomepageFeed(1).catch(() => emptyPage),
-    fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
-    listActivePreferredMarketplaceStores().catch(() => []),
-  ]);
-
-  const sections = resolveHomepageV4Sections({
-    featuredPage: emptyPage,
-    feed: feedResult,
-    showcase: showcaseFromDb,
-    preferredStores,
+  // PUBLIC document: always live visual — draft is isolated on /homepage-visual-draft.
+  const { visualConfig, sections } = await loadHomepageDocumentData({
+    previewMode: "live",
   });
 
   const structuredData = homePageJsonLd(sections.feed.items, rootCanonical);

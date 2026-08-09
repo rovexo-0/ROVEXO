@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getDescendantCategoryIds } from "@/lib/categories/server";
 import { resolveTransactionModeForRootSlug } from "@/lib/transaction-mode/defaults";
@@ -43,7 +43,8 @@ function resolveModeFromProjection(
 }
 
 export async function resolveTransactionModeForCategoryId(categoryId: string): Promise<TransactionMode> {
-  const supabase = await createClient();
+  // PUBLIC taxonomy — prefer cookie-free admin; fallback only when service role absent.
+  const supabase = tryCreateAdminClient() ?? (await createClient());
   const categories = await loadCategoryModeProjection(supabase);
   const byId = new Map(categories.map((row) => [row.id, row]));
   return resolveModeFromProjection(categoryId, byId);
@@ -56,7 +57,8 @@ export async function resolveTransactionModeMapForCategoryIds(
   const map = new Map<string, TransactionMode>();
   if (!unique.length) return map;
 
-  const supabase = await createClient();
+  // PUBLIC taxonomy — prefer cookie-free admin; fallback only when service role absent.
+  const supabase = tryCreateAdminClient() ?? (await createClient());
   const categories = await loadCategoryModeProjection(supabase);
   const byId = new Map(categories.map((row) => [row.id, row]));
 

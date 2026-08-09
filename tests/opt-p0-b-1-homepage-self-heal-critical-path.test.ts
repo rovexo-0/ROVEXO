@@ -12,12 +12,6 @@ function read(rel: string): string {
   return readFileSync(path.join(ROOT, rel), "utf8");
 }
 
-function indexOfOrThrow(source: string, needle: string, label: string): number {
-  const idx = source.indexOf(needle);
-  expect(idx, `${label} missing`).toBeGreaterThanOrEqual(0);
-  return idx;
-}
-
 describe("OPT-P0-B-1 Homepage TTFB — self-heal off critical path", () => {
   it("does not import or await checkout self-heal on the Homepage entry", () => {
     const page = read("app/(platform)/page.tsx");
@@ -26,34 +20,27 @@ describe("OPT-P0-B-1 Homepage TTFB — self-heal off critical path", () => {
     expect(page).not.toContain('awaitCheckoutSessionSelfHeal("homepage")');
   });
 
-  it("keeps searchParams → draft gate → Promise.all data path intact", () => {
+  it("keeps public document data path intact without blocking Dynamic APIs on `/`", () => {
     const page = read("app/(platform)/page.tsx");
-    const searchParamsIdx = indexOfOrThrow(page, "await searchParams", "searchParams");
-    const draftIdx = indexOfOrThrow(page, 'visualPreview === "draft"', "draft preview");
-    const promiseAllIdx = indexOfOrThrow(page, "await Promise.all([", "Promise.all");
-    const resolveIdx = indexOfOrThrow(
-      page,
-      "const sections = resolveHomepageV4Sections",
-      "resolve sections call",
-    );
-    const jsonLdIdx = indexOfOrThrow(
-      page,
-      "const structuredData = homePageJsonLd",
-      "JSON-LD call",
-    );
-
-    expect(searchParamsIdx).toBeLessThan(draftIdx);
-    expect(draftIdx).toBeLessThan(promiseAllIdx);
-    expect(promiseAllIdx).toBeLessThan(resolveIdx);
-    expect(resolveIdx).toBeLessThan(jsonLdIdx);
-
-    expect(page).toContain("getPlatformVisualConfig");
-    expect(page).toContain("fetchHomepageFeed");
-    expect(page).toContain("fetchShowcaseSellerSections");
-    expect(page).toContain("listActivePreferredMarketplaceStores");
-    expect(page).toContain("getAuthContext");
-    expect(page).toContain("getUserRole");
+    expect(page).not.toContain("await searchParams");
+    expect(page).not.toContain("getAuthContext");
+    expect(page).toContain("loadHomepageDocumentData");
+    expect(page).toContain('previewMode: "live"');
+    expect(page).toContain("homePageJsonLd");
     expect(page).toContain("CanonicalHomepage");
+
+    const loader = read("lib/homepage/load-homepage-document.ts");
+    expect(loader).toContain("await Promise.all([");
+    expect(loader).toContain("getPlatformVisualConfig");
+    expect(loader).toContain("fetchHomepageFeed");
+    expect(loader).toContain("fetchShowcaseSellerSections");
+    expect(loader).toContain("listActivePreferredMarketplaceStores");
+    expect(loader).toContain("resolveHomepageV4Sections");
+
+    const draft = read("app/(platform)/homepage-visual-draft/page.tsx");
+    expect(draft).toContain("getAuthContext");
+    expect(draft).toContain("getUserRole");
+    expect(draft).toContain('role === "super_admin"');
   });
 
   it("preserves checkout self-heal engine and commerce owners", () => {

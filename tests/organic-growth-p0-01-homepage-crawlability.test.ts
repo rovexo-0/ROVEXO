@@ -26,7 +26,9 @@ describe("Organic Growth P0-01 — Homepage crawlability", () => {
     expect(existsSync(join(process.cwd(), "app/(platform)/home/page.tsx"))).toBe(false);
     const home = readSource("app/(platform)/page.tsx");
     expect(home).toContain("CanonicalHomepage");
-    expect(home).toContain("fetchHomepageFeed");
+    expect(home).toContain("loadHomepageDocumentData");
+    const loader = readSource("lib/homepage/load-homepage-document.ts");
+    expect(loader).toContain("fetchHomepageFeed");
   });
 
   it("protected prefixes remain auth-gated (account, wallet, orders, inbox, sell, admin, super-admin)", () => {
@@ -47,12 +49,22 @@ describe("Organic Growth P0-01 — Homepage crawlability", () => {
     expect(middleware).toContain('loginUrl.pathname = "/login"');
   });
 
-  it("homepage auth is optional and limited to draft visual preview", () => {
+  it("homepage auth is optional and draft visual preview is isolated privately", () => {
     const home = readSource("app/(platform)/page.tsx");
-    expect(home).toContain('visualPreview === "draft"');
-    expect(home).toContain("getAuthContext");
-    expect(home).toContain("fetchHomepageFeed");
-    expect(home).toContain("fetchShowcaseSellerSections");
+    expect(home).not.toContain("getAuthContext");
     expect(home).not.toContain("requireAuth");
+    expect(home).toContain("loadHomepageDocumentData");
+
+    const draft = readSource("app/(platform)/homepage-visual-draft/page.tsx");
+    expect(draft).toContain("getAuthContext");
+    expect(draft).toContain('role === "super_admin"');
+
+    const mw = readSource("middleware.ts");
+    expect(mw).toContain('visualPreview") === "draft"');
+    expect(mw).toContain("/homepage-visual-draft");
+
+    const loader = readSource("lib/homepage/load-homepage-document.ts");
+    expect(loader).toContain("fetchHomepageFeed");
+    expect(loader).toContain("fetchShowcaseSellerSections");
   });
 });

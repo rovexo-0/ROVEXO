@@ -139,23 +139,25 @@ describe("Homepage V4 section architecture", () => {
   it("uses featured + feed fetches only on the homepage", () => {
 
     const page = readSource("app/(platform)/page.tsx");
+    const loader = readSource("lib/homepage/load-homepage-document.ts");
 
     const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
 
 
-    expect(page).toContain("fetchHomepageFeed");
+    expect(page).toContain("loadHomepageDocumentData");
+    expect(loader).toContain("fetchHomepageFeed");
 
-    expect(page).toContain("resolveHomepageV4Sections");
+    expect(loader).toContain("resolveHomepageV4Sections");
 
     // P1: recommended/featured SSR query removed — CanonicalHomepage has no featured rail.
-    expect(page).not.toContain('fetchProducts("recommended"');
+    expect(loader).not.toContain('fetchProducts("recommended"');
 
-    expect(page).not.toContain('fetchProducts("popular"');
+    expect(loader).not.toContain('fetchProducts("popular"');
 
-    expect(page).not.toContain('fetchProducts("new"');
+    expect(loader).not.toContain('fetchProducts("new"');
 
-    expect(page).not.toContain('fetchProducts("trending"');
+    expect(loader).not.toContain('fetchProducts("trending"');
 
     expect(homePage).toContain("CanonicalMarketplaceFeed");
     expect(homePage).toContain("FeaturedStoreSection");
