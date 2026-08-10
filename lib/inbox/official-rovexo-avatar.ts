@@ -124,11 +124,12 @@ export function resolveInboxNotificationAvatar(
   notification: Notification,
   listingImageSrc: string | null,
 ): { kind: InboxNotificationAvatarKind; src: string | null } {
-  if (isOfficialRovexoNotification(notification)) {
-    return { kind: "official-rx", src: null };
-  }
+  /* Listing/message/offer context always wins over RX / generic icons. */
   if (notificationPrefersListingThumbnail(notification)) {
     return { kind: "listing", src: listingImageSrc };
+  }
+  if (isOfficialRovexoNotification(notification)) {
+    return { kind: "official-rx", src: null };
   }
   return { kind: "icon", src: null };
 }

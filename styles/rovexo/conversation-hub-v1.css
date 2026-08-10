@@ -2154,7 +2154,8 @@
   border: 1px solid var(--conv-border, #ececec);
   border-radius: 12px;
   font: inherit;
-  font-size: 14px;
+  /* iOS Safari: <16px inputs auto-zoom the viewport — keep layout otherwise unchanged. */
+  font-size: 16px;
 }
 
 .conv-hub__hub-actions .thub-v1__action-tertiary {
@@ -2236,7 +2237,8 @@
   border: 1px solid var(--conv-border);
   border-radius: 12px;
   font: inherit;
-  font-size: var(--conv-fs-message);
+  /* iOS Safari: <16px inputs auto-zoom the viewport — keep layout otherwise unchanged. */
+  font-size: 16px;
 }
 
 .conv-hub__skel {

@@ -74,6 +74,14 @@ export type ConversationOfferView = {
     itemCount: number;
     listSubtotal: number;
     quantitySum: number;
+    /** Listing lines already encoded in offer message meta (no extra fetch). */
+    lines?: Array<{
+      productId: string;
+      imageUrl: string;
+      title?: string;
+      quantity?: number;
+      unitPrice?: number;
+    }>;
   } | null;
 };
 

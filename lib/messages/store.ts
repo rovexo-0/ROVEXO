@@ -12,6 +12,7 @@ import {
   MESSAGE_PHOTO_PREVIEW_LABEL,
   MESSAGE_PHOTO_SIGN_TTL_SECONDS,
 } from "@/lib/messages/message-photo-url-v1";
+import { coerceUnreadCount } from "@/lib/inbox/types";
 
 type ConversationRow = Tables<"conversations"> & {
   products: Pick<
@@ -172,7 +173,10 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
     },
     lastMessage: row.last_message,
     lastMessageAt: row.last_message_at,
-    unreadCount: isBuyer ? row.buyer_unread_count : row.seller_unread_count,
+    unreadCount: coerceUnreadCount(
+      isBuyer ? row.buyer_unread_count : row.seller_unread_count,
+      0,
+    ),
     pinned: isBuyer ? row.buyer_pinned : row.seller_pinned,
     archived: isBuyer ? row.buyer_archived : row.seller_archived,
     muted: isBuyer ? row.buyer_muted : row.seller_muted,

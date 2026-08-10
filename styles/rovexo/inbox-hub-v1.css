@@ -606,6 +606,21 @@
   color: var(--inbox-muted);
 }
 
+
+.inbox-hub__preview--unread {
+  font-weight: 600;
+  color: var(--inbox-text);
+}
+
+.inbox-hub__party-name--unread {
+  font-weight: 800;
+  color: var(--inbox-text);
+}
+
+.inbox-hub__card--unread {
+  background: rgb(168 85 247 / 0.04);
+}
+
 .inbox-hub__card-aside {
   display: flex;
   flex-direction: column;

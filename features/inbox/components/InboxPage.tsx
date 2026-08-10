@@ -24,7 +24,7 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 import { enqueueOfflineNotificationAction } from "@/lib/notifications/offline-sync";
 import { formatNotificationTime } from "@/lib/notifications/utils";
 import type { Notification } from "@/lib/notifications/types";
-import { formatInboxRelativeTime } from "@/lib/messages/utils";
+import { formatInboxRelativeTime, formatInboxLastMessagePreview } from "@/lib/messages/utils";
 import type { Conversation } from "@/lib/messages/types";
 import { cn } from "@/lib/cn";
 import { invalidateShareInflight } from "@/lib/performance/fetch";
@@ -34,6 +34,7 @@ import {
   INBOX_HUB_MASTER_DOM,
   INBOX_ROUTES,
   buildUnreadCounter,
+  coerceUnreadCount,
   filterInboxConversations,
   mapNotificationCategory,
   parseInboxTab,
@@ -62,6 +63,10 @@ import {
 } from "@/lib/inbox/official-rovexo-avatar";
 import { isWalletHubNotificationHref } from "@/lib/notifications/routing";
 import { resolveNotificationOpenHref } from "@/lib/notifications/resolve-notification-open-href";
+import {
+  handleNotificationDeepLinkClick,
+  resolveNotificationDeepLinkHref,
+} from "@/lib/notifications/notification-deep-link-v1";
 import type { Order } from "@/lib/orders/types";
 import {
   listMessagesLifecycleDemoInboxRows,
@@ -474,6 +479,8 @@ export function InboxPage() {
         const next = prev.map((item) => {
           if (item.id !== id) return item;
           const isBuyer = item.participant.role === "seller";
+          const unreadKey = isBuyer ? "buyer_unread_count" : "seller_unread_count";
+          const hasUnreadField = Object.prototype.hasOwnProperty.call(row, unreadKey);
           const unreadRaw = isBuyer ? row.buyer_unread_count : row.seller_unread_count;
           return {
             ...item,
@@ -483,8 +490,9 @@ export function InboxPage() {
               typeof row.last_message_at === "string"
                 ? row.last_message_at
                 : item.lastMessageAt,
-            unreadCount:
-              typeof unreadRaw === "number" ? unreadRaw : item.unreadCount,
+            unreadCount: hasUnreadField
+              ? coerceUnreadCount(unreadRaw, item.unreadCount)
+              : item.unreadCount,
           };
         });
         const changed = next.some((item, index) => item !== prev[index]);
@@ -545,6 +553,8 @@ export function InboxPage() {
     const applyMessageInsert = (row: Record<string, unknown>) => {
       const conversationId = String(row.conversation_id ?? "");
       if (!conversationId) return;
+      const senderId = String(row.sender_id ?? "");
+      const isSelf = Boolean(userId && senderId && senderId === userId);
       const content = row.deleted_at ? "Message deleted" : String(row.content ?? "");
       const sentAt = String(row.sent_at ?? new Date().toISOString());
       setConversations((prev) => {
@@ -556,9 +566,12 @@ export function InboxPage() {
         }
         const patched = {
           ...existing,
-          lastMessage: content || existing.lastMessage,
+          lastMessage: formatInboxLastMessagePreview(content) || content || existing.lastMessage,
           lastMessageAt: sentAt,
-          unreadCount: Math.max(existing.unreadCount + 1, 1),
+          /* Self-send must never bump own Messages unread badge. */
+          unreadCount: isSelf
+            ? coerceUnreadCount(existing.unreadCount, 0)
+            : Math.max(coerceUnreadCount(existing.unreadCount, 0) + 1, 1),
         };
         const rest = prev.filter((item) => item.id !== conversationId);
         const next = [patched, ...rest];
@@ -590,7 +603,36 @@ export function InboxPage() {
 
   /* XLIII / Hub open sync — realtime is primary; keep event bridge only. */
   useEffect(() => {
-    const onInboxSync = () => {
+    const onInboxSync = (event: Event) => {
+      const detail = (event as CustomEvent<{
+        conversationId?: string;
+        lastMessage?: string;
+        lastMessageAt?: string;
+      }>).detail;
+      const conversationId = detail?.conversationId;
+      const lastMessage = detail?.lastMessage;
+      const lastMessageAt = detail?.lastMessageAt;
+      const hasLatestPreview =
+        Boolean(conversationId) &&
+        typeof lastMessage === "string" &&
+        typeof lastMessageAt === "string";
+      if (hasLatestPreview && conversationId) {
+        setConversations((prev) => {
+          const existing = prev.find((item) => item.id === conversationId);
+          if (!existing) return prev;
+          const patched: Conversation = {
+            ...existing,
+            lastMessage,
+            lastMessageAt,
+          };
+          const next = [patched, ...prev.filter((item) => item.id !== conversationId)];
+          setInboxConversationsCache(next);
+          return next;
+        });
+        /* Latest-message sync already patched list + cache — avoid duplicate full refresh. */
+        invalidateShareInflight("GET:/api/messages");
+        return;
+      }
       invalidateShareInflight("GET:/api/messages");
       invalidateShareInflight("GET:/api/notifications");
       void refreshAll();
@@ -622,10 +664,11 @@ export function InboxPage() {
 
   const unread = useMemo(() => {
     const messagesUnread = conversations.reduce(
-      (sum, item) => sum + (item.archived ? 0 : item.unreadCount),
+      (sum, item) => sum + (item.archived ? 0 : coerceUnreadCount(item.unreadCount, 0)),
       0,
     );
     const notificationsUnread = effectiveNotifications.filter((item) => !item.read).length;
+    /* Messages badge SSOT = conversation list unread; badge API only when list not loaded. */
     return buildUnreadCounter(
       loadingMessages && conversations.length === 0 ? mobileBadges.messages : messagesUnread,
       loadingNotifications && effectiveNotifications.length === 0
@@ -784,34 +827,6 @@ export function InboxPage() {
 
   void patchConversation;
 
-  const markNotificationRead = useCallback(
-    async (ids: string[]) => {
-      if (ids.length === 0) return;
-      setLocalNotifications((current) => {
-        const optimistic = current.map((item) =>
-          ids.includes(item.id) ? { ...item, read: true } : item,
-        );
-        setInboxNotificationsCache(optimistic);
-        setNotifications(optimistic);
-        return optimistic;
-      });
-      if (!navigator.onLine) {
-        enqueueOfflineNotificationAction({ type: "mark_read", ids });
-        return;
-      }
-      const response = await fetch("/api/notifications", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids, read: true }),
-      });
-      if (!response.ok) return;
-      const payload = (await response.json()) as { notifications: Notification[] };
-      applyNotifications(payload.notifications);
-      void refresh();
-    },
-    [applyNotifications, refresh, setNotifications],
-  );
-
   const markAllNotificationsRead = useCallback(async () => {
     if (!notifications.some((item) => !item.read)) return;
     setMarkingAllRead(true);
@@ -839,12 +854,38 @@ export function InboxPage() {
 
   const openNotification = useCallback(
     async (notification: Notification) => {
-      const hrefPromise = resolveNotificationOpenHref(notification);
-      if (!notification.read) void markNotificationRead([notification.id]);
-      const href = await hrefPromise;
-      router.push(isWalletHubNotificationHref(href) ? INBOX_ROUTES.hub : href);
+      const resolved = await resolveNotificationOpenHref(notification);
+      const href = resolveNotificationDeepLinkHref(
+        isWalletHubNotificationHref(resolved) ? INBOX_ROUTES.hub : resolved,
+        {
+          title: notification.title,
+          subtitle: notification.subtitle,
+          type: notification.type,
+        },
+      );
+      await handleNotificationDeepLinkClick({
+        href,
+        notificationId: notification.id,
+        type: notification.type,
+        markAsRead: !notification.read,
+        navigate: (target) => {
+          router.push(target);
+        },
+      });
+      /* Keep local list optimistic when mark-as-read succeeds via shared handler. */
+      if (!notification.read) {
+        setLocalNotifications((current) => {
+          const optimistic = current.map((item) =>
+            item.id === notification.id ? { ...item, read: true } : item,
+          );
+          setInboxNotificationsCache(optimistic);
+          setNotifications(optimistic);
+          return optimistic;
+        });
+        void refresh();
+      }
     },
-    [router, markNotificationRead],
+    [router, refresh, setNotifications],
   );
 
   const showMarkAll = tab === "notifications" && unread.notifications > 0;
@@ -961,12 +1002,14 @@ export function InboxPage() {
             <ul className="inbox-hub__list" data-transaction-hub="v1.0">
               {visibleConversations.map((conversation) => {
                 const avatar = resolveInboxMessageAvatar(conversation);
+                const isUnread = coerceUnreadCount(conversation.unreadCount, 0) > 0;
                 return (
                 <li key={conversation.id}>
                   <Link
                     href={INBOX_ROUTES.conversation(conversation.id)}
                     prefetch={false}
-                    className="inbox-hub__card"
+                    className={cn("inbox-hub__card", isUnread && "inbox-hub__card--unread")}
+                    data-inbox-unread={isUnread ? "true" : "false"}
                   >
                     <span className="inbox-hub__media">
                       {avatar.kind === "official-rx" ? (
@@ -1007,26 +1050,33 @@ export function InboxPage() {
                         </time>
                       </span>
                       <span className="inbox-hub__party">
-                        <span className="inbox-hub__party-name">
+                        <span
+                          className={cn(
+                            "inbox-hub__party-name",
+                            isUnread && "inbox-hub__party-name--unread",
+                          )}
+                        >
                           {conversation.participant.name}
                         </span>
                       </span>
                       <span
                         className={cn(
                           "inbox-hub__preview",
-                          conversation.unreadCount > 0 && "inbox-hub__preview--unread",
+                          isUnread && "inbox-hub__preview--unread",
                         )}
                       >
-                        {conversation.lastMessage}
+                        {formatInboxLastMessagePreview(conversation.lastMessage)}
                       </span>
                     </span>
                     <span className="inbox-hub__card-aside">
-                      {conversation.unreadCount > 0 ? (
+                      {isUnread ? (
                         <span
                           className="inbox-hub__unread"
                           aria-label={`${conversation.unreadCount} unread`}
                         >
-                          {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                          {coerceUnreadCount(conversation.unreadCount, 0) > 99
+                            ? "99+"
+                            : coerceUnreadCount(conversation.unreadCount, 0)}
                         </span>
                       ) : null}
                       <ChevronRightLineIcon className="inbox-hub__chevron" />

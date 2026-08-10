@@ -221,6 +221,8 @@ export function RealtimeNotificationProvider({
     }
     const includeTray = opts?.includeTray === true;
     try {
+      /* Realtime / inbox-sync must not reuse stale 2.5s badge TTL (Messages vs Notifications desync). */
+      clearInboxBadgeModuleCache();
       const state = await fetchBadgeState(undefined, { includeTray });
       applyState(state, includeTray);
     } catch (error) {
@@ -397,23 +399,54 @@ export function RealtimeNotificationProvider({
     if (!("serviceWorker" in navigator)) return;
 
     const onMessage = (event: MessageEvent) => {
-      const data = event.data as { type?: string; href?: string } | null;
+      const data = event.data as {
+        type?: string;
+        href?: string;
+        notificationId?: string | null;
+      } | null;
       if (!data) return;
       if (data.type === "notification-sync") {
         void refresh();
         return;
       }
       if (data.type === "notification-open" && typeof data.href === "string" && data.href) {
-        void refresh();
-        if (data.href.startsWith("/") && !data.href.startsWith("//")) {
-          router.push(data.href);
-        }
+        void (async () => {
+          void refresh({ includeTray: true });
+          const { handleNotificationDeepLinkClick } = await import(
+            "@/lib/notifications/notification-deep-link-v1"
+          );
+          await handleNotificationDeepLinkClick({
+            href: data.href!,
+            notificationId: data.notificationId,
+            markAsRead: Boolean(data.notificationId),
+            navigate: (href) => {
+              if (href.startsWith("/") && !href.startsWith("//")) {
+                router.push(href);
+              }
+            },
+          });
+        })();
       }
     };
 
     navigator.serviceWorker.addEventListener("message", onMessage);
     return () => navigator.serviceWorker.removeEventListener("message", onMessage);
   }, [enabled, refresh, router]);
+
+  /* Cold start / slow hydration — consume pending deep-link after auth session is ready. */
+  useEffect(() => {
+    if (!enabled) return;
+    void (async () => {
+      const { consumePendingNotificationDeepLink } = await import(
+        "@/lib/notifications/notification-deep-link-v1"
+      );
+      const pending = consumePendingNotificationDeepLink();
+      if (!pending) return;
+      if (pending.startsWith("/") && !pending.startsWith("//")) {
+        router.push(pending);
+      }
+    })();
+  }, [enabled, router]);
 
   const value = useMemo(
     () => ({

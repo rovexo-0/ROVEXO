@@ -80,8 +80,39 @@ import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { invalidateShareInflight, shareInflightJson } from "@/lib/performance/fetch";
+import { bumpInboxConversationPreview } from "@/lib/inbox/inbox-list-cache";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
+
+/**
+ * After text/photo send — update Messages list preview via existing XLIII inbox-sync.
+ * No polling · no second cache engine · no Hub UI redesign.
+ */
+function syncMessagesListAfterSend(input: {
+  conversationId: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  source: "message_sent" | "photo_sent";
+}) {
+  invalidateShareInflight("GET:/api/messages");
+  bumpInboxConversationPreview({
+    conversationId: input.conversationId,
+    lastMessage: input.lastMessage,
+    lastMessageAt: input.lastMessageAt,
+  });
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent("rovexo:inbox-sync", {
+      detail: {
+        conversationId: input.conversationId,
+        bloodLaw: "XLIII",
+        source: input.source,
+        lastMessage: input.lastMessage,
+        lastMessageAt: input.lastMessageAt,
+      },
+    }),
+  );
+}
 
 function formatCompactSystemWhen(iso: string): string {
   const date = new Date(iso);
@@ -1016,6 +1047,12 @@ export function ConversationHub({
             });
           }
         }
+        syncMessagesListAfterSend({
+          conversationId: conversation.id,
+          lastMessage: payload.conversation?.lastMessage ?? trimmed,
+          lastMessageAt: payload.conversation?.lastMessageAt ?? optimistic.sentAt,
+          source: "message_sent",
+        });
         setDraft("");
         setWarning(payload.warning ?? null);
         void refreshBadges();
@@ -1197,6 +1234,12 @@ export function ConversationHub({
           });
         }
       }
+      syncMessagesListAfterSend({
+        conversationId: conversation.id,
+        lastMessage: payload.conversation?.lastMessage ?? MESSAGE_PHOTO_PREVIEW_LABEL,
+        lastMessageAt: payload.conversation?.lastMessageAt ?? optimistic.sentAt,
+        source: "photo_sent",
+      });
       setWarning(payload.warning ?? null);
       void refreshBadges();
     } finally {

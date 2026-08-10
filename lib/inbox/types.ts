@@ -74,6 +74,21 @@ export function buildUnreadCounter(messages: number, notifications: number): Unr
   };
 }
 
+/** Coerce DB / realtime unread fields (number | numeric string) — never leave NaN/null. */
+export function coerceUnreadCount(raw: unknown, fallback = 0): number {
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return Math.max(0, Math.floor(raw));
+  }
+  if (typeof raw === "string" && raw.trim() !== "") {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) return Math.max(0, Math.floor(parsed));
+  }
+  if (typeof fallback === "number" && Number.isFinite(fallback)) {
+    return Math.max(0, Math.floor(fallback));
+  }
+  return 0;
+}
+
 export function mapNotificationCategory(type: NotificationType): NotificationCategory {
   switch (type) {
     case "order":

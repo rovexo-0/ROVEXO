@@ -95,7 +95,7 @@ describe("Official ROVEXO Inbox avatar", () => {
     expect(result.src).toBe("https://cdn.example.com/user.jpg");
   });
 
-  it("notifications: official platform events → RX", () => {
+  it("notifications: listing-related platform events prefer product thumb when image exists", () => {
     expect(isOfficialRovexoNotification(notification({ title: "New order", type: "order" }))).toBe(
       true,
     );
@@ -109,6 +109,12 @@ describe("Official ROVEXO Inbox avatar", () => {
       resolveInboxNotificationAvatar(
         notification({ title: "New order", type: "order" }),
         "https://cdn.example.com/item.jpg",
+      ).kind,
+    ).toBe("listing");
+    expect(
+      resolveInboxNotificationAvatar(
+        notification({ title: "Trust score updated", type: "system" }),
+        null,
       ).kind,
     ).toBe("official-rx");
   });

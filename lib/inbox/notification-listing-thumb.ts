@@ -14,12 +14,14 @@ import type { Notification } from "@/lib/notifications/types";
  */
 export function notificationPrefersListingThumbnail(notification: Notification): boolean {
   switch (notification.type) {
+    case "message":
     case "order":
     case "offer":
     case "payment":
     case "review":
     case "saved_item_sold":
     case "price_reduced":
+    case "saved_search_match":
       return true;
     default:
       break;
@@ -27,6 +29,7 @@ export function notificationPrefersListingThumbnail(notification: Notification):
 
   const title = notification.title.trim().toLowerCase();
   return (
+    title.includes("new message") ||
     title.includes("new order") ||
     title.includes("funds pending") ||
     title.includes("payment received") ||
@@ -36,6 +39,8 @@ export function notificationPrefersListingThumbnail(notification: Notification):
     title.includes("order delivered") ||
     title.includes("offer received") ||
     title.includes("counter offer") ||
+    title.includes("bundle offer") ||
+    title.includes("bundle counter") ||
     title.includes("offer accepted") ||
     title.includes("offer declined") ||
     title.includes("price drop") ||
@@ -50,6 +55,17 @@ export function notificationPrefersListingThumbnail(notification: Notification):
   );
 }
 
+/** Extract conversation id from Inbox Conversation Hub hrefs. */
+export function extractConversationIdFromNotificationHref(href: string): string | null {
+  const match = (href ?? "").match(/\/inbox\/conversation\/([^/?#]+)/i);
+  if (!match?.[1]) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 /** Build a key → image map from already-loaded Inbox Messages (zero extra fetches). */
 export function buildInboxListingImageIndex(
   conversations: readonly Conversation[],
@@ -58,6 +74,7 @@ export function buildInboxListingImageIndex(
   for (const conversation of conversations) {
     const url = conversation.product.imageUrl?.trim() ?? "";
     if (!isRenderableImageSrc(url)) continue;
+    if (conversation.id) map.set(conversation.id, url);
     if (conversation.product.id) map.set(conversation.product.id, url);
     if (conversation.product.slug) map.set(conversation.product.slug, url);
     const title = conversation.product.title?.trim();
@@ -69,7 +86,7 @@ export function buildInboxListingImageIndex(
 /**
  * Primary listing image for a notification.
  * Priority: notification.avatarUrl (API-joined cover / images[0] / order image)
- * → in-memory Messages listing index → null (SafeImage placeholder).
+ * → in-memory Messages listing index (incl. conversationId) → null (SafeImage placeholder).
  */
 export function resolveNotificationListingImageSrc(
   notification: Notification,
@@ -82,6 +99,8 @@ export function resolveNotificationListingImageSrc(
   if (!listingImageByKey?.size) return null;
 
   const keys: string[] = [];
+  const conversationId = extractConversationIdFromNotificationHref(notification.href);
+  if (conversationId) keys.push(conversationId);
   const listingMatch = notification.href.match(/\/listing\/([^/?#]+)/);
   if (listingMatch?.[1]) keys.push(decodeURIComponent(listingMatch[1]));
   const checkoutMatch = notification.href.match(/\/checkout\/([^/?#]+)/);

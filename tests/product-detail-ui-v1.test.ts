@@ -70,10 +70,11 @@ function sampleProduct(overrides: Partial<ProductDetail> = {}): ProductDetail {
 }
 
 describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", () => {
-  it("locks Owner VIEW ITEM v1.0 FROZEN SSOT", () => {
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.status).toBe("FROZEN");
+  it("locks Owner VIEW ITEM v2.0 FROZEN SSOT", () => {
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.status).toBe("PRODUCTION_UI_LOCK_ACTIVE");
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.freezeStatus).toBe("FROZEN");
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.version).toBe("cod-sange-v3.1");
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.viewItemVersion).toBe("1.0");
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.viewItemVersion).toBe("2.0");
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToCart).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.buyNow).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.makeOffer).toBe(true);
@@ -85,10 +86,12 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain(
       "Similar Items on View Item body",
     );
-    expect(VIEW_ITEM_FINAL_UI_LOCK_V1.status).toBe("FROZEN");
-    expect(VIEW_ITEM_FINAL_UI_LOCK_V1.stock.displayOnceUnderPrice).toBe(true);
+    expect(VIEW_ITEM_FINAL_UI_LOCK_V1.status).toBe("PRODUCTION_UI_LOCK_ACTIVE");
+    expect(VIEW_ITEM_FINAL_UI_LOCK_V1.freezeStatus).toBe("FROZEN");
+    expect(VIEW_ITEM_FINAL_UI_LOCK_V1.stock.displayOnceUnderPrice).toBe(false);
     expect(VIEW_ITEM_FINAL_UI_LOCK_V1.stock.forbiddenInSpecificationTable).toBe(true);
-    expect(VIEW_ITEM_UI_UX_FREEZE_V1.status).toBe("FROZEN");
+    expect(VIEW_ITEM_UI_UX_FREEZE_V1.status).toBe("PRODUCTION_UI_LOCK_ACTIVE");
+    expect(VIEW_ITEM_UI_UX_FREEZE_V1.freezeStatus).toBe("FROZEN");
     expect(VIEW_ITEM_UI_UX_FREEZE_V1.ownerLocked).toBe(true);
     expect(VIEW_ITEM_UI_UX_FREEZE_V1.productInformationOrder).toEqual([
       "Category",
@@ -135,7 +138,7 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(page).toContain('data-pd-detail-version="cod-sange-v3.1"');
     expect(page).toContain('data-product-page-freeze="FROZEN"');
     expect(page).toContain('data-view-item-ui-lock="FROZEN"');
-    expect(page).toContain('data-view-item-version="1.0"');
+    expect(page).toContain('data-view-item-version="2.0"');
         expect(page).toContain('data-add-to-cart="removed-forever"');
     expect(page).toContain("ProductGalleryV1");
     expect(page).toContain("ProductPageChrome");
@@ -278,11 +281,12 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(stockOnly.map((r) => r.id)).toEqual(["category", "brand", "condition", "uploaded"]);
   });
 
-  it("action bar is Buy Now + Make Offer + Add to Bundle (no cart)", () => {
+  it("action bar keeps Buy Now + Make Offer + canonical Add to Bundle", () => {
     const bar = readSource("features/product-detail/ProductActionBarV1.tsx");
     const css = readSource("styles/rovexo/product-detail-v1.css");
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
 
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(true);
     expect(bar).toContain("PRODUCT_ACTION_BUTTONS");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNow");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNowLoading");
@@ -293,10 +297,13 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(bar).not.toContain("pd-v1__action-btn--cart");
     expect(bar).toContain('data-add-to-cart="removed-forever"');
     expect(css).toContain("repeat(2, minmax(0, 1fr))");
-    expect(css).toContain(".pd-v1__add-to-bundle");
+    expect(page).not.toContain("ProductMemberItemsSection");
+    expect(page).toContain("handleAddToBundle");
+    expect(page).toContain("AddToBundleSheet");
     expect(page).toContain("useProductActionBar");
     expect(page).toContain("OfferComposerSheet");
-    expect(page).toContain("handleAddToBundle");
+    expect(page).toContain("StickyBundleBar");
+    expect(page).toContain("onAddToBundle");
     expect(bar).not.toContain("Message");
   });
 });

@@ -1,4 +1,5 @@
 import type { Conversation, MessageFilter } from "@/lib/messages/types";
+import { parseBundleMessageMeta } from "@/lib/bundle/bundle-payload-v1";
 
 export function formatMessageTime(iso: string): string {
   const date = new Date(iso);
@@ -40,6 +41,39 @@ export function formatInboxRelativeTime(iso: string, nowMs = Date.now()): string
     day: "numeric",
     month: "short",
   }).format(new Date(iso));
+}
+
+/**
+ * Humanize Inbox conversation preview from existing last_message only.
+ * Strips encoded offer/bundle meta — no new fetch.
+ */
+export function formatInboxLastMessagePreview(raw: string | null | undefined): string {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) return "";
+
+  const { bundle, userMessage } = parseBundleMessageMeta(trimmed);
+  if (bundle) {
+    const body = userMessage?.trim();
+    if (body) return body;
+    const amount = Number(bundle.listSubtotal);
+    const list =
+      Number.isFinite(amount) && amount > 0
+        ? ` · list £${amount.toFixed(2)}`
+        : "";
+    return `Bundle offer · ${bundle.itemCount} items${list}`;
+  }
+
+  const counter = trimmed.match(
+    /^__RVX_COUNTER__:(?:buyer|seller):[0-9a-f-]{36}__(.*)$/i,
+  );
+  if (counter) {
+    const rest = (counter[1] ?? "").trim();
+    if (rest) return formatInboxLastMessagePreview(rest);
+    return "Counter offer";
+  }
+
+  if (trimmed.startsWith("__RVX_")) return "New update";
+  return trimmed;
 }
 
 export function formatLastSeen(iso: string): string {

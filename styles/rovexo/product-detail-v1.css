@@ -1213,6 +1213,61 @@ a.pd-v1__action-btn {
   padding-bottom: 24px;
 }
 
+.pd-v1__bundle-review-preview {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.pd-v1__bundle-review-preview-rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pd-v1__bundle-review-preview-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.pd-v1__bundle-review-preview-thumb {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--pd-v1-surface-muted);
+}
+
+.pd-v1__bundle-review-preview-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pd-v1__bundle-review-preview-more {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
 .pd-v1__bundle-review-empty {
   display: flex;
   flex-direction: column;

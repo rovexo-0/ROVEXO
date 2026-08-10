@@ -24,6 +24,8 @@ import {
 } from "@/lib/bundle/bundle-mirror-v1";
 import { useActiveBundle } from "@/features/product-detail/AddToBundleSheet";
 import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
+/* Page-scoped: Review Bundle uses pd-v1__bundle-review* (same sheet as Product Detail). */
+import "@/styles/rovexo/product-detail-v1.css";
 
 /**
  * Review Bundle — Owner Master Spec.
@@ -133,6 +135,8 @@ export function BundleReviewPage() {
         </div>
       ) : (
         <div className="pd-v1__bundle-review" data-bundle-review={BUNDLE_ENGINE_V1.version}>
+          <BundleSelectedPreview items={bundle!.items} />
+
           <section className="pd-v1__bundle-review-seller" aria-label="Seller">
             <p className="pd-v1__bundle-review-seller-name">{sellerLabel}</p>
             <p className="pd-v1__bundle-review-seller-meta">
@@ -255,6 +259,43 @@ export function BundleReviewPage() {
         onClose={() => setBuyNowError(null)}
       />
     </AccountCanonicalShell>
+  );
+}
+
+/** Compact horizontal selected-product preview — visual only; reuses bundle.items. */
+const BUNDLE_PREVIEW_VISIBLE = 5;
+
+function BundleSelectedPreview({
+  items,
+}: {
+  items: NonNullable<BundleSnapshotV1>["items"];
+}) {
+  if (items.length === 0) return null;
+
+  const overflow = Math.max(0, items.length - BUNDLE_PREVIEW_VISIBLE);
+  const visible =
+    overflow > 0 ? items.slice(0, BUNDLE_PREVIEW_VISIBLE - 1) : items.slice(0, BUNDLE_PREVIEW_VISIBLE);
+  const overflowCount = overflow > 0 ? items.length - visible.length : 0;
+
+  return (
+    <div
+      className="pd-v1__bundle-review-preview"
+      data-bundle-selected-preview
+      aria-label={`${items.length} selected products`}
+    >
+      <ul className="pd-v1__bundle-review-preview-rail">
+        {visible.map((item) => (
+          <li key={item.productId} className="pd-v1__bundle-review-preview-thumb">
+            <SafeImage src={item.imageUrl} alt="" width={56} height={56} />
+          </li>
+        ))}
+        {overflowCount > 0 ? (
+          <li className="pd-v1__bundle-review-preview-more" aria-label={`${overflowCount} more`}>
+            +{overflowCount}
+          </li>
+        ) : null}
+      </ul>
+    </div>
   );
 }
 

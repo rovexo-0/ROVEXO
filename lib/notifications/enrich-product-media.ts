@@ -2,10 +2,28 @@ import { createClient } from "@/lib/supabase/server";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import type { Notification } from "@/lib/notifications/types";
+import { extractConversationIdFromNotificationHref } from "@/lib/inbox/notification-listing-thumb";
+
+type ProductImageRow = {
+  url: string;
+  is_primary: boolean | null;
+  sort_order: number | null;
+};
+
+function primaryProductImageUrl(images: ProductImageRow[] | null | undefined): string {
+  return (
+    [...(images ?? [])].sort(
+      (a, b) =>
+        Number(Boolean(b.is_primary)) - Number(Boolean(a.is_primary)) ||
+        (a.sort_order ?? 0) - (b.sort_order ?? 0),
+    )[0]?.url ?? ""
+  );
+}
 
 /**
  * Spring 2 — if a commerce notification lacks product image / title,
- * resolve from order / listing href so Inbox never shows initials.
+ * resolve from order / listing / conversation href so Inbox shows product thumbs.
+ * Batch queries only — never N+1 per notification.
  */
 export async function enrichNotificationProductMedia(
   notifications: Notification[],
@@ -25,6 +43,7 @@ export async function enrichNotificationProductMedia(
 
   const orderIds = new Set<string>();
   const listingSlugs = new Set<string>();
+  const conversationIds = new Set<string>();
 
   for (const item of needs) {
     const orderFromQuery = item.href.match(/[?&]order=([^&#]+)/);
@@ -43,10 +62,13 @@ export async function enrichNotificationProductMedia(
     if (checkoutMatch?.[1]) {
       listingSlugs.add(decodeURIComponent(checkoutMatch[1]));
     }
+    const conversationId = extractConversationIdFromNotificationHref(item.href);
+    if (conversationId) conversationIds.add(conversationId);
   }
 
   const orderImageById = new Map<string, { title: string; imageUrl: string }>();
   const listingImageBySlug = new Map<string, { title: string; imageUrl: string }>();
+  const conversationImageById = new Map<string, { title: string; imageUrl: string }>();
 
   if (orderIds.size) {
     const { data: items } = await supabase
@@ -66,6 +88,38 @@ export async function enrichNotificationProductMedia(
     }
   }
 
+  if (conversationIds.size) {
+    const { data: conversations } = await supabase
+      .from("conversations")
+      .select(
+        "id, products ( slug, title, product_images ( url, is_primary, sort_order ) )",
+      )
+      .in("id", [...conversationIds]);
+
+    for (const row of conversations ?? []) {
+      const product = (
+        row as {
+          id: string;
+          products?: {
+            slug?: string;
+            title?: string | null;
+            product_images?: ProductImageRow[];
+          } | null;
+        }
+      ).products;
+      if (!product) continue;
+      const imageUrl = primaryProductImageUrl(product.product_images).trim();
+      const title = product.title?.trim() || "";
+      conversationImageById.set(row.id, { title, imageUrl });
+      if (product.slug) {
+        listingSlugs.add(product.slug);
+        if (imageUrl || title) {
+          listingImageBySlug.set(product.slug, { title, imageUrl });
+        }
+      }
+    }
+  }
+
   if (listingSlugs.size) {
     const { data: products } = await supabase
       .from("products")
@@ -74,19 +128,10 @@ export async function enrichNotificationProductMedia(
     for (const product of products ?? []) {
       const images = (
         product as {
-          product_images?: Array<{
-            url: string;
-            is_primary: boolean | null;
-            sort_order: number | null;
-          }>;
+          product_images?: ProductImageRow[];
         }
       ).product_images;
-      const imageUrl =
-        [...(images ?? [])].sort(
-          (a, b) =>
-            Number(Boolean(b.is_primary)) - Number(Boolean(a.is_primary)) ||
-            (a.sort_order ?? 0) - (b.sort_order ?? 0),
-        )[0]?.url ?? "";
+      const imageUrl = primaryProductImageUrl(images).trim();
       listingImageBySlug.set(product.slug, {
         title: product.title?.trim() || "",
         imageUrl,
@@ -110,10 +155,20 @@ export async function enrichNotificationProductMedia(
     const listingMeta = listingMatch?.[1]
       ? listingImageBySlug.get(decodeURIComponent(listingMatch[1]))
       : undefined;
+    const conversationId = extractConversationIdFromNotificationHref(item.href);
+    const conversationMeta = conversationId
+      ? conversationImageById.get(conversationId)
+      : undefined;
 
-    const title = item.avatarName?.trim() || orderMeta?.title || listingMeta?.title || "";
+    const title =
+      item.avatarName?.trim() ||
+      conversationMeta?.title ||
+      orderMeta?.title ||
+      listingMeta?.title ||
+      "";
     const imageUrl =
       (isRenderableImageSrc(item.avatarUrl) ? item.avatarUrl : "") ||
+      conversationMeta?.imageUrl ||
       orderMeta?.imageUrl ||
       listingMeta?.imageUrl ||
       "";

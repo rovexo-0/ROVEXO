@@ -278,6 +278,53 @@ self.addEventListener("push", (event) => {
         (data && data.href) ||
         (payload && payload.href) ||
         "/inbox?tab=notifications";
+      const destination =
+        (data && data.destination) ||
+        (payload && payload.destination) ||
+        null;
+      const type =
+        (data && data.type) ||
+        (payload && payload.type) ||
+        (payload && payload.eventType) ||
+        null;
+
+      function isAllowedNotificationHref(candidate) {
+        if (!candidate || typeof candidate !== "string") return false;
+        var raw = candidate.trim();
+        if (!raw) return false;
+        if (/^(javascript|data|vbscript|file):/i.test(raw)) return false;
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(raw) && raw.charAt(0) !== "/") return false;
+        if (raw.charAt(0) !== "/" || raw.indexOf("//") === 0) return false;
+        var path = raw.split("?")[0].split("#")[0].replace(/\/+$/, "") || "/";
+        if (path === "/") return true;
+        var allowed = [
+          "/inbox",
+          "/orders",
+          "/wallet",
+          "/balance",
+          "/account/wallet",
+          "/account/reviews",
+          "/account/settings",
+          "/account/addresses",
+          "/saved",
+          "/listing/",
+          "/store/",
+          "/user/",
+          "/search",
+          "/sell",
+          "/checkout",
+        ];
+        for (var i = 0; i < allowed.length; i++) {
+          var prefix = allowed[i];
+          if (path === prefix.replace(/\/+$/, "") || path.indexOf(prefix) === 0) return true;
+        }
+        return false;
+      }
+
+      var safeHref = isAllowedNotificationHref(href) ? href : "/inbox?tab=notifications";
+      if (safeHref === "/" || safeHref === "") {
+        safeHref = "/inbox?tab=notifications";
+      }
 
       try {
         console.log("[SW_PUSH_RECEIVED]", {
@@ -301,17 +348,28 @@ self.addEventListener("push", (event) => {
             body: payload && payload.body ? payload.body : "",
             tag,
             data: {
-              href,
+              href: safeHref,
               notificationId,
               pushTraceId,
               offerId,
               conversationId,
+              type,
+              destination,
               ...data,
+              href: safeHref,
             },
           }
         : {
             body: payload && payload.body ? payload.body : "",
-            data: { href, notificationId, pushTraceId, offerId, conversationId },
+            data: {
+              href: safeHref,
+              notificationId,
+              pushTraceId,
+              offerId,
+              conversationId,
+              type,
+              destination,
+            },
             icon: absoluteIcon,
             badge: absoluteBadge,
             tag,
@@ -363,11 +421,47 @@ self.addEventListener("notificationclick", (event) => {
     /* ignore */
   }
   event.notification.close();
+
+  function isAllowedNotificationHref(candidate) {
+    if (!candidate || typeof candidate !== "string") return false;
+    var raw = candidate.trim();
+    if (!raw) return false;
+    if (/^(javascript|data|vbscript|file):/i.test(raw)) return false;
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(raw) && raw.charAt(0) !== "/") return false;
+    if (raw.charAt(0) !== "/" || raw.indexOf("//") === 0) return false;
+    var path = raw.split("?")[0].split("#")[0].replace(/\/+$/, "") || "/";
+    if (path === "/") return true;
+    var allowed = [
+      "/inbox",
+      "/orders",
+      "/wallet",
+      "/balance",
+      "/account/wallet",
+      "/account/reviews",
+      "/account/settings",
+      "/account/addresses",
+      "/saved",
+      "/listing/",
+      "/store/",
+      "/user/",
+      "/search",
+      "/sell",
+      "/checkout",
+    ];
+    for (var i = 0; i < allowed.length; i++) {
+      var prefix = allowed[i];
+      if (path === prefix.replace(/\/+$/, "") || path.indexOf(prefix) === 0) return true;
+    }
+    return false;
+  }
+
   let href = typeof data.href === "string" && data.href ? data.href : "/inbox?tab=notifications";
-  if (href === "/" || href === "") {
+  if (!isAllowedNotificationHref(href) || href === "/" || href === "") {
     href = "/inbox?tab=notifications";
   }
   const notificationId = data.notificationId || null;
+  const destination = data.destination || null;
+  const type = data.type || null;
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
@@ -377,6 +471,8 @@ self.addEventListener("notificationclick", (event) => {
             type: "notification-open",
             href,
             notificationId,
+            destination,
+            type,
           });
           return client.focus().then(() => {
             if ("navigate" in client && typeof client.navigate === "function") {

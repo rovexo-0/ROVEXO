@@ -32,6 +32,9 @@ describe("Inbox notification listing thumbnails", () => {
     expect(notificationPrefersListingThumbnail(base({ type: "offer", title: "Offer received" }))).toBe(
       true,
     );
+    expect(notificationPrefersListingThumbnail(base({ type: "message", title: "New message" }))).toBe(
+      true,
+    );
     expect(notificationPrefersListingThumbnail(base({ type: "review", title: "Review received" }))).toBe(
       true,
     );
@@ -72,7 +75,7 @@ describe("Inbox notification listing thumbnails", () => {
     expect(src).toBe("https://cdn.example.com/cover.jpg");
   });
 
-  it("joins Messages listing images in memory when avatarUrl missing", () => {
+  it("joins Messages listing images via conversationId when avatarUrl missing", () => {
     const conversations = [
       {
         id: "c1",
@@ -105,16 +108,28 @@ describe("Inbox notification listing thumbnails", () => {
     ] as Conversation[];
 
     const index = buildInboxListingImageIndex(conversations);
-    const src = resolveNotificationListingImageSrc(
-      base({
-        type: "offer",
-        title: "Offer received",
-        href: "/listing/nike-air",
-        avatarUrl: null,
-      }),
-      index,
-    );
-    expect(src).toBe("https://cdn.example.com/nike.jpg");
+    expect(
+      resolveNotificationListingImageSrc(
+        base({
+          type: "message",
+          title: "New message",
+          href: "/inbox/conversation/c1",
+          avatarUrl: null,
+        }),
+        index,
+      ),
+    ).toBe("https://cdn.example.com/nike.jpg");
+    expect(
+      resolveNotificationListingImageSrc(
+        base({
+          type: "offer",
+          title: "Offer received",
+          href: "/listing/nike-air",
+          avatarUrl: null,
+        }),
+        index,
+      ),
+    ).toBe("https://cdn.example.com/nike.jpg");
   });
 
   it("returns null when no image exists (SafeImage placeholder path)", () => {
