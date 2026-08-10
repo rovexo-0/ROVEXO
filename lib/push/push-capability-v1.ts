@@ -1,9 +1,21 @@
 /**
  * Web Push capability detection — identical on iPhone / Android / Desktop.
  * Soft Permission Sheet must appear when push is supported and permission is undecided.
+ *
+ * Production Home Screen / PWA: subscribe MUST ensure `/sw.js` is registered
+ * before PushManager.subscribe — `navigator.serviceWorker.ready` never resolves
+ * when nothing is registered (race vs PwaProvider, or post ChunkLoadRecovery unregister).
  */
 
 export type PushOsPermission = "default" | "granted" | "denied" | "unsupported";
+
+/** Local / loopback — SW intentionally unregistered (PwaProvider). Never register for push here. */
+export function isLocalPushHost(hostname?: string): boolean {
+  const host =
+    hostname ??
+    (typeof window !== "undefined" ? window.location.hostname : "");
+  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+}
 
 /** True when this browsing context can use the Web Push APIs. */
 export function isWebPushApiPresent(
@@ -91,8 +103,81 @@ export async function getServiceWorkerRegistrationIfPresent(): Promise<ServiceWo
     return null;
   }
   try {
-    const registration = await navigator.serviceWorker.getRegistration();
+    const registration = await navigator.serviceWorker.getRegistration("/");
     return registration ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function waitForRegistrationActive(
+  registration: ServiceWorkerRegistration,
+  maxWaitMs: number,
+): Promise<ServiceWorkerRegistration | null> {
+  if (registration.active) return registration;
+
+  const worker = registration.installing ?? registration.waiting;
+  if (!worker) {
+    try {
+      return await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<null>((resolve) => {
+          window.setTimeout(() => resolve(null), maxWaitMs);
+        }),
+      ]);
+    } catch {
+      return null;
+    }
+  }
+
+  return new Promise((resolve) => {
+    const timeout = window.setTimeout(() => {
+      resolve(registration.active ? registration : null);
+    }, maxWaitMs);
+
+    const onState = () => {
+      if (worker.state === "activated") {
+        window.clearTimeout(timeout);
+        worker.removeEventListener("statechange", onState);
+        resolve(registration);
+      } else if (worker.state === "redundant") {
+        window.clearTimeout(timeout);
+        worker.removeEventListener("statechange", onState);
+        resolve(null);
+      }
+    };
+
+    if (worker.state === "activated") {
+      window.clearTimeout(timeout);
+      resolve(registration);
+      return;
+    }
+
+    worker.addEventListener("statechange", onState);
+  });
+}
+
+/**
+ * Ensure Production SW `/sw.js` (scope `/`) is registered before push subscribe.
+ * No-op on localhost / non-production (matches PwaProvider unregister policy).
+ * Idempotent — reuses existing registration when present.
+ */
+export async function ensureProductionServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return null;
+  }
+  if (isLocalPushHost()) return null;
+  if (process.env.NODE_ENV !== "production") return null;
+
+  try {
+    let registration = await navigator.serviceWorker.getRegistration("/");
+    if (!registration) {
+      registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+        updateViaCache: "none",
+      });
+    }
+    return waitForRegistrationActive(registration, 12_000);
   } catch {
     return null;
   }
@@ -104,6 +189,11 @@ export async function waitForServiceWorkerReady(
 ): Promise<ServiceWorkerRegistration | null> {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
     return null;
+  }
+
+  if (!isLocalPushHost() && process.env.NODE_ENV === "production") {
+    const ensured = await ensureProductionServiceWorkerRegistration();
+    if (ensured?.active) return ensured;
   }
 
   const existing = await getServiceWorkerRegistrationIfPresent();

@@ -563,19 +563,37 @@
   color: #b91c1c;
 }
 
-.sv2__bundle-review-btn {
+.sv2__bundle-builder-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.sv2__bundle-offer-btn,
+.sv2__bundle-buy-btn {
   width: 100%;
   min-height: 48px;
-  border: 0;
   border-radius: 14px;
-  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
-  color: #fff;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.sv2__bundle-review-btn:disabled {
+.sv2__bundle-offer-btn {
+  border: 1.5px solid var(--sv2-purple, #9333ea);
+  background: #fff;
+  color: var(--sv2-purple, #9333ea);
+}
+
+.sv2__bundle-buy-btn {
+  border: 0;
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  color: #fff;
+}
+
+.sv2__bundle-offer-btn:disabled,
+.sv2__bundle-buy-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -49,7 +49,13 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    // Home Screen / PWA + Web Push require active `/sw.js` (scope `/`).
+    void navigator.serviceWorker
+      .register("/sw.js", { scope: "/", updateViaCache: "none" })
+      .then((registration) => {
+        void registration.update().catch(() => undefined);
+      })
+      .catch(() => undefined);
 
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildProductInformationRows } from "@/features/product-detail/build-product-information-rows";
 import { PRODUCT_INFORMATION_FIELD_MAP_V1 } from "@/lib/product-detail/product-information-field-map-v1";
 import {
+  collectDescriptionAttributeStripLabelsV1,
   parseListingAttributeNotesV1,
   resolveProductInformationValuesV1,
   stripListingAttributeNotesFromDescriptionV1,
@@ -94,6 +95,63 @@ describe("Product Information Attribute Engine v1.0", () => {
     expect(display).not.toMatch(/Condition:/i);
     expect(display).not.toMatch(/Category:/i);
     expect(raw).toContain("Brand: Apple");
+  });
+
+  it("Description strips Model note (Sell formatAttributeNote) — free text preserved", () => {
+    const raw = "Smartphone iphone 14 pro max Model: Iphone14 pro max.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe("Smartphone iphone 14 pro max.");
+    expect(display).not.toMatch(/Model:/i);
+    expect(raw).toContain("Model: Iphone14 pro max");
+  });
+
+  it("Description strips Brand / Storage / Colour|Color / Condition / Category notes", () => {
+    const raw =
+      "Daily driver. Brand: Samsung. Storage: 256GB. Color: Graphite. Condition: Excellent. Category: Electronics.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe("Daily driver.");
+    expect(display).not.toMatch(/Brand:|Storage:|Color:|Condition:|Category:/i);
+    expect(raw).toContain("Brand: Samsung");
+  });
+
+  it("Description strips Style / Gender / Capacity / Compatible With (Sell ATTRIBUTE_DEFS labels)", () => {
+    const raw =
+      "Nice accessory. Style: Casual. Gender: Unisex. Capacity: 64GB. Compatible With: iPhone 14.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe("Nice accessory.");
+    expect(display).not.toMatch(/Style:|Gender:|Capacity:|Compatible With:/i);
+  });
+
+  it("preserves legitimate free-text that mentions product words without Label: value. notes", () => {
+    const raw =
+      "This iPhone 14 Pro Max is in great condition. Battery health is excellent and the model feels solid.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe(raw);
+    expect(display).toContain("iPhone 14 Pro Max");
+    expect(display).toContain("condition");
+    expect(display).toContain("model feels solid");
+  });
+
+  it("strip label set includes Model from Sell ATTRIBUTE_DEFS (not Model-only hardcode)", () => {
+    const labels = collectDescriptionAttributeStripLabelsV1();
+    expect(labels).toContain("Model");
+    expect(labels).toContain("Brand");
+    expect(labels).toContain("Storage");
+    expect(labels).toContain("Colour");
+    expect(labels).toContain("Color");
+    expect(labels).toContain("Condition");
+    expect(labels).toContain("Category");
+    expect(labels).toContain("Material (recommended)");
+    expect(labels.length).toBeGreaterThan(15);
+  });
+
+  it("attribute rows still resolve Storage from notes after Description strip (DB raw untouched)", () => {
+    const raw = "Phone body text. Storage: 128GB. Model: Iphone14 pro max.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe("Phone body text.");
+    const resolved = resolveProductInformationValuesV1({ description: raw });
+    expect(resolved.storage).toBe("128GB");
+    expect(raw).toContain("Model: Iphone14 pro max");
   });
 
   it("Camping — Size hidden even when orphan size is stored", () => {

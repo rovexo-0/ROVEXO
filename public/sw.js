@@ -459,6 +459,13 @@ self.addEventListener("notificationclick", (event) => {
   if (!isAllowedNotificationHref(href) || href === "/" || href === "") {
     href = "/inbox?tab=notifications";
   }
+  // iOS Home Screen / PWA: openWindow + navigate need absolute same-origin URLs.
+  let absoluteHref = href;
+  try {
+    absoluteHref = new URL(href, self.location.origin).href;
+  } catch (_) {
+    absoluteHref = self.location.origin + (href.charAt(0) === "/" ? href : "/" + href);
+  }
   const notificationId = data.notificationId || null;
   const destination = data.destination || null;
   const type = data.type || null;
@@ -476,13 +483,13 @@ self.addEventListener("notificationclick", (event) => {
           });
           return client.focus().then(() => {
             if ("navigate" in client && typeof client.navigate === "function") {
-              return client.navigate(href);
+              return client.navigate(absoluteHref);
             }
             return undefined;
           });
         }
       }
-      return self.clients.openWindow(href);
+      return self.clients.openWindow(absoluteHref);
     }),
   );
 });

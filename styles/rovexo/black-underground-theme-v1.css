@@ -1179,8 +1179,14 @@ html[data-theme="dark"] .sv2__bundle-select--on {
 }
 
 html[data-theme="dark"] .sv2__create-bundle,
-html[data-theme="dark"] .sv2__bundle-review-btn {
+html[data-theme="dark"] .sv2__bundle-buy-btn {
   color: #fff !important;
+}
+
+html[data-theme="dark"] .sv2__bundle-offer-btn {
+  background: transparent !important;
+  color: var(--rvx-accent, #a855f7) !important;
+  border-color: var(--rvx-accent, #a855f7) !important;
 }
 
 html[data-theme="dark"] .pd-v1__bundle-review,

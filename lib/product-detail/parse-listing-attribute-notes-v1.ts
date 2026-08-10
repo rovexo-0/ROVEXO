@@ -6,10 +6,12 @@
  * Structured DB columns always win over parsed notes when both exist.
  */
 
+import { ATTR } from "@/lib/catalog/attributes";
 import {
   PRODUCT_INFORMATION_NOTE_LABEL_ALIASES_V1,
   type ProductInformationFieldId,
 } from "@/lib/product-detail/product-information-field-map-v1";
+import { ATTRIBUTE_DEFS } from "@/lib/sell/attribute-engine";
 
 export type ParsedListingAttributesV1 = Partial<
   Record<Exclude<ProductInformationFieldId, "category" | "brand" | "condition" | "uploaded">, string>
@@ -60,43 +62,81 @@ export function parseListingAttributeNotesV1(description: string | null | undefi
 }
 
 /**
- * Presentation-only: remove structured attribute notes from Description body.
- * Attribute rows (Brand, Colour, Storage, Condition, Category, …) stay in
- * Product Information — DB description is not mutated.
+ * Presentation-only strip labels for Description body.
+ * Union of: Product Information aliases · Catalog ATTR labels · Sell ATTRIBUTE_DEFS
+ * labels (exact strings written by formatAttributeNote) · common marketplace notes.
+ * Never hard-code a single label (e.g. Model-only).
  */
-const DESCRIPTION_DISPLAY_STRIP_LABELS = Array.from(
-  new Set([
-    ...NOTE_LABELS,
-    "Brand",
-    "Condition",
-    "Category",
-    "Storage",
-    "Colour",
-    "Color",
-    "Material",
-    "Size",
-    "Network",
-    "Season",
-    "Season Rating",
-    "Compatibility",
-  ]),
-).sort((a, b) => b.length - a.length);
+const PRESENTATION_ONLY_STRIP_EXTRAS = [
+  "Brand",
+  "Condition",
+  "Category",
+  "Department",
+  "Colour",
+  "Color",
+  "Colours",
+  "Colors",
+  "Material",
+  "Network",
+  "Compatibility",
+  "SKU",
+  "MPN",
+  "EAN",
+  "ISBN",
+  "Product code",
+  "Variant",
+  "Type",
+  "Style",
+  "Gender",
+  "Capacity",
+  "UK Size",
+  "Ring Size",
+  "Helmet Size",
+  "Vehicle Make",
+  "Vehicle Model",
+] as const;
 
+export function collectDescriptionAttributeStripLabelsV1(): string[] {
+  return Array.from(
+    new Set([
+      ...NOTE_LABELS,
+      ...Object.values(ATTR).map((def) => def.label),
+      ...Object.values(ATTRIBUTE_DEFS).map((def) => def.label),
+      ...PRESENTATION_ONLY_STRIP_EXTRAS,
+    ]),
+  ).sort((a, b) => b.length - a.length);
+}
+
+const DESCRIPTION_DISPLAY_STRIP_LABELS = collectDescriptionAttributeStripLabelsV1();
+
+/** ` Label: value.` or trailing note without final period at end of string. */
 const DESCRIPTION_STRIP_PATTERN = new RegExp(
-  `\\s*(?:${DESCRIPTION_DISPLAY_STRIP_LABELS.map(escapeRegExp).join("|")}):\\s*[^.\\n]+\\.`,
+  `\\s*(?:${DESCRIPTION_DISPLAY_STRIP_LABELS.map(escapeRegExp).join("|")}):\\s*[^.\\n]+(?:\\.|$)`,
   "gi",
 );
 
+/**
+ * Presentation-only: remove structured attribute notes from Description body.
+ * Attribute rows (Brand, Colour, Storage, Condition, Category, Model, …) stay in
+ * Product Information — DB description is not mutated.
+ */
 export function stripListingAttributeNotesFromDescriptionV1(
   description: string | null | undefined,
 ): string {
   const text = description?.trim() ?? "";
   if (!text) return "";
-  return text
+  const hadTrailingPeriod = /\.\s*$/.test(text);
+  let cleaned = text
     .replace(DESCRIPTION_STRIP_PATTERN, " ")
     .replace(/\s{2,}/g, " ")
     .replace(/\s+\./g, ".")
+    .replace(/\.\s*\./g, ".")
     .trim();
+  // Notes use ` Label: value.` — stripping may consume the only terminal period.
+  if (hadTrailingPeriod && cleaned.length > 0 && !cleaned.endsWith(".")) {
+    cleaned = `${cleaned}.`;
+  }
+  return cleaned;
 }
 
 /**

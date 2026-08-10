@@ -4,9 +4,9 @@
  * Sticky Bundle Bar — permanently unmounted (Owner Preview UI correction).
  *
  * The floating “N items · £… · Review” summary is removed from Sell/Bundle/
- * Store surfaces. Bundle selection still uses Store → Review bundle →
- * `/bundle/review`, where Make Offer / Buy Now are the only commerce CTAs.
- * Listing data and Bundle Engine are unchanged.
+ * Store surfaces. Store Shop bundles sticky bar uses Make Offer / Buy Now
+ * (canonical OfferComposerSheet + buy-now). `/bundle/review` remains for
+ * conflict Continue / deep links. Listing data and Bundle Engine are unchanged.
  */
 export function GlobalStickyBundleBar() {
   return null;

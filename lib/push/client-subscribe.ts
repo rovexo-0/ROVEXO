@@ -139,11 +139,26 @@ export async function subscribeToBrowserPush(
 
   const publicKey = await getVapidPublicKey();
   if (!publicKey) {
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:abort", {
+        reason: "vapid_public_key_missing",
+        envHint: "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+      });
+    } catch {
+      // ignore
+    }
     return false;
   }
 
-  const registration = await waitForServiceWorkerReady(10_000);
+  const registration = await waitForServiceWorkerReady(12_000);
   if (!registration) {
+    try {
+      console.info("[ROVEXO][PUSH_PROBE] subscribeToBrowserPush:abort", {
+        reason: "service_worker_not_ready",
+      });
+    } catch {
+      // ignore
+    }
     return false;
   }
 
@@ -161,7 +176,7 @@ export async function subscribeToBrowserPush(
     return false;
   }
 
-  const response = await fetch("/api/push/subscribe", {
+  let response = await fetch("/api/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -170,6 +185,51 @@ export async function subscribeToBrowserPush(
       platform: detectPlatform(),
     }),
   });
+
+  // Stale browser subscription after SW re-register / deploy — recreate once.
+  if (!response.ok) {
+    try {
+      await subscription.unsubscribe();
+    } catch {
+      // ignore
+    }
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
+    });
+    const retryJson = subscription.toJSON();
+    if (!retryJson.endpoint || !retryJson.keys?.p256dh || !retryJson.keys?.auth) {
+      return false;
+    }
+    response = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        endpoint: retryJson.endpoint,
+        keys: { p256dh: retryJson.keys.p256dh, auth: retryJson.keys.auth },
+        platform: detectPlatform(),
+      }),
+    });
+    if (response.ok) {
+      try {
+        const { logPushRtFlow } = await import("@/lib/push/push-realtime-flow-log-v1");
+        logPushRtFlow("SUBSCRIBE_OK", {
+          endpointHost: (() => {
+            try {
+              return new URL(retryJson.endpoint).host;
+            } catch {
+              return "invalid";
+            }
+          })(),
+          platform: detectPlatform(),
+          recovered: true,
+        });
+      } catch {
+        // ignore
+      }
+    }
+    return response.ok;
+  }
 
   if (response.ok) {
     try {
