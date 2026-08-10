@@ -54,8 +54,11 @@ describe("Cluster 6 OAuth Policy Lock (RC1)", () => {
 
   it("gates Verify Email and AuthForm OAuth off by default", () => {
     const verify = readSource("app/(auth)/verify-email/page.tsx");
-    expect(verify).toContain("showOAuth={false}");
+    const verifyScreen = readSource("features/auth/components/VerifyEmailScreen.tsx");
+    expect(verify).toContain("VerifyEmailScreen");
     expect(verify).not.toContain("showOAuth={true}");
+    expect(verifyScreen).not.toContain("AuthOAuthButtons");
+    expect(verifyScreen).not.toContain("signInWithOAuthProvider");
 
     const form = readSource("features/auth/components/AuthForm.tsx");
     expect(form).toContain("showOAuth = false");

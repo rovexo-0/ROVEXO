@@ -77,9 +77,11 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(page).toContain("following");
     expect(page).toContain('setTab("listings")');
     expect(page).toContain('setTab("reviews")');
-    expect(page).toContain("ListingCard");
-    expect(page).toContain("HP_CANONICAL_LISTING_PROPS");
-    expect(page).toContain("Load more");
+    expect(page).toContain("StoreShopBundles");
+    const bundles = readSource("features/store/components/StoreShopBundles.tsx");
+    expect(bundles).toContain("ListingCard");
+    expect(bundles).toContain("HP_CANONICAL_LISTING_PROPS");
+    expect(bundles).toContain("Load more");
     expect(page).toContain("sv2__review-product");
     expect(page).toContain("/listing/");
     expect(page).toContain("Verified Purchase");

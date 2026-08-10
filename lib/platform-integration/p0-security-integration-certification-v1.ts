@@ -18,12 +18,15 @@ export const PLATFORM_INTEGRATION_P0_SECURITY_CERTIFICATION_V1 = {
       "GET /api/shipping?orderId=",
       "POST /api/shipping/quotes",
     ] as const,
-    rule: "Authenticated participant (buyer OR seller) required before admin-client shipping reads/writes",
+    rule: "Participant (buyer OR seller) for shipping context/quotes; shipping LABEL documents (GET /api/shipping/labels) are SELLER-ONLY via assertOrderShippingSeller",
+    labelDocumentAssert: "assertOrderShippingSeller",
+    labelDocumentRule: "Authenticated user === order.seller_id; buyers/other sellers/anonymous → 404 fail closed",
     reject: [
       "arbitrary orderId",
       "IDOR",
       "admin-client bypass without ownership",
       "hidden ownership bypass",
+      "buyer GET shipping label pdfUrl",
     ] as const,
   },
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
-import { assertOrderShippingParticipant } from "@/lib/shipping/assert-order-shipping-access.server";
+import { assertOrderShippingSeller } from "@/lib/shipping/assert-order-shipping-access.server";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
 import { getShippingLabelSignedUrl } from "@/lib/shipping/label-storage.server";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
@@ -24,6 +24,7 @@ const bodySchema = z.object({
 /**
  * Canonical shipping label API — provider-agnostic.
  * Routes through ShippingEngine (Sendcloud).
+ * GET label documents are SELLER-ONLY (fail closed 404).
  */
 export async function GET(request: Request) {
   const auth = await requireApiAuth();
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "orderId is required." }, { status: 400 });
   }
 
-  const access = await assertOrderShippingParticipant(orderId, auth.user.id);
+  const access = await assertOrderShippingSeller(orderId, auth.user.id);
   if (!access.ok) {
     return NextResponse.json({ error: "Shipping record not found." }, { status: 404 });
   }

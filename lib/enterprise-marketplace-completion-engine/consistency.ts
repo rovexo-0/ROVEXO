@@ -21,8 +21,12 @@ function fileExists(relativePath: string): boolean {
 }
 
 const DOMAIN_REFS: Record<(typeof MARKETPLACE_CONSISTENCY_DOMAINS)[number], string[]> = {
-  homepage: ["app/(platform)/page.tsx", "components/home/HomeContent.tsx", "styles/rovexo/hero.css"],
-  categories: ["app/(platform)/categories/page.tsx", "components/home/HomeCategoryRail.tsx", "styles/rovexo/category-rail.css"],
+  homepage: [
+    "app/(platform)/page.tsx",
+    "components/homepage/canonical/CanonicalHomepage.tsx",
+    "lib/homepage/load-homepage-document.ts",
+  ],
+  categories: ["app/(platform)/categories/page.tsx", "components/homepage/canonical/CanonicalCategoryRail.tsx", "styles/rovexo/category-rail.css"],
   search: ["app/(platform)/search/page.tsx", "app/api/search/route.ts"],
   listings: ["app/(platform)/listing/[slug]/page.tsx", "app/(platform)/sell/new/page.tsx"],
   buyer: ["app/(platform)/account/page.tsx", "app/(platform)/account/orders/page.tsx"],

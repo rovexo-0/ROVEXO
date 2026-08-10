@@ -9,10 +9,11 @@ import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
+import { toPublicProductDocuments } from "@/lib/products/public-product-contract-v1";
 
 export type PublicSellerProfile = {
   id: string;
-  fullName: string;
   username: string;
   avatarUrl: string | null;
   coverUrl: string | null;
@@ -141,8 +142,9 @@ export async function getPublicSellerProfile(
     isSellerOnVacation(supabase, profile.id).catch(() => false),
   ]);
 
-  const listings: Product[] = storeListings.items ?? [];
-  const soldListings: Product[] = (soldRows ?? []).map((row) => {
+  const listings: Product[] = toPublicProductDocuments(storeListings.items ?? []);
+  const soldListings: Product[] = toPublicProductDocuments(
+    (soldRows ?? []).map((row) => {
     const images = [...(row.product_images ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
     );
@@ -153,7 +155,7 @@ export async function getPublicSellerProfile(
       title: row.title,
       price: Number(row.price),
       condition: row.condition,
-      sellerName: profile.full_name,
+      sellerName: resolvePublicUsernameLabel(profile.username, "Seller"),
       sellerId: profile.id,
       sellerUsername: profile.username,
       rating: Number(row.rating),
@@ -165,11 +167,11 @@ export async function getPublicSellerProfile(
       sections: [],
       createdAt: row.created_at ?? null,
     };
-  });
+  }),
+  );
 
   return {
     id: profile.id,
-    fullName: profile.full_name,
     username: profile.username,
     avatarUrl: normalizeAvatarUrl(profile.avatar_url),
     coverUrl: null,
@@ -196,7 +198,7 @@ export async function getPublicSellerProfile(
 /** Own-profile drafts only — fail-closed returns []. */
 export async function fetchSellerDraftListings(
   sellerId: string,
-  sellerMeta?: { fullName: string; username: string },
+  sellerMeta?: { username: string },
 ): Promise<Product[]> {
   try {
     const supabase = await createClient();
@@ -221,7 +223,7 @@ export async function fetchSellerDraftListings(
         title: row.title,
         price: Number(row.price),
         condition: row.condition,
-        sellerName: sellerMeta?.fullName ?? "",
+        sellerName: resolvePublicUsernameLabel(sellerMeta?.username, "Seller"),
         sellerId,
         sellerUsername: sellerMeta?.username ?? "",
         rating: Number(row.rating),

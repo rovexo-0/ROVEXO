@@ -12,6 +12,7 @@ import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import type { Product } from "@/lib/products/types";
 import { isStoreId, isStoreSlug } from "@/lib/store/store-href";
 
@@ -53,7 +54,7 @@ function formatMemberSince(isoDate: string): string {
 
 function mapSoldRows(
   rows: Array<Record<string, unknown>>,
-  seller: { id: string; fullName: string; username: string },
+  seller: { id: string; username: string },
 ): Product[] {
   return rows.map((row) => {
     const images = [...((row.product_images as Array<Record<string, unknown>>) ?? [])].sort(
@@ -69,7 +70,7 @@ function mapSoldRows(
       title: String(row.title),
       price: Number(row.price),
       condition: String(row.condition ?? ""),
-      sellerName: seller.fullName,
+      sellerName: resolvePublicUsernameLabel(seller.username, "Seller"),
       sellerId: seller.id,
       sellerUsername: seller.username,
       rating: Number(row.rating ?? 0),
@@ -137,13 +138,11 @@ async function loadStoreFromProfile(profile: {
   const listings = storeListings.items ?? [];
   const soldListings = mapSoldRows((soldResult.data ?? []) as Array<Record<string, unknown>>, {
     id: profile.id,
-    fullName: profile.full_name,
     username: profile.username,
   });
 
-  const storeName =
-    (business?.business_name && String(business.business_name).trim()) ||
-    profile.full_name;
+  // Public identity = username only (never personal full name).
+  const storeName = resolvePublicUsernameLabel(profile.username, "Store");
 
   return {
     storeId: profile.id,

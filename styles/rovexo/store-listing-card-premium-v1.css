@@ -60,7 +60,8 @@
   }
 }
 
-[data-store-listing-cards] > [data-listing-card="rovexo"] {
+[data-store-listing-cards] > [data-listing-card="rovexo"],
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] {
   aspect-ratio: unset !important;
   width: 100%;
   min-height: var(--rx-store-card-min-h);
@@ -68,7 +69,8 @@
   contain: layout style;
 }
 
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a {
   display: flex !important;
   flex-direction: column !important;
   grid-template-rows: none !important;
@@ -77,7 +79,8 @@
 }
 
 /* Fixed premium thumbnail — cover + center + radius 16 · no stretch */
-[data-store-listing-cards] > [data-listing-card="rovexo"] figure {
+[data-store-listing-cards] > [data-listing-card="rovexo"] figure,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] figure {
   box-sizing: border-box;
   width: var(--rx-store-img-w) !important;
   height: var(--rx-store-img-h) !important;
@@ -94,7 +97,8 @@
   background: var(--ds-color-surface-muted);
 }
 
-[data-store-listing-cards] > [data-listing-card="rovexo"] figure img {
+[data-store-listing-cards] > [data-listing-card="rovexo"] figure img,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] figure img {
   display: block !important;
   width: 100% !important;
   height: 100% !important;
@@ -104,7 +108,8 @@
 }
 
 /* Image → 8 → Price → 6 → Title → 4 → Condition → 4 → Rating */
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div {
   display: flex !important;
   flex-direction: column !important;
   gap: 0 !important;
@@ -114,26 +119,31 @@
   padding: var(--rx-store-space-image-price) 8px 10px !important;
 }
 
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > p {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > p,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div > p {
   margin: 0 !important;
 }
 
 /* Title block (first div with product title) */
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3),
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div > div:has(h3) {
   margin-top: var(--rx-store-space-price-title) !important;
 }
 
 /* Condition immediately after title */
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + p {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + p,
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div > div:has(h3) + p {
   margin-top: var(--rx-store-space-title-condition) !important;
 }
 
 /* Rating / views row */
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > [data-product-card-stats="v1.0"] {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > [data-product-card-stats="v1.0"],
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div > [data-product-card-stats="v1.0"] {
   margin-top: var(--rx-store-space-condition-rating) !important;
 }
 
 /* When condition is absent, keep rating 4px under title */
-[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + [data-product-card-stats="v1.0"] {
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + [data-product-card-stats="v1.0"],
+[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] > a > div > div:has(h3) + [data-product-card-stats="v1.0"] {
   margin-top: var(--rx-store-space-condition-rating) !important;
 }

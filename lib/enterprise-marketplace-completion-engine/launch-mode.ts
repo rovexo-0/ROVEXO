@@ -53,10 +53,10 @@ function scanPriority(priority: (typeof LAUNCH_PRIORITIES)[number], context: { h
 }
 
 function scanGlobalUiQuality(globalPass: boolean, homepagePass: boolean): CompletionValidationItem[] {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   return GLOBAL_UI_QUALITY_CHECKS.map((check) => {
     let pass = globalPass;
-    if (check.startsWith("duplicated") || check === "legacy-components") pass = !homeContent.includes("CategoryGridSection");
+    if (check.startsWith("duplicated") || check === "legacy-components") pass = !canonicalHomepage.includes("CategoryGridSection");
     if (check.includes("premium") || check.includes("responsive") || check.includes("alignment")) pass = globalPass && homepagePass && premiumStylesActive();
     if (check.includes("empty") || check.includes("unused") || check.includes("hidden")) pass = globalPass && homepagePass;
     return createCheck("launch-ui-quality", check, pass, pass ? `${labelize(check)} clear` : `${labelize(check)} detected`);
@@ -90,8 +90,8 @@ function scanMarketplaceRules(input: { modulesComplete: boolean; homepagePass: b
     wallet: "app/(platform)/wallet/page.tsx",
     search: "app/(platform)/search/page.tsx",
     homepage: "app/(platform)/page.tsx",
-    featured: "components/home/FeaturedListingsSection.tsx",
-    recommended: "components/home/HomeProductSection.tsx",
+    featured: "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx",
+    recommended: "components/homepage/canonical/CanonicalMarketplaceFeed.tsx",
   };
 
   return MARKETPLACE_RULES.map((rule) => {

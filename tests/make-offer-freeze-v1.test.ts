@@ -23,11 +23,12 @@ describe("Make Offer Cod Sânge v1.0 FINAL FREEZE", () => {
       "CUSTOM",
       "£0.00",
       "Submit Offer",
-      "XX offers left for today",
     ]);
+    expect(MAKE_OFFER_FREEZE_V1.showOfferQuotaSubtext).toBe(false);
     expect(MAKE_OFFER_FREEZE_V1.removedForever).toContain("Make Offer title");
     expect(MAKE_OFFER_FREEZE_V1.removedForever).toContain("Message (optional)");
     expect(MAKE_OFFER_FREEZE_V1.removedForever).toContain("Cancel button");
+    expect(MAKE_OFFER_FREEZE_V1.removedForever).toContain("offers left for today");
   });
 
   it("calculates 5% and 10% from listing price", () => {
@@ -62,7 +63,8 @@ describe("Make Offer Cod Sânge v1.0 FINAL FREEZE", () => {
     expect(sheet).toContain("10% off");
     expect(sheet).toContain("Custom");
     expect(sheet).toContain("Submit Offer");
-    expect(sheet).toContain("offers left for today");
+    expect(sheet).not.toContain("offers left for today");
+    expect(sheet).not.toContain("mo-v1__limit");
     expect(sheet).toContain('inputMode="decimal"');
     expect(sheet).not.toContain("Message");
     expect(sheet).not.toContain("Cancel");

@@ -134,9 +134,9 @@ describe("Bundle Certification — Client totals never trusted", () => {
   it("buy-now engine revalidates before reserve", () => {
     const src = read("lib/bundle/bundle-buy-now-engine-v1.ts");
     expect(src).toContain("revalidateBundleForCheckout");
-    expect(src).toContain("reserveBundleInventoryAtomic");
+    expect(src).toContain("verifyBundleInventoryAvailable");
     expect(src.indexOf("revalidateBundleForCheckout")).toBeLessThan(
-      src.indexOf("reserveBundleInventoryAtomic"),
+      src.indexOf("verifyBundleInventoryAvailable"),
     );
   });
 });

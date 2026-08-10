@@ -85,6 +85,27 @@ import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
 
 /**
+ * Compact Offer/Counter product thumb — reuse payload already on the offer / listing.
+ * Bundle → first valid line.imageUrl · else conversation product image · else null (placeholder).
+ * No fetch · no N+1 · no Hub redesign · no sheet · no thumb rail.
+ */
+function resolveOfferCardProductThumbUrl(input: {
+  bundle?: ConversationOfferView["bundle"];
+  productImageUrl?: string | null;
+}): string | null {
+  const lines = input.bundle?.lines;
+  if (Array.isArray(lines)) {
+    for (const line of lines) {
+      const url = typeof line?.imageUrl === "string" ? line.imageUrl.trim() : "";
+      if (url && isRenderableImageSrc(url)) return url;
+    }
+  }
+  const product = typeof input.productImageUrl === "string" ? input.productImageUrl.trim() : "";
+  if (product && isRenderableImageSrc(product)) return product;
+  return null;
+}
+
+/**
  * After text/photo send — update Messages list preview via existing XLIII inbox-sync.
  * No polling · no second cache engine · no Hub UI redesign.
  */
@@ -446,6 +467,13 @@ export function ConversationHub({
               itemCount: number;
               listSubtotal: number;
               quantitySum: number;
+              lines?: Array<{
+                productId: string;
+                imageUrl: string;
+                title?: string;
+                quantity?: number;
+                unitPrice?: number;
+              }>;
             } | null;
           }>;
         }>(
@@ -465,6 +493,13 @@ export function ConversationHub({
             itemCount: number;
             listSubtotal: number;
             quantitySum: number;
+            lines?: Array<{
+              productId: string;
+              imageUrl: string;
+              title?: string;
+              quantity?: number;
+              unitPrice?: number;
+            }>;
           } | null;
         }> })),
       ]);
@@ -500,6 +535,8 @@ export function ConversationHub({
                 itemCount: offer.bundle.itemCount,
                 listSubtotal: offer.bundle.listSubtotal,
                 quantitySum: offer.bundle.quantitySum,
+                /* Already on offers API payload — no extra image fetch. */
+                lines: offer.bundle.lines,
               }
             : null,
         })),
@@ -1355,20 +1392,25 @@ export function ConversationHub({
 
       if (action === "counter" && payload.offer) {
         const nextOffer = payload.offer;
-        setOffers((current) => [
-          ...current.map((item) =>
-            item.id === offerId ? { ...item, state: "countered" as const } : item,
-          ),
-          {
-            id: nextOffer.id,
-            amount: nextOffer.amount,
-            currency: "GBP",
-            state: mapOfferDbStatus(nextOffer.status),
-            fromRole: nextOffer.fromRole ?? view.viewerRole,
-            createdAt: nextOffer.createdAt,
-            parentOfferId: nextOffer.parentOfferId ?? offerId,
-          },
-        ]);
+        setOffers((current) => {
+          const parent = current.find((item) => item.id === offerId);
+          return [
+            ...current.map((item) =>
+              item.id === offerId ? { ...item, state: "countered" as const } : item,
+            ),
+            {
+              id: nextOffer.id,
+              amount: nextOffer.amount,
+              currency: "GBP",
+              state: mapOfferDbStatus(nextOffer.status),
+              fromRole: nextOffer.fromRole ?? view.viewerRole,
+              createdAt: nextOffer.createdAt,
+              parentOfferId: nextOffer.parentOfferId ?? offerId,
+              /* Reuse parent bundle lines already in Hub state — no new fetch. */
+              bundle: parent?.bundle ?? null,
+            },
+          ];
+        });
         pushToast({
           title:
             view.viewerRole === "seller"
@@ -2005,6 +2047,11 @@ export function ConversationHub({
                             ? "countered"
                             : "pending";
                   const offerAvatar = fromBuyer ? buyerAvatar : sellerAvatar;
+                  const offerProductThumb =
+                    resolveOfferCardProductThumbUrl({
+                      bundle: offer.bundle,
+                      productImageUrl: view.product.imageUrl,
+                    }) ?? "/placeholder-product.svg";
                   return (
                     <div
                       key={item.id}
@@ -2039,19 +2086,40 @@ export function ConversationHub({
                         data-blood-law="XLIII"
                         data-offer-pending={offer.state === "open" ? "true" : "false"}
                       >
-                        <p className="conv-hub__offer-label">{stateLabel}</p>
-                        <div className="conv-hub__offer-head">
-                          <p className="conv-hub__offer-amount">{formatCurrency(offer.amount)}</p>
-                          {listingPrice > 0 && listingPrice !== offer.amount ? (
-                            <p className="conv-hub__offer-list">{formatCurrency(listingPrice)}</p>
-                          ) : null}
+                        <div className="conv-hub__offer-main">
+                          <span
+                            className="conv-hub__offer-thumb"
+                            data-offer-product-thumb="true"
+                            aria-hidden
+                          >
+                            <SafeImage
+                              src={offerProductThumb}
+                              alt=""
+                              width={40}
+                              height={40}
+                              className="conv-hub__offer-thumb-img"
+                            />
+                          </span>
+                          <div className="conv-hub__offer-copy">
+                            <p className="conv-hub__offer-label">{stateLabel}</p>
+                            <div className="conv-hub__offer-head">
+                              <p className="conv-hub__offer-amount">
+                                {formatCurrency(offer.amount)}
+                              </p>
+                              {listingPrice > 0 && listingPrice !== offer.amount ? (
+                                <p className="conv-hub__offer-list">
+                                  {formatCurrency(listingPrice)}
+                                </p>
+                              ) : null}
+                            </div>
+                            {offer.bundle ? (
+                              <p className="conv-hub__offer-list">
+                                Bundle · {offer.bundle.itemCount} items · list{" "}
+                                {formatCurrency(offer.bundle.listSubtotal)}
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
-                        {offer.bundle ? (
-                          <p className="conv-hub__offer-list">
-                            Bundle · {offer.bundle.itemCount} items · list{" "}
-                            {formatCurrency(offer.bundle.listSubtotal)}
-                          </p>
-                        ) : null}
                       </div>
                       {!fromBuyer ? (
                         <Avatar

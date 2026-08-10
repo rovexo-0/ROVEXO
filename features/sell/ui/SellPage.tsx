@@ -186,7 +186,7 @@ function SellPageInner() {
         >
           <AccountPageStack
             aria-label={sellPageTitle(isEdit)}
-            className="w-full max-w-none gap-[var(--cds-space-section-gap)] pb-[var(--sell-sticky-clearance,96px)]"
+            className="w-full max-w-none gap-[var(--cds-space-section-gap)] pb-[calc(var(--cds-bottom-nav-offset,72px)+24px)]"
           >
             <div id={sellFieldDomId("photos")}>
               <SellPhotoRail onPhotosAdded={handlePhotosAdded} />
@@ -218,9 +218,9 @@ function SellPageInner() {
               <SellParcelBlock bare onParcelSelected={handleParcelSelected} />
             </div>
 
-            <SellFormErrorHost />
-
             <SellPublishBar ref={publishBarRef} />
+
+            <SellFormErrorHost />
           </AccountPageStack>
 
           <SellPublishingOverlayHost isEdit={isEdit} />

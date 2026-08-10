@@ -27,7 +27,7 @@ function readSource(relativePath: string): string {
 function evaluateModernization(category: (typeof MODERNIZATION_CATEGORIES)[number]): ModernizationItem {
   const premiumActive = fileExists("styles/rovexo/index.css");
   const enterpriseShell = fileExists("features/super-admin/components/premium");
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const hasLegacyGrid = homeContent.includes("CategoryGridSection");
 
   const defaults: Record<(typeof MODERNIZATION_CATEGORIES)[number], ModernizationItem> = {
@@ -38,7 +38,7 @@ function evaluateModernization(category: (typeof MODERNIZATION_CATEGORIES)[numbe
       current: hasLegacyGrid ? "Legacy category grid" : "Premium 2026 UI",
       target: "Premium 2026 Enterprise UI",
       priority: hasLegacyGrid ? "high" : "low",
-      message: hasLegacyGrid ? "Replace legacy category grid with HomeCategoryRail" : "UI meets Premium 2026 standard",
+      message: hasLegacyGrid ? "Remove legacy category grid from canonical homepage" : "UI meets Premium 2026 standard",
     },
     "outdated-ux": {
       id: "mod-outdated-ux",

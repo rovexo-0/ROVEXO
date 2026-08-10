@@ -197,8 +197,8 @@ export function FollowListPage({ userId, username, mode, backHref }: FollowListP
                   >
                     <Avatar
                       src={item.avatarUrl}
-                      alt={item.fullName || item.username}
-                      name={item.fullName || item.username}
+                      alt={item.username}
+                      name={item.username}
                       size="md"
                     />
                     <span>

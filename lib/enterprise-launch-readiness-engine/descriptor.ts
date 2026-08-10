@@ -30,7 +30,7 @@ export const LAUNCH_READINESS_MODULE_DESCRIPTOR: EnterpriseModuleDescriptor = {
     { id: "enterprise_launch_readiness_engine_v1", label: "Launch Readiness Engine", description: "Master launch readiness toggle — Prompt 068", defaultEnabled: true },
     { id: "infrastructure_validation_enabled", label: "Infrastructure Validation", description: "Email, cron, queue, health, deployment", defaultEnabled: true },
     { id: "pwa_validation_enabled", label: "PWA Validation", description: "Manifest, service worker, offline mode", defaultEnabled: true },
-    { id: "push_validation_enabled", label: "Push Validation", description: "Web push, FCM, APNs readiness", defaultEnabled: true },
+    { id: "push_validation_enabled", label: "Push Validation", description: "Web Push (VAPID) readiness — FCM/APNs deferred to native roadmap", defaultEnabled: true },
     { id: "performance_validation_enabled", label: "Performance Validation", description: "Core Web Vitals, bundle, latency", defaultEnabled: true },
     { id: "security_validation_enabled", label: "Security Validation", description: "Auth, RBAC, rate limits, headers", defaultEnabled: true },
     { id: "marketplace_validation_enabled", label: "Marketplace Validation", description: "Homepage, categories, search, listings", defaultEnabled: true },

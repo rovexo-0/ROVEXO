@@ -40,12 +40,19 @@ describe("sell scroll v1", () => {
     expect(css).not.toContain("touch-action: none");
   });
 
-  it("uses sticky publish clearance tokens", () => {
+  it("Publish is inline below Parcel — not sticky viewport chrome", () => {
     const css = readSource("styles/rovexo/sell.css");
-    expect(css).toContain("--sell-sticky-clearance");
-    expect(css).toContain("account-settings-sticky-action");
+    expect(css).toContain("below Parcel size");
+    expect(css).toMatch(/\[data-sell-publish-bar\][\s\S]{0,200}position:\s*static/);
 
-    const hook = readSource("features/sell/hooks/use-sell-page-bottom-clearance.ts");
-    expect(hook).toContain("ResizeObserver");
+    const page = readSource("features/sell/ui/SellPage.tsx");
+    expect(page).toContain("SellPublishBar");
+    expect(page).toContain("SellParcelBlock");
+    expect(page).toContain("pb-[calc(var(--cds-bottom-nav-offset,72px)+24px)]");
+    expect(page).not.toContain("pb-[var(--sell-sticky-clearance");
+
+    const bar = readSource("features/sell/ui/SellPublishBar.tsx");
+    expect(bar).toContain('data-sell-publish-position="below-parcel"');
+    expect(bar).not.toContain("account-settings-sticky-action");
   });
 });

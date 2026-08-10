@@ -32,7 +32,7 @@
 }
 
 .account-settings-segment__option--active {
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   color: var(--cds-color-text-primary, #0f172a);
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
 }
@@ -46,7 +46,7 @@
   width: 100%;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: var(--cds-radius-lg, 16px);
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   box-shadow: none;
 }
 
@@ -197,7 +197,7 @@
   padding: 12px 14px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: var(--cds-radius-md, 12px);
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   color: var(--cds-color-text-primary, #0f172a);
   font-size: 0.875rem;
   text-align: left;
@@ -235,7 +235,7 @@
   width: 100%;
   max-width: 100%;
   border-radius: 16px 16px 12px 12px;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   padding: 16px 16px 12px;
   display: flex;
   flex-direction: column;

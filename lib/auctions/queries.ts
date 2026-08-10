@@ -6,6 +6,7 @@ import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { AUCTION_CATEGORIES } from "@/lib/auctions/constants";
 import {
   computeMinNextBid,
@@ -65,8 +66,9 @@ function mapAuctionRow(row: AuctionRow): AuctionListing {
     originalPrice: row.original_price != null ? Number(row.original_price) : null,
     condition: row.condition,
     brand: row.brands?.name,
-    sellerName: row.profiles?.full_name ?? "Seller",
+    sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
     sellerId: row.seller_id,
+    sellerUsername: row.profiles?.username ?? null,
     sellerAvatar: normalizeAvatarUrl(row.profiles?.avatar_url) ?? undefined,
     sellerVerified: verified,
     sellerTrustScore: deriveTrustScore(rating, verified),

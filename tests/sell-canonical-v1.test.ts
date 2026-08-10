@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
 
 describe("sell page Absolute Authority v1.0", () => {
   it("exports frozen canonical version marker", () => {
-    expect(SELL_PAGE_CANONICAL_VERSION).toBe("v1.0-final-frozen");
+    expect(SELL_PAGE_CANONICAL_VERSION).toBe("v1.0.1-final-frozen");
     expect(SELL_PAGE_FREEZE).toBe("FROZEN");
   });
 
@@ -97,11 +97,12 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(pricing).not.toContain("You Receive");
   });
 
-  it("publish bar uses Settings sticky action + CanonicalButton", () => {
+  it("publish bar is inline below Parcel — CanonicalButton · not sticky viewport", () => {
     const bar = readSource("features/sell/ui/SellPublishBar.tsx");
-    expect(bar).toContain("account-settings-sticky-action");
+    expect(bar).toContain('data-sell-publish-position="below-parcel"');
     expect(bar).toContain("CanonicalButton");
     expect(bar).toContain("isSellListingPublishable");
+    expect(bar).not.toContain("account-settings-sticky-action");
     expect(bar).not.toContain("sell-publish-bar fixed");
   });
 

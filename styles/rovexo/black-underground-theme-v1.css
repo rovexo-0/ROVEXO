@@ -1,0 +1,986 @@
+/**
+ * ROVEXO THEME SWITCH v1.0 — Black Underground GLOBAL PROPAGATION
+ * OFF (data-theme=light) = existing white theme (untouched).
+ * ON  (data-theme=dark)  = complete Black Underground UI.
+ *
+ * ONE root attribute: html[data-theme="dark"]
+ * Surfaces inherit --rvx-* tokens. No second ThemeProvider.
+ *
+ * P0 — PRODUCT IMAGE PROTECTION:
+ * Never apply filter / brightness / contrast / saturate / hue / opacity /
+ * blend-mode / blur / grayscale / sepia / invert to product images.
+ * Do not use global img { filter: ... } rules.
+ */
+
+/* ── Canonical tokens (also in tokens.css; reinforced here for page-scoped sheets) ── */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --rvx-page: #0d0f14;
+  --rvx-surface: #171a21;
+  --rvx-surface-secondary: #1e222b;
+  --rvx-border: #2b2f38;
+  --rvx-divider: #343a45;
+  --rvx-text-primary: #ffffff;
+  --rvx-text-secondary: #b6bcc8;
+  --rvx-accent: #9333ea;
+
+  --ds-color-primary: #9333ea;
+  --ds-color-primary-foreground: #faf5ff;
+  --ds-color-accent: #7c3aed;
+  --ds-color-accent-foreground: #faf5ff;
+  --ds-color-secondary: #1e222b;
+  --ds-color-secondary-foreground: #ffffff;
+  --ds-color-background: #0d0f14;
+  --ds-color-surface: #171a21;
+  --ds-color-surface-muted: #1e222b;
+  --ds-color-surface-elevated: #1e222b;
+  --ds-color-border: #2b2f38;
+  --ds-color-border-strong: #343a45;
+  --ds-color-text-primary: #ffffff;
+  --ds-color-text-secondary: #b6bcc8;
+  --ds-color-text-muted: #b6bcc8;
+  --ds-color-ring: #9333ea;
+  --ds-color-overlay: rgb(13 15 20 / 0.88);
+  --ds-color-primary-deep: #6d28d9;
+  --ds-gradient-page: none;
+  --ds-shadow-soft: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 16px rgb(0 0 0 / 0.28);
+  --ds-shadow-medium: 0 2px 4px rgb(0 0 0 / 0.4), 0 12px 28px rgb(0 0 0 / 0.32);
+  --ds-shadow-floating: 0 8px 24px rgb(0 0 0 / 0.45), 0 24px 48px rgb(147 51 234 / 0.12);
+  --ds-shadow-premium: 0 16px 40px rgb(0 0 0 / 0.5), 0 4px 12px rgb(147 51 234 / 0.14);
+
+  --cds-color-primary: #9333ea;
+  --cds-color-primary-hover: #7c3aed;
+  --cds-color-primary-foreground: #ffffff;
+  --cds-color-accent: #7c3aed;
+  --cds-color-background: #0d0f14;
+  --cds-color-surface: #171a21;
+  --cds-color-surface-muted: #1e222b;
+  --cds-color-border: #2b2f38;
+  --cds-color-divider: #343a45;
+  --cds-color-text-primary: #ffffff;
+  --cds-color-text-secondary: #b6bcc8;
+  --cds-color-text-muted: #b6bcc8;
+
+  --fw-bg: #0d0f14;
+  --fw-title-color: #ffffff;
+  --fw-chevron-color: #b6bcc8;
+  --pcu-body-bg: #0d0f14;
+  --pcu-card-border: #2b2f38;
+  --pcu-row-divider: #343a45;
+}
+
+/* ── Root application surface ── */
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background: var(--rvx-page) !important;
+  background-image: none !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] #__next,
+html[data-theme="dark"] main,
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .page,
+html[data-theme="dark"] .layout,
+html[data-theme="dark"] .mobile-layout,
+html[data-theme="dark"] .rx-page,
+html[data-theme="dark"] .premium-page-home,
+html[data-theme="dark"] .home-v1-main,
+html[data-theme="dark"] .home-v1-listing-section,
+html[data-theme="dark"] .home-v1-categories,
+html[data-theme="dark"] .account-center-shell,
+html[data-theme="dark"] .account-center,
+html[data-theme="dark"] .account-canonical-shell,
+html[data-theme="dark"] .account-canonical,
+html[data-theme="dark"] .ac-canonical,
+html[data-theme="dark"] .cds-layout,
+html[data-theme="dark"] .cds-layout__header,
+html[data-theme="dark"] .cds-layout__content,
+html[data-theme="dark"] .cds-layout__content--account-canonical,
+html[data-theme="dark"] [data-full-width-engine="v1.0"],
+html[data-theme="dark"] [data-master-full-width],
+html[data-theme="dark"] .pcu-module,
+html[data-theme="dark"] .sell-page-v1,
+html[data-theme="dark"] .bg-background,
+html[data-theme="dark"] .bg-white {
+  background: var(--rvx-page) !important;
+  background-image: none !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .bg-surface,
+html[data-theme="dark"] .bg-surface-muted {
+  background-color: var(--rvx-surface) !important;
+}
+
+html[data-theme="dark"] .text-text-primary,
+html[data-theme="dark"] .text-black {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .text-text-secondary,
+html[data-theme="dark"] .text-text-muted,
+html[data-theme="dark"] .text-gray-500,
+html[data-theme="dark"] .text-gray-600,
+html[data-theme="dark"] .text-slate-500,
+html[data-theme="dark"] .text-slate-600 {
+  color: var(--rvx-text-secondary) !important;
+}
+
+/* ── Cards / menus / surfaces ── */
+html[data-theme="dark"] .rx-card,
+html[data-theme="dark"] .rx-surface-card,
+html[data-theme="dark"] .rx-surface-card--canonical,
+html[data-theme="dark"] .rx-glass,
+html[data-theme="dark"] .pcu-card,
+html[data-theme="dark"] .cds-card,
+html[data-theme="dark"] .cds-section__card,
+html[data-theme="dark"] .cds-card--list,
+html[data-theme="dark"] .cds-sheet,
+html[data-theme="dark"] .cds-dialog,
+html[data-theme="dark"] .cds-panel {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Listing cards: theme chrome only — no soft blur shadow on product cards */
+html[data-theme="dark"] [data-listing-card="rovexo"],
+html[data-theme="dark"] [data-hp-listing-card="official"],
+html[data-theme="dark"] .rx-listing-card,
+html[data-theme="dark"] .home-v1-listing-card {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-theme="dark"] .rx-listing-card__title,
+html[data-theme="dark"] .home-v1-listing-card__title,
+html[data-theme="dark"] .home-v1-listing-card__price,
+html[data-theme="dark"] .home-v1-categories__title,
+html[data-theme="dark"] .home-v1-listing-section__title,
+html[data-theme="dark"] .home-v1-category-tile__name {
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .rx-listing-card__stat,
+html[data-theme="dark"] .rx-listing-card__location,
+html[data-theme="dark"] .home-v1-listing-card__tag {
+  color: var(--rvx-text-secondary);
+}
+
+/* Image container may be dark — image pixels must stay original */
+html[data-theme="dark"] [data-listing-card="rovexo"] figure,
+html[data-theme="dark"] [data-hp-listing-card="official"] figure,
+html[data-theme="dark"] .rx-listing-card__media,
+html[data-theme="dark"] .home-v1-listing-card__media {
+  background: var(--rvx-surface-secondary);
+}
+
+/* ── Profile / Settings menus ── */
+html[data-theme="dark"] .cds-menu-row,
+html[data-theme="dark"] .ac-canonical__menu,
+html[data-theme="dark"] .ac-canonical__row,
+html[data-theme="dark"] .acm-settings,
+html[data-theme="dark"] .account-settings-segment,
+html[data-theme="dark"] .account-settings-segment__option {
+  color: var(--rvx-text-primary);
+  border-color: var(--rvx-divider);
+}
+
+html[data-theme="dark"] .cds-menu-row:active:not(:disabled),
+html[data-theme="dark"] .cds-menu-row:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.04);
+}
+
+html[data-theme="dark"] .cds-menu-row__title,
+html[data-theme="dark"] .cds-menu-row__value,
+html[data-theme="dark"] .ac-canonical__name,
+html[data-theme="dark"] .account-canonical-header__title {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .cds-menu-row__subtitle,
+html[data-theme="dark"] .cds-menu-row__chevron,
+html[data-theme="dark"] .ac-canonical__row-subtitle {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .account-settings-segment__option--active,
+html[data-theme="dark"] .account-settings-segment__option {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary);
+  border-color: var(--rvx-border);
+}
+
+/* ── Header / search / top bars (ALL surfaces — mobile + desktop) ── */
+html[data-theme="dark"] [data-rovexo-header],
+html[data-theme="dark"] [data-rovexo-header-standard="1.0"],
+html[data-theme="dark"] [data-canonical-page-header="v1"],
+html[data-theme="dark"] .rovexo-header-standard,
+html[data-theme="dark"] .rx-header,
+html[data-theme="dark"] .rx-h2,
+html[data-theme="dark"] .rx-page-header,
+html[data-theme="dark"] .rx-page-header__bar,
+html[data-theme="dark"] header.rx-header-premium,
+html[data-theme="dark"] .homepage-header,
+html[data-theme="dark"] .account-canonical-header,
+html[data-theme="dark"] .account-canonical-header__bar,
+html[data-theme="dark"] .account-canonical-header__bar--titled,
+html[data-theme="dark"] .cds-header,
+html[data-theme="dark"] .cds-layout__header,
+html[data-theme="dark"] .conv-hub__header,
+html[data-theme="dark"] .ckt-v1__header,
+html[data-theme="dark"] [data-header],
+html[data-theme="dark"] [data-page-header],
+html[data-theme="dark"] [data-mobile-header],
+html[data-theme="dark"] [data-desktop-header] {
+  background: var(--rvx-page) !important;
+  background-color: var(--rvx-page) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .rx-page-header__title,
+html[data-theme="dark"] .cds-header__title,
+html[data-theme="dark"] .account-canonical-header__title,
+html[data-theme="dark"] .rx-header-close,
+html[data-theme="dark"] .ac-canonical__row-title {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .ac-theme-row,
+html[data-theme="dark"] [data-profile-theme-row="v1.0"],
+html[data-theme="dark"] [data-profile-theme-group="v1.0"] {
+  color: var(--rvx-text-primary);
+  background: transparent;
+}
+
+/* Theme row must never be hidden (mobile or desktop) */
+.ac-theme-row,
+[data-profile-theme-row="v1.0"],
+[data-profile-theme-group="v1.0"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: var(--fw-row-min-height, 56px);
+  width: 100%;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] input[type="search"],
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="email"],
+html[data-theme="dark"] input[type="password"],
+html[data-theme="dark"] input[type="tel"],
+html[data-theme="dark"] input[type="number"],
+html[data-theme="dark"] .rx-search-input,
+html[data-theme="dark"] .rovexo-header-search,
+html[data-theme="dark"] [data-search-input],
+html[data-theme="dark"] .pcu-search,
+html[data-theme="dark"] .cds-input,
+html[data-theme="dark"] .cds-textarea {
+  background: var(--rvx-surface-secondary) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder,
+html[data-theme="dark"] .rx-search-input::placeholder,
+html[data-theme="dark"] .pcu-search::placeholder {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] .cds-input:focus,
+html[data-theme="dark"] .pcu-search:focus {
+  border-color: var(--rvx-accent) !important;
+  outline-color: var(--rvx-accent);
+}
+
+/* ── Bottom navigation (sync only — no redesign) ── */
+html[data-theme="dark"] [data-bottom-nav="v2"] {
+  --rx-bottom-nav-inactive: #b6bcc8;
+  --rx-bottom-nav-active: #9333ea;
+}
+
+html[data-theme="dark"] [data-bottom-nav="v2"] .rx-bottom-nav-shell {
+  background: var(--rvx-page) !important;
+  border-top-color: var(--rvx-border) !important;
+  color: var(--rvx-text-secondary);
+}
+
+/* ── Modals / drawers / dialogs / sheets ── */
+html[data-theme="dark"] [role="dialog"],
+html[data-theme="dark"] [data-dialog],
+html[data-theme="dark"] [data-drawer],
+html[data-theme="dark"] [data-sheet],
+html[data-theme="dark"] [data-bottom-sheet],
+html[data-theme="dark"] .cds-dialog,
+html[data-theme="dark"] .cds-sheet,
+html[data-theme="dark"] .rx-dialog,
+html[data-theme="dark"] .rx-drawer,
+html[data-theme="dark"] .rx-sheet {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+/* ── Inbox Hub — inherit via local tokens ── */
+html[data-theme="dark"] .inbox-hub {
+  --inbox-text: var(--rvx-text-primary);
+  --inbox-muted: var(--rvx-text-secondary);
+  --inbox-secondary: var(--rvx-text-secondary);
+  --inbox-border: var(--rvx-border);
+  --inbox-surface: var(--rvx-surface);
+  --inbox-chip-bg: var(--rvx-surface-secondary);
+  --inbox-thumb-bg: var(--rvx-surface-secondary);
+  background: var(--rvx-page) !important;
+  color: var(--inbox-text);
+}
+
+html[data-theme="dark"] .account-canonical-shell:has(.inbox-hub) .cds-layout__content--account-canonical,
+html[data-theme="dark"] .account-canonical:has(.inbox-hub) .cds-layout__content--account-canonical,
+html[data-theme="dark"] .inbox-hub__panel,
+html[data-theme="dark"] .inbox-hub__list,
+html[data-theme="dark"] .inbox-hub__section,
+html[data-theme="dark"] .inbox-hub__empty {
+  background: var(--rvx-page) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .inbox-hub__row,
+html[data-theme="dark"] .inbox-hub__card,
+html[data-theme="dark"] .inbox-hub__notif-row {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+/* ── Conversation Hub — inherit via local tokens ── */
+html[data-theme="dark"] .conv-hub {
+  --conv-text: var(--rvx-text-primary);
+  --conv-muted: var(--rvx-text-secondary);
+  --conv-secondary: var(--rvx-text-secondary);
+  --conv-border: var(--rvx-border);
+  --conv-divider: var(--rvx-divider);
+  --conv-surface: var(--rvx-surface);
+  --conv-incoming: var(--rvx-surface-secondary);
+  --conv-body-bg: var(--rvx-page);
+  background: var(--rvx-page) !important;
+  color: var(--conv-text);
+}
+
+html[data-theme="dark"] .account-canonical-shell:has(.conv-hub) .cds-layout__content--account-canonical,
+html[data-theme="dark"] .conv-hub__header,
+html[data-theme="dark"] .conv-hub__footer,
+html[data-theme="dark"] .conv-hub__composer,
+html[data-theme="dark"] .conv-hub__menu-panel,
+html[data-theme="dark"] .conv-hub__sticky,
+html[data-theme="dark"] .conv-hub__cta-bar,
+html[data-theme="dark"] .conv-hub__offer-rail {
+  background: var(--conv-surface) !important;
+  color: var(--conv-text);
+  border-color: var(--conv-border);
+}
+
+html[data-theme="dark"] .conv-hub__body,
+html[data-theme="dark"] .conv-hub__scroll-stack,
+html[data-theme="dark"] .conv-hub__timeline {
+  background: var(--conv-body-bg) !important;
+}
+
+html[data-theme="dark"] .conv-hub__product,
+html[data-theme="dark"] .conv-hub__status-card,
+html[data-theme="dark"] .conv-hub__seller-card,
+html[data-theme="dark"] .conv-hub__summary,
+html[data-theme="dark"] .conv-hub__offer-history,
+html[data-theme="dark"] .conv-hub__action-panel--info,
+html[data-theme="dark"] .conv-hub__empty {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .conv-hub__composer-field,
+html[data-theme="dark"] .conv-hub__composer input,
+html[data-theme="dark"] .conv-hub__composer textarea {
+  background: var(--rvx-surface-secondary) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .conv-hub__composer-field::placeholder {
+  color: var(--rvx-text-secondary) !important;
+}
+
+/* ── Sell / Create Listing — theme-aware labels + inputs (no redesign) ── */
+html[data-theme="dark"] [data-sell-shell],
+html[data-theme="dark"] [data-sell-shell] .sell-compact-premium,
+html[data-theme="dark"] [data-sell-page],
+html[data-theme="dark"] .sell-page-v1 {
+  background: var(--rvx-page) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] [data-sell-shell] .cds-menu-row__title,
+html[data-theme="dark"] [data-sell-shell] .cds-menu-row__value,
+html[data-theme="dark"] [data-sell-shell] .cds-menu-row__chevron,
+html[data-theme="dark"] [data-sell-shell] .listing-attribute-label,
+html[data-theme="dark"] [data-sell-shell] [data-listing-attribute-label],
+html[data-theme="dark"] [data-sell-shell] .listing-attribute-value,
+html[data-theme="dark"] [data-sell-shell] [data-listing-attribute-value],
+html[data-theme="dark"] [data-sell-shell] .sell-category-flow__eyebrow,
+html[data-theme="dark"] [data-sell-shell] .sell-category-flow__path-root,
+html[data-theme="dark"] [data-sell-shell] label,
+html[data-theme="dark"] [data-sell-shell] .cds-field__label,
+html[data-theme="dark"] [data-sell-shell] .text-text-primary,
+html[data-theme="dark"] [data-sell-shell] .text-black {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] [data-sell-shell] .cds-menu-row__subtitle,
+html[data-theme="dark"] [data-sell-shell] .sell-category-flow__path-step,
+html[data-theme="dark"] [data-sell-shell] .sell-category-flow__confidence,
+html[data-theme="dark"] [data-sell-shell] .sell-category-picker__hint,
+html[data-theme="dark"] [data-sell-shell] .sell-category-picker__breadcrumb,
+html[data-theme="dark"] [data-sell-shell] .text-text-secondary,
+html[data-theme="dark"] [data-sell-shell] .text-text-muted {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] [data-sell-shell] input,
+html[data-theme="dark"] [data-sell-shell] textarea,
+html[data-theme="dark"] [data-sell-shell] select,
+html[data-theme="dark"] [data-sell-shell] .cds-input,
+html[data-theme="dark"] [data-sell-shell] .cds-textarea {
+  background: var(--rvx-surface-secondary) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] [data-sell-shell] input::placeholder,
+html[data-theme="dark"] [data-sell-shell] textarea::placeholder {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] [data-sell-shell] .cds-menu-row,
+html[data-theme="dark"] [data-sell-shell] .sell-category-flow,
+html[data-theme="dark"] [data-sell-shell] .sell-photo-tile,
+html[data-theme="dark"] [data-sell-shell] .account-settings-sticky-action {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+/* Phone-width freeze forced white surfaces — theme must win */
+html[data-theme="dark"] .account-center-trust,
+html[data-theme="dark"] .account-center-stats,
+html[data-theme="dark"] .rx-card--glass,
+html[data-theme="dark"] .card--glass,
+html[data-theme="dark"] .rx-glass,
+html[data-theme="dark"] .rx-glass-surface,
+html[data-theme="dark"] .pd-v1__action-bar {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary);
+}
+
+/* ── Wallet ── */
+html[data-theme="dark"] .wallet-v2 {
+  --wallet-page-bg: #0d0f14;
+  --wallet-surface: #171a21;
+  --wallet-text: #ffffff;
+  --wallet-text-muted: #b6bcc8;
+  --wallet-text-secondary: #b6bcc8;
+  --wallet-icon: #ffffff;
+  --wallet-border: #2b2f38;
+  color: var(--wallet-text);
+  background: var(--wallet-page-bg) !important;
+}
+
+html[data-theme="dark"] .account-canonical-shell:has(.wallet-v2) .cds-layout__content--account-canonical,
+html[data-theme="dark"] .cds-layout__content--account-canonical:has(.wallet-v2) {
+  background: var(--rvx-page) !important;
+}
+
+html[data-theme="dark"] .wallet-v2__metric,
+html[data-theme="dark"] .wallet-v2 [class*="card"],
+html[data-theme="dark"] .wallet-v2 [class*="panel"] {
+  background-color: var(--wallet-surface);
+  border-color: var(--wallet-border);
+  color: var(--wallet-text);
+}
+
+/* ── Orders ── */
+html[data-theme="dark"] .orders-page,
+html[data-theme="dark"] .account-canonical:has(.orders-page) .account-canonical-header__title {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .orders-page,
+html[data-theme="dark"] .account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
+  background: var(--rvx-page) !important;
+}
+
+/* ── Product Detail / View Item ── */
+html[data-theme="dark"] .pd-v1 {
+  --pd-v1-page-bg: var(--rvx-page, #0d0f14);
+  --pd-v1-card-bg: var(--rvx-surface, #171a21);
+  --pd-v1-card-border: 1px solid var(--rvx-border, #2b2f38);
+  --pd-v1-text: var(--rvx-text-primary, #ffffff);
+  --pd-v1-muted: var(--rvx-text-secondary, #b6bcc8);
+  --pd-v1-surface-muted: var(--rvx-surface-secondary, #1e222b);
+  --pd-v1-divider: var(--rvx-divider, #343a45);
+  --pd-v1-chrome-fg: var(--rvx-text-primary, #ffffff);
+  background: var(--pd-v1-page-bg) !important;
+  color: var(--pd-v1-text);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .pd-v1__shell,
+html[data-theme="dark"] .pd-v1__main,
+html[data-theme="dark"] .pd-v1__info-card,
+html[data-theme="dark"] .pd-v1__store-card,
+html[data-theme="dark"] .pd-v1__desc-card,
+html[data-theme="dark"] .pd-v1__action-bar,
+html[data-theme="dark"] .pd-v1__bundle-sheet,
+html[data-theme="dark"] .pd-v1__offer-sheet {
+  background: var(--pd-v1-card-bg) !important;
+  color: var(--pd-v1-text);
+  border-color: var(--rvx-border, #2b2f38);
+}
+
+html[data-theme="dark"] .pd-v1__chrome-btn,
+html[data-theme="dark"] .pd-v1__chrome-btn--back,
+html[data-theme="dark"] .pd-v1__chrome-save,
+html[data-theme="dark"] .pd-v1__chrome-menu,
+html[data-theme="dark"] .pd-v1__title,
+html[data-theme="dark"] .pd-v1__store-name,
+html[data-theme="dark"] .pd-v1__info-label,
+html[data-theme="dark"] .pd-v1__info-value,
+html[data-theme="dark"] .pd-v1__desc-body,
+html[data-theme="dark"] .pd-v1__qty-value {
+  color: var(--pd-v1-text) !important;
+}
+
+html[data-theme="dark"] .pd-v1__subtitle,
+html[data-theme="dark"] .pd-v1__store-stats,
+html[data-theme="dark"] .pd-v1__muted,
+html[data-theme="dark"] .pd-v1__stock-sub {
+  color: var(--pd-v1-muted) !important;
+}
+
+html[data-theme="dark"] .pd-v1__gallery-main,
+html[data-theme="dark"] .pd-v1__gallery-frame,
+html[data-theme="dark"] .pd-v1__gallery-slide,
+html[data-theme="dark"] .pd-v1__thumb,
+html[data-theme="dark"] .pd-v1__bundle-sheet-thumb {
+  background: var(--pd-v1-surface-muted) !important;
+}
+
+/* Product photos stay original — no theme filter on gallery images */
+html[data-theme="dark"] .pd-v1__gallery-main img,
+html[data-theme="dark"] .pd-v1__gallery-slide img,
+html[data-theme="dark"] .pd-v1__thumb img,
+html[data-theme="dark"] .pd-v1__bundle-sheet-img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+html[data-theme="dark"] .pd-v1__action-bar {
+  background: var(--rvx-page, #0d0f14) !important;
+  border-top-color: var(--rvx-border, #2b2f38) !important;
+  color: var(--pd-v1-text);
+}
+
+/* ── Checkout ── */
+html[data-theme="dark"] .ckt-v1 {
+  --ckt-border: #2b2f38;
+  --ckt-text: #ffffff;
+  --ckt-muted: #b6bcc8;
+  background: var(--rvx-page) !important;
+  color: var(--ckt-text);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .ckt-v1__header {
+  background: var(--rvx-page) !important;
+}
+
+/* ── Store / Sell ── */
+html[data-theme="dark"] .store-visit,
+html[data-theme="dark"] [data-store-visit],
+html[data-theme="dark"] .sell-page-v1,
+html[data-theme="dark"] [data-sell-page] {
+  background: var(--rvx-page) !important;
+  color: var(--rvx-text-primary);
+}
+
+/* ── Search / Browse landing (category cards + search bar) ── */
+html[data-theme="dark"] [data-search-freeze],
+html[data-theme="dark"] [data-search-ui],
+html[data-theme="dark"] .srch-land {
+  --srch-land-text: var(--rvx-text-primary);
+  --srch-land-muted: var(--rvx-text-secondary);
+  --srch-land-field-bg: var(--rvx-surface-secondary);
+  --srch-land-border: var(--rvx-border);
+  --srch-land-chip-bg: color-mix(in srgb, var(--rvx-accent) 18%, var(--rvx-surface));
+  background: var(--rvx-page) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .srch-land__bar {
+  background: var(--rvx-surface-secondary) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .srch-land__bar:focus-within {
+  background: var(--rvx-surface) !important;
+  border-color: color-mix(in srgb, var(--rvx-accent) 45%, var(--rvx-border));
+}
+
+html[data-theme="dark"] .srch-land__bar-input,
+html[data-theme="dark"] .srch-land__bar-input::placeholder {
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .srch-land__bar-input::placeholder {
+  color: var(--rvx-text-secondary);
+}
+
+html[data-theme="dark"] .srch-land__bar-icon,
+html[data-theme="dark"] .srch-land__camera {
+  color: var(--rvx-text-secondary);
+}
+
+html[data-theme="dark"] .srch-land__cat {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 14px rgb(0 0 0 / 0.28);
+}
+
+html[data-theme="dark"] .srch-land__cat-name {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .srch-land__cat-count {
+  color: var(--rvx-text-secondary) !important;
+}
+
+/* ── Offer / Counter Offer — zero outer border (purple fill preserved) ── */
+html[data-theme="dark"] .conv-hub__offer,
+html[data-theme="dark"] .conv-hub__offer--timeline,
+html[data-theme="dark"] .conv-hub__offer--pending,
+html[data-theme="dark"] .conv-hub__offer--countered,
+html[data-theme="dark"] .conv-hub__offer--accepted,
+html[data-theme="dark"] .conv-hub__offer--declined,
+html[data-theme="dark"] .conv-hub__offer--expired,
+html[data-theme="dark"] .conv-hub__offer[data-offer-visual] {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer--countered,
+html[data-theme="dark"] .conv-hub__offer[data-offer-visual="countered"] {
+  background: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface)) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .conv-hub__offer::before,
+html[data-theme="dark"] .conv-hub__offer::after {
+  content: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Sticky footer Offer Pending / Counter Offer panels (thub) — zero outer border */
+html[data-theme="dark"] .thub-v1__actions--pending,
+html[data-theme="dark"] .thub-v1__actions--countered,
+html[data-theme="dark"] .thub-v1__actions--accepted,
+html[data-theme="dark"] .thub-v1__actions--declined,
+html[data-theme="dark"] .thub-v1__actions--expired {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .thub-v1__actions--countered {
+  background: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface)) !important;
+}
+
+/* ── Balance / Wallet hardcoded text bypass ── */
+html[data-theme="dark"] .wallet-v2__metric-amount,
+html[data-theme="dark"] .wallet-v2__section-title,
+html[data-theme="dark"] .wallet-v2__quick-label,
+html[data-theme="dark"] .wallet-v2__insight-amount,
+html[data-theme="dark"] .wallet-v2__insight-metrics .is-sales,
+html[data-theme="dark"] .wallet-v2__bank-name,
+html[data-theme="dark"] .wallet-v2__txn-title,
+html[data-theme="dark"] .wallet-v2__txn-empty-title,
+html[data-theme="dark"] .wallet-v2__quick-icon {
+  color: var(--wallet-text, var(--rvx-text-primary)) !important;
+}
+
+/* ── Orders + My Listings chrome ── */
+html[data-theme="dark"] .orders-page {
+  --orders-text: var(--rvx-text-primary);
+  --orders-muted: var(--rvx-text-secondary);
+  --orders-border: var(--rvx-border);
+  --orders-chip-border: var(--rvx-border);
+  background: var(--rvx-page) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .orders-page__tab {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .orders-page__tab--on {
+  color: var(--rvx-accent) !important;
+}
+
+html[data-theme="dark"] .orders-page__chip {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .orders-page__chip--on {
+  background: var(--rvx-accent) !important;
+  border-color: var(--rvx-accent) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .orders-page__empty-title,
+html[data-theme="dark"] .orders-page__item-title,
+html[data-theme="dark"] .orders-page__item-price,
+html[data-theme="dark"] .account-canonical:has(.orders-page) .account-canonical-header__title {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .orders-page__empty-sub,
+html[data-theme="dark"] .orders-page__item-meta {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .orders-page__empty-cta,
+html[data-theme="dark"] .orders-page__empty-cta .rx-primary-btn,
+html[data-theme="dark"] .orders-page .cds-button--primary,
+html[data-theme="dark"] .orders-page .cds-button--secondary,
+html[data-theme="dark"] .orders-page .cds-button--outline,
+html[data-theme="dark"] [data-listings-version] .cds-button--primary,
+html[data-theme="dark"] [data-listings-version] .cds-button--secondary,
+html[data-theme="dark"] [data-listings-version] .cds-button--outline {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .orders-page .cds-button--secondary,
+html[data-theme="dark"] .orders-page .cds-button--outline,
+html[data-theme="dark"] [data-listings-version] .cds-button--secondary,
+html[data-theme="dark"] [data-listings-version] .cds-button--outline {
+  background: transparent !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] [data-listings-version] .text-text-primary,
+html[data-theme="dark"] [data-listings-version] .cds-info-block,
+html[data-theme="dark"] [data-listings-version] .cds-card {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .seller-listing-menu,
+html[data-theme="dark"] .seller-listing-menu__panel,
+html[data-theme="dark"] [data-seller-listing-menu],
+html[data-theme="dark"] .ml-overflow-menu,
+html[data-theme="dark"] .ml-overflow-menu__item {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .ml-overflow-menu__item {
+  border-bottom-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .ml-overflow-menu__item:hover,
+html[data-theme="dark"] .ml-overflow-menu__item:focus-visible,
+html[data-theme="dark"] .ml-overflow-menu__item:active {
+  background: rgb(255 255 255 / 0.06) !important;
+}
+
+html[data-theme="dark"] .ml-overflow-menu__item--danger {
+  color: #dc2626 !important;
+}
+
+/* ── HMRC Reporting Centre (full theme inheritance) ── */
+html[data-theme="dark"] .hmrc-rc,
+html[data-theme="dark"] [data-hmrc-reporting-centre] {
+  --hmrc-text: var(--rvx-text-primary);
+  --hmrc-muted: var(--rvx-text-secondary);
+  --hmrc-surface: var(--rvx-surface);
+  --hmrc-border: var(--rvx-border);
+  --hmrc-track: var(--rvx-surface-secondary);
+  --hmrc-slate: var(--rvx-text-secondary);
+  --hmrc-slate-soft: var(--rvx-surface-secondary);
+  --hmrc-purple-soft: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface));
+  --hmrc-green-soft: color-mix(in srgb, #16a34a 22%, var(--rvx-surface));
+  --hmrc-amber-soft: color-mix(in srgb, #d97706 22%, var(--rvx-surface));
+  --hmrc-red-soft: color-mix(in srgb, #dc2626 22%, var(--rvx-surface));
+  --hmrc-blue-soft: color-mix(in srgb, #2563eb 22%, var(--rvx-surface));
+  background: transparent !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .account-canonical-shell:has(.hmrc-rc) .cds-layout__content--account-canonical,
+html[data-theme="dark"] .cds-layout__content--account-canonical:has(.hmrc-rc) {
+  background: var(--rvx-page) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__card {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .hmrc-rc__status {
+  background: var(--hmrc-green-soft) !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .hmrc-rc__status--amber {
+  background: color-mix(in srgb, #d97706 22%, var(--rvx-surface)) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__status--red {
+  background: color-mix(in srgb, #dc2626 22%, var(--rvx-surface)) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__status--blue {
+  background: color-mix(in srgb, #2563eb 22%, var(--rvx-surface)) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__status--slate {
+  background: var(--rvx-surface-secondary) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__page-title,
+html[data-theme="dark"] .hmrc-rc__card-title,
+html[data-theme="dark"] .hmrc-rc__metric-label,
+html[data-theme="dark"] .hmrc-rc__prefill-value,
+html[data-theme="dark"] .hmrc-rc__doc-title,
+html[data-theme="dark"] .hmrc-rc__help-title,
+html[data-theme="dark"] .hmrc-rc__help-btn,
+html[data-theme="dark"] .hmrc-rc__status-text {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__page-sub,
+html[data-theme="dark"] .hmrc-rc__card-copy,
+html[data-theme="dark"] .hmrc-rc__progress-caption,
+html[data-theme="dark"] .hmrc-rc__progress-sep,
+html[data-theme="dark"] .hmrc-rc__progress-threshold,
+html[data-theme="dark"] .hmrc-rc__prefill-label,
+html[data-theme="dark"] .hmrc-rc__doc-sub,
+html[data-theme="dark"] .hmrc-rc__help-sub,
+html[data-theme="dark"] .hmrc-rc__secure-note,
+html[data-theme="dark"] .hmrc-rc__legal,
+html[data-theme="dark"] .hmrc-rc__status-chevron {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__progress-track {
+  background: var(--rvx-surface-secondary) !important;
+}
+
+html[data-theme="dark"] .hmrc-rc__metric-row,
+html[data-theme="dark"] .hmrc-rc__prefill-row,
+html[data-theme="dark"] .hmrc-rc__doc-row,
+html[data-theme="dark"] .hmrc-rc__help-row {
+  border-bottom-color: var(--rvx-border) !important;
+  color: var(--rvx-text-primary);
+}
+
+/* ── Admin / Super Admin shells (UI only) ── */
+html[data-theme="dark"] .command-centre,
+html[data-theme="dark"] [data-command-centre],
+html[data-theme="dark"] .super-admin-shell,
+html[data-theme="dark"] [data-super-admin] {
+  background: var(--rvx-page);
+  color: var(--rvx-text-primary);
+}
+
+/* ── Explicit image pixel protection (Black Underground must NEVER alter pixels) ──
+   Applies filter:none / no blend / no blur to product, category, logo, banner,
+   avatar, store, inbox, notification, offer, and gallery imagery. */
+html[data-theme="dark"] [data-listing-card="rovexo"] img,
+html[data-theme="dark"] [data-hp-listing-card="official"] img,
+html[data-theme="dark"] [data-listing-surface] img,
+html[data-theme="dark"] .srch-land__cat-img,
+html[data-theme="dark"] .rx-category-render__img,
+html[data-theme="dark"] .rx-h2__logo-img,
+html[data-theme="dark"] [data-brand-level] img,
+html[data-theme="dark"] .inbox-hub__rx-mark-img,
+html[data-theme="dark"] .profile-footer-banner__img,
+html[data-theme="dark"] .profile-footer-banner img,
+html[data-theme="dark"] [data-profile-footer-banner] img,
+html[data-theme="dark"] .inbox-hub img,
+html[data-theme="dark"] [data-inbox] img,
+html[data-theme="dark"] [data-notification] img,
+html[data-theme="dark"] [data-offer] img,
+html[data-theme="dark"] [data-counter-offer] img,
+html[data-theme="dark"] [data-bundle] img,
+html[data-theme="dark"] .conv-hub img,
+html[data-theme="dark"] [data-conversation-hub] img,
+html[data-theme="dark"] .store-visit img,
+html[data-theme="dark"] [data-store] img,
+html[data-theme="dark"] .pdp img,
+html[data-theme="dark"] [data-product-detail] img,
+html[data-theme="dark"] .orders-page img,
+html[data-theme="dark"] [data-orders] img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
+  background-blend-mode: normal !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* No image overlays / gradient masks introduced by theme on media frames */
+html[data-theme="dark"] [data-listing-card="rovexo"] figure::before,
+html[data-theme="dark"] [data-listing-card="rovexo"] figure::after,
+html[data-theme="dark"] [data-hp-listing-card="official"] figure::before,
+html[data-theme="dark"] [data-hp-listing-card="official"] figure::after,
+html[data-theme="dark"] .profile-footer-banner::before,
+html[data-theme="dark"] .profile-footer-banner::after,
+html[data-theme="dark"] .srch-land__cat-media::before,
+html[data-theme="dark"] .srch-land__cat-media::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  filter: none !important;
+  opacity: 0 !important;
+}
+
+/* ABSOLUTE: never create a global dark-theme image filter */
+/* Forbidden patterns (must remain absent):
+   html[data-theme="dark"] img { filter: ... }
+   .dark img { filter: ... }
+   body.dark img { filter: ... }
+*/

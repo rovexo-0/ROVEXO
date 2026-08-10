@@ -29,7 +29,7 @@ function readCanPublish(
   });
 }
 
-/** Sticky publish CTA — Settings sticky action + CanonicalButton only. */
+/** Publish CTA — inline immediately below Parcel size (not sticky viewport chrome). */
 export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar(_props, ref) {
   const { draft, editListingId } = useSellDraft();
   const { pendingTitleRef, pendingDescriptionRef, publishListing } = useSellActions();
@@ -49,8 +49,9 @@ export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar
   return (
     <div
       ref={ref}
-      className="account-settings-sticky-action w-full max-w-none"
+      className="w-full max-w-none"
       data-sell-publish-bar
+      data-sell-publish-position="below-parcel"
       role="region"
       aria-label="Publish listing"
     >

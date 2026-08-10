@@ -27,25 +27,30 @@ describe("Profile Icon System v1.0", () => {
     expect(PROFILE_ICON_COLORS.balance).toBe("#06B6D4");
     expect(PROFILE_ICON_COLORS["my-orders"]).toBe("#F59E0B");
     expect(PROFILE_ICON_COLORS.logout).toBe("#DC2626");
+    expect(PROFILE_ICON_COLORS.theme).toBe("#8B5CF6");
     expect(PROFILE_ICON_COLORS).not.toHaveProperty("followers");
   });
 
-  it("wires ProfileMenuIcon into menu · holiday · no emojis", () => {
+  it("wires ProfileMenuIcon into menu · holiday · theme · no emojis", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
     const icons = readSource("features/account-center/components/ProfileMenuIcons.tsx");
     const holiday = readSource("features/account-center/components/HolidayModeProfileRow.tsx");
+    const theme = readSource("features/account-center/components/ThemeProfileRow.tsx");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
     expect(menu).toContain("ProfileMenuIcon");
+    expect(menu).toContain("ThemeProfileRow");
     expect(menu).toContain('data-profile-icons="v1.0"');
     expect(menu).not.toContain("♡");
     expect(menu).not.toContain("🌴");
     expect(menu).not.toContain("💳");
     expect(icons).toContain("function Heart");
     expect(icons).toContain("function PalmTree");
+    expect(icons).toContain("function Moon");
     expect(icons).toContain("function Logout");
     expect(icons).toContain("PROFILE_ICON_SIZE_PX");
     expect(holiday).toContain('ProfileMenuIcon id="holiday-mode"');
+    expect(theme).toContain('ProfileMenuIcon id="theme"');
     expect(holiday).not.toContain("🌴");
     expect(css).toContain("color: #9333ea");
     expect(css).toContain("width: 24px");

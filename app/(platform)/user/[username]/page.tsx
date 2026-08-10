@@ -41,7 +41,6 @@ type ViewProfilePayload =
 function storeToPublicProfile(store: StoreRecord): PublicSellerProfile {
   return {
     id: store.sellerId,
-    fullName: store.storeName,
     username: store.storeSlug,
     avatarUrl: store.avatarUrl,
     coverUrl: null,
@@ -104,7 +103,6 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
     const isOwnProfile = auth?.user.id === profile.id;
     const draftListings = isOwnProfile
       ? await fetchSellerDraftListings(profile.id, {
-          fullName: profile.fullName,
           username: profile.username,
         }).catch(() => [])
       : [];
@@ -144,7 +142,7 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
     };
 
     const jsonLd = sellerProfilePageJsonLd({
-      name: safeProfile.fullName,
+      name: safeProfile.username,
       username: safeProfile.username,
       products: safeProfile.listings,
       rating: safeProfile.rating,
@@ -217,7 +215,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     return sellerPageMetadata({
-      fullName: profile.fullName,
       username: profile.username,
       listingCount: profile.listingCount,
     });

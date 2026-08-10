@@ -29,7 +29,13 @@ const line = (overrides: Partial<BundleSnapshotV1["items"][0]> = {}) => ({
 
 describe("Bundle Engine domain v1", () => {
   it("locks singularity and equation", () => {
-    expect(BUNDLE_ENGINE_V1.equation).toBe("LISTING → BUNDLE → CHECKOUT");
+    expect(BUNDLE_ENGINE_V1.equation).toBe("STORE → BUNDLE → CHECKOUT");
+    expect(BUNDLE_ENGINE_V1.storeBundleCreationCanonical).toBe(true);
+    expect(BUNDLE_ENGINE_V1.pdpAddToBundle).toBe(false);
+    expect(BUNDLE_ENGINE_V1.extendsProductDetail).toBe(false);
+    expect(BUNDLE_ENGINE_V1.viewItemExtension.pdpAddToBundle).toBe(false);
+    expect(BUNDLE_ENGINE_V1.surfaces).toContain("Store");
+    expect(BUNDLE_ENGINE_V1.surfaces).not.toContain("View Item");
     expect(BUNDLE_ENGINE_V1.singularity.oneActiveBundlePerBuyer).toBe(true);
     expect(BUNDLE_ENGINE_V1.singularity.oneSellerPerActiveBundle).toBe(true);
     expect(BUNDLE_ENGINE_V1.notACart).toBe(true);

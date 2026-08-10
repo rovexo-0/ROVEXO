@@ -201,11 +201,11 @@ function scanRouteChecks(): CompletionValidationItem[] {
 }
 
 function scanHomepageChecks(homepagePass: boolean): CompletionValidationItem[] {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const engineering = runFullHomepageEngineeringScan();
   return HOMEPAGE_VALIDATION_CHECKS.map((check) => {
     let pass = homepagePass;
-    if (check === "category-grid") pass = homeContent.includes("HomeCategoryRail") && !homeContent.includes("CategoryGridSection");
+    if (check === "category-grid") pass = canonicalHomepage.includes("CanonicalCategoryRail") && !canonicalHomepage.includes("CategoryGridSection");
     if (check.startsWith("duplicate") || check.includes("empty") || check.includes("layout")) pass = engineering.passPercent >= 100;
     if (check === "broken-redirects" || check === "broken-buttons") pass = homepagePass;
     return createCheck("homepage", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} requires completion`);

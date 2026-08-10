@@ -54,7 +54,7 @@
 }
 
 .addresses-v1-tabs__option--active {
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   color: var(--fw-title-color, #1a1a1a);
   font-weight: 600;
   box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
@@ -86,7 +86,7 @@
   padding: 20px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: var(--fw-card-radius, 16px);
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   box-sizing: border-box;
 }
 
@@ -207,7 +207,7 @@
   padding: 12px 14px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: var(--cds-radius-md, 12px);
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   color: var(--fw-title-color, #1a1a1a);
   font-size: var(--fw-small-size, 14px);
   text-align: left;
@@ -234,7 +234,7 @@
   width: 100%;
   max-width: 100%;
   border-radius: 16px 16px 12px 12px;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   padding: 16px;
   display: flex;
   flex-direction: column;

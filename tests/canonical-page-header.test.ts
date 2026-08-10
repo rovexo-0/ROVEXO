@@ -26,7 +26,10 @@ describe("CanonicalPageHeader platform standard", () => {
     const source = readSource("components/navigation/CanonicalPageHeader.tsx");
     expect(source).toContain('data-canonical-page-header="v1"');
     expect(source).toContain("preferHistory");
-    expect(source).toContain("grid-cols-[48px_1fr_48px]");
+    expect(source).toContain("ROVEXO_HEADER_STANDARD_VERSION");
+    expect(source).toContain("RovexoHeaderCloseButton");
+    const headerCss = readSource("styles/rovexo/rovexo-header-standard-v1.css");
+    expect(headerCss).toContain("grid-template-columns: 40px 1fr 48px");
   });
 
   it("uses router.back with listing-aware fallback in usePageBack", () => {
@@ -72,7 +75,8 @@ describe("CanonicalPageHeader platform standard", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
     expect(page).toContain("ProductPageChrome");
     expect(page).toContain('data-product-page-freeze="FROZEN"');
-    expect(page).toContain('data-view-item-version="1.0"');
+    expect(page).toContain('data-view-item-version="2.0"');
+    expect(page).toContain('data-view-item-canonical="view-item-v2.0-final"');
   });
 
   it("discourages new inline rx-page-header shells on migrated routes", () => {

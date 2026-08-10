@@ -111,6 +111,7 @@ describe("account hub menu alignment", () => {
       "Promote",
       "Settings",
       "Rovexo Ideas",
+      "Theme",
     ]);
   });
 });

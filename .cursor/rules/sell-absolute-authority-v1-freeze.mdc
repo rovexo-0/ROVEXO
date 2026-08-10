@@ -13,9 +13,16 @@ Sell inherits **100% Account design system** only:
 - `AccountCanonicalShell`
 - `AccountPageStack` (`--cds-space-section-gap`)
 - `CanonicalMenuRow` / `CanonicalInput` / `CanonicalTextarea` / `CanonicalButton`
-- `.account-settings-sticky-action`
 
 Forbidden: Sell-only cards, Sell spacing tokens, Sell menu rows, Sell buttons, hotfixes that diverge from Profile/Settings.
+
+## Publish CTA (Owner unlock — COD SÂNGE consolidated release)
+
+**Publish sits inline immediately below Parcel Size** (document flow).
+
+- Required: `SellPublishBar` · `data-sell-publish-bar` · `data-sell-publish-position="below-parcel"`
+- Forbidden: viewport sticky Publish · `.account-settings-sticky-action` on Sell Publish
+- Bottom clearance: Account bottom-nav offset / safe area only (no sticky Publish chrome)
 
 ## Publish gate (core-6 ONLY)
 

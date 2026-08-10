@@ -73,14 +73,22 @@ export const EXECUTION_TRIGGERS = [
 ] as const;
 
 export const MARKETPLACE_MODULE_REGISTRY = [
-  { id: "homepage", label: "Homepage", route: "/", pageRef: "app/(platform)/page.tsx", apiRef: "components/home/HomeContent.tsx" },
+  {
+    id: "homepage",
+    label: "Homepage",
+    route: "/",
+    pageRef: "app/(platform)/page.tsx",
+    apiRef: "lib/homepage/load-homepage-document.ts",
+  },
   { id: "categories", label: "Categories", route: "/categories", pageRef: "app/(platform)/categories/page.tsx" },
   { id: "search", label: "Search", route: "/search", pageRef: "app/(platform)/search/page.tsx", apiRef: "app/api/search/route.ts" },
   { id: "listing-creation", label: "Listing Creation", route: "/sell", pageRef: "app/(platform)/sell/page.tsx", apiRef: "app/(platform)/sell/new/page.tsx" },
   { id: "listing-details", label: "Listing Details", route: "/listing/[slug]", pageRef: "app/(platform)/listing/[slug]/page.tsx" },
-  { id: "featured-listings", label: "Featured Listings", route: "/", pageRef: "components/home/FeaturedListingsSection.tsx" },
-  { id: "recommended-listings", label: "Recommended Listings", route: "/", pageRef: "components/home/HomeProductSection.tsx" },
-  { id: "latest-listings", label: "Latest Listings", route: "/", pageRef: "components/home/HomeProductSection.tsx" },
+  // CEO Homepage freeze: canonical sections are category rail, showcase rail, and marketplace feed.
+  // Legacy featured/recommended/latest rails are intentionally retired and must never be recreated.
+  { id: "homepage-category-rail", label: "Homepage Category Rail", route: "/", pageRef: "components/homepage/canonical/CanonicalCategoryRail.tsx" },
+  { id: "homepage-showcase", label: "Homepage Showcase", route: "/", pageRef: "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx" },
+  { id: "homepage-marketplace-feed", label: "Homepage Marketplace Feed", route: "/", pageRef: "components/homepage/canonical/CanonicalMarketplaceFeed.tsx" },
   { id: "auctions", label: "Auctions", route: "/auctions", pageRef: "app/(platform)/auctions/page.tsx" },
   { id: "buyer-dashboard", label: "Buyer Dashboard", route: "/account", pageRef: "app/(platform)/account/page.tsx" },
   { id: "seller-dashboard", label: "Seller Dashboard", route: "/seller/dashboard", pageRef: "app/(platform)/seller/dashboard/page.tsx" },
@@ -1794,23 +1802,23 @@ export const EXECUTION_FINAL_SUCCESS = [
 ] as const;
 
 export const GLOBAL_HOMEPAGE_SCAN_COMPONENTS = [
-  { id: "header", label: "Header", ref: "components/home/HomePageShell.tsx" },
-  { id: "search", label: "Search", ref: "components/header/HeaderSearchBar.tsx" },
-  { id: "category-rail", label: "Category Rail", ref: "components/home/RovexoCategoryRail.tsx" },
-  { id: "category-drawer", label: "Category Drawer", ref: "components/home/RovexoCategoryRail.tsx" },
-  { id: "hero-banner", label: "Hero Banner", ref: "features/seller/migration/components/StoreMigrationHeroBanner.tsx" },
-  { id: "featured-listings", label: "Featured Listings", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "recommended-listings", label: "Recommended Listings", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "recently-added", label: "Recently Added", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "trending", label: "Trending", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "all-listings", label: "All Listings", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "popular-categories", label: "Popular Categories", ref: "components/home/RovexoCategoryRail.tsx" },
-  { id: "business-banner", label: "Business Banner", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "promotions", label: "Promotions", ref: "components/home/RovexoAllListings.tsx" },
-  { id: "footer", label: "Footer", ref: "app/(platform)/page.tsx" },
-  { id: "bottom-navigation", label: "Bottom Navigation", ref: "components/home/RovexoFooterNavigation.tsx" },
-  { id: "floating-actions", label: "Floating Actions", ref: "components/ui/Button.tsx" },
-  { id: "widgets", label: "Widgets", ref: "components/home/RovexoHomePage.tsx" },
+  { id: "homepage-route", label: "Homepage Route", ref: "app/(platform)/page.tsx" },
+  { id: "homepage-document-loader", label: "Homepage Document Loader", ref: "lib/homepage/load-homepage-document.ts" },
+  { id: "canonical-homepage", label: "Canonical Homepage", ref: "components/homepage/canonical/CanonicalHomepage.tsx" },
+  { id: "category-rail", label: "Canonical Category Rail", ref: "components/homepage/canonical/CanonicalCategoryRail.tsx" },
+  { id: "showcase-rail", label: "Canonical Showcase Rail", ref: "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx" },
+  { id: "marketplace-feed", label: "Canonical Marketplace Feed", ref: "components/homepage/canonical/CanonicalMarketplaceFeed.tsx" },
+  { id: "homepage-shell", label: "Homepage Shell", ref: "components/home/HomePageShell.tsx" },
+  { id: "application-shell", label: "Application Shell", ref: "components/beta/BetaAppShell.tsx" },
+  { id: "homepage-navigation", label: "Homepage Navigation", ref: "lib/homepage/canonical-nav.ts" },
+  { id: "homepage-jsonld", label: "Homepage Structured Data", ref: "components/seo/JsonLdScript.tsx" },
+  { id: "homepage-metadata", label: "Homepage Metadata", ref: "lib/seo/home-jsonld.ts" },
+  { id: "homepage-styles", label: "Homepage Styles", ref: "styles/homepage-canonical.css" },
+  { id: "homepage-responsive-styles", label: "Homepage Responsive Styles", ref: "styles/homepage-canonical-responsive.css" },
+  { id: "marketplace-feed-state", label: "Marketplace Feed State", ref: "lib/homepage/v4-data.ts" },
+  { id: "showcase-data", label: "Showcase Data", ref: "lib/homepage/showcase-sellers.ts" },
+  { id: "homepage-feed-query", label: "Homepage Feed Query", ref: "lib/products/queries.ts" },
+  { id: "homepage-public-contract", label: "Homepage Public Contract", ref: "lib/products/public-product-contract-v1.ts" },
 ] as const;
 
 export const HOMEPAGE_VISUAL_INTEGRITY_CHECKS = [
@@ -1983,7 +1991,7 @@ export const GLOBAL_CATEGORY_SCAN_DOMAINS = [
   { id: "ai-categories", label: "AI Categories", ref: "lib/sell/canonical-category-search.ts" },
   { id: "listing-categories", label: "Listing Categories", ref: "lib/categories/resolve-listing.ts" },
   { id: "business-categories", label: "Business Categories", ref: "lib/categories/enterprise/sectors.ts" },
-  { id: "homepage-categories", label: "Homepage Categories", ref: "components/home/HomeCategoryRail.tsx" },
+  { id: "homepage-categories", label: "Homepage Categories", ref: "components/homepage/canonical/CanonicalCategoryRail.tsx" },
   { id: "search-categories", label: "Search Categories", ref: "lib/sell/category-picker-search.ts" },
   { id: "seller-categories", label: "Seller Categories", ref: "lib/sell/suggest-category-from-title.ts" },
   { id: "company-categories", label: "Company Categories", ref: "lib/categories/marketplace-tree.ts" },
@@ -2380,7 +2388,6 @@ export const LISTING_FIELD_VALIDATION = [
   "currency",
   "quantity",
   "sku",
-  "barcode",
   "stock-status",
   "location-rules",
   "collection",
@@ -2394,13 +2401,17 @@ export const LISTING_FIELD_VALIDATION = [
   "slug",
 ] as const;
 
+/**
+ * Not part of frozen Sell v1 (core-6 + Catalog optional attributes).
+ * Barcode/EAN capture is deferred — do not re-add without Owner Sell authorization.
+ */
+export const DEFERRED_LISTING_FIELDS = ["barcode"] as const;
+
 export const LISTING_PHOTO_VALIDATION = [
   "upload",
   "multiple-upload",
   "drag-and-drop",
   "reorder",
-  "crop",
-  "rotate",
   "compression",
   "thumbnail-generation",
   "image-quality",
@@ -2413,6 +2424,12 @@ export const LISTING_PHOTO_VALIDATION = [
   "gallery-images",
   "alt-text",
 ] as const;
+
+/**
+ * Blood XXI photo ops = gallery · camera · multi · preview · validate ·
+ * replace · remove · reorder. Crop/rotate deferred — not v1 Sell requirements.
+ */
+export const DEFERRED_SELL_PHOTO_OPS = ["crop", "rotate"] as const;
 
 export const AI_LISTING_VALIDATION = [
   "ai-category",

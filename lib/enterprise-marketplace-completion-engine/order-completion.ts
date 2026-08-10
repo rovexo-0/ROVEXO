@@ -35,8 +35,8 @@ function scanGlobalDomains(): OrderDomainScanResult[] {
 
 function orderFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/(platform)/account/orders/page.tsx") &&
-    fileExists("app/(platform)/seller/orders/page.tsx") &&
+    fileExists("app/(platform)/orders/page.tsx") &&
+    fileExists("features/orders/components/OrdersPage.tsx") &&
     fileExists("lib/orders/store.ts") &&
     scan.checkoutCompletionPass
   );
@@ -66,7 +66,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
 function scanBuyer(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return ORDER_BUYER_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
-    if (check === "order-history") pass = fileExists("app/(platform)/account/orders/page.tsx");
+    if (check === "order-history") pass = fileExists("app/(platform)/orders/page.tsx");
     if (check === "tracking") pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check === "invoices") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "returns" || check === "refund-requests") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
@@ -79,7 +79,7 @@ function scanBuyer(scan: MarketplaceCompletionScanResult): CompletionValidationI
 function scanSeller(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return ORDER_SELLER_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
-    if (check === "order-queue") pass = fileExists("app/(platform)/seller/orders/page.tsx");
+    if (check === "order-queue") pass = fileExists("features/orders/components/OrdersPage.tsx");
     if (check === "packing") pass = fileExists("features/orders/components/SellerFulfillmentCard.tsx");
     if (check === "dispatch") pass = fileExists("features/shipping/components/ShipmentWizard.tsx");
     if (check === "tracking-update") pass = fileExists("features/shipping/components/ParcelCard.tsx");

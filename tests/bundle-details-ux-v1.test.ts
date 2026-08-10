@@ -20,6 +20,8 @@ describe("COD SÂNGE — Bundle Details UX (Hub freeze preserved)", () => {
     expect(hub()).not.toContain("setBundleDetailsOffer");
     expect(hub()).not.toContain("ConversationOfferBundleThumbs");
     expect(hub()).not.toContain("data-offer-bundle-thumbs");
+    /* Compact in-card thumb is allowed; horizontal rail / sheet are not. */
+    expect(hub()).toContain('data-offer-product-thumb="true"');
   });
 
   it("Offers API still exposes bundle.lines (engine unchanged; Hub does not add a sheet)", () => {

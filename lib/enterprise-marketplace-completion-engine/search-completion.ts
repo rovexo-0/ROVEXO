@@ -75,18 +75,50 @@ function scanSearchEngine(scan: MarketplaceCompletionScanResult): CompletionVali
 
 function scanFilters(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const filtersSource = readSource("features/search/components/SearchFilters.tsx");
+  const filterTypes = readSource("features/search/types/index.ts");
+  const listingCard = readSource("components/ui/ListingCard.tsx");
+  const resultCard = readSource("features/search/components/SearchResultCard.tsx");
+  const hasCompatibilityDb = fileExists("lib/categories/enterprise/databases/compatibility.ts");
+  const hasAuctions = fileExists("app/(platform)/auctions/page.tsx") && filterTypes.includes('"auctions"');
 
   return SEARCH_FILTER_VALIDATION.map((check) => {
     let pass = searchFoundationReady(scan) && filtersSource.length > 0;
     if (check === "category" || check === "subcategory") pass = filtersSource.includes("getCategoryTree");
-    if (check === "brand" || check === "condition" || check === "price") pass = filtersSource.includes(check === "brand" ? "brand" : check === "condition" ? "condition" : "minPrice");
-    if (check.includes("location")) pass = fileExists("features/search/components/SearchLocationFilter.tsx");
-    if (check.includes("seller") || check === "scope") pass = filtersSource.includes("scope");
-    if (check.includes("company") || check.includes("business")) pass = fileExists("features/search/components/StoreResults.tsx");
-    if (check.includes("delivery") || check.includes("stock") || check === "collection") pass = filtersSource.includes("delivery") || filtersSource.includes("inStock");
-    if (check.includes("buyer") || check.includes("verified") || check.includes("featured") || check.includes("auction") || check.includes("compatibility")) {
-      pass = fileExists("components/ui/ProductCard.tsx");
+    if (check === "brand" || check === "condition" || check === "price") {
+      pass =
+        check === "brand"
+          ? filtersSource.includes("brand")
+          : check === "condition"
+            ? filtersSource.includes("condition")
+            : filtersSource.includes("minPrice");
     }
+    if (check.includes("location")) pass = fileExists("features/search/components/SearchLocationFilter.tsx");
+    if (check.includes("seller") || check === "scope") {
+      pass = filtersSource.includes("scope") || filterTypes.includes("SearchFilterScope");
+    }
+    if (check.includes("company") || check.includes("business")) {
+      pass = fileExists("features/search/components/StoreResults.tsx");
+    }
+    if (check.includes("delivery") || check.includes("stock") || check === "collection") {
+      pass = filtersSource.includes("delivery") || filtersSource.includes("inStock") || filtersSource.includes("collection");
+    }
+    // Not ProductCard (deleted). Canonical surfaces:
+    // buyer-protection → ListingCard inclusive price + shield
+    // featured → ListingCard promotion / isFeatured
+    // verified-seller → SearchResultCard sellerVerified → VerifiedBadge
+    // auction → auctions route + SearchFilterScope auctions
+    // compatibility → Catalog Master compatibility DB
+    if (check.includes("buyer-protection")) {
+      pass = listingCard.includes("ShieldLineIcon") && listingCard.includes("formatListingPriceIncl");
+    }
+    if (check.includes("featured")) {
+      pass = listingCard.includes("isFeatured") && listingCard.includes("ListingPromotionBadge");
+    }
+    if (check.includes("verified")) {
+      pass = resultCard.includes("sellerVerified") && resultCard.includes("VerifiedBadge");
+    }
+    if (check.includes("auction")) pass = hasAuctions;
+    if (check.includes("compatibility")) pass = hasCompatibilityDb;
     return createCheck("search-filters", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -110,17 +142,49 @@ function scanSorting(scan: MarketplaceCompletionScanResult): CompletionValidatio
 
 function scanResults(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const resultsSource = readSource("features/search/components/SearchResultsView.tsx");
+  const listingCard = readSource("components/ui/ListingCard.tsx");
+  const resultCard = readSource("features/search/components/SearchResultCard.tsx");
+  // Canonical search grid uses ListingCard SSOT (ProductCard removed).
+  const usesListingCard = resultsSource.includes("ListingCard") && fileExists("components/ui/ListingCard.tsx");
+  const hasPrice =
+    listingCard.includes("formatListingPrice") &&
+    (listingCard.includes("product.price") || listingCard.includes("priceLabel"));
+  const hasSeller =
+    (listingCard.includes("sellerName") && listingCard.includes("sellerUsername") && listingCard.includes("resolvePublicProfileHref")) ||
+    (resultCard.includes("sellerName") && fileExists("features/search/components/SellerResults.tsx"));
+  // Seller email must never appear on public search cards.
+  const sellerEmailPrivate =
+    !listingCard.includes("sellerEmail") &&
+    !resultCard.includes("sellerEmail") &&
+    !readSource("features/search/components/SellerResults.tsx").includes("email");
+  const hasBadges =
+    listingCard.includes("ListingPromotionBadge") ||
+    listingCard.includes("css.badge") ||
+    resultCard.includes("VerifiedBadge");
+  const hasRating = listingCard.includes("formatCardRating") || resultCard.includes("product.rating");
+  const hasBuyerProtection = listingCard.includes("ShieldLineIcon") && listingCard.includes("formatListingPriceIncl");
+  const hasSponsoredOrFeatured =
+    listingCard.includes("isFeatured") || listingCard.includes("isBumped") || listingCard.includes("trackPromotionEvent");
 
   return SEARCH_RESULTS_VALIDATION.map((check) => {
-    let pass = resultsSource.length > 0 && searchFoundationReady(scan);
-    if (check.includes("listing") || check.includes("image") || check.includes("title") || check.includes("price")) {
-      pass = resultsSource.includes("ProductCard");
+    let pass = resultsSource.length > 0 && searchFoundationReady(scan) && usesListingCard;
+    if (check.includes("listing") || check.includes("image") || check.includes("title")) {
+      pass = usesListingCard && listingCard.includes("SafeImage");
     }
-    if (check.includes("seller")) pass = resultsSource.includes("SellerResults");
+    if (check.includes("price")) pass = usesListingCard && hasPrice;
+    if (check.includes("seller")) pass = usesListingCard && hasSeller && sellerEmailPrivate;
     if (check.includes("business")) pass = fileExists("features/search/components/StoreResults.tsx");
-    if (check.includes("pagination") || check.includes("infinite")) pass = resultsSource.includes("hasMore") && resultsSource.includes("useIntersectionWhenVisible");
-    if (check.includes("badge") || check.includes("rating") || check.includes("buyer") || check.includes("sponsored") || check.includes("featured") || check.includes("metadata")) {
-      pass = fileExists("components/ui/ProductCard.tsx");
+    if (check.includes("pagination") || check.includes("infinite")) {
+      pass = resultsSource.includes("hasMore") && resultsSource.includes("useIntersectionWhenVisible");
+    }
+    if (check.includes("badge")) pass = usesListingCard && hasBadges;
+    if (check.includes("rating")) pass = usesListingCard && hasRating;
+    if (check.includes("buyer")) pass = usesListingCard && hasBuyerProtection;
+    if (check.includes("sponsored") || check.includes("featured")) {
+      pass = usesListingCard && hasSponsoredOrFeatured;
+    }
+    if (check.includes("metadata")) {
+      pass = usesListingCard && listingCard.includes("condition") && listingCard.includes("views");
     }
     return createCheck("search-results", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -300,7 +364,8 @@ function buildPassConditions(
     "accessibility-pass": scan.globalUiPass,
     "enterprise-pass": scan.certificationGatePass && scan.omegaPass,
     "omega-pass": scan.omegaPass,
-    "search-results-pass": resultsSource.includes("ProductCard"),
+    "search-results-pass":
+      resultsSource.includes("ListingCard") && fileExists("components/ui/ListingCard.tsx"),
     "search-completion-100": passPercent >= 100 && checksPass,
   };
 

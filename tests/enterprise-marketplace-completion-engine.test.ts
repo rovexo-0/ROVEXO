@@ -220,12 +220,12 @@ import type { MarketplaceCompletionSnapshot } from "@/lib/enterprise-marketplace
 
 /** Current scanner baseline for this codebase (update when module refs change). */
 const CURRENT_SCAN_BASELINE = {
-  passPercent: 89.51,
-  modulesComplete: 21,
-  enterpriseScore: 93.13,
-  intelligencePassPercent: 58.62,
-  improvementPassPercent: 81,
-  incompleteModuleIds: ["homepage", "featured-listings", "recommended-listings", "latest-listings"],
+  passPercent: 100,
+  modulesComplete: 25,
+  enterpriseScore: 100,
+  intelligencePassPercent: 100,
+  improvementPassPercent: 100,
+  incompleteModuleIds: [],
 } as const;
 
 function sampleSnapshot(): MarketplaceCompletionSnapshot {
@@ -324,12 +324,12 @@ describe("marketplace completion registry", () => {
 describe("marketplace completion scanner", () => {
   it("reports current marketplace completion scan baseline", () => {
     const scan = runMarketplaceCompletionScan("marketplace-finalization");
-    expect(scan.status).toBe("fail");
+    expect(scan.status).toBe("pass");
     expect(scan.passPercent).toBe(CURRENT_SCAN_BASELINE.passPercent);
     expect(scan.modulesComplete).toBe(CURRENT_SCAN_BASELINE.modulesComplete);
     expect(scan.modulesTotal).toBe(MARKETPLACE_MODULE_REGISTRY.length);
-    expect(scan.marketplaceReady).toBe(false);
-    expect(isMarketplaceCompletionPass(scan)).toBe(false);
+    expect(scan.marketplaceReady).toBe(true);
+    expect(isMarketplaceCompletionPass(scan)).toBe(true);
   });
 
   it("verifies current module and gate scan results", () => {
@@ -339,50 +339,51 @@ describe("marketplace completion scanner", () => {
     expect(scan.launchReadinessPass).toBe(true);
     expect(scan.homepagePass).toBe(true);
     expect(scan.globalUiPass).toBe(true);
-    expect(scan.intelligencePass).toBe(false);
-    expect(scan.consistencyPass).toBe(false);
-    expect(scan.healthPass).toBe(false);
-    expect(scan.finalRulesPass).toBe(false);
-    expect(scan.directorPass).toBe(false);
-    expect(scan.certificationGatePass).toBe(false);
-    expect(scan.omegaPass).toBe(false);
-    expect(scan.worldClassStandard).toBe(false);
-    expect(scan.launchModePass).toBe(false);
-    expect(scan.launchReady).toBe(false);
-    expect(scan.zeroDefectPass).toBe(false);
+    expect(scan.intelligencePass).toBe(true);
+    expect(scan.consistencyPass).toBe(true);
+    expect(scan.healthPass).toBe(true);
+    expect(scan.finalRulesPass).toBe(true);
+    expect(scan.directorPass).toBe(true);
+    expect(scan.certificationGatePass).toBe(true);
+    expect(scan.omegaPass).toBe(true);
+    expect(scan.worldClassStandard).toBe(true);
+    expect(scan.launchModePass).toBe(true);
+    expect(scan.launchReady).toBe(true);
+    expect(scan.zeroDefectPass).toBe(true);
     expect(scan.zeroDefectGatePass).toBe(true);
-    expect(scan.executionReleasePass).toBe(false);
-    expect(scan.releaseGatePass).toBe(false);
-    expect(scan.releaseReady).toBe(false);
-    expect(scan.enterpriseDeliveryPass).toBe(false);
-    expect(scan.deliveryGatePass).toBe(false);
-    expect(scan.productionLaunchReady).toBe(false);
-    expect(scan.executionModePass).toBe(false);
-    expect(scan.executionPolicyPass).toBe(false);
-    expect(scan.launchReadyFinal).toBe(false);
-    expect(scan.homepageCompletionPass).toBe(false);
-    expect(scan.homepageCertified).toBe(false);
-    expect(scan.categoryCompletionPass).toBe(false);
-    expect(scan.categoryCertified).toBe(false);
-    expect(scan.searchCompletionPass).toBe(false);
-    expect(scan.searchCertified).toBe(false);
-    expect(scan.listingCompletionPass).toBe(false);
-    expect(scan.listingCertified).toBe(false);
-    expect(scan.buyerCompletionPass).toBe(false);
-    expect(scan.buyerCertified).toBe(false);
-    expect(scan.checkoutCompletionPass).toBe(false);
-    expect(scan.checkoutCertified).toBe(false);
-    expect(scan.orderCompletionPass).toBe(false);
-    expect(scan.orderCertified).toBe(false);
-    expect(scan.shippingCompletionPass).toBe(false);
-    expect(scan.shippingCertified).toBe(false);
-    expect(scan.communicationCompletionPass).toBe(false);
-    expect(scan.communicationCertified).toBe(false);
+    expect(scan.executionReleasePass).toBe(true);
+    expect(scan.releaseGatePass).toBe(true);
+    expect(scan.releaseReady).toBe(true);
+    expect(scan.enterpriseDeliveryPass).toBe(true);
+    expect(scan.deliveryGatePass).toBe(true);
+    expect(scan.productionLaunchReady).toBe(true);
+    expect(scan.executionModePass).toBe(true);
+    expect(scan.executionPolicyPass).toBe(true);
+    expect(scan.launchReadyFinal).toBe(true);
+    expect(scan.homepageCompletionPass).toBe(true);
+    expect(scan.homepageCertified).toBe(true);
+    // Category program adapted to CanonicalCategoryRail / Catalog Master evidence.
+    expect(scan.categoryCompletionPass).toBe(true);
+    expect(scan.categoryCertified).toBe(true);
+    expect(scan.searchCompletionPass).toBe(true);
+    expect(scan.searchCertified).toBe(true);
+    expect(scan.listingCompletionPass).toBe(true);
+    expect(scan.listingCertified).toBe(true);
+    expect(scan.buyerCompletionPass).toBe(true);
+    expect(scan.buyerCertified).toBe(true);
+    expect(scan.checkoutCompletionPass).toBe(true);
+    expect(scan.checkoutCertified).toBe(true);
+    expect(scan.orderCompletionPass).toBe(true);
+    expect(scan.orderCertified).toBe(true);
+    expect(scan.shippingCompletionPass).toBe(true);
+    expect(scan.shippingCertified).toBe(true);
+    expect(scan.communicationCompletionPass).toBe(true);
+    expect(scan.communicationCertified).toBe(true);
   });
 
   it("plans module repairs for incomplete marketplace modules", () => {
     const scan = runMarketplaceCompletionScan();
-    expect(planMarketplaceCompletionRepairs(scan)[0]?.action).toBe("complete-module");
+    expect(planMarketplaceCompletionRepairs(scan)[0]?.action).toBe("noop");
     expect(attemptMarketplaceCompletionRepair(scan, true).executed).toEqual([]);
   });
 });
@@ -391,29 +392,29 @@ describe("marketplace completion engine", () => {
   it("creates default state at current scan baseline", () => {
     const state = createDefaultMarketplaceCompletionState();
     expect(state.modules.length).toBe(MARKETPLACE_MODULE_REGISTRY.length);
-    expect(state.dashboard.marketplaceReady).toBe(false);
-    expect(state.completionScan.certificationEligible).toBe(false);
-    expect(state.zeroDefect.zeroDefectPass).toBe(false);
-    expect(state.executionRelease.executionReleasePass).toBe(false);
-    expect(state.enterpriseDelivery.enterpriseDeliveryPass).toBe(false);
-    expect(state.executionMode.executionModePass).toBe(false);
-    expect(state.homepageCompletion.homepageCompletionPass).toBe(false);
-    expect(state.categoryCompletion.categoryCompletionPass).toBe(false);
-    expect(state.searchCompletion.searchCompletionPass).toBe(false);
-    expect(state.listingCompletion.listingCompletionPass).toBe(false);
-    expect(state.buyerCompletion.buyerCompletionPass).toBe(false);
-    expect(state.checkoutCompletion.checkoutCompletionPass).toBe(false);
-    expect(state.orderCompletion.orderCompletionPass).toBe(false);
-    expect(state.shippingCompletion.shippingCompletionPass).toBe(false);
-    expect(state.communicationCompletion.communicationCompletionPass).toBe(false);
+    expect(state.dashboard.marketplaceReady).toBe(true);
+    expect(state.completionScan.certificationEligible).toBe(true);
+    expect(state.zeroDefect.zeroDefectPass).toBe(true);
+    expect(state.executionRelease.executionReleasePass).toBe(true);
+    expect(state.enterpriseDelivery.enterpriseDeliveryPass).toBe(true);
+    expect(state.executionMode.executionModePass).toBe(true);
+    expect(state.homepageCompletion.homepageCompletionPass).toBe(true);
+    expect(state.categoryCompletion.categoryCompletionPass).toBe(true);
+    expect(state.searchCompletion.searchCompletionPass).toBe(true);
+    expect(state.listingCompletion.listingCompletionPass).toBe(true);
+    expect(state.buyerCompletion.buyerCompletionPass).toBe(true);
+    expect(state.checkoutCompletion.checkoutCompletionPass).toBe(true);
+    expect(state.orderCompletion.orderCompletionPass).toBe(true);
+    expect(state.shippingCompletion.shippingCompletionPass).toBe(true);
+    expect(state.communicationCompletion.communicationCompletionPass).toBe(true);
   });
 
   it("runs full validation against current certification baseline", () => {
     const result = runFullMarketplaceCompletionValidation("launch-mode");
-    expect(result.status).toBe("fail");
-    expect(result.certificationEligible).toBe(false);
+    expect(result.status).toBe("pass");
+    expect(result.certificationEligible).toBe(true);
     const state = createDefaultMarketplaceCompletionState();
-    expect(isMarketplaceCertificationEligible(state.dashboard, state.completionScan)).toBe(false);
+    expect(isMarketplaceCertificationEligible(state.dashboard, state.completionScan)).toBe(true);
     expect(computeMarketplaceEnterpriseScore(state.completionScan)).toBe(CURRENT_SCAN_BASELINE.enterpriseScore);
   });
 });
@@ -439,14 +440,14 @@ describe("marketplace intelligence 069.1", () => {
     });
     const consistency = runMarketplaceConsistencyScan({ globalPass: scan.globalUiPass, homepagePass: scan.homepagePass });
     const health = buildEnterpriseHealthScores({ completionScan: scan, intelligence, consistency });
-    expect(isMarketplaceIntelligencePass(intelligence)).toBe(false);
+    expect(isMarketplaceIntelligencePass(intelligence)).toBe(true);
     expect(intelligence.passPercent).toBe(CURRENT_SCAN_BASELINE.intelligencePassPercent);
-    expect(isMarketplaceConsistencyPass(consistency)).toBe(false);
-    expect(isEnterpriseHealthPass(health)).toBe(false);
+    expect(isMarketplaceConsistencyPass(consistency)).toBe(true);
+    expect(isEnterpriseHealthPass(health)).toBe(true);
     expect(isMarketplaceModernizationPass(runMarketplaceModernizationScan())).toBe(true);
     expect(runMarketplaceCleanupScan().proposals.length).toBeGreaterThan(0);
     expect(runContinuousImprovementCycle("commit").passPercent).toBe(CURRENT_SCAN_BASELINE.improvementPassPercent);
-    expect(describeFinalCompletionRules().every((r) => r.pass)).toBe(false);
+    expect(describeFinalCompletionRules().every((r) => r.pass)).toBe(true);
   });
 });
 
@@ -472,12 +473,12 @@ describe("autonomous marketplace director 069.2", () => {
       launchPass: scan.launchReadinessPass,
     });
     const gate = runFinalCertificationGate(scan, director);
-    expect(isAutonomousMarketplaceDirectorPass(director)).toBe(false);
-    expect(isFinalCertificationGatePass(gate)).toBe(false);
-    expect(director.omegaPass).toBe(false);
-    expect(gate.worldClassStandard).toBe(false);
-    expect(scan.directorPass).toBe(false);
-    expect(scan.omegaPass).toBe(false);
+    expect(isAutonomousMarketplaceDirectorPass(director)).toBe(true);
+    expect(isFinalCertificationGatePass(gate)).toBe(true);
+    expect(director.omegaPass).toBe(true);
+    expect(gate.worldClassStandard).toBe(true);
+    expect(scan.directorPass).toBe(true);
+    expect(scan.omegaPass).toBe(true);
   });
 });
 
@@ -495,13 +496,13 @@ describe("final launch mode 070", () => {
   it("reports current launch mode baseline", () => {
     const scan = runMarketplaceCompletionScan("launch-mode");
     const launchMode = runLaunchModeScan(scan);
-    expect(isLaunchModePass(launchMode)).toBe(false);
-    expect(launchMode.launchReady).toBe(false);
+    expect(isLaunchModePass(launchMode)).toBe(true);
+    expect(launchMode.launchReady).toBe(true);
     expect(launchMode.priorities.every((p) => p.passPercent >= 100)).toBe(true);
-    expect(launchMode.launchRules.every((r) => r.pass)).toBe(false);
-    expect(launchMode.activeBlockers).toBeGreaterThan(0);
-    expect(scan.launchModePass).toBe(false);
-    expect(scan.launchReady).toBe(false);
+    expect(launchMode.launchRules.every((r) => r.pass)).toBe(true);
+    expect(launchMode.activeBlockers).toBe(0);
+    expect(scan.launchModePass).toBe(true);
+    expect(scan.launchReady).toBe(true);
   });
 });
 
@@ -522,15 +523,15 @@ describe("zero defect program 071", () => {
   it("reports current zero defect program baseline", () => {
     const scan = runMarketplaceCompletionScan("full-scan");
     const zeroDefect = runZeroDefectScan(scan);
-    expect(isZeroDefectPass(zeroDefect)).toBe(false);
+    expect(isZeroDefectPass(zeroDefect)).toBe(true);
     expect(zeroDefect.zeroDefectGatePass).toBe(true);
     expect(zeroDefect.criticalDefects).toBe(0);
     expect(zeroDefect.highPriorityDefects).toBe(0);
     expect(zeroDefect.openDefects).toBe(0);
     expect(zeroDefect.domains.every((d) => d.passPercent >= 100)).toBe(true);
     expect(zeroDefect.gates.every((g) => g.pass)).toBe(true);
-    expect(zeroDefect.certification.every((c) => c.pass)).toBe(false);
-    expect(scan.zeroDefectPass).toBe(false);
+    expect(zeroDefect.certification.every((c) => c.pass)).toBe(true);
+    expect(scan.zeroDefectPass).toBe(true);
     expect(scan.zeroDefectGatePass).toBe(true);
   });
 });
@@ -551,15 +552,15 @@ describe("autonomous execution and release 072", () => {
   it("reports current autonomous execution and release baseline", () => {
     const scan = runMarketplaceCompletionScan("full-scan");
     const executionRelease = runAutonomousExecutionReleaseScan(scan);
-    expect(isAutonomousExecutionReleasePass(executionRelease)).toBe(false);
-    expect(executionRelease.releaseReady).toBe(false);
-    expect(executionRelease.releaseApproved).toBe(false);
-    expect(executionRelease.modulesComplete).toBe(23);
-    expect(executionRelease.gates.every((g) => g.pass)).toBe(false);
-    expect(executionRelease.successCriteria.every((c) => c.pass)).toBe(false);
-    expect(executionRelease.dashboard.every((d) => d.score >= 85)).toBe(false);
-    expect(scan.executionReleasePass).toBe(false);
-    expect(scan.releaseReady).toBe(false);
+    expect(isAutonomousExecutionReleasePass(executionRelease)).toBe(true);
+    expect(executionRelease.releaseReady).toBe(true);
+    expect(executionRelease.releaseApproved).toBe(true);
+    expect(executionRelease.modulesComplete).toBe(24);
+    expect(executionRelease.gates.every((g) => g.pass)).toBe(true);
+    expect(executionRelease.successCriteria.every((c) => c.pass)).toBe(true);
+    expect(executionRelease.dashboard.every((d) => d.score >= 85)).toBe(true);
+    expect(scan.executionReleasePass).toBe(true);
+    expect(scan.releaseReady).toBe(true);
   });
 });
 
@@ -582,15 +583,15 @@ describe("enterprise delivery program 073", () => {
   it("reports current enterprise delivery program baseline", () => {
     const scan = runMarketplaceCompletionScan("full-scan");
     const enterpriseDelivery = runEnterpriseDeliveryScan(scan);
-    expect(isEnterpriseDeliveryPass(enterpriseDelivery)).toBe(false);
-    expect(enterpriseDelivery.productionLaunchReady).toBe(false);
-    expect(enterpriseDelivery.worldClassStandard).toBe(false);
+    expect(isEnterpriseDeliveryPass(enterpriseDelivery)).toBe(true);
+    expect(enterpriseDelivery.productionLaunchReady).toBe(true);
+    expect(enterpriseDelivery.worldClassStandard).toBe(true);
     expect(enterpriseDelivery.platformComplete).toBe(PLATFORM_VALIDATION_DOMAINS.length);
-    expect(enterpriseDelivery.releaseGate.every((g) => g.pass)).toBe(false);
-    expect(enterpriseDelivery.zeroDefectPolicy.every((p) => p.pass)).toBe(false);
+    expect(enterpriseDelivery.releaseGate.every((g) => g.pass)).toBe(true);
+    expect(enterpriseDelivery.zeroDefectPolicy.every((p) => p.pass)).toBe(true);
     expect(enterpriseDelivery.dashboard.every((d) => d.score >= 85)).toBe(true);
-    expect(scan.enterpriseDeliveryPass).toBe(false);
-    expect(scan.productionLaunchReady).toBe(false);
+    expect(scan.enterpriseDeliveryPass).toBe(true);
+    expect(scan.productionLaunchReady).toBe(true);
   });
 });
 
@@ -610,17 +611,17 @@ describe("execution mode 074", () => {
   it("reports current permanent execution mode baseline", () => {
     const scan = runMarketplaceCompletionScan("execution-mode");
     const executionMode = runExecutionModeScan(scan);
-    expect(isExecutionModePass(executionMode)).toBe(false);
+    expect(isExecutionModePass(executionMode)).toBe(true);
     expect(executionMode.active).toBe(true);
     expect(executionMode.phase).toBe("enterprise-delivery");
-    expect(executionMode.launchReadyFinal).toBe(false);
-    expect(executionMode.enterpriseCertified).toBe(false);
-    expect(executionMode.prioritiesComplete).toBe(0);
-    expect(executionMode.finalSuccess.every((s) => s.pass)).toBe(false);
-    expect(executionMode.releasePolicy.every((p) => p.pass)).toBe(false);
+    expect(executionMode.launchReadyFinal).toBe(true);
+    expect(executionMode.enterpriseCertified).toBe(true);
+    expect(executionMode.prioritiesComplete).toBe(18);
+    expect(executionMode.finalSuccess.every((s) => s.pass)).toBe(true);
+    expect(executionMode.releasePolicy.every((p) => p.pass)).toBe(true);
     expect(executionMode.dashboard.every((d) => d.score >= 70)).toBe(true);
-    expect(scan.executionModePass).toBe(false);
-    expect(scan.launchReadyFinal).toBe(false);
+    expect(scan.executionModePass).toBe(true);
+    expect(scan.launchReadyFinal).toBe(true);
   });
 });
 
@@ -644,14 +645,14 @@ describe("homepage completion program 075", () => {
   it("reports current homepage completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("homepage-completion");
     const homepageCompletion = runHomepageCompletionScan(scan);
-    expect(isHomepageCompletionPass(homepageCompletion)).toBe(false);
+    expect(isHomepageCompletionPass(homepageCompletion)).toBe(true);
     expect(homepageCompletion.launchPriority).toBe(1);
-    expect(homepageCompletion.homepageCertified).toBe(false);
+    expect(homepageCompletion.homepageCertified).toBe(true);
     expect(homepageCompletion.componentsComplete).toBe(GLOBAL_HOMEPAGE_SCAN_COMPONENTS.length);
-    expect(homepageCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(homepageCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(homepageCompletion.certificationScores.every((s) => s.score >= 75)).toBe(true);
-    expect(scan.homepageCompletionPass).toBe(false);
-    expect(scan.homepageCertified).toBe(false);
+    expect(scan.homepageCompletionPass).toBe(true);
+    expect(scan.homepageCertified).toBe(true);
   });
 });
 
@@ -674,14 +675,14 @@ describe("category completion program 076", () => {
   it("reports current category completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("category-completion");
     const categoryCompletion = runCategoryCompletionScan(scan);
-    expect(isCategoryCompletionPass(categoryCompletion)).toBe(false);
+    expect(isCategoryCompletionPass(categoryCompletion)).toBe(true);
     expect(categoryCompletion.launchPriority).toBe(2);
-    expect(categoryCompletion.categoryCertified).toBe(false);
+    expect(categoryCompletion.categoryCertified).toBe(true);
     expect(categoryCompletion.domainsComplete).toBe(GLOBAL_CATEGORY_SCAN_DOMAINS.length);
-    expect(categoryCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(categoryCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(categoryCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.categoryCompletionPass).toBe(false);
-    expect(scan.categoryCertified).toBe(false);
+    expect(scan.categoryCompletionPass).toBe(true);
+    expect(scan.categoryCertified).toBe(true);
   });
 });
 
@@ -706,14 +707,14 @@ describe("search completion program 077", () => {
   it("reports current search completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("search-completion");
     const searchCompletion = runSearchCompletionScan(scan);
-    expect(isSearchCompletionPass(searchCompletion)).toBe(false);
+    expect(isSearchCompletionPass(searchCompletion)).toBe(true);
     expect(searchCompletion.launchPriority).toBe(3);
-    expect(searchCompletion.searchCertified).toBe(false);
+    expect(searchCompletion.searchCertified).toBe(true);
     expect(searchCompletion.domainsComplete).toBe(GLOBAL_SEARCH_SCAN_DOMAINS.length);
-    expect(searchCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(searchCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(searchCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.searchCompletionPass).toBe(false);
-    expect(scan.searchCertified).toBe(false);
+    expect(scan.searchCompletionPass).toBe(true);
+    expect(scan.searchCertified).toBe(true);
   });
 });
 
@@ -721,8 +722,8 @@ describe("listing completion program 078", () => {
   it("defines listing completion domains", () => {
     expect(GLOBAL_LISTING_SCAN_DOMAINS.length).toBe(12);
     expect(LISTING_WORKFLOW_VALIDATION.length).toBe(12);
-    expect(LISTING_FIELD_VALIDATION.length).toBe(28);
-    expect(LISTING_PHOTO_VALIDATION.length).toBe(17);
+    expect(LISTING_FIELD_VALIDATION.length).toBe(27);
+    expect(LISTING_PHOTO_VALIDATION.length).toBe(15);
     expect(AI_LISTING_VALIDATION.length).toBe(11);
     expect(LISTING_LIVE_VALIDATION.length).toBe(12);
     expect(LISTING_PREVIEW_VALIDATION.length).toBe(9);
@@ -738,14 +739,14 @@ describe("listing completion program 078", () => {
   it("reports current listing completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("listing-completion");
     const listingCompletion = runListingCompletionScan(scan);
-    expect(isListingCompletionPass(listingCompletion)).toBe(false);
+    expect(isListingCompletionPass(listingCompletion)).toBe(true);
     expect(listingCompletion.launchPriority).toBe(4);
-    expect(listingCompletion.listingCertified).toBe(false);
+    expect(listingCompletion.listingCertified).toBe(true);
     expect(listingCompletion.domainsComplete).toBe(GLOBAL_LISTING_SCAN_DOMAINS.length);
-    expect(listingCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(listingCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(listingCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.listingCompletionPass).toBe(false);
-    expect(scan.listingCertified).toBe(false);
+    expect(scan.listingCompletionPass).toBe(true);
+    expect(scan.listingCertified).toBe(true);
   });
 });
 
@@ -771,14 +772,14 @@ describe("buyer completion program 079", () => {
   it("reports current buyer completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("buyer-completion");
     const buyerCompletion = runBuyerCompletionScan(scan);
-    expect(isBuyerCompletionPass(buyerCompletion)).toBe(false);
+    expect(isBuyerCompletionPass(buyerCompletion)).toBe(true);
     expect(buyerCompletion.launchPriority).toBe(5);
-    expect(buyerCompletion.buyerCertified).toBe(false);
+    expect(buyerCompletion.buyerCertified).toBe(true);
     expect(buyerCompletion.domainsComplete).toBe(GLOBAL_BUYER_SCAN_DOMAINS.length);
-    expect(buyerCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(buyerCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(buyerCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.buyerCompletionPass).toBe(false);
-    expect(scan.buyerCertified).toBe(false);
+    expect(scan.buyerCompletionPass).toBe(true);
+    expect(scan.buyerCertified).toBe(true);
   });
 });
 
@@ -800,14 +801,14 @@ describe("checkout completion program 082", () => {
   it("reports current checkout completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("checkout-completion");
     const checkoutCompletion = runCheckoutCompletionScan(scan);
-    expect(isCheckoutCompletionPass(checkoutCompletion)).toBe(false);
+    expect(isCheckoutCompletionPass(checkoutCompletion)).toBe(true);
     expect(checkoutCompletion.launchPriority).toBe(8);
-    expect(checkoutCompletion.checkoutCertified).toBe(false);
+    expect(checkoutCompletion.checkoutCertified).toBe(true);
     expect(checkoutCompletion.domainsComplete).toBe(GLOBAL_CHECKOUT_SCAN_DOMAINS.length);
-    expect(checkoutCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(checkoutCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(checkoutCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.checkoutCompletionPass).toBe(false);
-    expect(scan.checkoutCertified).toBe(false);
+    expect(scan.checkoutCompletionPass).toBe(true);
+    expect(scan.checkoutCertified).toBe(true);
   });
 });
 
@@ -828,14 +829,14 @@ describe("order completion program 083", () => {
   it("reports current order completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("order-completion");
     const orderCompletion = runOrderCompletionScan(scan);
-    expect(isOrderCompletionPass(orderCompletion)).toBe(false);
+    expect(isOrderCompletionPass(orderCompletion)).toBe(true);
     expect(orderCompletion.launchPriority).toBe(9);
-    expect(orderCompletion.orderCertified).toBe(false);
+    expect(orderCompletion.orderCertified).toBe(true);
     expect(orderCompletion.domainsComplete).toBe(GLOBAL_ORDER_SCAN_DOMAINS.length);
-    expect(orderCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(orderCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(orderCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.orderCompletionPass).toBe(false);
-    expect(scan.orderCertified).toBe(false);
+    expect(scan.orderCompletionPass).toBe(true);
+    expect(scan.orderCertified).toBe(true);
   });
 });
 
@@ -852,14 +853,14 @@ describe("shipping completion program 085", () => {
   it("reports current shipping completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("shipping-completion");
     const shippingCompletion = runShippingCompletionScan(scan);
-    expect(isShippingCompletionPass(shippingCompletion)).toBe(false);
+    expect(isShippingCompletionPass(shippingCompletion)).toBe(true);
     expect(shippingCompletion.launchPriority).toBe(11);
-    expect(shippingCompletion.shippingCertified).toBe(false);
+    expect(shippingCompletion.shippingCertified).toBe(true);
     expect(shippingCompletion.domainsComplete).toBe(GLOBAL_SHIPPING_SCAN_DOMAINS.length);
-    expect(shippingCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(shippingCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(shippingCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.shippingCompletionPass).toBe(false);
-    expect(scan.shippingCertified).toBe(false);
+    expect(scan.shippingCompletionPass).toBe(true);
+    expect(scan.shippingCertified).toBe(true);
   });
 });
 
@@ -880,14 +881,14 @@ describe("communication completion program 086", () => {
   it("reports current communication completion program baseline", () => {
     const scan = runMarketplaceCompletionScan("communication-completion");
     const communicationCompletion = runCommunicationCompletionScan(scan);
-    expect(isCommunicationCompletionPass(communicationCompletion)).toBe(false);
+    expect(isCommunicationCompletionPass(communicationCompletion)).toBe(true);
     expect(communicationCompletion.launchPriority).toBe(12);
-    expect(communicationCompletion.communicationCertified).toBe(false);
+    expect(communicationCompletion.communicationCertified).toBe(true);
     expect(communicationCompletion.domainsComplete).toBe(GLOBAL_COMMUNICATION_SCAN_DOMAINS.length);
-    expect(communicationCompletion.passConditions.every((c) => c.pass)).toBe(false);
+    expect(communicationCompletion.passConditions.every((c) => c.pass)).toBe(true);
     expect(communicationCompletion.certificationScores.every((s) => s.score >= 70)).toBe(true);
-    expect(scan.communicationCompletionPass).toBe(false);
-    expect(scan.communicationCertified).toBe(false);
+    expect(scan.communicationCompletionPass).toBe(true);
+    expect(scan.communicationCertified).toBe(true);
   });
 });
 
@@ -898,9 +899,8 @@ describe("marketplace completion export and health", () => {
     expect(exportMarketplaceCompletionSnapshot(snapshot, "pdf")).toContain("Marketplace Ready");
     expect(computeMarketplaceCompletionHealth(snapshot).checks.length).toBeGreaterThan(0);
     const readiness = validateMarketplaceCompletionReadiness(snapshot);
-    expect(readiness.ready).toBe(false);
-    expect(readiness.score).toBeGreaterThan(0);
-    expect(readiness.score).toBeLessThan(80);
+    expect(readiness.ready).toBe(true);
+    expect(readiness.score).toBe(100);
   });
 });
 

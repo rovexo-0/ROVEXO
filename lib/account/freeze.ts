@@ -48,4 +48,5 @@ export const ACCOUNT_MENU_TITLES = [
   "Promote",
   "Settings",
   "Rovexo Ideas",
+  "Theme",
 ] as const;

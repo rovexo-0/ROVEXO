@@ -35,8 +35,9 @@ function scanGlobalDomains(): CommunicationDomainScanResult[] {
 
 function communicationFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
-    fileExists("app/(platform)/messages/page.tsx") &&
-    fileExists("app/(platform)/notifications/page.tsx") &&
+    fileExists("app/(platform)/inbox/(list)/page.tsx") &&
+    fileExists("features/inbox/components/InboxPage.tsx") &&
+    fileExists("features/inbox/components/ConversationHub.tsx") &&
     scan.shippingCompletionPass
   );
 }
@@ -218,7 +219,11 @@ function buildPassConditions(
   checksPass: boolean,
 ): CommunicationPassConditionResult[] {
   const mapping: Record<(typeof COMMUNICATION_PASS_CONDITIONS)[number], boolean> = {
-    "messages-pass": fileExists("app/(platform)/messages/page.tsx") && fileExists("app/api/messages/route.ts"),
+    "messages-pass":
+      fileExists("app/(platform)/inbox/(list)/page.tsx") &&
+      fileExists("features/inbox/components/InboxPage.tsx") &&
+      fileExists("features/inbox/components/ConversationHub.tsx") &&
+      fileExists("app/api/messages/route.ts"),
     "notifications-pass": fileExists("app/(platform)/notifications/page.tsx") && fileExists("app/api/notifications/route.ts"),
     "email-pass": fileExists("lib/email/service.ts"),
     "push-pass": fileExists("lib/integrations-engine/defaults.ts"),

@@ -166,14 +166,20 @@ function scanPwaChecks(): DomainValidationItem[] {
 
 function scanPushChecks(): DomainValidationItem[] {
   const pushSource = readSource(SOURCE_FILES.pushClient);
-  const hasWebPush = pushSource.includes("PushManager") && pushSource.includes("serviceWorker");
+  const hasWebPush =
+    pushSource.includes("isWebPushApiPresent") &&
+    pushSource.includes("pushManager") &&
+    pushSource.includes("/api/push/subscribe") &&
+    fileExists(SOURCE_FILES.serviceWorker) &&
+    fileExists("app/api/push/subscribe/route.ts") &&
+    fileExists("lib/push/vapid.ts") &&
+    fileExists("lib/push/service.ts");
 
+  // FCM/APNs are intentionally absent from PUSH_CHECKS (see registry
+  // DEFERRED_NATIVE_PUSH_ADAPTERS). Web Push evidence alone scores v1.
   return PUSH_CHECKS.map((check) => {
     if (check === "web-push" || check === "device-registration" || check === "token-refresh") {
       return createCheck("push", check, hasWebPush, "Web push subscription pipeline wired");
-    }
-    if (check === "firebase-cloud-messaging" || check === "apple-push-notifications") {
-      return createCheck("push", check, hasWebPush, "Native push adapters ready — configure FCM/APNs at deploy");
     }
     return createCheck("push", check, hasWebPush, "Push notification infrastructure validated");
   });

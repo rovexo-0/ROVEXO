@@ -20,7 +20,7 @@
   --pcu-touch-target: 44px;
   --pcu-section-title-size: 0.6875rem;
   --pcu-section-title-tracking: 0.06em;
-  --pcu-body-bg: #ffffff;
+  --pcu-body-bg: var(--rvx-page, #ffffff);
 }
 
 
@@ -76,7 +76,7 @@
   overflow: hidden;
   border: 1px solid var(--pcu-card-border) !important;
   border-radius: var(--pcu-card-radius) !important;
-  background: #ffffff !important;
+  background: var(--rvx-surface, #ffffff) !important;
   box-shadow: var(--pcu-card-shadow) !important;
   backdrop-filter: none !important;
 }

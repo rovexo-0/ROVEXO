@@ -10,9 +10,10 @@ import {
 import type { SavedItem } from "@/lib/saved/types";
 import type { Product } from "@/lib/products/types";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 
 type SavedProductJoin = Tables<"products"> & {
-  profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified"> | null;
+  profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified" | "username"> | null;
   product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
   categories: Pick<Tables<"categories">, "slug"> | null;
 };
@@ -37,7 +38,8 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
     price: Number(row.products.price),
     originalPrice: row.products.original_price != null ? Number(row.products.original_price) : null,
     condition: row.products.condition,
-    sellerName: row.products.profiles?.full_name ?? "Seller",
+    sellerName: resolvePublicUsernameLabel(row.products.profiles?.username, "Seller"),
+    sellerUsername: row.products.profiles?.username ?? null,
     sellerAvatar: row.products.profiles?.avatar_url,
     sellerVerified: row.products.profiles?.verified,
     rating: Number(row.products.rating),
@@ -66,7 +68,7 @@ async function hydrateSoldProduct(productId: string): Promise<SavedProductJoin |
     .select(
       `
       *,
-      profiles!products_seller_id_fkey ( full_name, avatar_url, verified ),
+      profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
       product_images ( url, is_primary, sort_order ),
       categories ( slug )
     `,
@@ -87,7 +89,7 @@ export async function listSavedItems(userId: string): Promise<SavedItem[]> {
       *,
       products (
         *,
-        profiles!products_seller_id_fkey ( full_name, avatar_url, verified ),
+        profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
         product_images ( url, is_primary, sort_order ),
         categories ( slug )
       )

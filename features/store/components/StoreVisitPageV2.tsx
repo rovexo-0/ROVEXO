@@ -17,12 +17,10 @@ import { AccountCanonicalHeader } from "@/features/account-canonical/header/Acco
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ListingCard } from "@/components/ui/ListingCard";
 import { Modal } from "@/components/ui/Modal";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Button } from "@/components/ui/Button";
-import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { useToast } from "@/components/ui/Toast";
 import { FollowButton, type FollowCounts } from "@/components/follow/FollowButton";
 import {
@@ -33,13 +31,13 @@ import { FOLLOW_RATING_BADGE_STAR_COLOR } from "@/lib/reviews/follow-rating-badg
 import type { Review } from "@/lib/reviews/types";
 import type { Product } from "@/lib/products/types";
 import type { StoreRecord } from "@/lib/store/store-repository";
-import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import {
   STORE_V2_CANONICAL,
   STORE_V2_VERSION,
 } from "@/lib/store/store-v2-final-v1";
 import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
 import { ShareIcon } from "@/features/product-detail/icons";
+import { StoreShopBundles } from "@/features/store/components/StoreShopBundles";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import "@/styles/rovexo/store-visit-v2.css";
@@ -173,9 +171,6 @@ export function StoreVisitPageV2({
   }, []);
 
   const activeListings = loadFailed ? [] : listings;
-  const visibleListings = activeListings.slice(0, listingsVisible);
-  const hasMoreListings = listingsVisible < activeListings.length;
-
   const reviewCount = Math.max(0, store.reviewCount, reviews.length);
   const averageRating =
     store.reviewCount > 0 && store.rating > 0
@@ -440,44 +435,18 @@ export function StoreVisitPageV2({
           </nav>
 
           {tab === "listings" ? (
-            <section className="sv2__section" aria-label="Listings">
-              {activeListings.length > 0 ? (
-                <>
-                  <div
-                    className="rx-listing-grid sv2__grid"
-                    {...storeListingCardAttr("visit")}
-                  >
-                    {visibleListings.map((product) => (
-                      <ListingCard
-                        key={product.id}
-                        product={product}
-                        variant="grid"
-                        {...HP_CANONICAL_LISTING_PROPS}
-                        surface="store"
-                      />
-                    ))}
-                  </div>
-                  {hasMoreListings ? (
-                    <button
-                      type="button"
-                      className={cn("sv2__load-more", focusRing)}
-                      onClick={() => setListingsVisible((n) => n + LISTINGS_PAGE_SIZE)}
-                    >
-                      Load more
-                    </button>
-                  ) : null}
-                </>
-              ) : (
-                <EmptyState
-                  title={store.holidayModeEnabled ? "Store on holiday" : "No listings yet"}
-                  description={
-                    store.holidayModeEnabled
-                      ? HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE
-                      : "This seller has no active listings right now."
-                  }
-                />
-              )}
-            </section>
+            <div className="sv2__section" aria-label="Listings">
+              <StoreShopBundles
+                sellerId={store.sellerId}
+                sellerName={store.storeName || "Seller"}
+                listings={activeListings}
+                visibleCount={listingsVisible}
+                onLoadMore={() => setListingsVisible((n) => n + LISTINGS_PAGE_SIZE)}
+                isOwnStore={isOwnStore}
+                holidayModeEnabled={store.holidayModeEnabled}
+                holidayEmptyMessage={HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE}
+              />
+            </div>
           ) : null}
 
           {tab === "reviews" ? (

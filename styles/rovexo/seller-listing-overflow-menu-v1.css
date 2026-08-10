@@ -11,7 +11,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   border-radius: 12px;
   box-shadow:
     0 1px 2px rgb(15 23 42 / 0.06),
@@ -46,9 +46,9 @@
   margin: 0;
   padding: 0 16px;
   border: 0;
-  border-bottom: 1px solid #eeeeee;
-  background: #ffffff;
-  color: #111111;
+  border-bottom: 1px solid var(--rvx-border, #eeeeee);
+  background: var(--rvx-surface, #ffffff);
+  color: var(--rvx-text-primary, #111111);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.2;
@@ -63,12 +63,12 @@
 
 .ml-overflow-menu__item:hover,
 .ml-overflow-menu__item:focus-visible {
-  background: #f7f7f8;
+  background: color-mix(in srgb, var(--rvx-text-primary, #111) 4%, var(--rvx-surface, #f7f7f8));
   outline: none;
 }
 
 .ml-overflow-menu__item:active {
-  background: #f0f0f2;
+  background: color-mix(in srgb, var(--rvx-text-primary, #111) 6%, var(--rvx-surface, #f0f0f2));
 }
 
 .ml-overflow-menu__item:disabled {

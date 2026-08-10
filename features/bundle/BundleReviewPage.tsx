@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -10,6 +10,7 @@ import {
   buildBuyNowCheckoutHref,
   useBuyNowNavigation,
 } from "@/features/checkout/hooks/use-buy-now-navigation";
+import { OfferComposerSheet } from "@/features/transaction-hub/OfferComposerSheet";
 import { useToast } from "@/components/ui/Toast";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import {
@@ -48,6 +49,37 @@ export function BundleReviewPage() {
   const sellerLabel = bundle?.sellerName?.trim() || "Seller";
   const empty = !bundle || bundle.items.length === 0;
   const primary = bundle?.items[0] ?? null;
+
+  const offerProduct = useMemo(() => {
+    if (!bundle || !primary) return null;
+    const n = bundle.items.length;
+    return {
+      id: primary.productId,
+      slug: primary.slug,
+      title: n === 1 ? primary.title : `Bundle · ${n} items`,
+      price: bundleSubtotal(bundle),
+      imageUrl: primary.imageUrl,
+    };
+  }, [bundle, primary]);
+
+  const offerBundleContext = useMemo(() => {
+    if (!bundle?.id || !primary) return null;
+    return {
+      bundleId: bundle.id,
+      sellerId: bundle.sellerId,
+      sellerName: bundle.sellerName || "Seller",
+      currency: bundle.currency,
+      lines: bundle.items.map((item) => ({
+        productId: item.productId,
+        slug: item.slug,
+        title: item.title,
+        imageUrl: item.imageUrl,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        maxStock: item.maxStock,
+      })),
+    };
+  }, [bundle, primary]);
 
   const refresh = useCallback((next: BundleSnapshotV1 | null) => {
     writeBundleMirror(next);
@@ -221,7 +253,16 @@ export function BundleReviewPage() {
             <button
               type="button"
               className="pd-v1__action-btn pd-v1__action-btn--secondary"
-              onClick={() => setOfferOpen(true)}
+              onClick={() => {
+                if (!bundle?.id) {
+                  pushToast({
+                    title: "Bundle is not ready. Please refresh and try again.",
+                    variant: "error",
+                  });
+                  return;
+                }
+                setOfferOpen(true);
+              }}
             >
               Make Offer
             </button>
@@ -237,18 +278,17 @@ export function BundleReviewPage() {
         </div>
       )}
 
-      {bundle && primary && offerOpen ? (
-        <BundleOfferBridge
+      {bundle && primary && offerProduct && offerBundleContext && offerOpen ? (
+        <OfferComposerSheet
           open={offerOpen}
           onClose={() => setOfferOpen(false)}
-          bundle={bundle}
-          subtotal={subtotal}
-          onSent={(href) => {
+          product={offerProduct}
+          bundle={offerBundleContext}
+          onOfferSent={({ conversationHref }) => {
             // Bundle remains offer_pending on server — clear active mirror cache only.
             discardBundleMirror();
             refresh(null);
-            pushToast({ title: "Bundle Offer sent", variant: "success" });
-            router.push(href);
+            if (conversationHref) router.push(conversationHref);
           }}
         />
       ) : null}
@@ -295,116 +335,6 @@ function BundleSelectedPreview({
           </li>
         ) : null}
       </ul>
-    </div>
-  );
-}
-
-function BundleOfferBridge({
-  open,
-  onClose,
-  bundle,
-  subtotal,
-  onSent,
-}: {
-  open: boolean;
-  onClose: () => void;
-  bundle: BundleSnapshotV1;
-  subtotal: number;
-  onSent: (href: string) => void;
-}) {
-  const { pushToast } = useToast();
-  const [amount, setAmount] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  if (!open) return null;
-
-  return (
-    <div className="pd-v1__bundle-sheet-root" role="dialog" aria-modal="true" aria-label="Make Bundle Offer">
-      <button type="button" className="pd-v1__bundle-sheet-backdrop" aria-label="Close" onClick={onClose} />
-      <div className="pd-v1__bundle-sheet" style={{ height: "auto", minHeight: 320 }}>
-        <p className="pd-v1__bundle-sheet-ok" style={{ color: "#111" }}>
-          Bundle Offer · {bundle.items.length} items · List {formatListingPrice(subtotal)}
-        </p>
-        <label className="pd-v1__qty-label" htmlFor="bundle-offer-amount">
-          Your offer (£)
-        </label>
-        <input
-          id="bundle-offer-amount"
-          className="pd-v1__qty-value-input"
-          inputMode="decimal"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-          placeholder="0.00"
-          style={{
-            height: 48,
-            border: "1px solid #d1d5db",
-            borderRadius: 12,
-            width: "100%",
-            textAlign: "left",
-            padding: "0 12px",
-          }}
-        />
-        <div className="pd-v1__bundle-sheet-actions">
-          <button type="button" className="pd-v1__bundle-sheet-btn pd-v1__bundle-sheet-btn--secondary" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="pd-v1__bundle-sheet-btn pd-v1__bundle-sheet-btn--primary"
-            disabled={submitting}
-            onClick={() => {
-              void (async () => {
-                const parsed = Number(amount);
-                if (!Number.isFinite(parsed) || parsed <= 0) {
-                  pushToast({ title: "Enter a valid offer amount.", variant: "error" });
-                  return;
-                }
-                if (parsed >= subtotal) {
-                  pushToast({ title: "Offer must be below the bundle listing total.", variant: "error" });
-                  return;
-                }
-                setSubmitting(true);
-                try {
-                  const response = await fetch("/api/offers", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({
-                      amount: parsed,
-                      bundle: {
-                        bundleId: bundle.id,
-                        sellerId: bundle.sellerId,
-                        sellerName: bundle.sellerName,
-                        currency: bundle.currency,
-                        lines: bundle.items,
-                      },
-                    }),
-                  });
-                  const payload = (await response.json()) as {
-                    success?: boolean;
-                    error?: string;
-                    href?: string;
-                  };
-                  if (!response.ok || !payload.success || !payload.href) {
-                    pushToast({
-                      title: payload.error ?? "Unable to submit bundle offer.",
-                      variant: "error",
-                    });
-                    return;
-                  }
-                  // Do NOT discard — server transitions to offer_pending.
-                  onClose();
-                  onSent(payload.href);
-                } finally {
-                  setSubmitting(false);
-                }
-              })();
-            }}
-          >
-            {submitting ? "Sending…" : "Send"}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

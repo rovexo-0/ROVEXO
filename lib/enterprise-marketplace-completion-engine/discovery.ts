@@ -15,7 +15,7 @@ export function runAutonomousMarketplaceDiscovery(input: {
   globalPass: boolean;
   launchPass: boolean;
 }): AutonomousDiscoveryResult {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const checks = AUTONOMOUS_DISCOVERY_CHECKS.map((check) => {
     let pass = input.modulesComplete && input.launchPass;
     let message = `${labelize(check)} validated`;
@@ -25,7 +25,7 @@ export function runAutonomousMarketplaceDiscovery(input: {
     } else if (check.startsWith("incomplete")) {
       pass = input.modulesComplete;
     } else if (check.includes("components")) {
-      pass = fileExists("components/ui/Button.tsx") && !homeContent.includes("CategoryGridSection");
+      pass = fileExists("components/ui/Button.tsx") && !canonicalHomepage.includes("CategoryGridSection");
     } else if (check.includes("apis")) {
       pass = fileExists("app/api/search/route.ts");
     } else if (check.includes("database")) {

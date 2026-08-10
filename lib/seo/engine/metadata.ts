@@ -58,14 +58,14 @@ export function storePageMetadata(input: {
 }
 
 export function sellerPageMetadata(input: {
-  fullName: string;
   username: string;
   listingCount: number;
   avatarUrl?: string | null;
 }): Metadata {
+  const label = input.username.trim() || "Member";
   return buildPageMetadata({
-    title: `${input.fullName} (@${input.username}) | ROVEXO`,
-    description: `Shop listings from ${input.fullName} on ROVEXO. ${input.listingCount} active listings.`,
+    title: `@${label} | ROVEXO`,
+    description: `Shop listings from @${label} on ROVEXO. ${input.listingCount} active listings.`,
     path: `/user/${input.username}`,
     imageUrl: input.avatarUrl ?? undefined,
     noIndex: input.listingCount <= 0,

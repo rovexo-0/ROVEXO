@@ -20,7 +20,6 @@ export type FollowCounts = {
 export type FollowListItem = {
   id: string;
   username: string;
-  fullName: string;
   avatarUrl: string | null;
   rating: number;
   reviewCount: number;
@@ -194,7 +193,7 @@ async function hydrateFollowList(
 
   const { data: profiles } = await client
     .from("profiles")
-    .select("id, username, full_name, avatar_url")
+    .select("id, username, avatar_url")
     .in("id", userIds);
 
   const { data: sellers } = await client
@@ -222,19 +221,13 @@ async function hydrateFollowList(
       const p = byId.get(id);
       if (!p) return null;
       const username = String(p.username ?? "");
-      const fullName = String(p.full_name ?? "");
-      if (
-        query &&
-        !username.toLowerCase().includes(query) &&
-        !fullName.toLowerCase().includes(query)
-      ) {
+      if (query && !username.toLowerCase().includes(query)) {
         return null;
       }
       const seller = sellerMap.get(id);
       return {
         id,
         username,
-        fullName,
         avatarUrl: (p.avatar_url as string | null) ?? null,
         rating: Number(seller?.rating ?? 0),
         reviewCount: Number(seller?.review_count ?? 0),

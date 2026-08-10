@@ -6,7 +6,6 @@
 export type FollowListCacheItem = {
   id: string;
   username: string;
-  fullName: string;
   avatarUrl: string | null;
   rating: number;
   reviewCount: number;

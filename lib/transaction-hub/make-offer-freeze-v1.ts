@@ -2,7 +2,8 @@
  * ROVEXO Make Offer — Cod Sânge v1.0 FINAL FREEZE
  * STATUS: OWNER APPROVED · FROZEN
  *
- * Close · Image · Title · £price · 5% · 10% · Custom · £input · Submit · offers left
+ * Close · Image · Title · £price · 5% · 10% · Custom · £input · Submit Offer
+ * Owner (2026-08-10): offer quota / "offers left" subtext removed from UI render.
  */
 
 export const MAKE_OFFER_FREEZE_V1 = {
@@ -10,7 +11,9 @@ export const MAKE_OFFER_FREEZE_V1 = {
   status: "FINAL_FREEZE",
   ownerApproved: true,
   freezeLocked: true,
+  /** Server/rate-limit reference only — never render as user-facing quota copy. */
   dailyOfferLimit: 25,
+  showOfferQuotaSubtext: false,
   presets: [
     { id: "off5", label: "5% off", discount: 0.05 },
     { id: "off10", label: "10% off", discount: 0.1 },
@@ -26,6 +29,10 @@ export const MAKE_OFFER_FREEZE_V1 = {
     "Cancel button",
     "Buyer Protection fee",
     "Learn why",
+    "offers left for today",
+    "X offers left for today",
+    "offers remaining",
+    "offer quota subtext",
   ] as const,
   stack: [
     "Close",
@@ -37,7 +44,6 @@ export const MAKE_OFFER_FREEZE_V1 = {
     "CUSTOM",
     "£0.00",
     "Submit Offer",
-    "XX offers left for today",
   ] as const,
 } as const;
 

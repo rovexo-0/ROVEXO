@@ -23,10 +23,10 @@
   --fw-safe-left: env(safe-area-inset-left, 0px);
   --fw-row-min-height: 56px;
   --fw-header-height: 64px;
-  --fw-chevron-color: #1a1a1a;
+  --fw-chevron-color: var(--rvx-text-primary, #1a1a1a);
   --fw-chevron-size: 16px;
-  --fw-title-color: #1a1a1a;
-  --fw-bg: #ffffff;
+  --fw-title-color: var(--rvx-text-primary, #1a1a1a);
+  --fw-bg: var(--rvx-page, #ffffff);
   --fw-page-title-size: 32px;
   --fw-section-title-size: 24px;
   --fw-description-size: 16px;
@@ -135,7 +135,7 @@
   padding-left: 0 !important;
   padding-right: 0 !important;
   gap: 0 !important;
-  background: #fafafc !important; /* Wallet Production --wallet-page-bg */
+  background: var(--fw-bg, var(--rvx-page)) !important; /* Theme-aware Wallet page */
 }
 
 [data-full-width-engine="v1.0"] .cds-layout__content--account-canonical.cds-layout__content--with-bottom-nav {
@@ -149,7 +149,7 @@
   padding-right: 0 !important;
   padding-bottom: max(var(--fw-pad-y), var(--cds-bottom-nav-offset)) !important;
   gap: 0 !important;
-  background: #fafafc !important;
+  background: var(--fw-bg, var(--rvx-page)) !important;
 }
 
 [data-full-width-engine="v1.0"] .cds-layout__header,

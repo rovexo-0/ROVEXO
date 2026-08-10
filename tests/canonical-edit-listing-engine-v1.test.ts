@@ -89,7 +89,8 @@ describe("Canonical Edit Listing Engine v1.0", () => {
     expect(page).toContain("viewerId === product.sellerId");
     expect(page).toContain("isOwner={isOwnListing}");
     expect(auth).toContain("invalidateAuthProfileCache");
-    expect(auth).toContain("loadProfileOnce(true)");
+    expect(auth).toContain("async function loadProfileOnce");
+    expect(auth).toContain("loadProfileOnce(force");
     expect(CANONICAL_EDIT_LISTING_ENGINE_V1.forbiddenSellerMenuActions).toContain(
       "report_listing",
     );

@@ -12,11 +12,11 @@ describe("P13.1 accessibility hardening", () => {
   it("provides a global skip link targeting #main-content", () => {
     const shell = read("components/layout/AppShellLayout.tsx");
     const css = read("styles/rovexo/skip-link-v1.css");
-    const index = read("styles/rovexo/index.css");
+    const globals = read("app/globals.css");
     expect(shell).toContain('href="#main-content"');
     expect(shell).toContain("rovexo-skip-link");
     expect(css).toContain(".rovexo-skip-link:focus");
-    expect(index).toContain('skip-link-v1.css');
+    expect(globals).toContain("skip-link-v1.css");
   });
 
   it("puts Auth Login/Register content in a single main landmark", () => {

@@ -11,7 +11,7 @@
   padding: 0;
   width: 100%;
   max-width: 100%;
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   border: none;
   box-shadow: none;
 }
@@ -234,7 +234,7 @@
   padding: 10px 0;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
 }
 
@@ -303,7 +303,7 @@
   padding: 14px 16px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
   text-decoration: none;
   color: inherit;
@@ -359,7 +359,7 @@
   padding: 12px 14px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
   box-sizing: border-box;
   overflow: hidden;
@@ -689,7 +689,7 @@
   overflow: hidden;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
 }
 
@@ -777,7 +777,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.25;
-  color: #111111;
+  color: var(--rvx-text-primary, #111111);
 }
 
 .ac-canonical__row-title--danger {
@@ -896,6 +896,11 @@
   user-select: none;
   pointer-events: none;
   background: transparent;
+  /* COD SÂNGE — banner asset must stay sharp / original */
+  filter: none;
+  -webkit-filter: none;
+  mix-blend-mode: normal;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

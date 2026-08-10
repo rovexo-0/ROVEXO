@@ -277,9 +277,13 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
 
   return (
     <AccountCanonicalShell title="My Listings" backHref="/account" showHeaderTitle>
-      <AccountPageStack className="w-full">
-        <div className="orders-page w-full" data-listings-version="v2.0-final">
-          <div className="orders-page__tabs" role="tablist" aria-label="Listing filters">
+      <AccountPageStack className="w-full max-w-none">
+        <div
+          className="orders-page w-full max-w-none"
+          data-listings-version="v2.0-final"
+          data-listings-full-width="v1"
+        >
+          <div className="orders-page__tabs w-full" role="tablist" aria-label="Listing filters">
             {LISTING_TABS.map((tab) => (
               <Link
                 key={tab.id}
@@ -294,19 +298,19 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
           </div>
 
           {listings.length === 0 ? (
-            <CanonicalInfoBlock variant="description">
+            <CanonicalInfoBlock variant="description" className="w-full max-w-none">
               <p className="font-medium text-text-primary">No listings</p>
               <p className="mt-ds-1">Create your first listing to start selling.</p>
-              <CanonicalButtonLink href="/sell" variant="secondary" className="mt-ds-3">
+              <CanonicalButtonLink href="/sell" variant="secondary" fullWidth className="mt-ds-3">
                 Create listing
               </CanonicalButtonLink>
             </CanonicalInfoBlock>
           ) : (
-            <CanonicalCard variant="list" className="w-full">
+            <CanonicalCard variant="list" className="w-full max-w-none">
               {listings.map((listing) => (
                 <div
                   key={listing.id}
-                  className="flex items-center gap-ds-3 px-[var(--cds-row-padding-x)] py-ds-3"
+                  className="ml-listings-row flex w-full max-w-none items-center gap-ds-3 py-ds-3"
                 >
                   <Link
                     href={`/listing/${listing.slug}`}

@@ -39,13 +39,16 @@ describe("Public Profile navigation + Follow header integration — Phase I", ()
 
   it("places Follow before More menu on public profile only", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
-    expect(page).toContain("vp-v1__header-actions");
-    expect(page).toContain("vp-v1__header-follow");
+    expect(page).toContain("vp-v1__actions");
+    expect(page).toContain("vp-v1__follow-btn");
     expect(page).toContain("!isOwnProfile");
     expect(page).toContain("FollowButton");
     expect(page).not.toContain("vp-v1__follow-slot");
-    const followIdx = page.indexOf("vp-v1__header-follow");
-    const menuIdx = page.indexOf('aria-label="More"');
+    const actionsStart = page.indexOf('className={cn("vp-v1__actions"');
+    expect(actionsStart).toBeGreaterThan(0);
+    const actionsBlock = page.slice(actionsStart, actionsStart + 2500);
+    const followIdx = actionsBlock.indexOf("vp-v1__follow-btn");
+    const menuIdx = actionsBlock.indexOf('aria-label="More"');
     expect(followIdx).toBeGreaterThan(0);
     expect(menuIdx).toBeGreaterThan(followIdx);
   });

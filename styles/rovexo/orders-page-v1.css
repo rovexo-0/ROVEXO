@@ -33,7 +33,7 @@
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;
-  color: #1a1a1a;
+  color: var(--rvx-text-primary, #1a1a1a);
 }
 
 .account-canonical:has(.orders-page) .account-canonical-header__action {
@@ -52,22 +52,38 @@
 }
 
 .account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
 }
 
 /*
  * Owner Final UI Polish — Orders vertical rhythm (spacing only).
  * Header → Tabs 16px · Tabs → Filters 12px · Filters → First order 12px.
  * Kill Full Width 24px top pad + fw-engine__stack 24px gap (Inbox-aligned).
+ * My Listings excluded — owns its own 16px on [data-listings-version] (no nested pad).
  */
-[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has(.orders-page),
-.account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has(.orders-page):not(:has([data-listings-version])),
+.account-canonical-shell:has(.orders-page):not(:has([data-listings-version])) .cds-layout__content--account-canonical {
   padding-top: 16px !important;
+  padding-left: var(--fw-pad-x, 16px) !important;
+  padding-right: var(--fw-pad-x, 16px) !important;
+  padding-inline: var(--fw-pad-x, 16px) !important;
   gap: 0 !important;
 }
 
-[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has(.orders-page),
-[data-compact-premium="v1"] .cds-layout__content--account-canonical:has(.orders-page) {
+[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has(.orders-page):not(:has([data-listings-version])),
+[data-compact-premium="v1"] .cds-layout__content--account-canonical:has(.orders-page):not(:has([data-listings-version])) {
+  padding-top: 16px !important;
+  padding-left: var(--fw-pad-x, 16px) !important;
+  padding-right: var(--fw-pad-x, 16px) !important;
+  padding-inline: var(--fw-pad-x, 16px) !important;
+  gap: 0 !important;
+}
+
+/* My Listings — keep top rhythm only; horizontal pad owned by [data-listings-version] */
+.account-canonical-shell:has([data-listings-version]) .cds-layout__content--account-canonical,
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has([data-listings-version]),
+[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has([data-listings-version]),
+[data-compact-premium="v1"] .cds-layout__content--account-canonical:has([data-listings-version]) {
   padding-top: 16px !important;
   gap: 0 !important;
 }
@@ -85,17 +101,18 @@
 }
 
 .orders-page {
-  --orders-purple: #9333ea;
+  --orders-purple: var(--rvx-accent, #9333ea);
   --orders-purple-deep: #7c3aed;
   /* Darkened for WCAG 2.2 AA on white (was #059669≈3.8 / #ea580c≈3.6) */
   --orders-green: #047857;
   --orders-orange: #c2410c;
   --orders-red: #dc2626;
   --orders-yellow: #ca8a04;
-  --orders-muted: #64748b;
-  --orders-text: #1a1a1a;
-  --orders-border: rgb(15 23 42 / 0.06);
-  --orders-chip-border: #e5e7eb;
+  --orders-muted: var(--rvx-text-secondary, #64748b);
+  --orders-text: var(--rvx-text-primary, #1a1a1a);
+  --orders-border: var(--rvx-border, rgb(15 23 42 / 0.06));
+  --orders-chip-border: var(--rvx-border, #e5e7eb);
+  padding-inline: 0;
   --orders-header-tabs-gap: 16px;
   --orders-tabs-filters-gap: 12px;
   --orders-filters-list-gap: 12px;
@@ -105,7 +122,7 @@
   max-width: none;
   padding: 0;
   overflow-x: hidden;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   color: var(--orders-text);
 }
 
@@ -168,8 +185,8 @@
   padding: 0 12px;
   border: 1px solid var(--orders-chip-border);
   border-radius: 999px;
-  background: #ffffff;
-  color: #1a1a1a;
+  background: var(--rvx-surface, #ffffff);
+  color: var(--orders-text);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -194,7 +211,7 @@
   margin: 0;
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--orders-text);
 }
 
 .orders-page__empty-sub {
@@ -240,7 +257,7 @@
   border: none;
   border-bottom: 1px solid var(--orders-border);
   border-radius: 0;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
   box-shadow: none;
   text-decoration: none;
   color: inherit;
@@ -470,4 +487,56 @@
   background: var(--orders-purple);
   transform: translateX(-50%);
   transition: transform 150ms ease;
+}
+
+/*
+ * My Listings — ONE outer content container owns exactly 16px L/R.
+ * Shell horizontal pad is ZERO for this page to prevent nested 32px.
+ * Outer container: [data-listings-version] / [data-listings-full-width="v1"]
+ */
+.account-canonical-shell:has([data-listings-version]) .cds-layout__content--account-canonical,
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has([data-listings-version]),
+[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has([data-listings-version]),
+[data-compact-premium="v1"] .cds-layout__content--account-canonical:has([data-listings-version]) {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-inline: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+[data-listings-version],
+[data-listings-full-width="v1"] {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-inline: 0;
+  padding-left: var(--fw-pad-x, 16px);
+  padding-right: var(--fw-pad-x, 16px);
+  padding-inline: var(--fw-pad-x, 16px);
+  box-sizing: border-box;
+}
+
+[data-listings-full-width="v1"] .orders-page__tabs,
+[data-listings-full-width="v1"] .cds-card,
+[data-listings-full-width="v1"] .cds-info-block,
+[data-listings-version] .orders-page__tabs,
+[data-listings-version] .cds-card,
+[data-listings-version] .cds-info-block,
+[data-listings-version] .ml-listings-row {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  margin-inline: 0;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box;
 }

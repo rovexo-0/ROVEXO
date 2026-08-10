@@ -39,10 +39,11 @@ describe("draft-database-ssot-v1", () => {
     expect(PUBLISH_FAILURE_MESSAGE).not.toContain("safely saved");
   });
 
-  it("wires Sell sticky Publish to Account bottom-nav offset", () => {
+  it("wires Sell Publish bottom clearance to Account bottom-nav offset (inline Publish)", () => {
     const css = readFileSync(join(process.cwd(), "styles/rovexo/sell.css"), "utf8");
     expect(css).toContain("var(--cds-bottom-nav-offset");
     expect(css).not.toMatch(/\[data-sell-publish-bar\][\s\S]{0,120}bottom:\s*0;/);
+    expect(css).toMatch(/\[data-sell-publish-bar\][\s\S]{0,200}position:\s*static/);
   });
 
   it("exposes Sell balanced premium typography tokens", () => {

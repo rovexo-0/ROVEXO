@@ -12,6 +12,7 @@ import { applyAntiMonopolyRotation } from "@/lib/promotions/boost-time-decay-v1"
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
 import { resolveCardImageSources } from "@/lib/media/product-image";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { purgeListingNotifications } from "@/lib/listings/purge-listing-notifications";
@@ -179,10 +180,9 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     originalPrice: row.original_price != null ? Number(row.original_price) : null,
     condition: row.condition,
     brand: row.brands?.name,
-    sellerName: row.profiles?.full_name ?? "Seller",
+    sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
     sellerAvatar: normalizeAvatarUrl(row.profiles?.avatar_url) ?? undefined,
     sellerVerified: row.profiles?.verified ?? false,
-    sellerEmail: row.profiles?.email ?? null,
     sellerUsername: row.profiles?.username ?? null,
     sellerAccountStatus: row.profiles?.account_status ?? null,
     sellerRole: row.profiles?.role ?? null,

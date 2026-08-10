@@ -4,8 +4,9 @@ import { usePathname } from "next/navigation";
 import { StickyBundleBar } from "@/features/bundle/StickyBundleBar";
 
 /**
- * Persistent Sticky Bundle Bar outside View Item (Owner: leaving listing — bar remains).
- * View Item mounts its own host so the bar sits above the product action bar.
+ * Persistent Sticky Bundle Bar (Owner: active bundle remains while browsing).
+ * Hidden on PDP (`/listing/`) — Store is the canonical create surface; Global bar
+ * is review navigation only (not a second create CTA).
  */
 export function GlobalStickyBundleBar() {
   const pathname = usePathname() ?? "";

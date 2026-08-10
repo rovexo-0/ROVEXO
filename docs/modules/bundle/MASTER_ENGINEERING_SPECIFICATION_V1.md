@@ -7,7 +7,7 @@
 | **Status** | OWNER LOCKED IMPLEMENTATION |
 | **SSOT** | `lib/bundle/bundle-engine-v1.ts` |
 | **Parents** | Sell v1.0 freeze · View Item v1.0 freeze · Checkout UI v1.0 freeze |
-| **Official route** | `/bundle/review` (plus View Item extension) |
+| **Official route** | `/bundle/review` (plus Store Shop bundles create surface) |
 | **Commit / Push / Deploy** | **FORBIDDEN** until Owner authorizes |
 
 ---
@@ -15,11 +15,12 @@
 ## 1. Absolute equation
 
 ```
-LISTING → BUNDLE → CHECKOUT
+STORE → BUNDLE → CHECKOUT
 ```
 
 Bundle is **not** a cart. Bundle is **not** a second checkout.  
-Bundle is an **extension of Product Detail**. Everything else extends existing engines.
+**Store** (`StoreShopBundles`) is the canonical create surface.  
+PDP exposes **Buy Now** + **Make Offer** only — no Add to Bundle CTA.
 
 ## 2. Singularity
 
@@ -37,7 +38,7 @@ Bundle is an **extension of Product Detail**. Everything else extends existing e
 
 ```
 Bundle Engine
-├── View Item (extension only — no redesign)
+├── Store (Shop bundles · Create bundle — canonical create)
 ├── Review Bundle
 ├── Messages (reuse Conversation Hub)
 ├── Offers (reuse offer / counter engines)
@@ -65,18 +66,16 @@ Buyer opens Seller B while active bundle is Seller A:
 > You already have an active bundle. Finish or discard it first.  
 > **Continue** · **Cancel**
 
-## 6. View Item extension (frozen surface)
+## 6. View Item / PDP (frozen surface — no create CTA)
 
 Unchanged: Gallery · Seller Card · Description · Product Information · Price · Buy Now · Make Offer.
 
-Approved extensions only:
+| Stock | Under-price status | Quantity | Add to Bundle (PDP) |
+|-------|--------------------|----------|---------------------|
+| `> 1` | In Stock · N available (green · 13px · 500) | Visible | **REMOVED** |
+| `= 1` | **Hidden** | **Hidden** | **REMOVED** |
 
-| Stock | Under-price status | Quantity | Add to Bundle |
-|-------|--------------------|----------|---------------|
-| `> 1` | In Stock · N available (green · 13px · 500) | Visible | Visible |
-| `= 1` | **Hidden** | **Hidden** | Visible |
-
-Add to Bundle → bottom sheet (no redirect). Sticky bar after first item.
+**Create surface:** Store → Shop bundles → Create bundle → select listings → Review Bundle (`/bundle/review`).
 
 ## 7. Review Bundle
 

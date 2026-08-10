@@ -51,8 +51,11 @@ describe("Homepage enterprise migration contract", () => {
     expect(readSource("components/layout/PlatformChromeProviders.tsx")).toContain(
       "HeaderProvider",
     );
-    expect(page).toContain("resolveHomepageV4Sections");
-    expect(page).toContain("fetchHomepageFeed");
+    expect(page).toContain("loadHomepageDocumentData");
+    expect(page).toContain("CanonicalHomepage");
+    const loader = readSource("lib/homepage/load-homepage-document.ts");
+    expect(loader).toContain("listActivePreferredMarketplaceStores");
+    expect(loader).toMatch(/fetchHomepageFeed|resolveHomepageV4Sections|injectPreferredMarketplaceStoreSlots/);
     // P1: unused recommended-section SSR query removed (no featured rail on CanonicalHomepage).
     expect(page).not.toContain('fetchProducts("recommended"');
     expect(page).not.toContain('fetchProducts("popular"');

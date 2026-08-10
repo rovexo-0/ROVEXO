@@ -96,3 +96,19 @@
   text-align: center;
   color: #94a3b8;
 }
+
+/* Compact contextual Stripe / payment method errors (presentation only). */
+.pm-card-setup__error {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.pm-card-setup__error-body {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: inherit;
+}

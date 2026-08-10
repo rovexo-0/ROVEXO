@@ -43,7 +43,8 @@ function scanGlobalDomains(): CheckoutDomainScanResult[] {
 function checkoutFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
     fileExists("app/(platform)/checkout/[slug]/page.tsx") &&
-    fileExists("features/checkout/components/CheckoutPage.tsx") &&
+    fileExists("features/checkout/components/CheckoutSlugPage.tsx") &&
+    fileExists("features/checkout/components/CheckoutWizardV1.tsx") &&
     fileExists("app/api/orders/checkout/route.ts") &&
     scan.buyerCompletionPass
   );
@@ -51,7 +52,7 @@ function checkoutFoundationReady(scan: MarketplaceCompletionScanResult): boolean
 
 function scanFlow(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const checkoutForm = readSource("features/checkout/hooks/use-checkout-form.ts");
-  const checkoutPage = readSource("features/checkout/components/CheckoutPage.tsx");
+  const checkoutPage = readSource("features/checkout/components/CheckoutWizardV1.tsx");
 
   return CHECKOUT_FLOW_VALIDATION.map((check) => {
     let pass = checkoutFoundationReady(scan);
@@ -122,7 +123,7 @@ function scanSecurity(scan: MarketplaceCompletionScanResult): CompletionValidati
 }
 
 function scanUx(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const checkoutPage = readSource("features/checkout/components/CheckoutPage.tsx");
+  const checkoutPage = readSource("features/checkout/components/CheckoutWizardV1.tsx");
   const overlay = readSource("features/checkout/components/CheckoutProcessingOverlay.tsx");
 
   return CHECKOUT_UX_VALIDATION.map((check) => {
@@ -138,7 +139,7 @@ function scanUx(scan: MarketplaceCompletionScanResult): CompletionValidationItem
 
 function scanButtons(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const footer = readSource("features/checkout/components/CheckoutPayFooter.tsx");
-  const checkoutPage = readSource("features/checkout/components/CheckoutPage.tsx");
+  const checkoutPage = readSource("features/checkout/components/CheckoutWizardV1.tsx");
 
   return CHECKOUT_BUTTON_VALIDATION.map((check) => {
     let pass = footer.length > 0 && checkoutFoundationReady(scan);
@@ -165,7 +166,7 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
 }
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const checkout = readSource("features/checkout/components/CheckoutPage.tsx");
+  const checkout = readSource("features/checkout/components/CheckoutWizardV1.tsx");
   const summary = readSource("features/checkout/components/OrderSummary.tsx");
 
   return [

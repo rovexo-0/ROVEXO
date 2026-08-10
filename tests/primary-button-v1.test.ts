@@ -68,7 +68,7 @@ describe("Global Button Recovery v1.0 — PrimaryButton functional geometry", ()
     expect(hub).toContain("wallet-v2__hero-btn--primary");
     expect(hub).toContain("WALLET_ROUTES.withdraw");
     expect(payments).toContain("PrimaryButton");
-    expect(payments).toContain("Add Card");
+    expect(payments).toContain("Add New Card");
   });
 
   it("keeps wallet child back routes on Balance parent (not Home / 404)", () => {

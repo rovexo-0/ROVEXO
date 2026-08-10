@@ -1,7 +1,6 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SearchInputActions } from "@/features/search/components/SearchInputActions";
 import { SearchCategoryBrowseCard } from "@/features/search/components/SearchCategoryBrowseCard";
@@ -92,9 +91,6 @@ const BrowseCategoriesGrid = memo(function BrowseCategoriesGrid({
         <h2 id="srch-land-categories-title" className="srch-land__section-title">
           Browse categories
         </h2>
-        <Link href="/categories" className={cn("srch-land__section-action", focusRing)}>
-          View all &gt;
-        </Link>
       </div>
       <div className="srch-land__grid">
         {ROVEXO_HOME_CATEGORY_RAIL.map((item, index) => (

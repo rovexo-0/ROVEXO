@@ -52,8 +52,10 @@ describe("Preferred Marketplace Stores Engine v1.0", () => {
       expect.arrayContaining(["Admin", "Platform", "Official", "Owner"]),
     );
     const homepage = read("app/(platform)/page.tsx");
+    const loader = read("lib/homepage/load-homepage-document.ts");
     expect(homepage).not.toMatch(/palademihaita88@gmail\.com/);
-    expect(homepage).toContain("listActivePreferredMarketplaceStores");
+    expect(homepage).toContain("loadHomepageDocumentData");
+    expect(loader).toContain("listActivePreferredMarketplaceStores");
   });
 
   it("injects one preferred listing into configured position range", () => {

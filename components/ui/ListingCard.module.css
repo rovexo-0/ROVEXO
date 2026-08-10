@@ -44,7 +44,7 @@
   position: relative;
   flex-shrink: 0;
   width: 100%;
-  aspect-ratio: var(--rx-listing-image-ratio, 160 / 220);
+  aspect-ratio: var(--rx-listing-image-ratio, 4 / 5);
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -57,10 +57,13 @@
   display: block;
   width: 100% !important;
   height: 100% !important;
+  /* COD SÂNGE — fill 4:5 container edge-to-edge (presentation crop only) */
   object-fit: cover !important;
   object-position: center !important;
   user-select: none;
   pointer-events: none;
+  filter: none !important;
+  -webkit-filter: none !important;
 }
 
 .save {
@@ -334,7 +337,7 @@
 .skeletonMedia {
   flex-shrink: 0;
   width: 100%;
-  aspect-ratio: var(--rx-listing-image-ratio, 160 / 220);
+  aspect-ratio: var(--rx-listing-image-ratio, 4 / 5);
   background: var(--ds-color-surface-muted);
   animation: rxListingPulse 1.5s ease-in-out infinite;
 }
@@ -420,21 +423,22 @@
   }
 }
 
-/* Homepage — compact image-first card (approved rev 2) */
+/* Homepage — image container uses same portrait ratio; card height follows content */
 .rootHomepage {
-  aspect-ratio: 173 / 268;
+  aspect-ratio: auto;
   height: auto;
 }
 
 .hitAreaHomepage {
-  display: grid;
-  grid-template-rows: minmax(0, 7.8fr) auto;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: auto;
 }
 
 .visualHomepage {
-  aspect-ratio: unset;
-  height: 100%;
+  aspect-ratio: var(--rx-listing-image-ratio, 4 / 5);
+  width: 100%;
+  height: auto;
   min-height: 0;
 }
 
@@ -554,7 +558,7 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  color: #1a1a1a;
+  color: var(--ds-color-text-primary, var(--rvx-text-primary, #1a1a1a));
   opacity: 1;
   visibility: visible;
 }
@@ -565,8 +569,8 @@
   min-width: 14px;
   min-height: 14px;
   flex-shrink: 0;
-  color: #1a1a1a;
-  stroke: #1a1a1a;
+  color: var(--ds-color-text-primary, var(--rvx-text-primary, #1a1a1a));
+  stroke: currentColor;
   opacity: 1;
   visibility: visible;
 }
@@ -578,14 +582,15 @@
 }
 
 .skeletonHomepage {
-  aspect-ratio: 173 / 268;
-  display: grid;
-  grid-template-rows: minmax(0, 7.8fr) auto;
+  aspect-ratio: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .skeletonHomepage .skeletonMedia {
-  aspect-ratio: unset;
-  height: 100%;
+  aspect-ratio: var(--rx-listing-image-ratio, 4 / 5);
+  width: 100%;
+  height: auto;
   min-height: 0;
 }
 

@@ -51,7 +51,7 @@
   border-color: rgb(15 23 42 / 0.05);
   box-shadow: 0 1px 8px rgb(15 23 42 / 0.04);
   content-visibility: auto;
-  contain-intrinsic-size: auto 268px;
+  contain-intrinsic-size: auto 300px;
 }
 
 [data-hp-homepage="canonical"] [data-listing-card="rovexo"] .starIcon path {
@@ -59,14 +59,15 @@
 }
 
 [data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] {
-  aspect-ratio: 173 / 268;
-  contain-intrinsic-size: auto 268px;
+  aspect-ratio: auto;
+  contain-intrinsic-size: auto 300px;
   content-visibility: auto;
 }
 
 [data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonMedia {
-  aspect-ratio: unset;
-  height: 78%;
+  aspect-ratio: var(--rx-listing-image-ratio, 4 / 5);
+  height: auto;
+  width: 100%;
 }
 
 [data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonBody {

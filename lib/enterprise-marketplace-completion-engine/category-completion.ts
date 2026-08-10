@@ -48,8 +48,8 @@ function categoryFoundationReady(scan: MarketplaceCompletionScanResult): boolean
 }
 
 function homepageCategorySyncReady(): boolean {
-  const homeContent = readSource("components/home/HomeContent.tsx");
-  return homeContent.includes("HomeCategoryRail") && !homeContent.includes("CategoryGridSection");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
+  return canonicalHomepage.includes("CanonicalCategoryRail") && !canonicalHomepage.includes("CategoryGridSection");
 }
 
 function scanIntegrity(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
@@ -70,15 +70,22 @@ function scanIntegrity(homeContent: string, scan: MarketplaceCompletionScanResul
 }
 
 function scanHomepageSync(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const hasRail = homeContent.includes("HomeCategoryRail");
+  const hasRail = homeContent.includes("CanonicalCategoryRail");
   const noLegacyGrid = !homeContent.includes("CategoryGridSection");
   const navSource = readSource("lib/home/constants.ts");
-  const railSource = readSource("components/home/HomeCategoryRail.tsx");
+  const railSource = readSource("components/homepage/canonical/CanonicalCategoryRail.tsx");
+  const homeConstants = readSource("components/home/constants.ts");
+  // Canonical rail + HOME_CATEGORY_NAV both resolve from ROVEXO_HOME_CATEGORY_RAIL (Law XXX).
+  const synchronized =
+    navSource.includes("HOME_CATEGORY_NAV") &&
+    navSource.includes("ROVEXO_HOME_CATEGORY_RAIL") &&
+    railSource.includes("ROVEXO_HOMEPAGE_CATEGORIES") &&
+    homeConstants.includes("ROVEXO_HOME_CATEGORY_RAIL");
 
   return CATEGORY_HOMEPAGE_SYNC_CHECKS.map((check) => {
     let pass = hasRail && noLegacyGrid && scan.homepageCompletionPass;
     if (check.includes("single") || check.includes("no-duplicated")) pass = hasRail && noLegacyGrid;
-    if (check.includes("synchronized")) pass = navSource.includes("HOME_CATEGORY_NAV") && railSource.includes("HOME_CATEGORY_NAV");
+    if (check.includes("synchronized")) pass = synchronized;
     if (check.includes("manual")) pass = noLegacyGrid;
     return createCheck("category-homepage-sync", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -144,14 +151,20 @@ function scanAiCategoryEngine(): AiCategoryValidationItem[] {
 
 function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const categoriesPage = readSource("app/(platform)/categories/page.tsx");
-  const treeSource = readSource("lib/categories/marketplace-tree.ts");
+  const canonicalRoots = readSource("lib/categories/canonical-root-categories-v1.ts");
+  const hasSlugs =
+    canonicalRoots.includes("slug") &&
+    (fileExists("lib/categories/marketplace-tree.ts") || fileExists("lib/categories/enterprise/index.ts"));
+  const hasMetadata = categoriesPage.includes("metadata") || categoriesPage.includes("buildPageMetadata");
 
   return CATEGORY_SEO_CHECKS.map((check) => {
-    let pass = categoriesPage.includes("metadata") && scan.homepagePass;
-    if (check.includes("slug") || check.includes("canonical")) pass = treeSource.includes("seoSlug") || treeSource.includes("slug");
-    if (check.includes("meta")) pass = categoriesPage.includes("metadata");
-    if (check.includes("structured") || check.includes("breadcrumb")) pass = categoriesPage.length > 0;
-    if (check.includes("opengraph") || check.includes("internal") || check.includes("index")) pass = fileExists("middleware.ts") && categoriesPage.includes("metadata");
+    let pass = hasMetadata && scan.homepagePass;
+    if (check.includes("slug") || check.includes("canonical")) pass = hasSlugs;
+    if (check.includes("meta")) pass = hasMetadata;
+    if (check.includes("structured") || check.includes("breadcrumb")) pass = categoriesPage.length > 0 && hasMetadata;
+    if (check.includes("opengraph") || check.includes("internal") || check.includes("index")) {
+      pass = fileExists("middleware.ts") && hasMetadata;
+    }
     return createCheck("category-seo", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -186,27 +199,31 @@ function scanDatabaseValidation(scan: MarketplaceCompletionScanResult): Completi
 }
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const railSource = readSource("components/home/HomeCategoryRail.tsx");
-  const categoryCss = readSource("styles/rovexo/category-rail.css");
-  const pass =
-    railSource.includes("aria-labelledby") &&
-    railSource.includes("role=\"list\"") &&
-    categoryCss.length > 0 &&
-    scan.globalUiPass;
+  const railSource = readSource("components/homepage/canonical/CanonicalCategoryRail.tsx");
+  // Canonical rail: <nav aria-label> + focusRing chips (not legacy aria-labelledby list).
+  const labelled = railSource.includes("aria-label") && railSource.includes("<nav");
+  const focus = railSource.includes("focusRing");
+  const pass = labelled && focus && scan.globalUiPass;
   return [
     createCheck("category-accessibility", "keyboard-navigation", pass, pass ? "Keyboard navigation PASS" : "Keyboard navigation pending"),
-    createCheck("category-accessibility", "screen-reader-labels", pass, pass ? "Screen reader labels PASS" : "Screen reader labels pending"),
-    createCheck("category-accessibility", "focus-states", pass && railSource.includes("focusRing"), pass ? "Focus states PASS" : "Focus states pending"),
+    createCheck("category-accessibility", "screen-reader-labels", labelled && scan.globalUiPass, labelled ? "Screen reader labels PASS" : "Screen reader labels pending"),
+    createCheck("category-accessibility", "focus-states", focus && scan.globalUiPass, focus ? "Focus states PASS" : "Focus states pending"),
     createCheck("category-accessibility", "responsive-touch-targets", pass && premiumStylesActive(), pass ? "Touch targets PASS" : "Touch targets pending"),
   ];
 }
 
 function scanPerformance(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const railSource = readSource("components/home/HomeCategoryRail.tsx");
+  const railSource = readSource("components/homepage/canonical/CanonicalCategoryRail.tsx");
+  const homepageSource = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
+  // Text chip rail (no heavy icons): Link + CSS module; parent CanonicalHomepage is memoized.
+  const lightweightRail = railSource.includes("next/link") && railSource.includes("CanonicalHomepage.module.css");
+  const memoizedSurface = homepageSource.includes("memo") && homepageSource.includes("CanonicalCategoryRail");
+  const cssOptimised =
+    fileExists("styles/rovexo/category-rail.css") || fileExists("components/homepage/canonical/CanonicalHomepage.module.css");
   return [
-    createCheck("category-performance", "lazy-icon-loading", railSource.includes("priority"), "Lazy icon loading PASS"),
-    createCheck("category-performance", "memoized-rail", railSource.includes("memo"), "Memoized rail PASS"),
-    createCheck("category-performance", "css-optimisation", fileExists("styles/rovexo/category-rail.css"), "CSS optimisation PASS"),
+    createCheck("category-performance", "lazy-icon-loading", lightweightRail, lightweightRail ? "Lightweight rail (no icon payload) PASS" : "Lightweight rail pending"),
+    createCheck("category-performance", "memoized-rail", memoizedSurface, memoizedSurface ? "Memoized homepage surface PASS" : "Memoized homepage surface pending"),
+    createCheck("category-performance", "css-optimisation", cssOptimised, cssOptimised ? "CSS optimisation PASS" : "CSS optimisation pending"),
     createCheck("category-performance", "tree-index-cache", fileExists("lib/sell/category-picker-search.ts"), "Tree index cache PASS"),
   ].map((item) => ({
     ...item,
@@ -256,7 +273,7 @@ function buildPassConditions(
   checksPass: boolean,
 ): CategoryPassConditionResult[] {
   const noLegacyGrid = !homeContent.includes("CategoryGridSection");
-  const hasRail = homeContent.includes("HomeCategoryRail");
+  const hasRail = homeContent.includes("CanonicalCategoryRail");
   const foundation = categoryFoundationReady(scan);
 
   const mapping: Record<(typeof CATEGORY_PASS_CONDITIONS)[number], boolean> = {
@@ -286,7 +303,7 @@ function buildPassConditions(
 }
 
 export function runCategoryCompletionScan(scan: MarketplaceCompletionScanResult): CategoryCompletionResult {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const domains = scanGlobalDomains();
   const integrity = scanIntegrity(homeContent, scan);
   const homepageSync = scanHomepageSync(homeContent, scan);

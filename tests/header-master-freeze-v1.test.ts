@@ -21,6 +21,7 @@ describe("Header Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(HEADER_MASTER_FREEZE_V1.noAvatarInHeader).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.noHeaderProfileFetch).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.noHeaderNotificationFetch).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.homepageRegisteredUserCounter).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.headerSurvivesNavigation).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.headerNeverRemountsOnNav).toBe(false);
     expect(HEADER_MASTER_FREEZE_V1.homepageSearchBarOnly).toBe(true);

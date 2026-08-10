@@ -17,6 +17,10 @@ import type {
   SellerRatingSummary,
   UpdateReviewInput,
 } from "@/lib/reviews/types";
+import {
+  PUBLIC_IDENTITY_FALLBACKS,
+  resolvePublicUsernameLabel,
+} from "@/lib/profile/public-display-name-v1";
 
 const REVIEW_BLOCKED_STATUSES = new Set([
   "awaiting_payment",
@@ -114,7 +118,10 @@ function mapReview(row: {
     comment: row.comment,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
-    reviewerName: row.reviewer?.full_name,
+    reviewerName: resolvePublicUsernameLabel(
+      row.reviewer?.username,
+      PUBLIC_IDENTITY_FALLBACKS.member,
+    ),
     reviewerUsername: row.reviewer?.username ?? null,
     reviewerAvatarUrl: row.reviewer?.avatar_url ?? null,
     verifiedPurchase: row.verified_purchase !== false,

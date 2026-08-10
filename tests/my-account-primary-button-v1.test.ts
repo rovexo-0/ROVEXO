@@ -49,14 +49,15 @@ describe("My Account Primary Button — Global Button Recovery v1.0", () => {
     expect(global).not.toMatch(/background:\s*#000/);
   });
 
-  it("wires Addresses CTAs to primary lock + Save Address label", () => {
+  it("wires Addresses CTAs to primary lock + lookup Search Address (no Save/Cancel)", () => {
     const page = readSource("features/account/components/addresses/AddressesPage.tsx");
     const form = readSource("features/account/components/addresses/AddressForm.tsx");
     expect(page).toContain("MY_ACCOUNT_PRIMARY_BUTTON_DOM");
     expect(page).toContain("addCtaLabelForScope");
     expect(page).toContain("CanonicalButton");
-    expect(form).toContain("Save Address");
-    expect(form).toContain("MY_ACCOUNT_PRIMARY_BUTTON_DOM");
+    expect(form).toContain("Search Address");
+    expect(form).toContain("CanonicalButton");
+    expect(form).toContain("no Save / Cancel");
   });
 
   it("keeps PremiumButton primary gradient as colour SSOT peer (Visit/Follow family)", () => {

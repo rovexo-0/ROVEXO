@@ -19,6 +19,8 @@ export const PROFILE_ICON_COLORS = {
   balance: "#06B6D4",
   "my-orders": "#F59E0B",
   logout: "#DC2626",
+  /** Theme Switch v1.0 — Black Underground control under Rovexo Ideas. */
+  theme: "#8B5CF6",
 } as const;
 
 export type ProfileIconId = keyof typeof PROFILE_ICON_COLORS;
@@ -34,6 +36,7 @@ export const PROFILE_ICON_KINDS = {
   balance: "wallet",
   "my-orders": "package",
   logout: "logout",
+  theme: "moon",
 } as const;
 
 export const PROFILE_ICON_SYSTEM_RULES = {

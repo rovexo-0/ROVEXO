@@ -61,3 +61,6 @@
 @import "./phone-width-v1-freeze.css";
 /* Global Button System v1.0 — primary CTA loaded once above.
    sell.css is page-scoped via SellPage (P0-01). */
+/* ROVEXO Theme Switch v1.0 — MUST load last so Black Underground wins page-scoped hardcodes. */
+@import "./black-underground-theme-v1.css";
+

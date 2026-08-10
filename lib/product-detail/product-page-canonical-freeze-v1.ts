@@ -79,11 +79,13 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   actions: {
     buyNow: true,
     makeOffer: true,
-    addToBundle: true,
+    /** Owner architecture: PDP Add to Bundle removed — Store is canonical creation surface. */
+    addToBundle: false,
     addToCart: false,
   } as const,
   removedForever: [
     "Add to Cart",
+    "Add to Bundle on Product Detail",
     "Platform Fee text on product page",
     "Report Seller on page body / seller card",
     "Shipping calculated at checkout",

@@ -12,11 +12,11 @@
   --srch-land-grid-gap: 8px;
   --srch-land-radius: var(--cds-radius-input, 16px);
   --srch-land-purple: var(--cds-color-primary, #9333ea);
-  --srch-land-muted: var(--cds-color-text-secondary, #64748b);
-  --srch-land-text: var(--cds-color-text-primary, #111111);
-  --srch-land-chip-bg: #f3e8ff;
-  --srch-land-border: #e5e7eb;
-  --srch-land-field-bg: #f9fafb;
+  --srch-land-muted: var(--rvx-text-secondary, var(--cds-color-text-secondary, #64748b));
+  --srch-land-text: var(--rvx-text-primary, var(--cds-color-text-primary, #111111));
+  --srch-land-chip-bg: color-mix(in srgb, var(--srch-land-purple) 14%, var(--cds-color-surface-muted, #f3e8ff));
+  --srch-land-border: var(--rvx-border, var(--cds-color-border, #e5e7eb));
+  --srch-land-field-bg: var(--cds-color-surface-muted, #f9fafb);
   --srch-land-touch: var(--cds-touch-target, 44px);
   --srch-land-bar-h: var(--cds-input-height, 44px);
   /* Cancel parent .rx-scroll-page horizontal pad for controlled page inset */
@@ -102,7 +102,7 @@
   height: 34px;
   flex-shrink: 0;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--srch-land-purple) 12%, #fff);
+  background: color-mix(in srgb, var(--srch-land-purple) 12%, var(--cds-color-surface, #fff));
   color: var(--srch-land-purple);
 }
 
@@ -257,7 +257,8 @@
   object-fit: contain;
   object-position: center;
   background: transparent !important;
-  filter: drop-shadow(0 6px 12px rgb(15 23 42 / 0.10));
+  /* COD SÂNGE — category assets must stay sharp / original (no filter). */
+  filter: none;
 }
 
 .srch-land__cat-meta {
@@ -389,7 +390,7 @@
 }
 
 .srch-land__chip--trending {
-  background: color-mix(in srgb, var(--srch-land-purple) 9%, #fff);
+  background: color-mix(in srgb, var(--srch-land-purple) 9%, var(--cds-color-surface, #fff));
   color: var(--srch-land-purple);
   cursor: pointer;
   gap: 6px;

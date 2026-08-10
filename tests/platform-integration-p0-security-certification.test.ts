@@ -22,14 +22,15 @@ describe("Platform Integration P0 — Security & Integration Certification", () 
 
     const assertSrc = readSource("lib/shipping/assert-order-shipping-access.server.ts");
     expect(assertSrc).toContain("assertOrderShippingParticipant");
+    expect(assertSrc).toContain("assertOrderShippingSeller");
     expect(assertSrc).toContain("buyer_id");
     expect(assertSrc).toContain("seller_id");
 
-    for (const path of [
-      "app/api/shipping/labels/route.ts",
-      "app/api/shipping/route.ts",
-      "app/api/shipping/quotes/route.ts",
-    ]) {
+    const labelsSrc = readSource("app/api/shipping/labels/route.ts");
+    expect(labelsSrc).toContain("assertOrderShippingSeller");
+    expect(labelsSrc).not.toContain("assertOrderShippingParticipant");
+
+    for (const path of ["app/api/shipping/route.ts", "app/api/shipping/quotes/route.ts"]) {
       const src = readSource(path);
       expect(src).toContain("assertOrderShippingParticipant");
     }

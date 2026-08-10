@@ -26,9 +26,9 @@ export function runFinalCertificationGate(
   completionScan: MarketplaceCompletionScanResult,
   director: AutonomousMarketplaceDirectorResult,
 ): FinalCertificationGateScan {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const mapping: Record<(typeof FINAL_CERTIFICATION_GATES)[number], boolean> = {
-    "no-legacy-components": !homeContent.includes("CategoryGridSection"),
+    "no-legacy-components": !canonicalHomepage.includes("CategoryGridSection"),
     "no-dead-code": director.discovery.checks.every((c) => c.check !== "missing-components" || c.status === "pass"),
     "no-broken-buttons": director.workflows.interactions.every((c) => c.status === "pass"),
     "no-broken-routes": completionScan.checks.filter((c) => c.category === "routes").every((c) => c.status === "pass"),

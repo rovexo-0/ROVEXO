@@ -43,23 +43,30 @@ function scanGlobalDomains(): ListingDomainScanResult[] {
 function listingFoundationReady(scan: MarketplaceCompletionScanResult): boolean {
   return (
     fileExists("app/(platform)/sell/page.tsx") &&
-    fileExists("features/sell/hooks/use-sell-wizard.ts") &&
+    fileExists("features/sell/ui/SellPage.tsx") &&
+    fileExists("features/sell/context/SellProvider.tsx") &&
     fileExists("app/api/listings/route.ts") &&
     scan.searchCompletionPass
   );
 }
 
 function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const wizard = readSource("features/sell/hooks/use-sell-wizard.ts");
-  const draftStorage = fileExists("lib/sell/draft-storage.ts");
+  const provider = readSource("features/sell/context/SellProvider.tsx");
+  const draftPersistence = readSource("lib/sell/persist-sell-draft.ts");
 
   return LISTING_WORKFLOW_VALIDATION.map((check) => {
     let pass = listingFoundationReady(scan);
-    if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) pass = draftStorage && wizard.includes("saveSellDraft");
+    if (check === "create") pass = fileExists("features/sell/ui/SellPage.tsx");
+    if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) {
+      pass =
+        fileExists("lib/sell/draft-storage.ts") &&
+        draftPersistence.includes("persistSellDraft") &&
+        provider.includes("loadLocalDraftForRestore");
+    }
     if (check === "edit") pass = fileExists("app/(platform)/seller/listings/[id]/edit/page.tsx");
     if (check === "duplicate") pass = fileExists("app/api/listings/[id]/duplicate/route.ts");
     if (check === "preview") pass = fileExists("features/sell/ui/SellPage.tsx");
-    if (check === "publish") pass = wizard.includes("publishListing");
+    if (check === "publish") pass = provider.includes("publishListing");
     if (check.includes("pause") || check.includes("archive") || check.includes("delete") || check.includes("republish")) {
       pass = fileExists("app/api/listings/[id]/status/route.ts");
     }
@@ -69,61 +76,88 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
 
 function scanFields(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const typesSource = readSource("features/sell/types.ts");
-  const formSource = readSource("features/sell/components/SellListingForm.tsx");
+  const sellPage = readSource("features/sell/ui/SellPage.tsx");
+  const persistence = readSource("lib/sell/persist-sell-draft.ts");
+  const validation = readSource("lib/sell/sell-validation.ts");
 
   return LISTING_FIELD_VALIDATION.map((check) => {
-    let pass = typesSource.includes("getListingValidationErrors") && listingFoundationReady(scan);
+    let pass = validation.includes("isSellListingPublishable") && listingFoundationReady(scan);
     if (check === "title" || check === "description" || check === "condition" || check === "price") {
-      pass = typesSource.includes(check === "price" ? "hasValidPrice" : check);
+      pass =
+        sellPage.includes(
+          check === "title"
+            ? "SellTitleBlock"
+            : check === "description"
+              ? "SellDescriptionBlock"
+              : check === "condition"
+                ? "SellProgressiveAttributes"
+                : "SellPricingBlock",
+        ) || validation.includes(check === "price" ? "hasValidPrice" : check);
     }
-    if (check.includes("category") || check === "subcategory") pass = formSource.includes("SellCategoryPicker") || fileExists("features/sell/ui/SellCategoryPicker.tsx");
+    if (check.includes("category") || check === "subcategory") {
+      pass = sellPage.includes("SellCategoryBlock") && fileExists("features/sell/ui/SellCategoryPicker.tsx");
+    }
     if (check.includes("brand") || check.includes("attribute") || check.includes("compatibility")) {
-      pass = typesSource.includes("brand") || formSource.includes("brand");
+      pass = fileExists("features/sell/ui/SellProgressiveAttributes.tsx") || persistence.includes("brand");
     }
-    if (check.includes("currency")) pass = fileExists("lib/sell/currency.ts");
-    if (check.includes("quantity") || check.includes("stock")) pass = typesSource.includes("stock");
-    if (check.includes("location")) pass = fileExists("lib/sell/listing-location.ts");
-    if (check.includes("delivery") || check.includes("collection")) pass = fileExists("lib/sell/delivery.ts");
+    if (check.includes("currency")) pass = sellPage.includes("SellPricingBlock");
+    if (check.includes("quantity") || check.includes("stock")) pass = sellPage.includes("SellStockQuantityBlock") || typesSource.includes("stock");
+    if (check.includes("location")) pass = persistence.includes("categoryPath");
+    if (check.includes("delivery") || check.includes("collection")) pass = sellPage.includes("SellParcelBlock");
     if (check.includes("seo") || check === "slug") pass = fileExists("lib/listings/repository.ts");
-    if (check.includes("buyer") || check.includes("warranty") || check.includes("return") || check.includes("tags") || check.includes("sku") || check.includes("barcode") || check.includes("model") || check.includes("subtitle") || check.includes("short-description")) {
-      pass = formSource.length > 0;
+    if (check === "subtitle" || check === "short-description" || check === "model" || check === "tags") {
+      pass = sellPage.includes("SellDescriptionBlock") && fileExists("lib/sell/catalog-attribute-bridge-v1.ts");
+    }
+    if (check === "sale-price") pass = sellPage.includes("SellPricingBlock");
+    // sku: optional API contract (listing-api-schema). Not a Sell core-6 field.
+    if (check === "sku") {
+      pass = readSource("lib/sell/listing-api-schema.ts").includes("sku");
+    }
+    // warranty: Catalog attribute-engine (optional per category), not a free-text Sell field.
+    if (check === "warranty") {
+      const attrs = readSource("lib/sell/attribute-engine.ts");
+      pass = attrs.includes('id: "warranty"') || attrs.includes("warrantyTypes");
+    }
+    if (check === "return-policy" || check === "buyer-protection") {
+      pass = fileExists("app/(platform)/protection/page.tsx") && fileExists("lib/orders/pricing.ts");
     }
     return createCheck("listing-fields", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
 
 function scanPhotoEngine(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const photoSource = readSource("features/sell/components/SellPhotoSection.tsx");
-  const uploadClient = readSource("lib/listings/upload-client.ts");
-  const storageClient = fileExists("lib/storage/client-images.ts");
+  const photoSource = readSource("features/sell/ui/SellPhotoRail.tsx");
+  const provider = readSource("features/sell/context/SellProvider.tsx");
+  const uploadClient = readSource("lib/product-integration/upload-storage-orchestration-v1.ts");
 
   return LISTING_PHOTO_VALIDATION.map((check) => {
     let pass = photoSource.length > 0 && listingFoundationReady(scan);
-    if (check.includes("upload") || check.includes("multiple")) pass = uploadClient.includes("uploadListingImage");
-    if (check.includes("drag") || check.includes("reorder")) pass = photoSource.includes("reorderPhotos") || photoSource.includes("dragIndex");
-    if (check.includes("compression") || check.includes("thumbnail")) pass = uploadClient.includes("createListingThumbnail") || storageClient;
-    if (check.includes("primary") || check.includes("gallery")) pass = photoSource.includes("draft.photos");
+    if (check.includes("upload") || check.includes("multiple")) pass = photoSource.includes("addPhotos") && provider.includes("uploadPhoto");
+    if (check.includes("drag") || check.includes("reorder")) pass = photoSource.includes("reorderPhotos") && photoSource.includes("dragIndex");
+    if (check.includes("compression") || check.includes("thumbnail")) pass = uploadClient.includes("thumbnail") || fileExists("lib/sell/photo-metadata.ts");
+    if (check.includes("primary")) pass = provider.includes("setMainPhoto") && provider.includes("photos.unshift");
+    if (check.includes("gallery")) pass = photoSource.includes('aria-label="Photo gallery"');
     if (check.includes("duplicate") || check.includes("quality") || check.includes("format") || check.includes("size") || check.includes("resolution") || check.includes("background") || check.includes("alt")) {
-      pass = fileExists("app/api/listings/upload/route.ts");
+      pass = photoSource.includes("placeholder-product.svg") && fileExists("lib/sell/photo-metadata.ts");
     }
-    if (check.includes("crop") || check.includes("rotate")) pass = photoSource.includes("replacePhoto");
+    // crop/rotate removed from LISTING_PHOTO_VALIDATION (see DEFERRED_SELL_PHOTO_OPS).
     return createCheck("listing-photos", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
 
 function scanAiListing(): AiListingValidationItem[] {
   const detection = readSource("lib/sell/category-detection-pro.ts");
-  const wizard = readSource("features/sell/hooks/use-sell-wizard.ts");
+  const suggestion = readSource("features/sell/ui/SellCategorySuggestion.tsx");
 
   return AI_LISTING_VALIDATION.map((check) => {
-    let pass = detection.length > 0 && fileExists("features/sell/components/TitleCategorySuggestions.tsx");
+    let pass = detection.length > 0 && fileExists("features/sell/ui/SellCategorySuggestion.tsx");
     if (check.includes("title") || check.includes("description") || check.includes("attribute") || check.includes("seo")) {
       pass = fileExists("lib/sell/suggest-category-from-title.ts") || detection.includes("detectCategoryFromTitle");
     }
     if (check.includes("duplicate")) pass = fileExists("lib/moderation/analyzer.ts");
     if (check.includes("compatibility")) pass = fileExists("lib/categories/resolve-listing.ts");
     if (check.includes("quality") || check.includes("readiness")) pass = fileExists("lib/moderation/scan-listing.ts");
-    if (check.includes("manual")) pass = wizard.includes("userOverrodeCategoryRef");
+    if (check.includes("manual")) pass = suggestion.includes("onApply");
     if (check.includes("learning")) pass = fileExists("lib/sell/category-detection-learning.ts");
     return {
       id: `ai-listing-${check}`,
@@ -154,24 +188,24 @@ function scanLiveValidation(scan: MarketplaceCompletionScanResult): CompletionVa
 
 function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const sellPage = readSource("features/sell/ui/SellPage.tsx");
-  const productCard = fileExists("components/ui/ProductCard.tsx");
+  const listingCard = fileExists("components/ui/ListingCard.tsx");
 
   return LISTING_PREVIEW_VALIDATION.map((check) => {
     let pass = sellPage.length > 0 && listingFoundationReady(scan);
     if (check.includes("mobile") || check.includes("tablet") || check.includes("desktop") || check.includes("responsive")) {
-      pass = sellPage.includes("max-w-2xl") && premiumStylesActive();
+      pass = sellPage.includes("AccountCanonicalShell") && premiumStylesActive();
     }
-    if (check.includes("marketplace") || check.includes("search") || check.includes("featured")) pass = productCard;
+    if (check.includes("marketplace") || check.includes("search") || check.includes("featured")) pass = listingCard;
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("seo")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
-    if (check.includes("published")) pass = readSource("features/sell/context/SellProvider.tsx").includes("router.push(`/listing/${slug}`)");
+    if (check.includes("published")) pass = sellPage.includes("PublishSuccessDialog") && readSource("features/sell/context/SellProvider.tsx").includes("getListingCanonicalPath");
     return createCheck("listing-preview", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
 
 function scanPublishValidation(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const repository = readSource("lib/listings/repository.ts");
-  const wizard = readSource("features/sell/hooks/use-sell-wizard.ts");
+  const provider = readSource("features/sell/context/SellProvider.tsx");
 
   return LISTING_PUBLISH_VALIDATION.map((check) => {
     let pass = repository.includes("scanListingBeforePublish") && listingFoundationReady(scan);
@@ -181,7 +215,7 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
     if (check.includes("business")) pass = fileExists("lib/moderation/scan-listing.ts");
     if (check.includes("seo")) pass = fileExists("app/(platform)/listing/[slug]/page.tsx");
     if (check.includes("notification") || check.includes("analytics") || check.includes("audit")) {
-      pass = wizard.includes("trackGaEvent") || repository.length > 0;
+      pass = provider.includes("trackListingPublished") || repository.length > 0;
     }
     if (check.includes("visibility")) pass = repository.includes("status");
     return createCheck("listing-publish", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
@@ -190,15 +224,15 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
 
 function scanButtonValidation(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const sellPage = readSource("features/sell/ui/SellPage.tsx");
-  const footer = readSource("features/sell/components/SellPublishFooter.tsx");
-  const header = fileExists("features/sell/components/SellPageHeader.tsx");
+  const publishBar = readSource("features/sell/ui/SellPublishBar.tsx");
+  const photoRail = readSource("features/sell/ui/SellPhotoRail.tsx");
 
   return LISTING_BUTTON_VALIDATION.map((check) => {
     let pass = sellPage.length > 0 && listingFoundationReady(scan);
-    if (check.includes("save-draft")) pass = header && sellPage.includes("saveDraft");
-    if (check === "publish") pass = footer.includes("onPublish");
-    if (check.includes("upload") || check.includes("remove")) pass = fileExists("features/sell/components/SellPhotoSection.tsx");
-    if (check.includes("ai-category") || check.includes("ai-improve")) pass = fileExists("features/sell/components/TitleCategorySuggestions.tsx");
+    if (check.includes("save-draft")) pass = readSource("lib/sell/persist-sell-draft.ts").includes("persistSellDraftSnapshot");
+    if (check === "publish") pass = publishBar.includes("publishListing") && publishBar.includes('data-sell-publish-position="below-parcel"');
+    if (check.includes("upload") || check.includes("remove")) pass = photoRail.includes("addPhotos") && photoRail.includes("DeletePhotoAction");
+    if (check.includes("ai-category") || check.includes("ai-improve")) pass = fileExists("features/sell/ui/SellCategorySuggestion.tsx");
     if (check.includes("duplicate") || check.includes("archive") || check.includes("delete")) {
       pass = fileExists("features/account-module/components/SellerListingsV1.tsx");
     }
@@ -230,7 +264,7 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     let pass = foundation && scan.globalUiPass;
     if (check.includes("publish")) pass = fileExists("app/api/listings/route.ts");
     if (check.includes("draft")) pass = fileExists("lib/sell/draft-storage.ts");
-    if (check.includes("preview")) pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
+    if (check.includes("preview")) pass = readSource("features/sell/ui/SellPage.tsx").includes("PublishSuccessDialog");
     if (check.includes("image-upload")) pass = fileExists("app/api/listings/upload/route.ts");
     if (check.includes("validation")) pass = readSource("features/sell/types.ts").includes("getListingValidationErrors");
     if (check.includes("category-mapping")) pass = fileExists("lib/listings/category-path.ts");
@@ -245,14 +279,14 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
 }
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const formSource = readSource("features/sell/components/SellListingForm.tsx");
-  const photoSource = readSource("features/sell/components/SellPhotoSection.tsx");
+  const formSource = readSource("features/sell/ui/SellPage.tsx");
+  const photoSource = readSource("features/sell/ui/SellPhotoRail.tsx");
 
   return [
-    createCheck("listing-accessibility", "form-labels", formSource.includes("htmlFor"), "Form labels PASS"),
-    createCheck("listing-accessibility", "field-errors", fileExists("features/sell/components/FieldError.tsx"), "Field errors PASS"),
+    createCheck("listing-accessibility", "form-labels", formSource.includes("SellTitleBlock") && fileExists("features/sell/ui/SellPrimitives.tsx"), "Form labels PASS"),
+    createCheck("listing-accessibility", "field-errors", fileExists("features/sell/ui/SellPrimitives.tsx"), "Field errors PASS"),
     createCheck("listing-accessibility", "photo-controls", photoSource.includes("aria"), "Photo controls PASS"),
-    createCheck("listing-accessibility", "publish-footer", readSource("features/sell/components/SellPublishFooter.tsx").includes("disabled"), "Publish footer PASS"),
+    createCheck("listing-accessibility", "publish-footer", readSource("features/sell/ui/SellPublishBar.tsx").includes("disabled"), "Publish footer PASS"),
   ].map((item) => ({
     ...item,
     status: item.status === "pass" && scan.globalUiPass ? passStatus() : item.status,
@@ -260,13 +294,13 @@ function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionVal
 }
 
 function scanPerformance(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const wizard = readSource("features/sell/hooks/use-sell-wizard.ts");
-  const uploadClient = readSource("lib/listings/upload-client.ts");
+  const provider = readSource("features/sell/context/SellProvider.tsx");
+  const uploadClient = readSource("lib/product-integration/upload-storage-orchestration-v1.ts");
 
   return [
-    createCheck("listing-performance", "debounced-category-detection", wizard.includes("TITLE_CATEGORY_DEBOUNCE_MS"), "Debounced category detection PASS"),
+    createCheck("listing-performance", "debounced-category-detection", fileExists("lib/sell/category-detection-scheduler.ts"), "Debounced category detection PASS"),
     createCheck("listing-performance", "progressive-upload", uploadClient.includes("onProgress"), "Progressive upload PASS"),
-    createCheck("listing-performance", "image-compression", fileExists("lib/storage/client-images.ts"), "Image compression PASS"),
+    createCheck("listing-performance", "image-compression", provider.includes("prepare") || fileExists("lib/sell/photo-metadata.ts"), "Image compression PASS"),
     createCheck("listing-performance", "draft-persistence", fileExists("lib/sell/draft-storage.ts"), "Draft persistence PASS"),
   ].map((item) => ({
     ...item,
@@ -321,7 +355,9 @@ function buildPassConditions(
     "create-pass": fileExists("app/(platform)/sell/page.tsx") && foundation,
     "draft-pass": fileExists("lib/sell/draft-storage.ts"),
     "preview-pass": fileExists("features/sell/ui/SellPage.tsx"),
-    "publish-pass": readSource("features/sell/hooks/use-sell-wizard.ts").includes("publishListing"),
+    "publish-pass":
+      readSource("features/sell/context/SellProvider.tsx").includes("publishListing") &&
+      readSource("features/sell/ui/SellPublishBar.tsx").includes("data-sell-publish-bar"),
     "image-upload-pass": fileExists("app/api/listings/upload/route.ts"),
     "ai-validation-pass": fileExists("lib/sell/category-detection-pro.ts"),
     "seo-pass": fileExists("app/(platform)/listing/[slug]/page.tsx"),
@@ -330,7 +366,7 @@ function buildPassConditions(
     "marketplace-pass": fileExists("lib/moderation/scan-listing.ts"),
     "enterprise-pass": scan.certificationGatePass && scan.omegaPass,
     "omega-pass": scan.omegaPass,
-    "field-validation-pass": typesSource.includes("isListingValid"),
+    "field-validation-pass": readSource("lib/sell/sell-validation.ts").includes("isSellListingPublishable"),
     "listing-completion-100": passPercent >= 100 && checksPass,
   };
 

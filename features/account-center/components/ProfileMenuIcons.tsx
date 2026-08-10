@@ -122,6 +122,14 @@ function Logout({ className }: IconProps) {
   );
 }
 
+function Moon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M20.2 14.2A8.2 8.2 0 0 1 9.8 3.8 7.2 7.2 0 1 0 20.2 14.2z" />
+    </svg>
+  );
+}
+
 const PROFILE_MENU_GLYPHS: Record<ProfileIconId, (props: IconProps) => ReactElement> = {
   favourites: Heart,
   settings: Gear,
@@ -133,6 +141,7 @@ const PROFILE_MENU_GLYPHS: Record<ProfileIconId, (props: IconProps) => ReactElem
   balance: Wallet,
   "my-orders": Package,
   logout: Logout,
+  theme: Moon,
 };
 
 /** Menu-item id → Profile icon id (Sign Out uses logout). */
@@ -144,6 +153,7 @@ export const PROFILE_MENU_ITEM_ICON: Record<string, ProfileIconId> = {
   promote: "promote",
   settings: "settings",
   ideas: "ideas",
+  theme: "theme",
   help: "help",
   legal: "legal",
   logout: "logout",

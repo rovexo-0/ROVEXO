@@ -13,13 +13,16 @@ export default async function SellerComplianceRoute() {
     redirect("/login?next=/seller/compliance");
   }
 
-  // Fail closed for pure buyers — seller-only HMRC Reporting Centre.
+  // Fail closed: unauthenticated → login. Authenticated Unified Accounts may open
+  // the centre (Settings LEGAL exposes HMRC to all signed-in users). Reporting
+  // obligations remain seller-scoped via isReportingSubject in the snapshot engine.
   const access = resolveHmrcEligibility({
     authenticated: true,
     hasSellingActivity: Boolean(profile.capabilities?.hasSellingActivity),
     role: profile.role,
   });
   if (!canAccessHmrcSellerCentre(access)) {
+    // Belt: should be unreachable after auth — never bounce authorized users to Settings.
     redirect("/account/settings?hmrc=seller_only");
   }
 

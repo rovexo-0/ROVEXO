@@ -1,9 +1,13 @@
 /**
  * Make Offer Cod Sânge v1.0 — FINAL FREEZE UI
+ * Content-sized bottom sheet · max-width 560px · mobile-first
  */
 .mo-v1 {
   width: 100%;
-  max-width: 100%;
+  max-width: 560px;
+  height: auto;
+  min-height: 0;
+  max-height: 90dvh;
   background: #fff;
   border-radius: 20px 20px 0 0;
 }
@@ -11,7 +15,9 @@
 .mo-v1__sheet {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  height: auto;
+  min-height: 0;
   padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -47,6 +53,10 @@
   overflow: hidden;
   border-radius: 12px;
   background: #f4f4f5;
+}
+
+.mo-v1__thumb img {
+  filter: none;
 }
 
 .mo-v1__product-meta {
@@ -122,10 +132,13 @@
 
 .mo-v1__amount {
   position: relative;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   width: 100%;
+  height: 56px;
   min-height: 56px;
+  max-height: 64px;
   padding: 0 16px;
   border: 1.5px solid #e4e4e7;
   border-radius: 14px;
@@ -147,10 +160,13 @@
 .mo-v1__input {
   width: 100%;
   min-width: 0;
+  height: 100%;
   border: none;
   background: transparent;
-  font-size: 1.25rem;
+  /* ≥16px — prevent iOS auto-zoom */
+  font-size: 16px;
   font-weight: 600;
+  line-height: 1.2;
   color: #111827;
   outline: none;
 }
@@ -165,7 +181,9 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 52px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 52px;
   border: none;
   border-radius: 16px;
   background-image: linear-gradient(135deg, #a855f7 0%, #9333ea 50%, #7c3aed 100%);
@@ -184,14 +202,6 @@
 
 .mo-v1__submit:not(:disabled):active {
   transform: scale(0.985);
-}
-
-.mo-v1__limit {
-  margin: 0;
-  text-align: center;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #71717a;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -12,7 +12,8 @@ describe("Bank Accounts v5.1 — Profile Master inheritance", () => {
     expect(page).toContain('BANK_ACCOUNTS_UI_VERSION = "v5.1"');
     expect(page).toContain("AccountCanonicalShell");
     expect(page).toContain("CanonicalMenuRow");
-    expect(page).toContain("WalletHelpHeaderAction");
+    expect(page).toContain('@/features/wallet/components/WalletProfileChrome');
+    expect(page).toContain("WalletBankAccountsIcon");
     expect(page).toContain('data-profile-master="v7.0"');
     expect(page).toContain('data-design-master="profile"');
     expect(page).toContain('data-full-width-surface="bank-accounts"');

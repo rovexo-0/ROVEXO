@@ -2,9 +2,11 @@
  * ROVEXO BUNDLE ENGINE v1.0 — MASTER LAW (OWNER LOCKED)
  *
  * STATUS: OWNER LOCKED IMPLEMENTATION · NOT FROZEN until certification gates PASS
- * Bundle is an extension of Product Detail — NOT a cart, NOT a second checkout.
+ * Bundle creation lives on Store (Shop bundles / Create bundle).
+ * PDP exposes Buy Now + Make Offer only — no Add to Bundle CTA.
+ * Bundle is NOT a cart, NOT a second checkout.
  *
- * Listing → Bundle → Checkout
+ * Store → Bundle → Checkout (listing selection on Store)
  * Exactly ONE Bundle Engine. Zero duplicates. Fail closed. Atomic. Full rollback.
  *
  * No commit / push / deploy until Owner authorizes.
@@ -20,10 +22,13 @@ export const BUNDLE_ENGINE_V1 = {
   noPushUntilOwner: true,
   noDeployUntilOwner: true,
 
-  equation: "LISTING → BUNDLE → CHECKOUT" as const,
+  equation: "STORE → BUNDLE → CHECKOUT" as const,
   notACart: true,
   notASecondCheckout: true,
-  extendsProductDetail: true,
+  /** Historical: bundle once extended View Item; Owner moved creation to Store. */
+  extendsProductDetail: false,
+  storeBundleCreationCanonical: true,
+  pdpAddToBundle: false,
 
   singularity: {
     oneEngine: true,
@@ -41,6 +46,7 @@ export const BUNDLE_ENGINE_V1 = {
     uiSpec: "docs/modules/bundle/MASTER_UI_SPECIFICATION_V1.md",
     migration: "supabase/migrations/20260801180000_bundle_engine_v1.sql",
     reviewRoute: "/bundle/review",
+    storeCreateSurface: "features/store/components/StoreShopBundles.tsx",
     parents: {
       sellFreeze: "lib/sell/sell-ui-v1-freeze.ts",
       viewItemFreeze: "lib/product-detail/view-item-ui-ux-freeze-v1.ts",
@@ -49,7 +55,7 @@ export const BUNDLE_ENGINE_V1 = {
   } as const,
 
   surfaces: [
-    "View Item",
+    "Store",
     "Review Bundle",
     "Messages",
     "Offers",
@@ -78,9 +84,9 @@ export const BUNDLE_ENGINE_V1 = {
     /** Stock status under price only when stock > 1 (Owner Bundle Master Spec). */
     stockStatusOnlyWhenStockGreaterThan: 1,
     quantityOnlyWhenStockGreaterThan: 1,
-    addToBundleHeightPx: 48,
-    addToBundleFullWidth: true,
-    addToBundleOutlinePurple: true,
+    /** Owner final architecture — PDP Add to Bundle removed. */
+    pdpAddToBundle: false,
+    /** Retained for conflict / sticky presentation tokens (not PDP create CTA). */
     sheetHeightPx: 320,
     sheetAnimMs: 220,
     stickyBarHeightPx: 60,
@@ -116,6 +122,7 @@ export const BUNDLE_ENGINE_V1 = {
     "soft-fail-stock",
     "view-item-redesign",
     "sell-redesign",
+    "pdp-add-to-bundle",
   ] as const,
 
   freezeRequires: [

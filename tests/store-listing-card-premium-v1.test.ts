@@ -80,7 +80,7 @@ describe("ROVEXO v1.0 — Store Card Premium Freeze", () => {
   it("does not alter Homepage ListingCard module freeze tokens", () => {
     const homeCss = readSource("components/ui/ListingCard.module.css");
     expect(homeCss).toContain("rootHomepage");
-    expect(homeCss).toContain("aspect-ratio: 173 / 268");
+    expect(homeCss).toContain("aspect-ratio: var(--rx-listing-image-ratio, 4 / 5)");
     expect(homeCss).not.toContain("data-store-listing-cards");
   });
 });

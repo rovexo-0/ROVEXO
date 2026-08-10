@@ -7,7 +7,8 @@ import { isPurchasable, isReservedListing } from "@/lib/inventory/service";
 describe("Inventory Engine v1.0 — RESERVED Absolute Law", () => {
   it("locks official chain and forbidden reserve mutations", () => {
     expect(INVENTORY_ENGINE_V1.bloodCode).toBe("RVX-2012");
-    expect(INVENTORY_ENGINE_V1.officialChain).toContain("RESERVED");
+    expect(INVENTORY_ENGINE_V1.officialChain).toContain("CHECKOUT");
+    expect(INVENTORY_ENGINE_V1.officialChain).toContain("PUBLISHED");
     expect(INVENTORY_ENGINE_V1.officialChain).toContain("SOLD");
     expect(INVENTORY_ENGINE_V1.reservationMinutes).toBe(2);
     expect(INVENTORY_ENGINE_V1.reservationSeconds).toBe(120);
@@ -20,10 +21,11 @@ describe("Inventory Engine v1.0 — RESERVED Absolute Law", () => {
     expect(INVENTORY_ENGINE_V1.forbiddenOnReserve).toContain("status=sold");
     expect(INVENTORY_ENGINE_V1.forbiddenOnReserve).toContain("stock=0");
     expect(INVENTORY_ENGINE_V1.markSoldSets).toEqual({
-      status: "published",
+      statusWhenStockZero: "sold",
+      statusWhenStockRemaining: "published",
       reserved: false,
       stockDecrementByQuantity: true,
-      outOfStockRemainsVisible: true,
+      outOfStockRemainsVisible: false,
     });
     expect(INVENTORY_ENGINE_V1.productStatusEnum).toEqual([
       "draft",
@@ -85,7 +87,7 @@ describe("Inventory Engine v1.0 — RESERVED Absolute Law", () => {
       path.join(process.cwd(), "lib/checkout/engines/buy-now-engine-v1.ts"),
       "utf8",
     );
-    expect(engine).toContain('lockedProduct.status !== "reserved"');
+    expect(engine).toContain('lockedProduct.status !== "published"');
     expect(engine).not.toContain(
       "After reserve, stock may be 0 — status must still be published",
     );

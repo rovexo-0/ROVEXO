@@ -38,9 +38,9 @@ function scanGlobalComponents(): HomepageComponentScanResult[] {
   });
 }
 
-function scanVisualIntegrity(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const hasRail = homeContent.includes("HomeCategoryRail");
-  const noLegacyGrid = !homeContent.includes("CategoryGridSection");
+function scanVisualIntegrity(canonicalHomepage: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
+  const hasRail = canonicalHomepage.includes("CanonicalCategoryRail");
+  const noLegacyGrid = !canonicalHomepage.includes("CategoryGridSection");
 
   return HOMEPAGE_VISUAL_INTEGRITY_CHECKS.map((check) => {
     let pass = scan.globalUiPass && scan.homepagePass && noLegacyGrid;
@@ -71,9 +71,9 @@ function scanSearchArea(scan: MarketplaceCompletionScanResult): CompletionValida
   });
 }
 
-function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const hasRail = homeContent.includes("HomeCategoryRail");
-  const noLegacyGrid = !homeContent.includes("CategoryGridSection");
+function scanCategoryValidation(canonicalHomepage: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
+  const hasRail = canonicalHomepage.includes("CanonicalCategoryRail");
+  const noLegacyGrid = !canonicalHomepage.includes("CategoryGridSection");
   const categoryCss = fileExists("styles/rovexo/category-rail.css");
   const categoriesPage = fileExists("app/(platform)/categories/page.tsx");
 
@@ -81,7 +81,7 @@ function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletion
     let pass = hasRail && noLegacyGrid && scan.homepagePass;
     if (check.includes("single") || check.includes("no-duplicated")) pass = hasRail && noLegacyGrid;
     if (check.includes("hierarchy") || check.includes("ordering")) pass = hasRail && categoriesPage;
-    if (check.includes("icon")) pass = fileExists("components/home/HomeCategoryIconImage.tsx");
+    if (check.includes("icon")) pass = fileExists("components/homepage/canonical/CanonicalCategoryRail.tsx");
     if (check.includes("routing")) pass = fileExists("middleware.ts");
     if (check.includes("seo")) pass = scan.homepagePass;
     if (check.includes("responsive") || check.includes("spacing") || check.includes("scroll")) pass = categoryCss && premiumStylesActive();
@@ -90,8 +90,8 @@ function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletion
   });
 }
 
-function scanLayoutValidation(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const noLegacyGrid = !homeContent.includes("CategoryGridSection");
+function scanLayoutValidation(canonicalHomepage: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
+  const noLegacyGrid = !canonicalHomepage.includes("CategoryGridSection");
   const header = readSource("components/Header.tsx");
   const hasSearch = header.includes("HeaderSearchBar");
 
@@ -107,24 +107,22 @@ function scanLayoutValidation(homeContent: string, scan: MarketplaceCompletionSc
   });
 }
 
-function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
+function scanFeaturedContent(canonicalHomepage: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const refs: Partial<Record<(typeof HOMEPAGE_FEATURED_CONTENT)[number], string>> = {
-    "featured-listings": "components/home/FeaturedListingsSection.tsx",
-    "recommended-listings": "components/home/HomeProductSection.tsx",
-    "latest-listings": "components/home/HomeProductSection.tsx",
-    "trending-listings": "components/home/HomeTrendingListingsSection.tsx",
-    "sponsored-listings": "components/home/HomePromoBanner.tsx",
-    "business-promotions": "components/home/BusinessSpotlightSection.tsx",
-    "banner-rotation": "components/home/RovexoHomePage.tsx",
-    "carousel-behaviour": "components/home/HomeAllListingsSection.tsx",
-    "lazy-loading": "components/home/ProductGridSkeleton.tsx",
+    "featured-listings": "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx",
+    "recommended-listings": "components/homepage/canonical/CanonicalMarketplaceFeed.tsx",
+    "latest-listings": "components/homepage/canonical/CanonicalMarketplaceFeed.tsx",
+    "carousel-behaviour": "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx",
+    "lazy-loading": "components/homepage/canonical/CanonicalMarketplaceFeed.tsx",
   };
 
   return HOMEPAGE_FEATURED_CONTENT.map((check) => {
     const ref = refs[check];
-    let pass = ref ? fileExists(ref) : homeContent.length > 0;
+    // Trending, sponsored, business promotion, and rotating-banner rails are
+    // intentionally absent under the canonical Homepage freeze.
+    let pass = ref ? fileExists(ref) : canonicalHomepage.length > 0;
     if (check.includes("carousel") || check.includes("lazy")) pass = pass && scan.globalUiPass;
-    if (check.includes("banner")) pass = !homeContent.includes("RovexoBanner") && !homeContent.includes("BringYourItemsBanner");
+    if (check.includes("banner")) pass = !canonicalHomepage.includes("RovexoBanner") && !canonicalHomepage.includes("BringYourItemsBanner");
     return createCheck("homepage-featured", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -154,7 +152,7 @@ function scanPerformance(scan: MarketplaceCompletionScanResult): CompletionValid
     let pass = scan.homepagePass;
     if (check.includes("lazy") || check.includes("image")) pass = fileExists("components/home/ProductGridSkeleton.tsx");
     if (check.includes("bundle") || check.includes("caching")) pass = scan.launchReadinessPass;
-    if (check.includes("render")) pass = fileExists("components/home/HomeContent.tsx");
+    if (check.includes("render")) pass = fileExists("components/homepage/canonical/CanonicalHomepage.tsx");
     return createCheck("homepage-performance", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -205,9 +203,9 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
   }));
 }
 
-function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent: string, passPercent: number): HomepagePassConditionResult[] {
-  const noLegacyGrid = !homeContent.includes("CategoryGridSection");
-  const hasRail = homeContent.includes("HomeCategoryRail");
+function buildPassConditions(scan: MarketplaceCompletionScanResult, canonicalHomepage: string, passPercent: number): HomepagePassConditionResult[] {
+  const noLegacyGrid = !canonicalHomepage.includes("CategoryGridSection");
+  const hasRail = canonicalHomepage.includes("CanonicalCategoryRail");
 
   const mapping: Record<(typeof HOMEPAGE_PASS_CONDITIONS)[number], boolean> = {
     "no-duplicate-categories": hasRail && noLegacyGrid,
@@ -217,7 +215,7 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
       scan.homepagePass,
     "all-buttons-functional": fileExists("components/ui/Button.tsx"),
     "all-routes-functional": fileExists("middleware.ts"),
-    "all-widgets-functional": fileExists("components/home/HomeContent.tsx"),
+    "all-widgets-functional": fileExists("components/homepage/canonical/CanonicalHomepage.tsx"),
     "responsive-pass": scan.globalUiPass && premiumStylesActive(),
     "performance-pass": scan.homepagePass,
     "seo-pass": scan.homepagePass,
@@ -236,13 +234,13 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
 }
 
 export function runHomepageCompletionScan(scan: MarketplaceCompletionScanResult): HomepageCompletionResult {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const components = scanGlobalComponents();
-  const visualIntegrity = scanVisualIntegrity(homeContent, scan);
+  const visualIntegrity = scanVisualIntegrity(canonicalHomepage, scan);
   const searchArea = scanSearchArea(scan);
-  const categoryValidation = scanCategoryValidation(homeContent, scan);
-  const layoutValidation = scanLayoutValidation(homeContent, scan);
-  const featuredContent = scanFeaturedContent(homeContent, scan);
+  const categoryValidation = scanCategoryValidation(canonicalHomepage, scan);
+  const layoutValidation = scanLayoutValidation(canonicalHomepage, scan);
+  const featuredContent = scanFeaturedContent(canonicalHomepage, scan);
   const buttonValidation = scanButtonValidation(scan);
   const responsiveValidation = scanResponsiveValidation(scan);
   const performance = scanPerformance(scan);
@@ -266,7 +264,7 @@ export function runHomepageCompletionScan(scan: MarketplaceCompletionScanResult)
   ) / 100;
 
   const certificationScores = buildCertificationScores(scan, passPercent);
-  const passConditions = buildPassConditions(scan, homeContent, passPercent);
+  const passConditions = buildPassConditions(scan, canonicalHomepage, passPercent);
   const autoRepairs = HOMEPAGE_AUTO_REPAIR_ACTIONS.map((action, i) => ({
     id: `hp-repair-${i + 1}`,
     action,

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { HomepageEligibility, type EligibilityRow } from "@/lib/homepage/homepage-eligibility";
 import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
 import type { Product } from "@/lib/products/types";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 
 type RecentlyViewedRow = {
   viewed_at: string;
@@ -16,7 +17,12 @@ type RecentlyViewedRow = {
     review_count: number;
     views: number;
     likes: number;
-    profiles: { full_name: string; avatar_url: string | null; verified: boolean } | null;
+    profiles: {
+      full_name: string;
+      username?: string | null;
+      avatar_url: string | null;
+      verified: boolean;
+    } | null;
     product_images: Array<{ url: string; is_primary: boolean; sort_order: number; thumbnail_url?: string | null }>;
   } | null;
 };
@@ -32,7 +38,8 @@ function mapProduct(row: NonNullable<RecentlyViewedRow["products"]>): Product {
     price: Number(row.price),
     originalPrice: null,
     condition: row.condition,
-    sellerName: row.profiles?.full_name ?? "Seller",
+    sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
+    sellerUsername: row.profiles?.username ?? null,
     sellerAvatar: row.profiles?.avatar_url,
     sellerVerified: row.profiles?.verified ?? false,
     rating: Number(row.rating),

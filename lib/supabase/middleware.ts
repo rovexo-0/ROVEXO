@@ -233,7 +233,10 @@ export async function updateSession(request: NextRequest) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
       loginUrl.search = "";
-      loginUrl.searchParams.set("next", pathname);
+      loginUrl.searchParams.set(
+        "next",
+        sanitizeNextPath(`${pathname}${request.nextUrl.search || ""}`),
+      );
       return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
     }
 

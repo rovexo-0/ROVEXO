@@ -40,7 +40,7 @@ function scanDomains(): ZeroDefectScanDomainResult[] {
 }
 
 function scanDefectDiscovery(scan: MarketplaceCompletionScanResult): { checks: CompletionValidationItem[]; defects: DefectRecord[] } {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const hasUi = fileExists("components/ui/Button.tsx") && fileExists("middleware.ts");
   const defects: DefectRecord[] = [];
 

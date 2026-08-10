@@ -290,7 +290,20 @@ export const BUY_NOW_ABSOLUTE_LAW_V1 = {
     "ORDER_CREATED",
     "PASS",
   ] as const,
-  failurePath: ["BUY_NOW", "SORRY", "OK", "LISTING_PAGE", "PASS"] as const,
+  /**
+   * Owner unlock (COD SÂNGE consolidated release):
+   * Public error UX = action context + optional Retry + OK (not Sorry+OK only).
+   * SSOT dialog: features/checkout/components/BuyNowPublicErrorDialog.tsx
+   * Messages still via toBuyNowPublicMessage — never RVX / engine / jargon in UI.
+   */
+  failurePath: ["BUY_NOW", "PUBLIC_ERROR", "RETRY_OR_OK", "LISTING_PAGE", "PASS"] as const,
+  publicErrorUx: {
+    dialog: "BuyNowPublicErrorDialog",
+    actionContext: true,
+    retryWhenSafe: true,
+    okDismiss: true,
+    forbiddenInUi: ["RVX-*", "engine names", "validation jargon", "Checkout blocked"],
+  } as const,
   performanceBudgetsMs: {
     buyNowToCheckout: 2000,
     checkoutLoad: 3000,

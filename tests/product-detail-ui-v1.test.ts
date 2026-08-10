@@ -78,10 +78,13 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToCart).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.buyNow).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.makeOffer).toBe(true);
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(true);
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToCart).toBe(false);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.deliveryRemovedFromViewItem).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Add to Cart");
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain(
+      "Add to Bundle on Product Detail",
+    );
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Delivery on View Item");
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain(
       "Similar Items on View Item body",
@@ -281,29 +284,31 @@ describe("Product Page Canonical Freeze v3.1 + View Item OWNER UI/UX FREEZE", ()
     expect(stockOnly.map((r) => r.id)).toEqual(["category", "brand", "condition", "uploaded"]);
   });
 
-  it("action bar keeps Buy Now + Make Offer + canonical Add to Bundle", () => {
+  it("action bar keeps Buy Now + Make Offer only — PDP Add to Bundle removed", () => {
     const bar = readSource("features/product-detail/ProductActionBarV1.tsx");
     const css = readSource("styles/rovexo/product-detail-v1.css");
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
 
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(true);
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.addToBundle).toBe(false);
     expect(bar).toContain("PRODUCT_ACTION_BUTTONS");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNow");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNowLoading");
     expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.makeOffer");
-    expect(bar).toContain("onAddToBundle");
-    expect(bar).toContain("Add to Bundle");
+    expect(bar).not.toContain("onAddToBundle");
+    expect(bar).not.toContain("Add to Bundle");
+    expect(bar).not.toContain('data-bundle-cta="add"');
     expect(bar).not.toContain("PRODUCT_ACTION_BAR_COPY.addToCart");
     expect(bar).not.toContain("pd-v1__action-btn--cart");
     expect(bar).toContain('data-add-to-cart="removed-forever"');
     expect(css).toContain("repeat(2, minmax(0, 1fr))");
     expect(page).not.toContain("ProductMemberItemsSection");
-    expect(page).toContain("handleAddToBundle");
-    expect(page).toContain("AddToBundleSheet");
+    expect(page).not.toContain("handleAddToBundle");
+    expect(page).not.toContain("AddToBundleSheet");
+    expect(page).not.toContain("StickyBundleBar");
+    expect(page).not.toContain("onAddToBundle");
     expect(page).toContain("useProductActionBar");
     expect(page).toContain("OfferComposerSheet");
-    expect(page).toContain("StickyBundleBar");
-    expect(page).toContain("onAddToBundle");
+    expect(page).toContain('data-pdp-add-to-bundle="removed"');
     expect(bar).not.toContain("Message");
   });
 });

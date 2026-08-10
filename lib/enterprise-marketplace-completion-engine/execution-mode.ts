@@ -92,7 +92,7 @@ function scanModuleLayers(moduleId: string, pageRef: string, scan: MarketplaceCo
 }
 
 function scanGlobalImprovements(scan: MarketplaceCompletionScanResult): ExecutionGlobalImprovementResult[] {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   return EXECUTION_GLOBAL_IMPROVEMENTS.map((check) => {
     let pass = scan.globalUiPass && scan.passPercent >= 100;
     if (check.includes("duplicate-ui") || check.includes("duplicate-categor")) pass = !homeContent.includes("CategoryGridSection");

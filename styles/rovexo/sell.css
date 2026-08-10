@@ -19,7 +19,7 @@
 
 /* Profile chevron — black, 16px */
 [data-sell-shell] .cds-menu-row__chevron {
-  color: #1a1a1a;
+  color: var(--cds-color-text-primary, #1a1a1a);
 }
 
 [data-sell-shell] .cds-menu-row__chevron svg {
@@ -56,8 +56,8 @@
   --uv1-input-height: var(--sell-control-height);
   width: 100%;
   max-width: none;
-  background: #ffffff;
-  color: #111111;
+  background: var(--rvx-surface, #ffffff);
+  color: var(--cds-color-text-primary, #111111);
 }
 
 [data-sell-shell] [aria-label="Sell an item"] {
@@ -73,7 +73,7 @@
   padding: 0;
   margin: 0;
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--rvx-surface, #ffffff);
 }
 
 [data-sell-shell] .sell-category-flow__suggestion {
@@ -99,7 +99,7 @@
   font-size: var(--sell-font-label);
   font-weight: 600;
   letter-spacing: 0;
-  color: #111111;
+  color: var(--cds-color-text-primary, #111111);
 }
 
 [data-sell-shell] .sell-category-flow__better {
@@ -114,20 +114,20 @@
   font-size: var(--sell-font-control);
   font-weight: 650;
   line-height: 1.4;
-  color: #111;
+  color: var(--cds-color-text-primary, #111);
 }
 
 [data-sell-shell] .sell-category-flow__path-step {
   margin: 0;
   font-size: var(--sell-font-control);
   line-height: 1.4;
-  color: #374151;
+  color: var(--cds-color-text-secondary, #374151);
 }
 
 [data-sell-shell] .sell-category-flow__confidence {
   margin: 6px 0 0;
   font-size: var(--sell-font-helper);
-  color: #6b7280;
+  color: var(--cds-color-text-muted, #6b7280);
 }
 
 [data-sell-shell] .sell-category-flow__row {
@@ -150,7 +150,7 @@
   padding: 0 4px 10px;
   font-size: var(--sell-font-helper);
   font-weight: 600;
-  color: #6b7280;
+  color: var(--cds-color-text-muted, #6b7280);
 }
 
 [data-sell-shell] .sell-category-picker__breadcrumb {
@@ -216,7 +216,7 @@
   font-size: 16px !important;
   line-height: 24px !important;
   letter-spacing: 0 !important;
-  color: #111111 !important;
+  color: var(--cds-color-text-primary, #111111) !important;
 }
 
 [data-sell-shell] .listing-attribute-label,
@@ -404,8 +404,8 @@
   border-radius: var(--sell-photo-radius) !important;
   overflow: hidden;
   flex: 0 0 var(--sell-photo-w);
-  border: 1px solid #ececec;
-  background: #f5f5f5;
+  border: 1px solid var(--cds-color-border, #ececec);
+  background: var(--cds-color-surface-muted, #f5f5f5);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   transform-origin: center center;
@@ -572,15 +572,14 @@
 
 /* Stock Quantity — inline CanonicalInput (stepper UI removed; dead CSS purged) */
 
-/* Sticky publish — same Account clearance (--cds-bottom-nav-offset); never overlap Bottom Nav */
+/* Publish — inline below Parcel size (not sticky viewport chrome) */
 [data-sell-shell] .account-settings-sticky-action,
 [data-sell-shell] [data-sell-publish-bar] {
-  position: sticky;
-  bottom: calc(var(--cds-bottom-nav-offset, 72px) - 24px);
-  z-index: 20;
-  margin-top: 8px;
-  padding: 12px 0 max(4px, env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, rgb(255 255 255 / 0) 0%, #ffffff 24%);
+  position: static;
+  z-index: auto;
+  margin-top: 0;
+  padding: 0;
+  background: transparent;
 }
 
 [data-full-width-engine="v1.0"] [data-sell-shell] [data-sell-publish-bar] .cds-btn,
@@ -686,7 +685,7 @@
 
 .sell-picker-mark--brand {
   position: relative;
-  background: #f8fafc;
+  background: var(--cds-color-surface-muted, #f8fafc);
   border: 1px solid var(--cds-color-border, #e2e8f0);
 }
 
@@ -724,7 +723,7 @@
   width: calc(100% - 8px) !important;
   height: calc(100% - 8px) !important;
   object-fit: contain !important;
-  background: #fff;
+  background: var(--rvx-surface, #ffffff);
   border-radius: 6px;
   z-index: 1;
 }
@@ -812,7 +811,7 @@
 
 .sell-compact-picker__header {
   padding-top: env(safe-area-inset-top, 0px);
-  background: #fff;
+  background: var(--rvx-surface, #ffffff);
   border-bottom: 1px solid var(--cds-color-divider, rgb(15 23 42 / 0.06));
 }
 
@@ -891,7 +890,7 @@
   height: 22px;
   border-radius: 999px;
   border: 2px solid var(--cds-color-border, #d1d5db);
-  background: #fff;
+  background: var(--rvx-surface, #ffffff);
   flex-shrink: 0;
 }
 
@@ -1041,7 +1040,7 @@
   gap: 12px;
   border: 1.5px solid var(--cds-color-border, #e2e8f0);
   border-radius: 16px;
-  background: #fff;
+  background: var(--rvx-surface, #ffffff);
   cursor: pointer;
   align-items: center;
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);

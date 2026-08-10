@@ -33,7 +33,7 @@ describe("Module 2 — Core Surface Simplification", () => {
     expect(gridLock).toContain("var(--ds-color-surface)");
     expect(gridLock).not.toContain('[data-theme="dark"]');
     expect(sell).toContain("var(--cds-color-surface-muted, #f5f5f7)");
-    expect(sell).toContain("background: #ffffff");
+    expect(sell).toContain("background: var(--rvx-surface");
   });
 
   it("locks Absolute Final Selling hub menu (no Promotions row)", () => {

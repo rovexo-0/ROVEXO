@@ -123,7 +123,7 @@ describe("HMRC Reporting Centre UI v1.1 + Engine", () => {
     expect(formatUkTaxYearLabel(on)).toBe("2026/27");
   });
 
-  it("excludes pure buyers from reporting obligations and seller centre", () => {
+  it("allows authenticated Unified Accounts to open the centre; obligations stay seller-scoped", () => {
     const buyer = resolveHmrcEligibility({
       authenticated: true,
       hasSellingActivity: false,
@@ -131,7 +131,8 @@ describe("HMRC Reporting Centre UI v1.1 + Engine", () => {
       completedSales: 0,
       grossSales: 0,
     });
-    expect(buyer.canViewCentre).toBe(false);
+    // Settings → HMRC must open (no Settings redirect loop).
+    expect(buyer.canViewCentre).toBe(true);
     expect(buyer.isReportingSubject).toBe(false);
     expect(buyer.buyerExcludedFromObligation).toBe(true);
 
@@ -145,6 +146,13 @@ describe("HMRC Reporting Centre UI v1.1 + Engine", () => {
     expect(seller.canViewCentre).toBe(true);
     expect(seller.isReportingSubject).toBe(true);
     expect(seller.buyerExcludedFromObligation).toBe(false);
+
+    const guest = resolveHmrcEligibility({
+      authenticated: false,
+      hasSellingActivity: false,
+      role: null,
+    });
+    expect(guest.canViewCentre).toBe(false);
   });
 
   it("masks NINO and builds documents with correct filenames", () => {

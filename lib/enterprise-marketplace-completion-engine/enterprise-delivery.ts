@@ -70,7 +70,7 @@ function scanFeatureDiscovery(scan: MarketplaceCompletionScanResult): FeatureDis
   const hasMiddleware = fileExists("middleware.ts");
   const hasApi = fileExists("app/api/search/route.ts");
   const hasDb = fileExists("lib/supabase/middleware.ts");
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
   return AUTONOMOUS_FEATURE_DISCOVERY.map((kind) => {
     let pass = scan.modulesComplete === scan.modulesTotal && scan.launchReadinessPass;
@@ -118,7 +118,7 @@ function scanPlatformValidation(): PlatformValidationResult[] {
 
 function scanGlobalUiValidation(scan: MarketplaceCompletionScanResult): GlobalUiValidationResult[] {
   const hasUi = fileExists("components/ui/Button.tsx");
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   return GLOBAL_UI_VALIDATION_CHECKS.map((check) => {
     let pass = scan.globalUiPass && hasUi;
     if (check.includes("page")) pass = scan.modulesComplete === scan.modulesTotal;
@@ -224,7 +224,7 @@ function scanInfrastructureValidation(scan: MarketplaceCompletionScanResult): In
 }
 
 function scanGlobalIntegrity(scan: MarketplaceCompletionScanResult): GlobalIntegrityResult[] {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const homeContent = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   return OMEGA_GLOBAL_INTEGRITY_CHECKS.map((check) => {
     let pass = scan.globalUiPass && scan.passPercent >= 100;
     if (check.includes("duplicate-ui") || check.includes("duplicate-categor")) pass = !homeContent.includes("CategoryGridSection");

@@ -121,12 +121,16 @@ export function CardSetupSheet({ open, clientSecret, onClose, onComplete }: Card
       onClose={onClose}
       onConfirm={() => void handleSave()}
     >
-      <div className="flex flex-col gap-ds-4">
+      <div className="flex flex-col gap-ds-3">
         <CanonicalInfoBlock variant="description">
           Your card is saved securely with Stripe for faster checkout.
         </CanonicalInfoBlock>
         <div ref={containerRef} className="min-h-[8rem]" key={clientSecret} />
-        {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+        {error ? (
+          <CanonicalInfoBlock variant="error" title="Payment method" className="pm-card-setup__error">
+            <p className="pm-card-setup__error-body">{error}</p>
+          </CanonicalInfoBlock>
+        ) : null}
       </div>
     </CanonicalModal>
   );

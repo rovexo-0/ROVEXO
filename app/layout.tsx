@@ -25,6 +25,8 @@ import { ChunkLoadRecovery } from "@/components/runtime/ChunkLoadRecovery";
 import { CHUNK_LOAD_BOOTSTRAP_SCRIPT } from "@/components/runtime/chunk-load-bootstrap";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { withWhitePearlFaviconCacheBust } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
+import { RovexoThemeProvider } from "@/components/providers/RovexoThemeProvider";
+import { ROVEXO_THEME_INIT_SCRIPT } from "@/lib/theme/rovexo-theme-v1";
 
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
 const faviconV = withWhitePearlFaviconCacheBust;
@@ -63,6 +65,9 @@ const geistMono = Geist_Mono({
 // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
 // hydration so language and text direction (incl. RTL) never flash on first paint.
 const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
+
+/** Pre-paint theme sync — localStorage `rovexo-theme` (Theme Switch v1.0). Default light. */
+const THEME_INIT_SCRIPT = ROVEXO_THEME_INIT_SCRIPT;
 
 /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
 export const viewport: Viewport = {
@@ -168,21 +173,26 @@ export default function RootLayout({
         <Script id="rovexo-locale-init" strategy="beforeInteractive">
           {LOCALE_INIT_SCRIPT}
         </Script>
+        <Script id="rovexo-theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
         <Script id="rovexo-chunk-load-bootstrap" strategy="beforeInteractive">
           {CHUNK_LOAD_BOOTSTRAP_SCRIPT}
         </Script>
         <JsonLdScript id="rovexo-organization-jsonld" data={organizationJsonLd()} />
         <PageVisibilityProvider>
           <LocaleProvider>
-            <PwaProvider>
-              <ToastProvider>
-                <AuthProvider>
-                  <AvatarProvider>
-                    <AppShellLayout>{children}</AppShellLayout>
-                  </AvatarProvider>
-                </AuthProvider>
-              </ToastProvider>
-            </PwaProvider>
+            <RovexoThemeProvider>
+              <PwaProvider>
+                <ToastProvider>
+                  <AuthProvider>
+                    <AvatarProvider>
+                      <AppShellLayout>{children}</AppShellLayout>
+                    </AvatarProvider>
+                  </AuthProvider>
+                </ToastProvider>
+              </PwaProvider>
+            </RovexoThemeProvider>
           </LocaleProvider>
         </PageVisibilityProvider>
         <AuthChromeDeferred mode="platform-chrome" />

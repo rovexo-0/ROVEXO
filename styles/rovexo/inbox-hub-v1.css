@@ -47,7 +47,7 @@
   width: 48px;
   height: 48px;
   margin: 0;
-  color: #111111;
+  color: var(--inbox-text);
   background: transparent;
   border: none;
   border-radius: 12px;
@@ -88,7 +88,7 @@
 }
 
 .account-canonical-shell:has(.inbox-hub) .cds-layout__content--account-canonical {
-  background: #ffffff;
+  background: var(--inbox-surface);
 }
 
 /*
@@ -117,6 +117,8 @@
   --inbox-secondary: #6b6b73;
   --inbox-border: rgb(15 23 42 / 0.06);
   --inbox-surface: #ffffff;
+  --inbox-chip-bg: #fafafc;
+  --inbox-thumb-bg: #f3f4f6;
   --inbox-radius-card: 0;
   --inbox-shadow: none;
   /* Shell Full Width pad 16px (Design Decision #001) — no nested horizontal pad */
@@ -145,7 +147,7 @@
   margin: 0;
   padding: 0 var(--inbox-pad-x) 10px;
   color: var(--inbox-text);
-  background: #ffffff;
+  background: var(--inbox-surface);
 }
 
 .inbox-hub:has(.inbox-hub__empty) {
@@ -272,7 +274,7 @@
   padding: 0 14px;
   border: 1px solid var(--inbox-border);
   border-radius: 14px;
-  background: #fafafc;
+  background: var(--inbox-chip-bg);
   color: var(--inbox-text);
   font-size: 14px;
   outline: none;
@@ -307,10 +309,10 @@
   justify-content: center;
   height: 32px;
   padding: 0 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--inbox-border);
   border-radius: 999px;
-  background: #ffffff;
-  color: #111111;
+  background: var(--inbox-surface);
+  color: var(--inbox-text);
   font-size: var(--inbox-fs-secondary);
   font-weight: 500;
   line-height: 1;
@@ -444,7 +446,7 @@
   height: var(--inbox-thumb);
   border-radius: 12px;
   overflow: hidden;
-  background: #f3f4f6;
+  background: var(--inbox-thumb-bg);
   flex-shrink: 0;
 }
 
@@ -482,7 +484,7 @@
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #ffffff;
+  background: var(--inbox-surface);
   box-shadow: none;
 }
 
@@ -536,7 +538,7 @@
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #f3f4f6;
+  background: var(--inbox-thumb-bg);
 }
 
 .inbox-hub__notif-thumb-img {
@@ -606,7 +608,6 @@
   color: var(--inbox-muted);
 }
 
-
 .inbox-hub__preview--unread {
   font-weight: 600;
   color: var(--inbox-text);
@@ -644,6 +645,7 @@
   font-size: var(--inbox-fs-badge);
   font-weight: 700;
   line-height: 1;
+  box-shadow: 0 0 0 2px rgb(168 85 247 / 0.18);
 }
 
 .inbox-hub__chevron {
@@ -732,7 +734,7 @@
 
 .inbox-hub__skel {
   border-radius: var(--inbox-radius-card);
-  background: #ffffff;
+  background: var(--inbox-surface);
   border-bottom: 1px solid var(--inbox-border);
 }
 

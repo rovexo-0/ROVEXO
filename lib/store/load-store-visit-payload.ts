@@ -16,6 +16,7 @@ import {
 } from "@/lib/store/store-repository";
 import type { Review } from "@/lib/reviews/types";
 import type { Product } from "@/lib/products/types";
+import { toPublicProductDocuments } from "@/lib/products/public-product-contract-v1";
 
 export type StoreVisitPayload =
   | { kind: "unavailable" }
@@ -58,10 +59,15 @@ export async function loadStoreVisitPayload(routeParam: string): Promise<StoreVi
       }).catch(() => null),
     ]);
 
+    const rawListings = expandedListings?.items ?? store.listings;
     return {
       kind: "ok",
-      store,
-      listings: expandedListings?.items ?? store.listings,
+      store: {
+        ...store,
+        listings: toPublicProductDocuments(store.listings),
+        soldListings: toPublicProductDocuments(store.soldListings),
+      },
+      listings: toPublicProductDocuments(rawListings),
       reviews,
       memberSinceLabel: storeMemberSinceLabel(store.memberSinceIso),
       isOwnStore,

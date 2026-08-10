@@ -7,7 +7,7 @@
   top: 0;
   z-index: 100;
   padding-top: env(safe-area-inset-top, 0px);
-  background: #ffffff;
+  background: var(--rvx-page, #ffffff);
   border-bottom: 1px solid var(--ds-color-border);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
 }
@@ -45,6 +45,11 @@
   max-height: 28px;
   max-width: 42px;
   object-fit: contain;
+  /* COD SÂNGE — RX logo must stay sharp / original */
+  filter: none;
+  -webkit-filter: none;
+  mix-blend-mode: normal;
+  opacity: 1;
 }
 
 .rx-h2__logo-text {
@@ -108,6 +113,43 @@
   flex-shrink: 0;
   align-items: center;
   gap: 0;
+}
+
+/*
+ * Owner COD SÂNGE — Homepage registered-user counter.
+ * Native header text only: 👥 12.4K — no border, pill, badge, shadow, or card.
+ */
+.rx-h2__user-count {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  white-space: nowrap;
+  line-height: 1;
+  color: var(--rvx-text, var(--ds-color-text-primary, #0f172a));
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  user-select: none;
+  pointer-events: none;
+}
+
+.rx-h2__user-count-icon {
+  display: inline-flex;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.rx-h2__user-count-value {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
 }
 
 .rx-h2__action {

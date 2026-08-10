@@ -101,9 +101,10 @@ function buildNextJsChecks(): PerformanceCheck[] {
   const homeContent =
     readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
     readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeLoader = readProjectFile("lib/homepage/load-homepage-document.ts");
   const parallelHomeFetch =
-    /Promise\.all(?:Settled)?\s*\(/.test(homePage) &&
-    homePage.includes("fetchHomepageFeed");
+    (/Promise\.all(?:Settled)?\s*\(/.test(homePage) && homePage.includes("fetchHomepageFeed")) ||
+    (/Promise\.all(?:Settled)?\s*\(/.test(homeLoader) && homeLoader.includes("fetchHomepageFeed"));
   const serverComposedHome =
     homeContent.includes("HomepageProductSections") && !homeContent.includes('"use client"');
 

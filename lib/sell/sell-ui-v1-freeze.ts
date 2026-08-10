@@ -18,6 +18,13 @@ export const SELL_UI_V1_FREEZE = {
   officialRoute: "/sell",
   officialLocalhost: "http://localhost:3000/sell",
 
+  /**
+   * Owner unlock (COD SÂNGE): Publish position = inline below Parcel Size.
+   * Sticky viewport Publish is forbidden; see SELL_ABSOLUTE_AUTHORITY_FREEZE_V1.publishPosition.
+   */
+  publishPosition: "below-parcel" as const,
+  publishStickyViewport: false,
+
   scopeFrozen: [
     "Sell Flow",
     "Photo Upload",
@@ -34,6 +41,7 @@ export const SELL_UI_V1_FREEZE = {
     "Quantity",
     "Parcel",
     "Publish",
+    "Publish position below Parcel",
   ] as const,
 
   visualFrozen: [

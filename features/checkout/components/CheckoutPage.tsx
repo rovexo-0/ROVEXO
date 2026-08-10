@@ -170,6 +170,7 @@ export function CheckoutPage({
       <BuyNowPublicErrorDialog
         open={Boolean(errorMessage)}
         message={errorMessage ?? ""}
+        actionContext="Checkout"
         onClose={clearErrorMessage}
       />
 

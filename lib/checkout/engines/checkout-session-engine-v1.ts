@@ -199,17 +199,16 @@ async function stripeReportsPaymentSucceeded(
   if (!session.stripe_checkout_session_id || !isStripeConfigured()) {
     return false;
   }
-  try {
-    const stripeSession = await getStripeClient().checkout.sessions.retrieve(
-      session.stripe_checkout_session_id,
+  // Turbopack (Next 16.3) miscompiles destroy()'s unpaid path when this helper
+  // uses try/catch around await and is awaited inside sessionHasPaidOrder.
+  // Promise rejection handler preserves identical semantics: errors → false.
+  return getStripeClient()
+    .checkout.sessions.retrieve(session.stripe_checkout_session_id)
+    .then(
+      (stripeSession) =>
+        stripeSession.payment_status === "paid" || stripeSession.status === "complete",
+      () => false,
     );
-    return (
-      stripeSession.payment_status === "paid" ||
-      stripeSession.status === "complete"
-    );
-  } catch {
-    return false;
-  }
 }
 
 async function sessionHasPaidOrder(session: CheckoutSessionRow): Promise<boolean> {
@@ -243,7 +242,8 @@ async function sessionHasPaidOrder(session: CheckoutSessionRow): Promise<boolean
     }
   }
 
-  return stripeReportsPaymentSucceeded(session);
+  const stripePaid = await stripeReportsPaymentSucceeded(session);
+  return stripePaid;
 }
 
 async function releaseSessionInventory(

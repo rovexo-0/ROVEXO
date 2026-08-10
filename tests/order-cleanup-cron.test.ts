@@ -19,14 +19,20 @@ describe("order cleanup cron", () => {
     const { recordCronJobRun } = await import("@/lib/ops/production-status");
     const { runOrderCleanupJob } = await import("@/lib/orders/cleanup");
 
+    const chain = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      lt: vi.fn(),
+      order: vi.fn(),
+      limit: vi.fn(),
+    };
+    chain.select.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.lt.mockReturnValue(chain);
+    chain.order.mockReturnValue(chain);
+    chain.limit.mockResolvedValue({ data: [] });
     vi.mocked(createAdminClient).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            lt: vi.fn().mockResolvedValue({ data: [] }),
-          }),
-        }),
-      }),
+      from: vi.fn().mockReturnValue(chain),
     } as never);
 
     const result = await runOrderCleanupJob();

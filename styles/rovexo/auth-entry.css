@@ -11,3 +11,5 @@
 @import "./primary-button-v1.css";
 @import "./platform-canonical-ui.css";
 @import "./icon-standard-v1.css";
+/* Theme Switch v1.0 — Black Underground on auth routes (same SSOT as platform). */
+@import "./black-underground-theme-v1.css";

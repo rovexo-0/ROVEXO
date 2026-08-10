@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { configureWebPush, isPushConfigured, webpush, type PushPriority } from "@/lib/push/vapid";
 import { resolvePushNotificationHref } from "@/lib/push/resolve-push-notification-href-v1";
+import { buildNotificationDeepLinkData } from "@/lib/notifications/notification-deep-link-v1";
 import { isWithinQuietHours } from "@/lib/notifications/quiet-hours";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
@@ -134,25 +135,58 @@ export async function sendPushNotification(
     type: payload.eventType,
   });
 
-  // Chromium / FCM payload — base shape unchanged; pushTraceId added only for SW correlation.
-  const buildChromiumPayload = (pushTraceId: string) =>
-    JSON.stringify({
+  const deepLink = buildNotificationDeepLinkData({
+    href: resolvedHref,
+    notificationId: payload.notificationId,
+    type: payload.eventType,
+    title: payload.title,
+    body: payload.body,
+  });
+
+  const conversationId =
+    payload.conversationId ??
+    deepLink.destination.params?.conversationId ??
+    readQueryId(deepLink.href, "conversationId");
+  const offerId =
+    payload.offerId ??
+    deepLink.destination.params?.offerId ??
+    deepLink.destination.params?.eventId ??
+    readQueryId(deepLink.href, "offerId");
+  const orderId =
+    payload.orderId ??
+    deepLink.destination.params?.orderId ??
+    readQueryId(deepLink.href, "orderId");
+
+  const buildPushData = (pushTraceId: string) => ({
+    notificationId: deepLink.notificationId,
+    type: deepLink.type,
+    href: deepLink.href,
+    destination: deepLink.destination,
+    conversationId,
+    offerId,
+    orderId,
+    pushTraceId,
+  });
+
+  // Chromium / FCM — title/body + canonical data (destination included; no PII).
+  const buildChromiumPayload = (pushTraceId: string) => {
+    const data = buildPushData(pushTraceId);
+    return JSON.stringify({
       title: payload.title,
       body: payload.body,
-      href: resolvedHref,
+      href: data.href,
       tag: payload.groupKey ?? payload.notificationId ?? undefined,
       silent,
       priority,
       sound,
       vibration,
-      notificationId: payload.notificationId,
+      notificationId: data.notificationId,
+      type: data.type,
+      destination: data.destination,
       pushTraceId,
+      data,
     });
-
-  const conversationId =
-    payload.conversationId ?? readQueryId(resolvedHref, "conversationId");
-  const offerId = payload.offerId ?? readQueryId(resolvedHref, "offerId");
-  const orderId = payload.orderId ?? readQueryId(resolvedHref, "orderId");
+  };
 
   const pushReady = isPushConfigured() && configureWebPush();
 
@@ -176,21 +210,13 @@ export async function sendPushNotification(
               ? "chromium_fcm"
               : "web";
 
-    // TEMP P0: Apple gets minimal payload only (title/body/tag/data). Chromium unchanged.
+    // TEMP P0: Apple gets minimal payload only (title/body/tag/data). Chromium unchanged shape + data.
     const applePushPayload = JSON.stringify({
       title: payload.title,
       body: payload.body,
       tag: payload.groupKey ?? payload.notificationId ?? undefined,
       appleMinimal: true,
-      data: {
-        href: resolvedHref,
-        notificationId: payload.notificationId ?? null,
-        eventType: payload.eventType ?? null,
-        pushTraceId,
-        conversationId,
-        offerId,
-        orderId,
-      },
+      data: buildPushData(pushTraceId),
     });
     const pushPayloadBody = isApple ? applePushPayload : buildChromiumPayload(pushTraceId);
     const urgency = priority === "emergency" || priority === "high" ? "high" : "normal";
@@ -228,7 +254,8 @@ export async function sendPushNotification(
         platform: subscription.platform,
         title: payload.title,
         body: payload.body,
-        href: resolvedHref,
+        href: deepLink.href,
+        destination: deepLink.destination,
         p256dh: subscription.p256dh,
         auth: subscription.auth,
         appleMinimal: isApple,

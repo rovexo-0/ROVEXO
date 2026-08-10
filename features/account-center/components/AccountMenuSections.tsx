@@ -7,6 +7,7 @@ import {
   type AccountMenuItem,
 } from "@/lib/account-center/canonical-menu";
 import { HolidayModeProfileRow } from "@/features/account-center/components/HolidayModeProfileRow";
+import { ThemeProfileRow } from "@/features/account-center/components/ThemeProfileRow";
 import {
   PROFILE_BALANCE_ICON,
   ProfileMenuIcon,
@@ -68,6 +69,11 @@ export function AccountMenuSections({
       {sections.map((section) => (
         <div key={section.id} className="ac-canonical__menu-group" data-section={section.id}>
           {section.items.map((item) => {
+            if (item.id === "theme") {
+              // Theme is rendered in a dedicated group below — guaranteed on mobile + desktop.
+              return null;
+            }
+
             if (item.id === "holiday-mode") {
               return (
                 <HolidayModeProfileRow
@@ -92,6 +98,11 @@ export function AccountMenuSections({
           })}
         </div>
       ))}
+
+      {/* Theme Switch v1.0 — always under Rovexo Ideas, before Sign Out (mobile + desktop). */}
+      <div className="ac-canonical__menu-group" data-section="theme" data-profile-theme-group="v1.0">
+        <ThemeProfileRow />
+      </div>
 
       <div className="ac-canonical__menu-group" data-section="system">
         <CanonicalMenuRow

@@ -97,13 +97,29 @@ export const RVX_UNCLASSIFIED = "RVX-2099" as const;
 export const RVX_UNCLASSIFIED_MESSAGE =
   "This request could not be completed. Please try again." as const;
 
-/** User-visible only — Absolute UX Law (localhost E2E blood). No RVX. No engines. */
+/**
+ * User-visible only — Absolute UX Law (localhost E2E blood). No RVX. No engines.
+ * Dialog chrome (Owner unlock COD SÂNGE): action context + optional Retry + OK
+ * via BuyNowPublicErrorDialog — not Sorry+OK-only forced chrome.
+ */
 export const BUY_NOW_PUBLIC_MESSAGES = {
   itemUnavailable: "Sorry.\nThis item is currently unavailable.",
   outOfStock: "Sorry, this item is now out of stock.",
   sellerUnavailable: "Sorry.\nThe seller is temporarily unavailable.",
   signInRequired: "Sorry.\nPlease sign in to continue.",
   tryAgain: "Sorry.\nSomething went wrong.\nPlease try again.",
+} as const;
+
+/** Public error dialog contract — Owner-approved Retry + action context. */
+export const BUY_NOW_PUBLIC_ERROR_UX_V1 = {
+  id: "buy-now-public-error-ux-v1",
+  version: "1.1.0",
+  status: "OWNER_APPROVED",
+  dialog: "features/checkout/components/BuyNowPublicErrorDialog.tsx",
+  actionContext: true,
+  retryWhenProvided: true,
+  okDismiss: true,
+  forbiddenInUi: ["RVX-", "validation failed", "engine", "idempotency", "Checkout blocked"],
 } as const;
 
 export type BuyNowPublicMessage =
@@ -226,7 +242,8 @@ export function formatBuyNowUserError(code: RvxClassifiedCode): string {
 }
 
 /**
- * Public UI only — Absolute UX Law.
+ * Public UI copy only — Absolute UX Law (message body).
+ * Dialog may show actionContext + Retry + OK (BUY_NOW_PUBLIC_ERROR_UX_V1).
  * Forbidden in UI: RVX-*, validation failed, engine names, technical copy.
  */
 export function toBuyNowPublicMessage(code: RvxClassifiedCode): BuyNowPublicMessage {

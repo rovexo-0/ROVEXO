@@ -86,11 +86,14 @@ describe("Buy Now Absolute Law — Buy Now ≠ Cart", () => {
     ]);
     expect(BUY_NOW_ABSOLUTE_LAW_V1.failurePath).toEqual([
       "BUY_NOW",
-      "SORRY",
-      "OK",
+      "PUBLIC_ERROR",
+      "RETRY_OR_OK",
       "LISTING_PAGE",
       "PASS",
     ]);
+    expect(BUY_NOW_ABSOLUTE_LAW_V1.publicErrorUx.actionContext).toBe(true);
+    expect(BUY_NOW_ABSOLUTE_LAW_V1.publicErrorUx.retryWhenSafe).toBe(true);
+    expect(BUY_NOW_ABSOLUTE_LAW_V1.publicErrorUx.dialog).toBe("BuyNowPublicErrorDialog");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.e2eQuotas.totalRequired).toBe(140);
     expect(BUY_NOW_ABSOLUTE_LAW_V1.forbiddenCursorDeclarations).toContain("100% COMPLETE");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.finalLaw).toContain("BUY_NOW_IS_LAW");
@@ -123,7 +126,7 @@ describe("Buy Now Absolute Law — Buy Now ≠ Cart", () => {
     );
   });
 
-  it("public UI never shows RVX — only Sorry messages", () => {
+  it("public UI never shows RVX — dialog supports action context + Retry + OK", () => {
     expect(toBuyNowPublicMessage("RVX-2001")).toBe(BUY_NOW_PUBLIC_MESSAGES.itemUnavailable);
     expect(toBuyNowPublicMessage("RVX-2002")).toBe(BUY_NOW_PUBLIC_MESSAGES.signInRequired);
     expect(toBuyNowPublicMessage("RVX-2003")).toBe(BUY_NOW_PUBLIC_MESSAGES.sellerUnavailable);
@@ -131,9 +134,15 @@ describe("Buy Now Absolute Law — Buy Now ≠ Cart", () => {
     expect(containsForbiddenBuyNowUiLeak(toBuyNowPublicMessage("RVX-2003"))).toBe(false);
     expect(containsForbiddenBuyNowUiLeak("RVX-2003\nSeller validation failed.")).toBe(true);
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
+    const dialog = readSource("features/checkout/components/BuyNowPublicErrorDialog.tsx");
     const blocked = readSource("features/checkout/components/CheckoutGuardBlocked.tsx");
     const nav = readSource("features/checkout/hooks/use-buy-now-navigation.ts");
+    const checkout = readSource("features/checkout/components/CheckoutPage.tsx");
     expect(page).toContain("BuyNowPublicErrorDialog");
+    expect(dialog).toContain("actionContext");
+    expect(dialog).toContain("onRetry");
+    expect(dialog).toContain("bn-public-error__retry");
+    expect(checkout).toContain('actionContext="Checkout"');
     expect(blocked).toContain("toBuyNowPublicMessage");
     expect(blocked).not.toContain("Checkout blocked");
     expect(nav).toContain("toBuyNowPublicMessage");

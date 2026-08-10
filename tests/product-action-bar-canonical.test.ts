@@ -71,7 +71,7 @@ describe("canonical product action bar", () => {
     expect(PRODUCT_ACTION_BAR_VISUAL.gapPx).toBe(8);
     expect(PRODUCT_ACTION_BAR_VISUAL.iconSizePx).toBe(24);
     expect(PRODUCT_ACTION_BAR_VISUAL.fontWeight).toBe(600);
-    expect(css).toContain("background: #ffffff");
+    expect(css).toContain("background: var(--pd-v1-card-bg, var(--rvx-surface))");
     expect(css).toContain("backdrop-filter: none");
     expect(css).toContain("rgba(0 0 0 / 0.05)");
     expect(css).toContain("pd-v1-action-bar-enter");

@@ -19,11 +19,30 @@ import {
   sanitizeOfferInput,
 } from "@/lib/transaction-hub/make-offer-freeze-v1";
 
+/** Optional Bundle context — same POST /api/offers path; server remains authority. */
+export type OfferComposerBundleContext = {
+  bundleId: string;
+  sellerId: string;
+  sellerName: string;
+  currency?: string;
+  lines: Array<{
+    productId: string;
+    slug: string;
+    title: string;
+    imageUrl: string;
+    unitPrice: number;
+    quantity: number;
+    maxStock: number;
+  }>;
+};
+
 type OfferComposerSheetProps = {
   open: boolean;
   onClose: () => void;
   product: OfferComposerProduct;
   conversationId?: string;
+  /** When set, % discounts use product.price as bundle list total; submit sends bundle body. */
+  bundle?: OfferComposerBundleContext;
   onOfferSent?: (context: { conversationHref?: string }) => void;
 };
 
@@ -32,6 +51,7 @@ type OfferMode = "off5" | "off10" | "custom";
 type OfferComposerBodyProps = {
   product: OfferComposerProduct;
   conversationId?: string;
+  bundle?: OfferComposerBundleContext;
   onClose: () => void;
   onOfferSent?: (context: { conversationHref?: string }) => void;
 };
@@ -42,6 +62,7 @@ type OfferComposerBodyProps = {
 function OfferComposerBody({
   product,
   conversationId,
+  bundle,
   onClose,
   onOfferSent,
 }: OfferComposerBodyProps) {
@@ -51,13 +72,16 @@ function OfferComposerBody({
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  /** List total used for 5%/10% presets (single listing or whole bundle). */
+  const listPrice = product.price;
+
   const price5 = useMemo(
-    () => calculateOfferFromDiscount(product.price, 0.05),
-    [product.price],
+    () => calculateOfferFromDiscount(listPrice, 0.05),
+    [listPrice],
   );
   const price10 = useMemo(
-    () => calculateOfferFromDiscount(product.price, 0.1),
-    [product.price],
+    () => calculateOfferFromDiscount(listPrice, 0.1),
+    [listPrice],
   );
 
   const selectPreset = useCallback(
@@ -83,9 +107,11 @@ function OfferComposerBody({
       return;
     }
 
-    if (parsed >= product.price) {
+    if (parsed >= listPrice) {
       pushToast({
-        title: "Offer must be below the listing price.",
+        title: bundle
+          ? "Offer must be below the bundle listing total."
+          : "Offer must be below the listing price.",
         variant: "error",
       });
       return;
@@ -96,14 +122,32 @@ function OfferComposerBody({
       const response = await fetch("/api/offers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productSlug: product.slug,
-          amount: parsed,
-          conversationId,
-        }),
+        credentials: "include",
+        body: JSON.stringify(
+          bundle
+            ? {
+                amount: parsed,
+                bundle: {
+                  bundleId: bundle.bundleId,
+                  sellerId: bundle.sellerId,
+                  sellerName: bundle.sellerName,
+                  currency: bundle.currency,
+                  lines: bundle.lines,
+                },
+              }
+            : {
+                productSlug: product.slug,
+                amount: parsed,
+                conversationId,
+              },
+        ),
       });
 
-      const payload = (await response.json()) as { success?: boolean; error?: string };
+      const payload = (await response.json()) as {
+        success?: boolean;
+        error?: string;
+        href?: string;
+      };
 
       if (!response.ok || !payload.success) {
         pushToast({
@@ -115,24 +159,27 @@ function OfferComposerBody({
 
       trackTransactionHubMakeOffer(
         {
-          conversationId: conversationId ?? "product-detail",
+          conversationId: conversationId ?? (bundle ? "bundle-review" : "product-detail"),
           productSlug: product.slug,
           productId: product.id,
         },
         parsed,
       );
 
-      let conversationHref: string | undefined;
-      try {
-        const chatResponse = await fetch("/api/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productSlug: product.slug }),
-        });
-        const chatPayload = (await chatResponse.json()) as { href?: string };
-        conversationHref = chatPayload.href;
-      } catch {
-        conversationHref = undefined;
+      let conversationHref: string | undefined = payload.href;
+      if (!conversationHref && !bundle) {
+        try {
+          const chatResponse = await fetch("/api/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ productSlug: product.slug }),
+          });
+          const chatPayload = (await chatResponse.json()) as { href?: string };
+          conversationHref = chatPayload.href;
+        } catch {
+          conversationHref = undefined;
+        }
       }
 
       pushToast({
@@ -163,11 +210,12 @@ function OfferComposerBody({
     }
   }, [
     amount,
+    bundle,
     conversationId,
+    listPrice,
     onClose,
     onOfferSent,
     product.id,
-    product.price,
     product.slug,
     pushToast,
     router,
@@ -178,6 +226,7 @@ function OfferComposerBody({
       className="mo-v1__sheet"
       data-make-offer={MAKE_OFFER_FREEZE_V1.version}
       data-make-offer-freeze="FINAL_FREEZE"
+      data-bundle-make-offer={bundle ? "true" : undefined}
     >
       <header className="mo-v1__header">
         <button type="button" className="mo-v1__close" onClick={onClose} disabled={submitting}>
@@ -197,7 +246,7 @@ function OfferComposerBody({
         </div>
         <div className="mo-v1__product-meta">
           <p className="mo-v1__title">{product.title}</p>
-          <p className="mo-v1__price">{formatOfferAmount(product.price)}</p>
+          <p className="mo-v1__price">{formatOfferAmount(listPrice)}</p>
         </div>
       </div>
 
@@ -267,23 +316,21 @@ function OfferComposerBody({
       >
         {submitting ? "Submitting…" : "Submit Offer"}
       </button>
-
-      <p className="mo-v1__limit">
-        {MAKE_OFFER_FREEZE_V1.dailyOfferLimit} offers left for today
-      </p>
     </div>
   );
 }
 
 /**
  * Make Offer — Cod Sânge v1.0 FINAL FREEZE.
- * Close · Image · Title · £ · 5%/10%/Custom · input · Submit · offers left.
+ * Close · Image · Title · £ · 5%/10%/Custom · input · Submit Offer.
+ * Optional `bundle` reuses the same UI; POST /api/offers with existing bundle body.
  */
 export function OfferComposerSheet({
   open,
   onClose,
   product,
   conversationId,
+  bundle,
   onOfferSent,
 }: OfferComposerSheetProps) {
   return (
@@ -298,9 +345,10 @@ export function OfferComposerSheet({
     >
       {open ? (
         <OfferComposerBody
-          key={`${product.id}-open`}
+          key={`${bundle?.bundleId ?? product.id}-open`}
           product={product}
           conversationId={conversationId}
+          bundle={bundle}
           onClose={onClose}
           onOfferSent={onOfferSent}
         />

@@ -1208,6 +1208,43 @@
   gap: 1px;
 }
 
+/* Compact product thumb inside existing Offer / Counter card — not a rail / sheet. */
+.conv-hub__offer-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.conv-hub__offer-thumb {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #ffffff url("/placeholder-product.svg") center / cover no-repeat;
+}
+
+.conv-hub__offer-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Product image absolute law — no filter / blur / opacity. */
+  filter: none;
+}
+
+.conv-hub__offer-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+}
+
 .conv-hub__offer--buyer {
   align-self: flex-start;
 }

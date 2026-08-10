@@ -169,9 +169,10 @@ describe("HMRC Production Lock", () => {
     expect(HMRC_RC1_LEDGER_DECISION_V1.removesRc1Blocker).toBe(true);
   });
 
-  it("fail-closes seller compliance route for buyers", () => {
+  it("fail-closes HMRC centre for unauthenticated; authenticated open path preserved", () => {
     const page = readSource("app/(platform)/seller/compliance/page.tsx");
     expect(page).toContain("canAccessHmrcSellerCentre");
+    expect(page).toContain('redirect("/login?next=/seller/compliance")');
     expect(page).toContain("hmrc=seller_only");
     const docs = readSource("app/api/seller/compliance/documents/[kind]/route.ts");
     expect(docs).toContain("canAccessHmrcSellerCentre");

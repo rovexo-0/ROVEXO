@@ -8,7 +8,7 @@
   --rx-listing-pad: var(--cp-card-pad, 10px);
   --rx-listing-gap: var(--cp-row-gap, 8px);
   --rx-listing-gap-md: 6px;
-  --rx-listing-image-ratio: 160 / 220;
+  --rx-listing-image-ratio: 4 / 5;
   --rx-listing-save-size: 28px;
   --rx-listing-save-inset: 8px;
   --rx-listing-seller-size: 22px;

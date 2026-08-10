@@ -3,18 +3,23 @@
  * Mobile first · Full Width · ROVEXO purple.
  */
 .hmrc-rc {
-  --hmrc-purple: #7c3aed;
-  --hmrc-purple-soft: #f3e8ff;
+  --hmrc-purple: var(--rvx-accent, #7c3aed);
+  --hmrc-purple-soft: color-mix(in srgb, var(--hmrc-purple) 14%, var(--rvx-surface, #f3e8ff));
   --hmrc-green: #16a34a;
-  --hmrc-green-soft: #dcfce7;
+  --hmrc-green-soft: color-mix(in srgb, var(--hmrc-green) 16%, var(--rvx-surface, #dcfce7));
   --hmrc-amber: #d97706;
-  --hmrc-amber-soft: #fef3c7;
+  --hmrc-amber-soft: color-mix(in srgb, var(--hmrc-amber) 16%, var(--rvx-surface, #fef3c7));
   --hmrc-red: #dc2626;
-  --hmrc-red-soft: #fee2e2;
+  --hmrc-red-soft: color-mix(in srgb, var(--hmrc-red) 16%, var(--rvx-surface, #fee2e2));
   --hmrc-blue: #2563eb;
-  --hmrc-blue-soft: #dbeafe;
-  --hmrc-slate: #475569;
-  --hmrc-slate-soft: #f1f5f9;
+  --hmrc-blue-soft: color-mix(in srgb, var(--hmrc-blue) 16%, var(--rvx-surface, #dbeafe));
+  --hmrc-slate: var(--rvx-text-secondary, #475569);
+  --hmrc-slate-soft: var(--rvx-surface-secondary, #f1f5f9);
+  --hmrc-text: var(--rvx-text-primary, #0f172a);
+  --hmrc-muted: var(--rvx-text-secondary, #64748b);
+  --hmrc-surface: var(--rvx-surface, #ffffff);
+  --hmrc-border: var(--rvx-border, #e2e8f0);
+  --hmrc-track: var(--rvx-surface-secondary, #e2e8f0);
   --hmrc-radius: 16px;
   width: 100%;
   max-width: 100%;
@@ -22,7 +27,8 @@
   flex-direction: column;
   gap: 16px;
   padding-bottom: 28px;
-  color: #0f172a;
+  color: var(--hmrc-text);
+  background: transparent;
 }
 
 .hmrc-rc__intro {
@@ -42,7 +48,7 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__help-btn {
@@ -51,12 +57,12 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: #0f172a;
+  color: var(--hmrc-text);
 }
 
 .hmrc-rc__card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--hmrc-surface);
+  border: 1px solid var(--hmrc-border);
   border-radius: var(--hmrc-radius);
   padding: 16px;
   width: 100%;
@@ -81,7 +87,7 @@
   margin: 0 0 12px;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__edit-btn {
@@ -190,7 +196,7 @@
   margin: 4px 0 0;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: #334155;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__status-cta {
@@ -201,7 +207,7 @@
 }
 
 .hmrc-rc__status-chevron {
-  color: #94a3b8;
+  color: var(--hmrc-muted);
   font-size: 1.25rem;
   line-height: 1;
   margin-top: 8px;
@@ -229,7 +235,7 @@
   width: 100%;
   min-height: 56px;
   padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--hmrc-border);
   text-decoration: none;
   color: inherit;
 }
@@ -263,7 +269,7 @@
   flex: 1;
   min-width: 0;
   font-size: 0.9375rem;
-  color: #334155;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__metric-value {
@@ -285,14 +291,14 @@
 
 .hmrc-rc__progress-sep,
 .hmrc-rc__progress-threshold {
-  color: #94a3b8;
+  color: var(--hmrc-muted);
   font-weight: 600;
 }
 
 .hmrc-rc__progress-caption {
   margin: 0 0 12px;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__progress-track {
@@ -300,7 +306,7 @@
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: #e2e8f0;
+  background: var(--hmrc-track);
   overflow: visible;
 }
 
@@ -341,14 +347,14 @@
 .hmrc-rc__prefill-label {
   margin: 0;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__prefill-value {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--hmrc-text);
   word-break: break-word;
 }
 
@@ -373,7 +379,7 @@
   margin: 12px 0 0;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__secure-note span:first-child {
@@ -387,13 +393,13 @@
 .hmrc-rc__help-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--hmrc-text);
 }
 
 .hmrc-rc__doc-sub,
 .hmrc-rc__help-sub {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--hmrc-muted);
 }
 
 .hmrc-rc__doc-download,
@@ -407,7 +413,7 @@
   margin: 8px 0 0;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #475569;
+  color: var(--hmrc-muted);
 }
 
 @media (min-width: 768px) {

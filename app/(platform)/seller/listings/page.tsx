@@ -25,7 +25,7 @@ export default async function SellerListingsRoute({ searchParams }: SellerListin
   return (
     <Suspense
       fallback={
-        <div className="acm" data-listings-version="v2.0-final" style={{ padding: 24 }}>
+        <div className="acm" data-listings-version="v2.0-final" style={{ paddingInline: 16, paddingBlock: 16 }}>
           <p>Loading listings…</p>
         </div>
       }

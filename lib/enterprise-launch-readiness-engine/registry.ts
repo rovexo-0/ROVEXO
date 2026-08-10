@@ -98,9 +98,17 @@ export const PWA_CHECKS = [
   "standalone-mode",
 ] as const;
 
+/**
+ * Production v1 push delivery = browser Web Push only
+ * (VAPID + service worker + /api/push/subscribe + lib/push/*).
+ *
+ * Native FCM / APNs are NOT v1 web marketplace launch requirements.
+ * They remain on the deferred native-app roadmap — see
+ * DEFERRED_NATIVE_PUSH_ADAPTERS. Do not re-add them to PUSH_CHECKS
+ * until a native app launch gate is Owner-authorized; marking them
+ * PASS without FCM/APNs evidence is forbidden.
+ */
 export const PUSH_CHECKS = [
-  "firebase-cloud-messaging",
-  "apple-push-notifications",
   "web-push",
   "device-registration",
   "device-removal",
@@ -111,6 +119,12 @@ export const PUSH_CHECKS = [
   "retry-logic",
   "delivery-success",
   "delivery-failure",
+] as const;
+
+/** Roadmap-only — excluded from production launch scoring (v1 web). */
+export const DEFERRED_NATIVE_PUSH_ADAPTERS = [
+  "firebase-cloud-messaging",
+  "apple-push-notifications",
 ] as const;
 
 export const HEALTH_CHECKS = [

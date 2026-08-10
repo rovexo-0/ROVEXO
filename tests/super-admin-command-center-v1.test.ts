@@ -118,9 +118,17 @@ describe("Super Admin Command Center v1.0", () => {
   });
 
   it("loads command center v1 and v2 styles", () => {
-    const styles = readFileSync(join(process.cwd(), "styles/rovexo/index.css"), "utf8");
-    expect(styles).toContain("command-center-v1.css");
-    expect(styles).toContain("command-center-v2.css");
+    const adminEntry = readFileSync(
+      join(process.cwd(), "styles/rovexo/enterprise-admin-entry.css"),
+      "utf8",
+    );
+    const layout = readFileSync(
+      join(process.cwd(), "features/command-centre/CommandCentreLayout.tsx"),
+      "utf8",
+    );
+    expect(adminEntry).toContain("command-center-v1.css");
+    expect(adminEntry).toContain("command-center-v2.css");
+    expect(layout).toContain('import "@/styles/rovexo/enterprise-admin-entry.css"');
   });
 
   it("extends snapshot with v2 enterprise view model", () => {

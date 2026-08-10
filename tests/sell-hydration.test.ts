@@ -54,12 +54,13 @@ describe("Sell module hydration safety", () => {
     expect(source).toContain("sellDebug");
   });
 
-  it("locks the app to the canonical light theme only", () => {
+  it("defaults SSR html to light; Theme Switch v1.0 owns runtime theme", () => {
     const layout = readSource("app/layout.tsx");
     expect(layout).toContain('data-theme="light"');
-    expect(layout).not.toContain("ThemeProvider");
-    expect(layout).not.toContain("THEME_INIT_SCRIPT");
-    expect(layout).not.toContain("rovexo-theme");
+    expect(layout).toContain("RovexoThemeProvider");
+    expect(layout).toContain("THEME_INIT_SCRIPT");
+    expect(layout).toContain("rovexo-theme");
+    expect(layout).not.toContain("next-themes");
   });
 
   it("persists draft on visibility and bfcache lifecycle events", () => {

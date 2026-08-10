@@ -48,8 +48,8 @@ function hasLegacyMarkers(): boolean {
   return legacyNames.length > 0;
 }
 
-function hasDuplicateHomepageCategories(homeContent: string): boolean {
-  return homeContent.includes("CategoryGridSection") && homeContent.includes("HomeCategoryRail");
+function hasDuplicateHomepageCategories(canonicalHomepage: string): boolean {
+  return canonicalHomepage.includes("CategoryGridSection") && canonicalHomepage.includes("CanonicalCategoryRail");
 }
 
 function hasDebugComponents(): boolean {
@@ -63,10 +63,10 @@ function evaluateDetection(
     homepagePass: boolean;
     globalPass: boolean;
     launchPass: boolean;
-    homeContent: string;
+    canonicalHomepage: string;
   },
 ): IntelligenceFinding {
-  const { modulesComplete, homepagePass, globalPass, launchPass, homeContent } = context;
+  const { modulesComplete, homepagePass, globalPass, launchPass, canonicalHomepage } = context;
   let pass = modulesComplete && homepagePass && globalPass && launchPass;
   let severity: IntelligenceFinding["severity"] = "low";
   let message = `${labelize(detection)} — clear`;
@@ -85,13 +85,13 @@ function evaluateDetection(
       severity = pass ? "low" : "high";
       break;
     case "duplicate-components":
-      pass = !hasDuplicateHomepageCategories(homeContent);
+      pass = !hasDuplicateHomepageCategories(canonicalHomepage);
       message = pass ? "No duplicate category widgets" : "Duplicate category components on homepage";
       severity = pass ? "low" : "high";
-      target = "components/home/HomeContent.tsx";
+      target = "components/homepage/canonical/CanonicalHomepage.tsx";
       break;
     case "dead-code":
-      pass = !readSource("components/home/HomeContent.tsx").includes("CategoryGridSection");
+      pass = !readSource("components/homepage/canonical/CanonicalHomepage.tsx").includes("CategoryGridSection");
       message = pass ? "No dead homepage components referenced" : "Dead component references detected";
       break;
     case "broken-components":
@@ -175,9 +175,9 @@ export function runMarketplaceIntelligenceScan(input: {
   globalPass: boolean;
   launchPass: boolean;
 }): MarketplaceIntelligenceResult {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   const findings = MARKETPLACE_INTELLIGENCE_DETECTIONS.map((detection) =>
-    evaluateDetection(detection, { ...input, homeContent }),
+    evaluateDetection(detection, { ...input, canonicalHomepage }),
   );
   const clearDetections = findings.filter((f) => f.status === "pass").length;
   const passPercent = Math.round((clearDetections / findings.length) * 10000) / 100;

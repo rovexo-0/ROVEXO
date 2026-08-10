@@ -454,15 +454,15 @@ export function ViewProfilePage({
                 {isOwnProfile ? (
                   <CanonicalProfileAvatar
                     ref={avatarRef}
-                    name={profile.fullName}
+                    name={profile.username}
                     avatarUrl={liveAvatarUrl}
                     onUpdated={onAvatarUpdated}
                   />
                 ) : (
                   <Avatar
                     src={profile.avatarUrl}
-                    alt={profile.fullName}
-                    name={profile.fullName}
+                    alt={profile.username}
+                    name={profile.username}
                     size="xl"
                     className="vp-v1__avatar"
                   />
@@ -471,7 +471,7 @@ export function ViewProfilePage({
 
               <div className="vp-v1__hero-copy">
                 <h1 className="vp-v1__name">
-                  <span className="vp-v1__name-text">{profile.fullName}</span>
+                  <span className="vp-v1__name-text">{profile.username}</span>
                   {showVerifiedBadge ? (
                     <VerifiedBadge
                       className="vp-v1__verified-badge"
@@ -746,7 +746,7 @@ export function ViewProfilePage({
                       <p className="vp-v1__review-meta">
                         {(() => {
                           const href = resolvePublicProfileHref(review.reviewerUsername);
-                          const label = review.reviewerName ?? "Member";
+                          const label = review.reviewerUsername?.trim() || "Member";
                           return href ? (
                             <Link href={href} className="vp-v1__review-author">
                               {label}

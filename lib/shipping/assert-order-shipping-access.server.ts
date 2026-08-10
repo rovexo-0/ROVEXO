@@ -18,6 +18,9 @@ export type ShippingOrderAccess =
  * Platform Integration P0 — Shipping ownership gate.
  * Admin clients may load shipping rows only AFTER participant validation.
  * Non-participants fail closed (treated as not found).
+ *
+ * Use for quotes / shipping context reads that both parties may need.
+ * Shipping *label documents* (pdfUrl) require {@link assertOrderShippingSeller}.
  */
 export async function assertOrderShippingParticipant(
   orderId: string,
@@ -63,4 +66,42 @@ export async function assertOrderShippingParticipant(
   }
 
   return { ok: false };
+}
+
+export type ShippingSellerAccess =
+  | {
+      ok: true;
+      role: "seller";
+      orderId: string;
+      buyerId: string;
+      sellerId: string;
+      status: OrderStatus;
+    }
+  | { ok: false };
+
+/**
+ * Shipping Label document gate — SELLER ONLY.
+ * Authenticated user must equal order.seller_id.
+ * Buyers, other sellers, and anonymous callers fail closed as not found (404).
+ * Does not invent admin privileges.
+ */
+export async function assertOrderShippingSeller(
+  orderId: string,
+  userId: string,
+): Promise<ShippingSellerAccess> {
+  const access = await assertOrderShippingParticipant(orderId, userId);
+  if (!access.ok) {
+    return { ok: false };
+  }
+  if (access.role !== "seller") {
+    return { ok: false };
+  }
+  return {
+    ok: true,
+    role: "seller",
+    orderId: access.orderId,
+    buyerId: access.buyerId,
+    sellerId: access.sellerId,
+    status: access.status,
+  };
 }

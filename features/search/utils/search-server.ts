@@ -11,6 +11,7 @@ import {
 } from "@/lib/search/defaults";
 import { MANUAL_LISTING_CITIES } from "@/lib/sell/listing-location";
 import type { Product } from "@/lib/products/types";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import type {
   SearchBrand,
   SearchLocation,
@@ -102,7 +103,7 @@ function mapProfilesToUsers(
 ): SearchUser[] {
   return profiles.map((profile) => ({
     id: profile.id,
-    name: profile.username || profile.full_name || "Member",
+    name: resolvePublicUsernameLabel(profile.username, "Member"),
     handle: profile.username ? `@${profile.username}` : "",
     href: memberHref(profile),
   }));
@@ -120,9 +121,9 @@ function mapProfilesToStores(
     if (!href) continue;
     stores.push({
       id: profile.id,
-      name: profile.username || profile.full_name || "Store",
+      name: resolvePublicUsernameLabel(profile.username, "Store"),
       href,
-      description: profile.full_name?.trim() || "",
+      description: "",
     });
   }
   return stores;

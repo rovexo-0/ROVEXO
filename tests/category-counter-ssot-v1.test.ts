@@ -33,8 +33,9 @@ describe("Category counter SSOT certification v1.0", () => {
 
   it("SSOT owner remains getEligibleListings / searchListings", () => {
     const eligible = readSource("lib/listings/eligible-listings.ts");
-    expect(eligible).toContain("return searchListings(searchOptions)");
+    expect(eligible).toContain("await searchListings(searchOptions)");
     expect(eligible).toContain("countEligibleListings");
+    expect(eligible).toContain("getEligibleListings");
   });
 
   it("empty category → visible total 0", () => {

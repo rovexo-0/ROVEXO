@@ -25,17 +25,17 @@ function scanGlobalControl(): CompletionValidationItem[] {
 }
 
 function scanGlobalUiIntegrity(globalPass: boolean, homepagePass: boolean): CompletionValidationItem[] {
-  const homeContent = readSource("components/home/HomeContent.tsx");
+  const canonicalHomepage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
   return GLOBAL_UI_INTEGRITY_CHECKS.map((check) => {
     let pass = globalPass;
     if (check === "duplicate-categories" || check === "duplicate-components") {
-      pass = !homeContent.includes("CategoryGridSection") || !homeContent.includes("HomeCategoryRail");
-      pass = !homeContent.includes("CategoryGridSection");
+      pass = !canonicalHomepage.includes("CategoryGridSection") || !canonicalHomepage.includes("CanonicalCategoryRail");
+      pass = !canonicalHomepage.includes("CategoryGridSection");
     }
     if (check === "legacy-components" || check === "dead-components") {
-      pass = !homeContent.includes("CategoryGridSection");
+      pass = !canonicalHomepage.includes("CategoryGridSection");
     }
-    if (check.startsWith("duplicate")) pass = globalPass && !homeContent.includes("CategoryGridSection");
+    if (check.startsWith("duplicate")) pass = globalPass && !canonicalHomepage.includes("CategoryGridSection");
     if (check.includes("empty") || check.includes("viewport") || check.includes("alignment") || check.includes("premium")) {
       pass = globalPass && homepagePass;
     }

@@ -25,7 +25,11 @@ describe("COD SÂNGE micro-fix — Hub freeze (no border redesign)", () => {
   });
 
   it("does not introduce image filter/blur for these fixes", () => {
-    expect(conv).not.toMatch(/\.conv-hub__offer[^{]*\{[^}]*filter\s*:\s*(?!none)/);
-    expect(conv).not.toMatch(/filter\s*:\s*(?!none)[^;]*blur/);
+    /* Allow explicit filter:none (product image absolute law). Forbid blur / other filters. */
+    expect(conv).not.toMatch(/filter\s*:\s*[^;]*blur/);
+    expect(conv).not.toMatch(
+      /\.conv-hub__offer-thumb-img\s*\{[^}]*(?:brightness|contrast|saturate|opacity)\s*:/,
+    );
+    expect(conv).toMatch(/\.conv-hub__offer-thumb-img[\s\S]*?filter:\s*none/);
   });
 });
