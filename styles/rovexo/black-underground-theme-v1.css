@@ -807,6 +807,13 @@ html[data-theme="dark"] .conv-hub__offer-thumb {
   border-color: var(--rvx-border) !important;
 }
 
+html[data-theme="dark"] .conv-hub__offer-thumb--more {
+  background-color: var(--rvx-surface-secondary) !important;
+  background-image: none !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
 html[data-theme="dark"] .conv-hub__offer-thumb-img {
   filter: none !important;
   -webkit-filter: none !important;
@@ -821,19 +828,64 @@ html[data-theme="dark"] .conv-hub__offer::after {
   outline: none !important;
 }
 
-/* Sticky footer Offer Pending / Counter Offer panels (thub) — zero outer border */
+/* Sticky footer Offer Pending / Counter Offer panels (thub) */
 html[data-theme="dark"] .thub-v1__actions--pending,
-html[data-theme="dark"] .thub-v1__actions--countered,
+html[data-theme="dark"] .thub-v1__actions--countered {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border: 1px solid var(--rvx-border) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 html[data-theme="dark"] .thub-v1__actions--accepted,
 html[data-theme="dark"] .thub-v1__actions--declined,
 html[data-theme="dark"] .thub-v1__actions--expired {
-  border: none !important;
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border: 1px solid var(--rvx-border) !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
 html[data-theme="dark"] .thub-v1__actions--countered {
-  background: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface)) !important;
+  background: color-mix(in srgb, var(--rvx-accent) 18%, var(--rvx-surface)) !important;
+}
+
+html[data-theme="dark"] .thub-v1__status-title {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .thub-v1__status-amount {
+  color: var(--rvx-accent, #a855f7) !important;
+}
+
+html[data-theme="dark"] .thub-v1__actions--pending .thub-v1__btn--primary,
+html[data-theme="dark"] .thub-v1__actions--countered .thub-v1__btn--primary {
+  background: var(--rvx-accent, #a855f7) !important;
+  border-color: var(--rvx-accent, #a855f7) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .thub-v1__actions--pending .thub-v1__btn--secondary,
+html[data-theme="dark"] .thub-v1__actions--countered .thub-v1__btn--secondary {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-accent, #a855f7) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .thub-v1__actions--pending .thub-v1__btn--danger,
+html[data-theme="dark"] .thub-v1__actions--countered .thub-v1__btn--danger {
+  background: transparent !important;
+  border-color: var(--rvx-border) !important;
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .thub-v1__actions--pending .thub-v1__btn--cancel,
+html[data-theme="dark"] .thub-v1__actions--countered .thub-v1__btn--cancel {
+  background: var(--rvx-surface) !important;
+  border-color: var(--rvx-accent, #a855f7) !important;
+  color: var(--rvx-accent, #a855f7) !important;
 }
 
 /* ── Balance / Wallet hardcoded text bypass ── */

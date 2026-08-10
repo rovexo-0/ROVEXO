@@ -1156,13 +1156,15 @@
   font-size: var(--conv-fs-message);
 }
 
-/* Offer cards — timeline chips with avatars (canonical mockup) */
+/* Offer cards — compact mobile density (Offer / Counter / Declined) */
 .conv-hub__offer-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--conv-avatar-gap);
   width: 100%;
   max-width: 100%;
+  margin-top: 6px;
+  margin-bottom: 0;
   animation: conv-offer-in 220ms ease-out both;
 }
 
@@ -1181,7 +1183,8 @@
   width: 28px !important;
   height: 28px !important;
   flex-shrink: 0;
-  align-self: center;
+  align-self: flex-start;
+  margin-top: 6px;
 }
 
 .conv-hub__offer {
@@ -1189,9 +1192,10 @@
   width: auto;
   max-width: var(--conv-chat-max);
   min-width: 196px;
-  min-height: 52px;
-  max-height: 56px;
-  padding: 6px 14px;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  padding: 7px 10px;
   border-radius: var(--conv-radius-bubble);
   background: #ffffff;
   border: 1.5px solid var(--conv-purple);
@@ -1199,20 +1203,21 @@
   text-align: left;
   flex: 0 1 auto;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .conv-hub__offer--timeline {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 1px;
+  justify-content: flex-start;
+  gap: 0;
 }
 
 /* Compact product thumb inside existing Offer / Counter card — not a rail / sheet. */
 .conv-hub__offer-main {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   min-width: 0;
   width: 100%;
@@ -1222,31 +1227,46 @@
   position: relative;
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   flex-shrink: 0;
-  max-width: 72px;
-}
-
-.conv-hub__offer-thumbs--multi .conv-hub__offer-thumb + .conv-hub__offer-thumb {
-  margin-left: -12px;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .conv-hub__offer-thumb {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
   background: var(--conv-surface, #ffffff) url("/placeholder-product.svg") center / cover no-repeat;
   border: 1px solid color-mix(in srgb, var(--conv-border, #e5e7eb) 70%, transparent);
   box-sizing: border-box;
+  /* Never stack / overlap siblings — gap on the flex row owns spacing. */
+  margin: 0;
+}
+
+.conv-hub__offer-thumb--more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-image: none;
+  background-color: var(--conv-surface, #f3f4f6);
+  color: var(--conv-text, #111827);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .conv-hub__offer-thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   /* Product image absolute law — no filter / blur / opacity. */
   filter: none;
 }
@@ -1256,8 +1276,9 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 1px;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 2px;
 }
 
 .conv-hub__offer--buyer {
@@ -1295,11 +1316,12 @@
   padding: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0;
   color: var(--conv-purple);
-  line-height: 1.15;
+  line-height: 1.2;
+  position: static;
 }
 
 .conv-hub__offer--countered .conv-hub__offer-label {
@@ -1356,26 +1378,30 @@
 .conv-hub__offer-head {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   margin-top: 0;
+  position: static;
 }
 
 .conv-hub__offer-amount {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--conv-purple);
-  line-height: 1.15;
+  line-height: 1.2;
+  position: static;
 }
 
 .conv-hub__offer-list {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--conv-muted);
-  line-height: 1.15;
+  line-height: 1.2;
   text-decoration: none;
+  position: static;
 }
 
 /* Explicit list/old price only — never leak onto Bundle · N items meta. */
@@ -1385,11 +1411,20 @@
 
 .conv-hub__offer-meta {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--conv-muted);
-  line-height: 1.15;
+  line-height: 1.25;
   text-decoration: none;
+  position: static;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
+/* Keep day separators clear of offer cards (no negative pull into offers). */
+.conv-hub__day + .conv-hub__offer-row {
+  margin-top: 8px;
 }
 
 .conv-hub__offer--interactive {
@@ -2137,20 +2172,15 @@
   animation: conv-offer-in 220ms ease-out both;
 }
 
-.thub-v1__actions--pending {
-  padding: 10px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  gap: 8px;
-}
-
+/* Compact Offer Pending / Counter Offer action panel (~75–90px mobile). */
+.thub-v1__actions--pending,
 .thub-v1__actions--countered {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #ffffff;
-  gap: 8px;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .thub-v1__actions--countered .thub-v1__status-amount {
@@ -2173,6 +2203,12 @@
   gap: 8px;
 }
 
+.conv-hub__hub-actions .thub-v1__actions--pending,
+.conv-hub__hub-actions .thub-v1__actions--countered {
+  padding: 8px 10px;
+  gap: 6px;
+}
+
 .thub-v1__actions--declined,
 .thub-v1__actions--expired {
   padding: 10px 12px;
@@ -2191,10 +2227,12 @@
   grid-template-columns: 1fr 1fr;
   gap: 6px;
   width: 100%;
+  min-width: 0;
 }
 
 .thub-v1__btn-row--triple {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
 }
 
 .thub-v1__status-row {
@@ -2211,12 +2249,16 @@
   text-align: left;
   flex: 1 1 auto;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .thub-v1__status-row .thub-v1__status-amount {
   text-align: right;
   flex: 0 0 auto;
   margin: 0;
+  white-space: nowrap;
 }
 
 .thub-v1__btn {
@@ -2234,6 +2276,23 @@
   font-weight: 700;
   letter-spacing: 0.01em;
   cursor: pointer;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Compact action buttons — Offer Pending / Counter Offer panel only. */
+.thub-v1__actions--pending .thub-v1__btn,
+.thub-v1__actions--countered .thub-v1__btn {
+  min-height: 42px;
+  height: 42px;
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.thub-v1__actions--pending .thub-v1__btn--full,
+.thub-v1__actions--countered .thub-v1__btn--full {
+  padding: 0 10px;
 }
 
 .thub-v1__btn--primary {
@@ -2254,13 +2313,22 @@
   border-color: var(--conv-border, #ececec);
 }
 
+/* Decline — subtle secondary inside pending/counter panels. */
+.thub-v1__actions--pending .thub-v1__btn--danger,
+.thub-v1__actions--countered .thub-v1__btn--danger {
+  background: transparent;
+  color: var(--conv-muted, #6b7280);
+  border-color: color-mix(in srgb, var(--conv-border, #e5e7eb) 90%, transparent);
+  font-weight: 600;
+}
+
 .thub-v1__btn--full {
   width: 100%;
 }
 
 .thub-v1__btn--cancel {
-  height: 44px;
-  min-height: 44px;
+  height: 42px;
+  min-height: 42px;
   border-width: 1.5px;
   border-color: var(--conv-purple, #9333ea);
   background: #ffffff;
@@ -2306,6 +2374,20 @@
   font-weight: 700;
   line-height: 1.15;
   color: var(--conv-purple, #9333ea);
+}
+
+.thub-v1__actions--pending .thub-v1__status-title,
+.thub-v1__actions--countered .thub-v1__status-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.thub-v1__actions--pending .thub-v1__status-amount,
+.thub-v1__actions--countered .thub-v1__status-amount {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .thub-v1__accept-card {

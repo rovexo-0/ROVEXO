@@ -86,32 +86,46 @@ import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
 
 /**
- * Compact Offer/Counter product thumb(s) — reuse payload already on the offer / listing.
- * Bundle → each valid line.imageUrl (deduped, max 3) · else conversation product image.
- * Placeholder only when no real listing image exists.
+ * Compact Offer/Counter product thumb(s) — horizontal, max 3 slots, no overlap stack.
+ * ≤3 products → up to 3 real thumbs · >3 → first 2 thumbs + "+N" remaining.
+ * Images from bundle.lines[].imageUrl · else conversation product image.
  * No fetch · no N+1 · no Hub redesign · no sheet.
  */
 const OFFER_CARD_THUMB_MAX = 3;
 
-function resolveOfferCardProductThumbUrls(input: {
+function resolveOfferCardProductThumbs(input: {
   bundle?: ConversationOfferView["bundle"];
   productImageUrl?: string | null;
-}): string[] {
-  const out: string[] = [];
+}): { urls: string[]; moreCount: number } {
+  const lines = Array.isArray(input.bundle?.lines) ? input.bundle.lines : [];
+  const totalProducts =
+    typeof input.bundle?.itemCount === "number" && input.bundle.itemCount > 0
+      ? input.bundle.itemCount
+      : lines.length;
+
+  const allUrls: string[] = [];
   const seen = new Set<string>();
   const push = (raw: string | null | undefined) => {
     const url = typeof raw === "string" ? raw.trim() : "";
     if (!url || seen.has(url) || !isRenderableImageSrc(url)) return;
-    if (out.length >= OFFER_CARD_THUMB_MAX) return;
     seen.add(url);
-    out.push(url);
+    allUrls.push(url);
   };
-  const lines = input.bundle?.lines;
-  if (Array.isArray(lines)) {
-    for (const line of lines) push(line?.imageUrl);
+  for (const line of lines) push(line?.imageUrl);
+  if (allUrls.length === 0) push(input.productImageUrl);
+
+  if (totalProducts > OFFER_CARD_THUMB_MAX) {
+    const visible = allUrls.slice(0, 2);
+    return {
+      urls: visible,
+      moreCount: Math.max(0, totalProducts - visible.length),
+    };
   }
-  if (out.length === 0) push(input.productImageUrl);
-  return out;
+
+  return {
+    urls: allUrls.slice(0, OFFER_CARD_THUMB_MAX),
+    moreCount: 0,
+  };
 }
 
 /**
@@ -2060,10 +2074,15 @@ export function ConversationHub({
                             ? "countered"
                             : "pending";
                   const offerAvatar = fromBuyer ? buyerAvatar : sellerAvatar;
-                  const offerProductThumbs = resolveOfferCardProductThumbUrls({
+                  const offerProductThumbs = resolveOfferCardProductThumbs({
                       bundle: offer.bundle,
                       productImageUrl: view.product.imageUrl,
                     });
+                  const offerThumbUrls =
+                    offerProductThumbs.urls.length > 0
+                      ? offerProductThumbs.urls
+                      : ["/placeholder-product.svg"];
+                  const offerThumbMore = offerProductThumbs.moreCount;
                   const hasBundleDetails = Boolean(offer.bundle);
                   const OfferCardTag = hasBundleDetails ? "button" : "div";
                   return (
@@ -2117,16 +2136,19 @@ export function ConversationHub({
                           <span
                             className={cn(
                               "conv-hub__offer-thumbs",
-                              offerProductThumbs.length > 1 && "conv-hub__offer-thumbs--multi",
+                              (offerThumbUrls.length > 1 || offerThumbMore > 0) &&
+                                "conv-hub__offer-thumbs--multi",
                             )}
                             data-offer-product-thumb="true"
-                            data-offer-thumb-count={Math.max(1, offerProductThumbs.length)}
+                            data-offer-thumb-count={
+                              offerThumbUrls.length + (offerThumbMore > 0 ? 1 : 0)
+                            }
+                            data-offer-thumb-more={
+                              offerThumbMore > 0 ? String(offerThumbMore) : undefined
+                            }
                             aria-hidden
                           >
-                            {(offerProductThumbs.length > 0
-                              ? offerProductThumbs
-                              : ["/placeholder-product.svg"]
-                            ).map((src, thumbIndex) => (
+                            {offerThumbUrls.map((src, thumbIndex) => (
                               <span
                                 key={`${offer.id}-thumb-${thumbIndex}`}
                                 className="conv-hub__offer-thumb"
@@ -2134,12 +2156,20 @@ export function ConversationHub({
                                 <SafeImage
                                   src={src}
                                   alt=""
-                                  width={40}
-                                  height={40}
+                                  width={36}
+                                  height={36}
                                   className="conv-hub__offer-thumb-img"
                                 />
                               </span>
                             ))}
+                            {offerThumbMore > 0 ? (
+                              <span
+                                className="conv-hub__offer-thumb conv-hub__offer-thumb--more"
+                                data-offer-thumb-overflow="true"
+                              >
+                                +{offerThumbMore}
+                              </span>
+                            ) : null}
                           </span>
                           <div className="conv-hub__offer-copy">
                             <p className="conv-hub__offer-label">{stateLabel}</p>
