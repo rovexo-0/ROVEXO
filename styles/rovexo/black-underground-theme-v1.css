@@ -419,10 +419,97 @@ html[data-theme="dark"] .conv-hub__composer textarea {
   background: var(--rvx-surface-secondary) !important;
   color: var(--rvx-text-primary) !important;
   border-color: var(--rvx-border) !important;
+  caret-color: var(--rvx-accent, #a855f7) !important;
+  -webkit-text-fill-color: var(--rvx-text-primary) !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
 }
 
 html[data-theme="dark"] .conv-hub__composer-field::placeholder {
   color: var(--rvx-text-secondary) !important;
+  -webkit-text-fill-color: var(--rvx-text-secondary) !important;
+  opacity: 1 !important;
+}
+
+/* Message bubbles — never transparent / struck / muted body text */
+html[data-theme="dark"] .conv-hub__bubble,
+html[data-theme="dark"] .conv-hub__bubble--buyer,
+html[data-theme="dark"] .conv-hub__bubble--in {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
+}
+
+html[data-theme="dark"] .conv-hub__bubble--seller,
+html[data-theme="dark"] .conv-hub__bubble--out {
+  background: var(--rvx-accent, #9333ea) !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-meta {
+  color: var(--rvx-text-secondary) !important;
+  text-decoration: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-list {
+  color: var(--rvx-text-secondary) !important;
+  text-decoration: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-list--struck {
+  text-decoration: line-through !important;
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-label,
+html[data-theme="dark"] .conv-hub__offer-amount {
+  color: var(--rvx-text-primary) !important;
+  text-decoration: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-panel,
+html[data-theme="dark"] .conv-hub__bundle-sheet-header,
+html[data-theme="dark"] .conv-hub__fee-panel {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-title,
+html[data-theme="dark"] .conv-hub__bundle-sheet-product,
+html[data-theme="dark"] .conv-hub__bundle-sheet-summary-row {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-qty,
+html[data-theme="dark"] .conv-hub__bundle-sheet-list-total {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-thumb {
+  background: var(--rvx-surface-secondary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-thumb-img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-close,
+html[data-theme="dark"] .conv-hub__bundle-sheet-price,
+html[data-theme="dark"] .conv-hub__bundle-sheet-summary-row--offer strong {
+  color: var(--rvx-accent, #a855f7) !important;
+}
+
+html[data-theme="dark"] .conv-hub__bundle-sheet-summary {
+  border-top-color: var(--rvx-border) !important;
 }
 
 /* ── Sell / Create Listing — theme-aware labels + inputs (no redesign) ── */
@@ -680,7 +767,7 @@ html[data-theme="dark"] .srch-land__cat-count {
   color: var(--rvx-text-secondary) !important;
 }
 
-/* ── Offer / Counter Offer — zero outer border (purple fill preserved) ── */
+/* ── Offer / Counter Offer — dark surfaces (no accidental white cards) ── */
 html[data-theme="dark"] .conv-hub__offer,
 html[data-theme="dark"] .conv-hub__offer--timeline,
 html[data-theme="dark"] .conv-hub__offer--pending,
@@ -689,7 +776,9 @@ html[data-theme="dark"] .conv-hub__offer--accepted,
 html[data-theme="dark"] .conv-hub__offer--declined,
 html[data-theme="dark"] .conv-hub__offer--expired,
 html[data-theme="dark"] .conv-hub__offer[data-offer-visual] {
-  border: none !important;
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border: 1.5px solid color-mix(in srgb, var(--rvx-accent) 55%, var(--rvx-border)) !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -698,6 +787,30 @@ html[data-theme="dark"] .conv-hub__offer--countered,
 html[data-theme="dark"] .conv-hub__offer[data-offer-visual="countered"] {
   background: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface)) !important;
   color: var(--rvx-text-primary);
+}
+
+html[data-theme="dark"] .conv-hub__offer-label,
+html[data-theme="dark"] .conv-hub__offer-amount,
+html[data-theme="dark"] .conv-hub__offer-list,
+html[data-theme="dark"] .conv-hub__offer-time {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-list,
+html[data-theme="dark"] .conv-hub__offer-time {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-thumbs,
+html[data-theme="dark"] .conv-hub__offer-thumb {
+  background-color: var(--rvx-surface-secondary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .conv-hub__offer-thumb-img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1 !important;
 }
 
 html[data-theme="dark"] .conv-hub__offer::before,
@@ -976,6 +1089,123 @@ html[data-theme="dark"] .srch-land__cat-media::after {
   background: none !important;
   filter: none !important;
   opacity: 0 !important;
+}
+
+/* ── Store Shop Bundles + Bundle Review + Make Offer sheet ── */
+html[data-theme="dark"] .sv2__shop-bundles,
+html[data-theme="dark"] .sv2__shop-bundles-head,
+html[data-theme="dark"] .sv2__bundle-builder-bar,
+html[data-theme="dark"] .sv2__shop-bundles-cancel {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .sv2__shop-bundles-title,
+html[data-theme="dark"] .sv2__bundle-builder-summary,
+html[data-theme="dark"] .sv2__bundle-builder-summary p,
+html[data-theme="dark"] .sv2__bundle-builder-summary strong {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .sv2__shop-bundles-hint {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .sv2__bundle-select {
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .sv2__bundle-select__check {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .sv2__bundle-select--on {
+  outline-color: var(--rvx-accent) !important;
+}
+
+html[data-theme="dark"] .sv2__create-bundle,
+html[data-theme="dark"] .sv2__bundle-review-btn {
+  color: #fff !important;
+}
+
+html[data-theme="dark"] .pd-v1__bundle-review,
+html[data-theme="dark"] .pd-v1__bundle-review-empty,
+html[data-theme="dark"] .pd-v1__bundle-review-card,
+html[data-theme="dark"] .pd-v1__bundle-review-totals,
+html[data-theme="dark"] .pd-v1__bundle-review-preview {
+  background: transparent !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .pd-v1__bundle-review-seller-name,
+html[data-theme="dark"] .pd-v1__bundle-review-title,
+html[data-theme="dark"] .pd-v1__bundle-review-total-row,
+html[data-theme="dark"] .pd-v1__bundle-review-total-row strong {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .pd-v1__bundle-review-seller-meta,
+html[data-theme="dark"] .pd-v1__bundle-review-hint {
+  color: var(--rvx-text-secondary) !important;
+}
+
+html[data-theme="dark"] .pd-v1__bundle-review-card {
+  border-bottom-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .pd-v1__bundle-review-preview-thumb,
+html[data-theme="dark"] .pd-v1__bundle-review-thumb {
+  background: var(--rvx-surface-secondary) !important;
+}
+
+html[data-theme="dark"] .pd-v1__description-block,
+html[data-theme="dark"] .pd-v1__description-title,
+html[data-theme="dark"] .pd-v1__description,
+html[data-theme="dark"] .pd-v1__description-toggle {
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .mo-v1,
+html[data-theme="dark"] .mo-v1__sheet,
+html[data-theme="dark"] .pd-v1__offer-sheet .mo-v1 {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .mo-v1 input,
+html[data-theme="dark"] .mo-v1 textarea,
+html[data-theme="dark"] .mo-v1__input,
+html[data-theme="dark"] .mo-v1__amount,
+html[data-theme="dark"] .mo-v1__preset {
+  background: var(--rvx-surface-secondary) !important;
+  color: var(--rvx-text-primary) !important;
+  border-color: var(--rvx-border) !important;
+}
+
+html[data-theme="dark"] .mo-v1__preset--active {
+  background: color-mix(in srgb, var(--rvx-accent) 22%, var(--rvx-surface)) !important;
+  border-color: var(--rvx-accent) !important;
+  color: var(--rvx-text-primary) !important;
+}
+
+html[data-theme="dark"] .mo-v1__close,
+html[data-theme="dark"] .mo-v1__title,
+html[data-theme="dark"] .mo-v1__price,
+html[data-theme="dark"] .mo-v1__preset-label,
+html[data-theme="dark"] .mo-v1__preset-amount,
+html[data-theme="dark"] .mo-v1__currency {
+  color: var(--rvx-text-primary) !important;
+}
+
+/* Floating sticky Review summary must stay unmounted (GlobalStickyBundleBar → null) */
+html[data-theme="dark"] .pd-v1__bundle-bar {
+  background: var(--rvx-surface) !important;
+  color: var(--rvx-text-primary) !important;
 }
 
 /* ABSOLUTE: never create a global dark-theme image filter */

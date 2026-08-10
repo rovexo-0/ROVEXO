@@ -60,6 +60,46 @@ export function parseListingAttributeNotesV1(description: string | null | undefi
 }
 
 /**
+ * Presentation-only: remove structured attribute notes from Description body.
+ * Attribute rows (Brand, Colour, Storage, Condition, Category, …) stay in
+ * Product Information — DB description is not mutated.
+ */
+const DESCRIPTION_DISPLAY_STRIP_LABELS = Array.from(
+  new Set([
+    ...NOTE_LABELS,
+    "Brand",
+    "Condition",
+    "Category",
+    "Storage",
+    "Colour",
+    "Color",
+    "Material",
+    "Size",
+    "Network",
+    "Season",
+    "Season Rating",
+    "Compatibility",
+  ]),
+).sort((a, b) => b.length - a.length);
+
+const DESCRIPTION_STRIP_PATTERN = new RegExp(
+  `\\s*(?:${DESCRIPTION_DISPLAY_STRIP_LABELS.map(escapeRegExp).join("|")}):\\s*[^.\\n]+\\.`,
+  "gi",
+);
+
+export function stripListingAttributeNotesFromDescriptionV1(
+  description: string | null | undefined,
+): string {
+  const text = description?.trim() ?? "";
+  if (!text) return "";
+  return text
+    .replace(DESCRIPTION_STRIP_PATTERN, " ")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+\./g, ".")
+    .trim();
+}
+
+/**
  * Prefer structured product fields; fill gaps from parsed description notes.
  */
 export function resolveProductInformationValuesV1(input: {

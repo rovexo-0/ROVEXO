@@ -4,6 +4,7 @@ import { PRODUCT_INFORMATION_FIELD_MAP_V1 } from "@/lib/product-detail/product-i
 import {
   parseListingAttributeNotesV1,
   resolveProductInformationValuesV1,
+  stripListingAttributeNotesFromDescriptionV1,
 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import {
   categoryAllowsSizeAttribute,
@@ -80,6 +81,19 @@ describe("Product Information Attribute Engine v1.0", () => {
     expect(resolved.colour).toBe("Black");
     expect(resolved.size).toBe("M");
     expect(resolved.material).toBe("Cotton");
+  });
+
+  it("Description presentation strips attribute notes without deleting DB values", () => {
+    const raw =
+      "Great phone for daily use. Brand: Apple. Storage: 128GB. Colour: Black. Condition: Good. Category: Electronics.";
+    const display = stripListingAttributeNotesFromDescriptionV1(raw);
+    expect(display).toBe("Great phone for daily use.");
+    expect(display).not.toMatch(/Brand:/i);
+    expect(display).not.toMatch(/Storage:/i);
+    expect(display).not.toMatch(/Colour:/i);
+    expect(display).not.toMatch(/Condition:/i);
+    expect(display).not.toMatch(/Category:/i);
+    expect(raw).toContain("Brand: Apple");
   });
 
   it("Camping — Size hidden even when orphan size is stored", () => {

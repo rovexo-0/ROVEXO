@@ -26,6 +26,7 @@ import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/Transac
 import { TransactionActionBar } from "@/features/inbox/components/TransactionActionBar";
 import { TransactionStatusCard } from "@/features/inbox/components/TransactionStatusCard";
 import { PlatformFeeSheet } from "@/features/inbox/components/PlatformFeeSheet";
+import { OfferBundleDetailsSheet } from "@/features/inbox/components/OfferBundleDetailsSheet";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import {
   ShippingLabelViewer,
@@ -85,24 +86,32 @@ import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
 
 /**
- * Compact Offer/Counter product thumb — reuse payload already on the offer / listing.
- * Bundle → first valid line.imageUrl · else conversation product image · else null (placeholder).
- * No fetch · no N+1 · no Hub redesign · no sheet · no thumb rail.
+ * Compact Offer/Counter product thumb(s) — reuse payload already on the offer / listing.
+ * Bundle → each valid line.imageUrl (deduped, max 3) · else conversation product image.
+ * Placeholder only when no real listing image exists.
+ * No fetch · no N+1 · no Hub redesign · no sheet.
  */
-function resolveOfferCardProductThumbUrl(input: {
+const OFFER_CARD_THUMB_MAX = 3;
+
+function resolveOfferCardProductThumbUrls(input: {
   bundle?: ConversationOfferView["bundle"];
   productImageUrl?: string | null;
-}): string | null {
+}): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (raw: string | null | undefined) => {
+    const url = typeof raw === "string" ? raw.trim() : "";
+    if (!url || seen.has(url) || !isRenderableImageSrc(url)) return;
+    if (out.length >= OFFER_CARD_THUMB_MAX) return;
+    seen.add(url);
+    out.push(url);
+  };
   const lines = input.bundle?.lines;
   if (Array.isArray(lines)) {
-    for (const line of lines) {
-      const url = typeof line?.imageUrl === "string" ? line.imageUrl.trim() : "";
-      if (url && isRenderableImageSrc(url)) return url;
-    }
+    for (const line of lines) push(line?.imageUrl);
   }
-  const product = typeof input.productImageUrl === "string" ? input.productImageUrl.trim() : "";
-  if (product && isRenderableImageSrc(product)) return product;
-  return null;
+  if (out.length === 0) push(input.productImageUrl);
+  return out;
 }
 
 /**
@@ -391,6 +400,10 @@ export function ConversationHub({
   }, [pushToast]);
 
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
+  const [bundleDetailsOffer, setBundleDetailsOffer] = useState<{
+    offer: ConversationOfferView;
+    isCounter: boolean;
+  } | null>(null);
   const [imageViewer, setImageViewer] = useState<{
     open: boolean;
     images: string[];
@@ -2047,11 +2060,12 @@ export function ConversationHub({
                             ? "countered"
                             : "pending";
                   const offerAvatar = fromBuyer ? buyerAvatar : sellerAvatar;
-                  const offerProductThumb =
-                    resolveOfferCardProductThumbUrl({
+                  const offerProductThumbs = resolveOfferCardProductThumbUrls({
                       bundle: offer.bundle,
                       productImageUrl: view.product.imageUrl,
-                    }) ?? "/placeholder-product.svg";
+                    });
+                  const hasBundleDetails = Boolean(offer.bundle);
+                  const OfferCardTag = hasBundleDetails ? "button" : "div";
                   return (
                     <div
                       key={item.id}
@@ -2071,13 +2085,25 @@ export function ConversationHub({
                           className="conv-hub__offer-avatar"
                         />
                       ) : null}
-                      <div
+                      <OfferCardTag
+                        {...(hasBundleDetails
+                          ? {
+                              type: "button" as const,
+                              "aria-label": "View bundle details",
+                              onClick: () =>
+                                setBundleDetailsOffer({
+                                  offer,
+                                  isCounter: isCounterCard,
+                                }),
+                            }
+                          : {})}
                         className={cn(
                           "conv-hub__offer",
                           "conv-hub__offer--timeline",
                           fromBuyer ? "conv-hub__offer--buyer" : "conv-hub__offer--seller",
                           `conv-hub__offer--${visualState}`,
                           highlightOfferId === offer.id && "conv-hub__offer--highlight",
+                          hasBundleDetails && "conv-hub__offer--interactive",
                         )}
                         data-offer-state={offer.state}
                         data-offer-visual={visualState}
@@ -2085,20 +2111,35 @@ export function ConversationHub({
                         data-offer-actions="footer"
                         data-blood-law="XLIII"
                         data-offer-pending={offer.state === "open" ? "true" : "false"}
+                        data-offer-bundle-open={hasBundleDetails ? "true" : undefined}
                       >
                         <div className="conv-hub__offer-main">
                           <span
-                            className="conv-hub__offer-thumb"
+                            className={cn(
+                              "conv-hub__offer-thumbs",
+                              offerProductThumbs.length > 1 && "conv-hub__offer-thumbs--multi",
+                            )}
                             data-offer-product-thumb="true"
+                            data-offer-thumb-count={Math.max(1, offerProductThumbs.length)}
                             aria-hidden
                           >
-                            <SafeImage
-                              src={offerProductThumb}
-                              alt=""
-                              width={40}
-                              height={40}
-                              className="conv-hub__offer-thumb-img"
-                            />
+                            {(offerProductThumbs.length > 0
+                              ? offerProductThumbs
+                              : ["/placeholder-product.svg"]
+                            ).map((src, thumbIndex) => (
+                              <span
+                                key={`${offer.id}-thumb-${thumbIndex}`}
+                                className="conv-hub__offer-thumb"
+                              >
+                                <SafeImage
+                                  src={src}
+                                  alt=""
+                                  width={40}
+                                  height={40}
+                                  className="conv-hub__offer-thumb-img"
+                                />
+                              </span>
+                            ))}
                           </span>
                           <div className="conv-hub__offer-copy">
                             <p className="conv-hub__offer-label">{stateLabel}</p>
@@ -2106,21 +2147,23 @@ export function ConversationHub({
                               <p className="conv-hub__offer-amount">
                                 {formatCurrency(offer.amount)}
                               </p>
-                              {listingPrice > 0 && listingPrice !== offer.amount ? (
-                                <p className="conv-hub__offer-list">
+                              {!offer.bundle &&
+                              listingPrice > 0 &&
+                              listingPrice !== offer.amount ? (
+                                <p className="conv-hub__offer-list conv-hub__offer-list--struck">
                                   {formatCurrency(listingPrice)}
                                 </p>
                               ) : null}
                             </div>
                             {offer.bundle ? (
-                              <p className="conv-hub__offer-list">
+                              <p className="conv-hub__offer-meta">
                                 Bundle · {offer.bundle.itemCount} items · list{" "}
                                 {formatCurrency(offer.bundle.listSubtotal)}
                               </p>
                             ) : null}
                           </div>
                         </div>
-                      </div>
+                      </OfferCardTag>
                       {!fromBuyer ? (
                         <Avatar
                           src={offerAvatar.src}
@@ -2335,6 +2378,12 @@ export function ConversationHub({
           open={feeSheetOpen}
           itemPrice={acceptedOffer?.amount ?? view.product.price}
           onClose={() => setFeeSheetOpen(false)}
+        />
+        <OfferBundleDetailsSheet
+          open={Boolean(bundleDetailsOffer)}
+          offer={bundleDetailsOffer?.offer ?? null}
+          isCounter={bundleDetailsOffer?.isCounter ?? false}
+          onClose={() => setBundleDetailsOffer(null)}
         />
         <ShippingLabelViewer
           open={Boolean(labelViewer)}

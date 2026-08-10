@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { stripListingAttributeNotesFromDescriptionV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { VIEW_ITEM_PRESENTATION_TOKENS_V1 } from "@/lib/product-detail/view-item-presentation-tokens-v1";
 
 type ProductDescriptionV1Props = {
@@ -20,18 +21,18 @@ export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
   const [expanded, setExpanded] = useState(true);
   /* Mockup: Read more after ~3 lines (token default is presentation SSOT; v2 clamp is visual). */
   const clampLines = Math.min(3, VIEW_ITEM_PRESENTATION_TOKENS_V1.descriptionClampLines);
+  const text = stripListingAttributeNotesFromDescriptionV1(description);
 
   useLayoutEffect(() => {
     const el = bodyRef.current;
-    if (!el) return;
+    if (!el || !text) return;
     const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight) || 24;
     const maxHeight = lineHeight * clampLines;
     const overflows = el.scrollHeight > maxHeight + 1;
     setNeedsToggle(overflows);
     setExpanded(!overflows);
-  }, [description, clampLines]);
+  }, [text, clampLines]);
 
-  const text = description.trim();
   if (!text) return null;
 
   return (

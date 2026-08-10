@@ -75,7 +75,7 @@ describe("COD SÂNGE — Bundle Make Offer → canonical Make Offer UI", () => {
 
   it("Wave C offer thumbnails remain intact", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
-    expect(hub).toContain("resolveOfferCardProductThumbUrl");
+    expect(hub).toContain("resolveOfferCardProductThumbUrls");
     expect(hub).toContain('data-offer-product-thumb="true"');
     expect(hub).toContain("SafeImage");
     expect(

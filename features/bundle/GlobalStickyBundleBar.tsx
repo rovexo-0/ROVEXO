@@ -1,20 +1,13 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { StickyBundleBar } from "@/features/bundle/StickyBundleBar";
-
 /**
- * Persistent Sticky Bundle Bar (Owner: active bundle remains while browsing).
- * Hidden on PDP (`/listing/`) — Store is the canonical create surface; Global bar
- * is review navigation only (not a second create CTA).
+ * Sticky Bundle Bar — permanently unmounted (Owner Preview UI correction).
+ *
+ * The floating “N items · £… · Review” summary is removed from Sell/Bundle/
+ * Store surfaces. Bundle selection still uses Store → Review bundle →
+ * `/bundle/review`, where Make Offer / Buy Now are the only commerce CTAs.
+ * Listing data and Bundle Engine are unchanged.
  */
 export function GlobalStickyBundleBar() {
-  const pathname = usePathname() ?? "";
-  if (pathname.startsWith("/listing/")) return null;
-  /* Review Bundle owns its own summary UI — sticky bar duplicates it (Store keeps bar). */
-  if (pathname.startsWith("/bundle/review")) return null;
-  if (pathname.startsWith("/checkout")) return null;
-  if (pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
-  if (pathname.startsWith("/auth/")) return null;
-  return <StickyBundleBar />;
+  return null;
 }

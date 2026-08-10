@@ -6,7 +6,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Bundle Review UX patch — selected preview + sticky summary split", () => {
+describe("Bundle Review UX patch — selected preview + sticky summary removed", () => {
   it("Review Bundle shows compact selected-product image preview", () => {
     const page = readSource("features/bundle/BundleReviewPage.tsx");
     const css = readSource("styles/rovexo/product-detail-v1.css");
@@ -15,18 +15,19 @@ describe("Bundle Review UX patch — selected preview + sticky summary split", (
     expect(page).toContain("data-bundle-selected-preview");
     expect(page).toContain("item.imageUrl");
     expect(page).not.toMatch(/pd-v1__bundle-bar/);
+    expect(page).toContain("Make Offer");
+    expect(page).toContain("Buy Now");
+    expect(page).toContain("OfferComposerSheet");
     expect(css).toContain(".pd-v1__bundle-review-preview");
     expect(css).toContain(".pd-v1__bundle-review-preview-more");
   });
 
-  it("hides Sticky Bundle Bar on Review Bundle only; Store path remains eligible", () => {
+  it("unmounts floating Sticky Bundle Bar (no Review summary card)", () => {
     const globalBar = readSource("features/bundle/GlobalStickyBundleBar.tsx");
-    const sticky = readSource("features/bundle/StickyBundleBar.tsx");
-    expect(globalBar).toContain('pathname.startsWith("/bundle/review")');
     expect(globalBar).toContain("return null");
-    expect(sticky).toContain("pd-v1__bundle-bar");
-    expect(sticky).toContain("Review");
-    expect(sticky).toContain("items");
+    expect(globalBar).not.toMatch(/import\s*\{[^}]*StickyBundleBar/);
+    expect(globalBar).not.toContain("<StickyBundleBar");
+    expect(globalBar).not.toContain("pd-v1__bundle-bar");
   });
 
   it("Create Bundle selection keeps store premium card sizing (no larger cards)", () => {

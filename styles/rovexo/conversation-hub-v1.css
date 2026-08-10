@@ -1218,6 +1218,19 @@
   width: 100%;
 }
 
+.conv-hub__offer-thumbs {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 72px;
+}
+
+.conv-hub__offer-thumbs--multi .conv-hub__offer-thumb + .conv-hub__offer-thumb {
+  margin-left: -12px;
+}
+
 .conv-hub__offer-thumb {
   position: relative;
   width: 40px;
@@ -1225,7 +1238,9 @@
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #ffffff url("/placeholder-product.svg") center / cover no-repeat;
+  background: var(--conv-surface, #ffffff) url("/placeholder-product.svg") center / cover no-repeat;
+  border: 1px solid color-mix(in srgb, var(--conv-border, #e5e7eb) 70%, transparent);
+  box-sizing: border-box;
 }
 
 .conv-hub__offer-thumb-img {
@@ -1359,8 +1374,39 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--conv-muted);
-  text-decoration: line-through;
   line-height: 1.15;
+  text-decoration: none;
+}
+
+/* Explicit list/old price only — never leak onto Bundle · N items meta. */
+.conv-hub__offer-list--struck {
+  text-decoration: line-through;
+}
+
+.conv-hub__offer-meta {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--conv-muted);
+  line-height: 1.15;
+  text-decoration: none;
+}
+
+.conv-hub__offer--interactive {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  font: inherit;
+  text-align: left;
+}
+
+.conv-hub__offer--interactive:focus-visible {
+  outline: 2px solid var(--conv-purple);
+  outline-offset: 2px;
+}
+
+.conv-hub__offer--interactive:active {
+  transform: scale(0.985);
 }
 
 .conv-hub__offer-time {
@@ -1827,10 +1873,164 @@
 
 .conv-hub__fee-title {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.3;
+  letter-spacing: 0.04em;
   color: var(--conv-text);
+}
+
+/* Offer Bundle Details bottom sheet — reuses fee-sheet chrome pattern */
+.conv-hub__bundle-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.conv-hub__bundle-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgb(0 0 0 / 0.4);
+  cursor: pointer;
+}
+
+.conv-hub__bundle-sheet-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(85dvh, 720px);
+  padding: 14px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+  background: var(--conv-surface, #ffffff);
+  color: var(--conv-text);
+  box-sizing: border-box;
+}
+
+.conv-hub__bundle-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.conv-hub__bundle-sheet-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--conv-text);
+}
+
+.conv-hub__bundle-sheet-close {
+  margin: 0;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: var(--conv-purple);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+
+.conv-hub__bundle-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.conv-hub__bundle-sheet-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.conv-hub__bundle-sheet-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--conv-incoming, #f3f4f6);
+  flex-shrink: 0;
+}
+
+.conv-hub__bundle-sheet-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
+
+.conv-hub__bundle-sheet-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conv-hub__bundle-sheet-product {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--conv-text);
+  line-height: 1.3;
+}
+
+.conv-hub__bundle-sheet-price {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--conv-purple);
+}
+
+.conv-hub__bundle-sheet-qty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--conv-muted);
+}
+
+.conv-hub__bundle-sheet-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--conv-border);
+}
+
+.conv-hub__bundle-sheet-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--conv-text);
+}
+
+.conv-hub__bundle-sheet-list-total {
+  text-decoration: line-through;
+  color: var(--conv-muted);
+}
+
+.conv-hub__bundle-sheet-summary-row--offer strong {
+  color: var(--conv-purple);
+  font-size: 16px;
 }
 
 .conv-hub__fee-lead {
