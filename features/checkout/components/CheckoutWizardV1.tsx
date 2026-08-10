@@ -11,6 +11,7 @@ import {
 import "@/styles/rovexo/checkout-v1.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
 import { CheckoutPriceSummary } from "@/features/checkout/components/CheckoutPriceSummary";
@@ -73,6 +74,8 @@ export function CheckoutWizardV1({
   onClose,
   bundleSnapshot = null,
 }: CheckoutWizardV1Props) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const {
     draft,
     updateDraft,
@@ -87,6 +90,12 @@ export function CheckoutWizardV1({
     selectedQuote,
     shippingQuoteReason,
   } = form;
+
+  const addressesHref = useMemo(() => {
+    const qs = searchParams?.toString();
+    const returnPath = `${pathname || `/checkout/${product.slug}`}${qs ? `?${qs}` : ""}`;
+    return `/account/addresses?returnTo=${encodeURIComponent(returnPath)}`;
+  }, [pathname, product.slug, searchParams]);
 
   const collectionPointEnabled = isCheckoutCollectionPointEnabled();
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("ship_home");
@@ -190,10 +199,15 @@ export function CheckoutWizardV1({
   const addressLineSecondary = isUkMarketplaceCountry(draft.country)
     ? addressLocality
     : [addressLocality, draft.country].filter(Boolean).join(" ");
-  const deliveryPriceLabel =
-    !product.freeDelivery && shippingPrice > 0
-      ? formatListingPrice(shippingPrice)
-      : "£0.00";
+  const deliveryPriceLabel = product.freeDelivery
+    ? "Included"
+    : totals.deliveryPending
+      ? "Calculating…"
+      : shippingPrice > 0
+        ? formatListingPrice(shippingPrice)
+        : shippingPrice === 0
+          ? "Included"
+          : "Calculating…";
   const deliveryMetaLabel = `${deliveryPriceLabel} • ${etaLabel}`;
 
   return (
@@ -229,7 +243,7 @@ export function CheckoutWizardV1({
             </h2>
             <div className="ckt-v1__card ckt-v1__card--pad ckt-v1__card--editable ckt-v1__card--edit-top">
               <Link
-                href="/account/addresses"
+                href={addressesHref}
                 className="ckt-v1__edit-link"
                 aria-label="Edit address"
               >
@@ -297,8 +311,10 @@ export function CheckoutWizardV1({
                   <span className="ckt-v1__option-detail">
                     From{" "}
                     {product.freeDelivery
-                      ? "£0.00"
-                      : formatListingPrice(shippingPrice > 0 ? shippingPrice : 0)}
+                      ? "Included"
+                      : totals.deliveryPending
+                        ? "…"
+                        : formatListingPrice(shippingPrice > 0 ? shippingPrice : 0)}
                   </span>
                 </span>
                 <span className="ckt-v1__option-radio" aria-hidden />
@@ -313,7 +329,7 @@ export function CheckoutWizardV1({
               </h2>
               <div className="ckt-v1__card ckt-v1__card--pad ckt-v1__card--editable ckt-v1__card--edit-top">
                 <Link
-                  href="/account/addresses"
+                  href={addressesHref}
                   className="ckt-v1__edit-link"
                   aria-label="Edit delivery details"
                 >

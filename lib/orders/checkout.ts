@@ -466,7 +466,14 @@ async function finalizeCheckoutSessionPayment(
 
   const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
+  // Absolute Total Price Law — listing shipping_price (incl. 0 = free) is payable SSOT.
+  // Null listing shipping → live quote may lock the payable shipping amount.
+  const listingShippingRaw = product.shipping_price;
+  const listingShippingKnown =
+    listingShippingRaw != null && Number.isFinite(Number(listingShippingRaw));
+
   let deliveryCarrier = getDeliveryCarrierFromQuote(null);
+  let shippingRefinedFromQuote = false;
   if (input.shippingQuoteId && input.shippingAddressId) {
     const { data: shippingAddress } = await admin
       .from("shipping_addresses")
@@ -486,9 +493,15 @@ async function finalizeCheckoutSessionPayment(
         input.shippingQuoteId ?? "",
       );
       deliveryCarrier = getDeliveryCarrierFromQuote(selectedQuote);
-      if (selectedQuote && Number.isFinite(selectedQuote.price) && selectedQuote.price >= 0) {
+      if (
+        !listingShippingKnown &&
+        selectedQuote &&
+        Number.isFinite(selectedQuote.price) &&
+        selectedQuote.price >= 0
+      ) {
         lockedDelivery = roundMoney(selectedQuote.price);
         lockedTotal = roundMoney(lockedItemPrice + lockedPlatformFee + lockedDelivery);
+        shippingRefinedFromQuote = true;
         const { error: amountError } = await admin
           .from("checkout_sessions")
           .update({
@@ -505,16 +518,43 @@ async function finalizeCheckoutSessionPayment(
     }
   }
 
+  if (!listingShippingKnown && !input.shippingQuoteId) {
+    return { error: "Select a delivery option to continue." };
+  }
+
   if (session.stripe_checkout_session_id && isStripeConfigured() && !settleWithoutStripe) {
     try {
       const stripe = getStripeClient();
       const existing = await stripe.checkout.sessions.retrieve(session.stripe_checkout_session_id);
       if (existing.url && existing.status === "open") {
-        return {
-          orderId: null,
-          checkoutSessionId: session.public_id,
-          url: existing.url,
-        };
+        const expectedTotalPence = Math.round(lockedTotal * 100);
+        const stripeTotal = existing.amount_total;
+        // Reuse only when Stripe total still matches locked ROVEXO total.
+        // After shipping quote refine, recreate so PaymentIntent includes shipping.
+        if (
+          typeof stripeTotal === "number" &&
+          stripeTotal === expectedTotalPence &&
+          !shippingRefinedFromQuote
+        ) {
+          return {
+            orderId: null,
+            checkoutSessionId: session.public_id,
+            url: existing.url,
+          };
+        }
+        try {
+          await stripe.checkout.sessions.expire(existing.id);
+        } catch {
+          // recreate below
+        }
+        await admin
+          .from("checkout_sessions")
+          .update({
+            stripe_checkout_session_id: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", session.id)
+          .eq("status", "open");
       }
     } catch {
       // recreate below

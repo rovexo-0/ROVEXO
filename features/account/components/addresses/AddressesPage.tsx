@@ -171,7 +171,7 @@ export function AddressesPage({
     };
   }, [initialScope]);
 
-  /** Enter-key / accidental form submit — save only via address selection. */
+  /** Enter-key / accidental form submit — Add saves via lookup; Edit via Save. */
   const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
   };
@@ -297,7 +297,7 @@ export function AddressesPage({
     setMessage(null);
     setLookupLoading(true);
     setLookupResults([]);
-    setLookupSelected(false);
+    if (!editingId) setLookupSelected(false);
     try {
       const response = await fetch(
         `/api/addresses/lookup?postcode=${encodeURIComponent(lookupPostcode.trim())}`,
@@ -359,6 +359,21 @@ export function AddressesPage({
     void persistSelectedAddress(parsed.data);
   };
 
+  const saveManualEdit = () => {
+    if (!editingId || saveInFlightRef.current || lookupSaving) return;
+    const draft: AddressInput = {
+      ...getValues(),
+      country: UK_DEFAULT_COUNTRY,
+      addressType: activeType,
+    };
+    const parsed = addressInputSchema.safeParse(draft);
+    if (!parsed.success) {
+      setMessage(parsed.error.issues[0]?.message ?? "Unable to save address.");
+      return;
+    }
+    void persistSelectedAddress(parsed.data);
+  };
+
   const isDefault = useWatch({ control, name: "isDefault" });
   const watchedLine1 = useWatch({ control, name: "addressLine" });
   const watchedLine2 = useWatch({ control, name: "addressLine2" });
@@ -379,7 +394,8 @@ export function AddressesPage({
     onLookupPostcodeChange: (value: string) => {
       if (saveInFlightRef.current || lookupSaving) return;
       setLookupPostcode(value);
-      setLookupSelected(false);
+      // Keep edit fields visible when changing postcode; Add still requires select.
+      if (!editingId) setLookupSelected(false);
     },
     lookupLoading,
     lookupResults,
@@ -389,6 +405,7 @@ export function AddressesPage({
       void searchAddress();
     },
     onSelectLookup: selectLookupAddress,
+    onSaveManual: editingId ? saveManualEdit : undefined,
     watchedLine1,
     watchedLine2,
     watchedCity,

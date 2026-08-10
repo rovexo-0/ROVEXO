@@ -4,7 +4,7 @@
  */
 
 import { DELIVERED_RELEASE_HOURS } from "@/lib/commerce-engine/escrow-constants";
-import { PLATFORM_FEE_RATE } from "@/lib/orders/pricing";
+import { calculatePlatformFee } from "@/lib/orders/pricing";
 import type { WalletData, WalletTransaction } from "@/lib/wallet/types";
 
 export const SELLER_WALLET_VERSION = "v1.0" as const;
@@ -52,7 +52,7 @@ export function sellerReceivesFullListingPrice(itemPrice: number): number {
 }
 
 export function platformFeeFromBuyer(itemPrice: number): number {
-  return Math.round(itemPrice * PLATFORM_FEE_RATE * 100) / 100;
+  return calculatePlatformFee(itemPrice);
 }
 
 export type SellerWalletWithdrawalSummary = {

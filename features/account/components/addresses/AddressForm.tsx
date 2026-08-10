@@ -33,22 +33,25 @@ type AddressFormProps = {
   lookupSelected: boolean;
   onSearch: () => void;
   onSelectLookup: (result: UkLookupResult) => void;
+  /** Edit mode: persist without requiring a new lookup selection. */
+  onSaveManual?: () => void;
   watchedLine1?: string;
   watchedLine2?: string;
   watchedCity?: string;
   watchedPostcode?: string;
-  /** Blocks Enter-key form submit; save is lookup-select only. */
+  /** Blocks accidental Enter submit; Add saves via lookup select, Edit via Save. */
   onSubmit: FormEventHandler<HTMLFormElement>;
 };
 
 /**
  * Personal Add / Edit Address form (Owner contract fields).
- * Address Lookup: select → populate → save immediately (no Save / Cancel).
+ * Lookup is an enhancement — Edit can save manually when lookup is unavailable.
  */
 export function AddressForm({
   register,
   errors,
   isSubmitting,
+  isEditing,
   isDefault,
   setValue,
   extras,
@@ -60,6 +63,7 @@ export function AddressForm({
   lookupSelected,
   onSearch,
   onSelectLookup,
+  onSaveManual,
   watchedLine1,
   watchedLine2,
   watchedCity,
@@ -70,10 +74,14 @@ export function AddressForm({
     <form className="addresses-v1-form" onSubmit={onSubmit} noValidate data-addresses-form="personal">
       <input type="hidden" {...register("addressType")} />
       <input type="hidden" {...register("country")} value={UK_DEFAULT_COUNTRY} />
-      <input type="hidden" {...register("addressLine")} />
-      <input type="hidden" {...register("addressLine2")} />
-      <input type="hidden" {...register("city")} />
-      <input type="hidden" {...register("postcode")} />
+      {!isEditing ? (
+        <>
+          <input type="hidden" {...register("addressLine")} />
+          <input type="hidden" {...register("addressLine2")} />
+          <input type="hidden" {...register("city")} />
+          <input type="hidden" {...register("postcode")} />
+        </>
+      ) : null}
 
       <CanonicalInput
         id="recipientName"
@@ -136,7 +144,34 @@ export function AddressForm({
         </ul>
       ) : null}
 
-      {lookupSelected ? (
+      {isEditing ? (
+        <>
+          <CanonicalInput
+            id="addressLine"
+            label="Address line 1"
+            error={errors.addressLine?.message}
+            {...register("addressLine")}
+          />
+          <CanonicalInput
+            id="addressLine2"
+            label="Address line 2 (optional)"
+            error={errors.addressLine2?.message}
+            {...register("addressLine2")}
+          />
+          <CanonicalInput
+            id="city"
+            label="Town / City"
+            error={errors.city?.message}
+            {...register("city")}
+          />
+          <CanonicalInput
+            id="postcode"
+            label="Postcode"
+            error={errors.postcode?.message}
+            {...register("postcode")}
+          />
+        </>
+      ) : lookupSelected ? (
         <>
           <p className="addresses-v1-form__label">Address line 1</p>
           <p className="addresses-v1-form__value">{watchedLine1}</p>
@@ -177,6 +212,18 @@ export function AddressForm({
         onChange={(checked) => setValue("isDefault", checked, { shouldDirty: true })}
         disabled={isSubmitting}
       />
+
+      {isEditing && onSaveManual ? (
+        <CanonicalButton
+          type="button"
+          fullWidth
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          onClick={onSaveManual}
+        >
+          {isSubmitting ? "Saving…" : "Save address"}
+        </CanonicalButton>
+      ) : null}
 
       <p className="sr-only" aria-live="polite">
         {isSubmitting ? "Saving address…" : null}

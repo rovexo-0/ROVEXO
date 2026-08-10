@@ -42,7 +42,15 @@ export const CheckoutPriceSummary = memo(function CheckoutPriceSummary({
       </div>
       <div className="ckt-v1__price-row">
         <span>Shipping</span>
-        <span>{freeDelivery || delivery === 0 ? "Included" : formatListingPrice(delivery)}</span>
+        <span>
+          {freeDelivery
+            ? "Included"
+            : totals.deliveryPending
+              ? "Calculated at checkout"
+              : delivery === 0
+                ? "Included"
+                : formatListingPrice(delivery)}
+        </span>
       </div>
       {open ? (
         <p id={tipId} className="ckt-v1__price-tip" role="note">

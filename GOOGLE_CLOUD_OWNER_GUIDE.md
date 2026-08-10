@@ -84,6 +84,25 @@
 - Consent screen shows App name **ROVEXO**, domain **rovexo.co.uk**, privacy + terms links above.
 - Scopes include openid + email + profile.
 
+### “to continue to pklotmwxtnnepaitedic.supabase.co”
+
+Google shows the **OAuth redirect_uri host** (Supabase Auth callback), not the ROVEXO app `redirectTo`.
+
+| What | Controls |
+|------|----------|
+| App name / logo on consent | Google Auth Platform → Branding → App name **`ROVEXO`** |
+| Hostname in “to continue to …” | Google redirect URI = `https://…supabase.co/auth/v1/callback` **unless** Supabase **Custom Auth Domain** is configured |
+
+**To hide the Supabase project hostname (ops only — no app code):**
+
+1. Supabase Dashboard → Authentication → Custom Domains → configure e.g. `auth.rovexo.co.uk` (requires DNS + paid custom domain).
+2. Google Cloud → OAuth client → Authorized redirect URIs → replace/add  
+   `https://auth.rovexo.co.uk/auth/v1/callback` (exact host Supabase issues).
+3. Keep app callbacks: `https://www.rovexo.co.uk/auth/callback` and `http://localhost:3000/auth/callback`.
+4. Keep `NEXT_PUBLIC_SUPABASE_URL` pointing at the project API URL (or custom domain if Supabase documents that for the client).
+
+Until a custom auth domain is live, “continue to …supabase.co” is expected for this architecture. Frontend must **not** fake the Google screen.
+
 ### Rollback
 
 - OAuth consent screen → revert publishing to **Testing** if a bad publish causes issues.

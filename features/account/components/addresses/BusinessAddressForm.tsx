@@ -31,22 +31,23 @@ type BusinessAddressFormProps = {
   lookupSelected: boolean;
   onSearch: () => void;
   onSelectLookup: (result: UkLookupResult) => void;
+  onSaveManual?: () => void;
   watchedLine1?: string;
   watchedLine2?: string;
   watchedCity?: string;
   watchedPostcode?: string;
-  /** Blocks Enter-key form submit; save is lookup-select only. */
   onSubmit: FormEventHandler<HTMLFormElement>;
 };
 
 /**
  * Business Add / Edit Address form (Owner contract fields).
- * Address Lookup: select → populate → save immediately (no Save / Cancel).
+ * Lookup is an enhancement — Edit can save manually when lookup is unavailable.
  */
 export function BusinessAddressForm({
   register,
   errors,
   isSubmitting,
+  isEditing,
   isDefault,
   setValue,
   extras,
@@ -60,6 +61,7 @@ export function BusinessAddressForm({
   lookupSelected,
   onSearch,
   onSelectLookup,
+  onSaveManual,
   watchedLine1,
   watchedLine2,
   watchedCity,
@@ -70,10 +72,14 @@ export function BusinessAddressForm({
     <form className="addresses-v1-form" onSubmit={onSubmit} noValidate data-addresses-form="business">
       <input type="hidden" {...register("addressType")} />
       <input type="hidden" {...register("country")} value={UK_DEFAULT_COUNTRY} />
-      <input type="hidden" {...register("addressLine")} />
-      <input type="hidden" {...register("addressLine2")} />
-      <input type="hidden" {...register("city")} />
-      <input type="hidden" {...register("postcode")} />
+      {!isEditing ? (
+        <>
+          <input type="hidden" {...register("addressLine")} />
+          <input type="hidden" {...register("addressLine2")} />
+          <input type="hidden" {...register("city")} />
+          <input type="hidden" {...register("postcode")} />
+        </>
+      ) : null}
 
       <CanonicalInput
         id="businessName"
@@ -136,7 +142,34 @@ export function BusinessAddressForm({
         </ul>
       ) : null}
 
-      {lookupSelected ? (
+      {isEditing ? (
+        <>
+          <CanonicalInput
+            id="businessAddressLine"
+            label="Address line 1"
+            error={errors.addressLine?.message}
+            {...register("addressLine")}
+          />
+          <CanonicalInput
+            id="businessAddressLine2"
+            label="Address line 2 (optional)"
+            error={errors.addressLine2?.message}
+            {...register("addressLine2")}
+          />
+          <CanonicalInput
+            id="businessCity"
+            label="Town / City"
+            error={errors.city?.message}
+            {...register("city")}
+          />
+          <CanonicalInput
+            id="businessPostcode"
+            label="Postcode"
+            error={errors.postcode?.message}
+            {...register("postcode")}
+          />
+        </>
+      ) : lookupSelected ? (
         <>
           <p className="addresses-v1-form__label">Address line 1</p>
           <p className="addresses-v1-form__value">{watchedLine1}</p>
@@ -185,6 +218,18 @@ export function BusinessAddressForm({
         onChange={(checked) => setValue("isDefault", checked, { shouldDirty: true })}
         disabled={isSubmitting}
       />
+
+      {isEditing && onSaveManual ? (
+        <CanonicalButton
+          type="button"
+          fullWidth
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          onClick={onSaveManual}
+        >
+          {isSubmitting ? "Saving…" : "Save address"}
+        </CanonicalButton>
+      ) : null}
 
       <p className="sr-only" aria-live="polite">
         {isSubmitting ? "Saving address…" : null}
