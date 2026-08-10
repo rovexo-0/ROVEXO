@@ -5,6 +5,7 @@ import type {
   SearchListingsResult,
 } from "@/lib/listings/types";
 import type { Product } from "@/lib/products/types";
+import { toPublicProductDocuments } from "@/lib/products/public-product-contract-v1";
 
 export { resolveEligibleVisibleTotal } from "@/lib/listings/resolve-eligible-visible-total";
 
@@ -38,7 +39,11 @@ export async function getEligibleListings(
     searchOptions.sort = "newest";
   }
 
-  return searchListings(searchOptions);
+  const result = await searchListings(searchOptions);
+  return {
+    ...result,
+    items: toPublicProductDocuments(result.items),
+  };
 }
 
 /** Convenience: eligible listings as a plain array (Similar, Seller store, etc.). */

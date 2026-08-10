@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
+import { HomepageRegisteredUserCounter } from "@/components/header/HomepageRegisteredUserCounter";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -108,6 +109,9 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
           <HomepageSearchField inputId={SEARCH_FIELD_ID} className="rx-h2-search" />
         </div>
       ) : null}
+
+      {/* Owner COD SÂNGE — Registered User Counter (right of Search, same row) */}
+      {showSearch && !isAccountLayout ? <HomepageRegisteredUserCounter /> : null}
     </HeaderScrollShell>
   );
 }

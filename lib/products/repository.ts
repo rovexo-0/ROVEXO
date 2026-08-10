@@ -19,6 +19,8 @@ import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { toProductDetail } from "@/lib/products/detail";
+import { toPublicProductDocument } from "@/lib/products/public-product-contract-v1";
+import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveProductInformationValuesV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
 import { resolveCardImageSources } from "@/lib/media/product-image";
@@ -91,7 +93,7 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     brand: row.brands?.name,
     colour: row.color?.trim() || null,
     size: row.size?.trim() || null,
-    sellerName: row.profiles?.full_name ?? "Seller",
+    sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
     sellerId: row.seller_id,
     sellerUsername: row.profiles?.username ?? null,
     sellerEmail: row.profiles?.email ?? null,
@@ -341,7 +343,7 @@ export async function getProductsBySection(
   const mapped = visibleRows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const enriched = await enrichProductsWithTrust(withModes);
-  const items = HomepageEligibility.filterProducts(enriched);
+  const items = HomepageEligibility.filterProducts(enriched).map(toPublicProductDocument);
 
   return {
     items,
@@ -420,7 +422,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   )
     .sort(compareHomepageFeedProducts)
     // Eligibility already consumed sellerEmail server-side; redact before public document.
-    .map((product) => ({ ...product, sellerEmail: null }));
+    .map(toPublicProductDocument);
 
   /* Empty page or exhausted scan → stop pagination (never infinite hasMore). */
   if (items.length === 0) {
@@ -492,7 +494,7 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
   // Eligibility already consumed sellerEmail server-side; redact before public document.
   return result.map((section) => ({
     ...section,
-    listings: section.listings.map((product) => ({ ...product, sellerEmail: null })),
+    listings: section.listings.map(toPublicProductDocument),
   }));
 }
 
@@ -559,12 +561,13 @@ export const getProductBySlug = cache(async function getProductBySlug(
 
   const detail = mapProductDetail(row, mode);
   const withRating = await enrichProductDetailWithSellerRating(detail);
+  // Public listing SSR boundary: sellerEmail must never reach anonymous HTML.
   try {
     const onHoliday = await isSellerOnVacation(supabase, withRating.sellerId);
-    if (!onHoliday) return withRating;
-    return { ...withRating, sellerOnHoliday: true };
+    if (!onHoliday) return toPublicProductDocument(withRating);
+    return toPublicProductDocument({ ...withRating, sellerOnHoliday: true });
   } catch {
-    return withRating;
+    return toPublicProductDocument(withRating);
   }
 });
 
@@ -659,16 +662,20 @@ export async function getSimilarProducts(slug: string, limit = 8): Promise<Produ
     page: 1,
     pageSize: limit,
   });
-  return result.items;
+  return result.items.map(toPublicProductDocument);
 }
 
 export async function searchProducts(query: string, page = 1, pageSize = PAGE_SIZE) {
-  return searchListingsRepo({
+  const result = await searchListingsRepo({
     query,
     page,
     pageSize,
     sort: "newest",
   });
+  return {
+    ...result,
+    items: result.items.map(toPublicProductDocument),
+  };
 }
 
 export async function countSearchProducts(query: string): Promise<number> {

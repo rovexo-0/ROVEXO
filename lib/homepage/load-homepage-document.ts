@@ -13,6 +13,7 @@ import {
 } from "@/lib/platform-visual/reader";
 import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
 import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
+import { toPublicProductDocument } from "@/lib/products/public-product-contract-v1";
 
 /** Empty featured rail input — canonical Homepage does not render a featured section. */
 export const HOMEPAGE_EMPTY_FEATURED_PAGE: ProductsPage = {
@@ -49,17 +50,17 @@ export async function loadHomepageDocumentData(options: {
     preferredStores,
   });
 
-  // Final PUBLIC-document safety: never serialize seller emails into shared CDN HTML.
+  // Final PUBLIC-document safety: username-only identity · never serialize seller emails.
   const publicSections = {
     ...sections,
-    featured: sections.featured.map((product) => ({ ...product, sellerEmail: null })),
+    featured: sections.featured.map(toPublicProductDocument),
     feed: {
       ...sections.feed,
-      items: sections.feed.items.map((product) => ({ ...product, sellerEmail: null })),
+      items: sections.feed.items.map(toPublicProductDocument),
     },
     showcases: sections.showcases.map((section) => ({
       ...section,
-      listings: section.listings.map((product) => ({ ...product, sellerEmail: null })),
+      listings: section.listings.map(toPublicProductDocument),
     })),
   };
 

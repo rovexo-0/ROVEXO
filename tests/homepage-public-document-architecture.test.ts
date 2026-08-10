@@ -83,7 +83,7 @@ describe("Homepage performance architecture — public document / user-state spl
     expect(loader).toContain("fetchHomepageFeed");
     expect(loader).toContain("fetchShowcaseSellerSections");
     expect(loader).toContain("listActivePreferredMarketplaceStores");
-    expect(loader).toContain("sellerEmail: null");
+    expect(loader).toContain("toPublicProductDocument");
   });
 
   it("anonymous Homepage middleware sets public CDN Cache-Control matching revalidate=60", () => {

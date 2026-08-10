@@ -29,7 +29,13 @@ export const HEADER_MASTER_FREEZE_V1 = {
   noAvatarInHeader: true,
   noHeaderProfileFetch: true,
   noHeaderNotificationFetch: true,
+  /** Per-user avatar/profile/notification fetches remain forbidden. */
   noHeaderUserDataFetch: true,
+  /**
+   * Owner COD SÂNGE 2026-08-10 — platform registered-user aggregate only.
+   * Not per-user profile data. Source: public.profiles count.
+   */
+  homepageRegisteredUserCounter: true,
   /** Marketplace header survives Soft Nav only while remaining on Homepage. */
   headerSurvivesNavigation: true,
   headerNeverReloads: true,
@@ -68,6 +74,7 @@ export const HEADER_MASTER_FREEZE_V1 = {
     "Camera Search",
     "Clear Search (X)",
     "Voice Search (future optional)",
+    "Registered User Counter",
   ] as const,
   keep: [
     "Search Icon",
@@ -127,11 +134,12 @@ export const HEADER_MASTER_FREEZE_V1 = {
   forbidden: [
     "Notification icon in RovexoHeaderV2",
     "Avatar / HeaderProfileLink in RovexoHeaderV2",
-    "Header fetch avatar / notifications / user data",
+    "Header fetch avatar / notifications / per-user profile data",
     "duplicated Header icons",
     "unnecessary Header actions",
     "per-page second RovexoHeaderV2",
     "Camera Search / SearchProvider modifications for header work",
+    "Fake / demo / placeholder registered-user counts",
   ] as const,
   ssot: {
     freeze: "lib/header/header-master-freeze-v1.ts",
