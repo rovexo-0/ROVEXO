@@ -6,6 +6,10 @@ import {
   getSendcloudSecretKey,
   getSendcloudV3BaseUrl,
 } from "@/lib/shipping/env";
+import {
+  normalizeCountryCode,
+  parcelSpecFromTier,
+} from "@/lib/shipping/pricing/sendcloud-mappers";
 import { SendcloudError } from "@/lib/shipping/sendcloud/errors";
 import type {
   SendcloudHealthResult,
@@ -13,10 +17,14 @@ import type {
   SendcloudShippingMethod,
 } from "@/lib/shipping/sendcloud/types";
 import {
-  SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1,
-  extractV3CompatMappingFor29631,
-  type SendcloudV3CompatOption29631Mapping,
+  SENDCLOUD_V3_OPTION_DIAGNOSTIC_29631_V1,
+  buildV3Option29631ForensicReport,
+  matchRoyalMailTracked48LargeLetter,
+  type SendcloudV3Option29631ForensicReport,
+  type SendcloudV3Tracked48LargeLetterMatch,
 } from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
+import { getShippingRecord } from "@/lib/shipping/store";
+import type { ParcelTier } from "@/lib/shipping/types";
 
 /** Bound below router Promise.race (30s) so the underlying fetch is aborted first. */
 export const SENDCLOUD_DEFAULT_TIMEOUT_MS = 25_000;
@@ -90,30 +98,98 @@ export async function sendcloudV3Request<T>(
   });
 }
 
-/**
- * Read-only V3 compat lookup for locked method 29631 only.
- * POST /api/v3/compat/shipping-options — no shipment/parcel/label.
- */
-export async function lookupSendcloudV3CompatShippingOption29631(): Promise<{
-  raw: unknown;
-  mapping: SendcloudV3CompatOption29631Mapping;
+export type DiscoverRvxc75ca5bbV3OptionResult = {
   requestUrlPath: string;
-  requestBody: { shipping_method_ids: [typeof SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.methodId] };
-}> {
-  const methodId = SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.methodId;
-  const path = SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.path;
-  const requestBody = { shipping_method_ids: [methodId] as [typeof methodId] };
+  requestBody: Record<string, unknown>;
+  orderId: string;
+  orderNumber: string;
+  methodId: number;
+  selectedQuoteId: string | null;
+  selectedServiceName: string | null;
+  forensic: SendcloudV3Option29631ForensicReport;
+  /** @deprecated Prefer forensic — retained for existing callers/tests. */
+  match: SendcloudV3Tracked48LargeLetterMatch;
+};
 
-  const raw = await sendcloudV3Request<unknown>(path, {
+/**
+ * Read-only V3 shipping-options discovery for locked RVXC75CA5BB / method 29631.
+ * POST /api/v3/shipping-options using persisted shipment params — no shipment/parcel/label.
+ * Does not return raw Sendcloud payloads to callers (forensic only).
+ */
+export async function discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic(): Promise<DiscoverRvxc75ca5bbV3OptionResult> {
+  const lock = SENDCLOUD_V3_OPTION_DIAGNOSTIC_29631_V1;
+  const record = await getShippingRecord(lock.orderId);
+  if (!record) {
+    throw new SendcloudError(
+      "api_error",
+      "Shipping record not found for locked diagnostic order RVXC75CA5BB.",
+      { statusCode: 404 },
+    );
+  }
+
+  const collection = record.collectionAddress;
+  const delivery = record.deliveryAddress;
+  if (
+    !collection?.postcode?.trim() ||
+    !delivery?.postcode?.trim() ||
+    !collection.country?.trim() ||
+    !delivery.country?.trim()
+  ) {
+    throw new SendcloudError(
+      "invalid_address",
+      "Persisted collection/delivery address is incomplete for V3 shipping-options discovery.",
+      { statusCode: 422 },
+    );
+  }
+
+  const parcel = record.parcels?.[0] ?? null;
+  const tier = (record.parcelTier ?? "small_parcel") as ParcelTier;
+  const spec = parcelSpecFromTier(tier, parcel?.weightKg ?? undefined);
+  const lengthCm = parcel?.dimensions?.lengthCm ?? spec.lengthCm;
+  const widthCm = parcel?.dimensions?.widthCm ?? spec.widthCm;
+  const heightCm = parcel?.dimensions?.heightCm ?? spec.heightCm;
+  const selectedQuote =
+    record.pricing?.quotes?.find((q) => q.id === record.pricing?.selectedQuoteId) ??
+    record.pricing?.quotes?.find((q) => q.id === lock.quoteId) ??
+    null;
+
+  const requestBody: Record<string, unknown> = {
+    from_country_code: normalizeCountryCode(collection.country),
+    to_country_code: normalizeCountryCode(delivery.country),
+    from_postal_code: collection.postcode.replace(/\s+/g, "").toUpperCase(),
+    to_postal_code: delivery.postcode.replace(/\s+/g, "").toUpperCase(),
+    carrier_code: lock.targetCarrierCode,
+    calculate_quotes: true,
+    parcels: [
+      {
+        weight: { value: String(spec.weightKg), unit: "kg" },
+        dimensions: {
+          length: String(lengthCm),
+          width: String(widthCm),
+          height: String(heightCm),
+          unit: "cm",
+        },
+      },
+    ],
+  };
+
+  const raw = await sendcloudV3Request<unknown>(lock.path, {
     method: "POST",
     body: JSON.stringify(requestBody),
   });
 
+  const forensic = buildV3Option29631ForensicReport(raw);
+
   return {
-    raw,
-    mapping: extractV3CompatMappingFor29631(raw),
-    requestUrlPath: path,
+    forensic,
+    match: matchRoyalMailTracked48LargeLetter(raw),
+    requestUrlPath: lock.path,
     requestBody,
+    orderId: lock.orderId,
+    orderNumber: lock.orderNumber,
+    methodId: lock.methodId,
+    selectedQuoteId: record.pricing?.selectedQuoteId ?? null,
+    selectedServiceName: selectedQuote?.serviceName ?? null,
   };
 }
 

@@ -1,6 +1,7 @@
 /**
- * Super Admin read-only diagnostic: V2 method 29631 → V3 shipping_option_code.
- * Calls POST /api/v3/compat/shipping-options only — no shipment/parcel/label/DB write.
+ * Super Admin read-only forensic: RVXC75CA5BB / method 29631 → V3 shipping-options.
+ * Calls POST /api/v3/shipping-options only — no shipment/parcel/label/DB write.
+ * Returns safe candidate fields only — never raw authenticated Sendcloud payloads.
  */
 
 import { NextResponse } from "next/server";
@@ -9,19 +10,20 @@ import { z } from "zod";
 import { requireApiSuperAdmin } from "@/lib/auth/session";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { isSendcloudError } from "@/lib/shipping/sendcloud/errors";
-import { lookupSendcloudV3CompatShippingOption29631 } from "@/lib/shipping/sendcloud/client";
-import { SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1 } from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
+import { discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic } from "@/lib/shipping/sendcloud/client";
+import { SENDCLOUD_V3_OPTION_DIAGNOSTIC_29631_V1 } from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const METHOD_ID = SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.methodId;
+const LOCK = SENDCLOUD_V3_OPTION_DIAGNOSTIC_29631_V1;
+const METHOD_ID = LOCK.methodId;
 
-/** Empty body or explicit locked method id only — no arbitrary method IDs. */
+/** Empty body or explicit locked order/method only — no arbitrary IDs. */
 const optionalBodySchema = z
   .object({
+    orderId: z.literal(LOCK.orderId).optional(),
     methodId: z.literal(METHOD_ID).optional(),
-    shipping_method_ids: z.tuple([z.literal(METHOD_ID)]).optional(),
   })
   .strict();
 
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             ok: false,
-            error: "Only locked methodId 29631 is allowed for this diagnostic.",
+            error: "Only locked RVXC75CA5BB / methodId 29631 is allowed for this diagnostic.",
           },
           { status: 400 },
         );
@@ -53,68 +55,124 @@ export async function POST(request: Request) {
 
   if (!isSendcloudConfigured()) {
     return NextResponse.json(
-      { ok: false, error: "Sendcloud is not configured.", methodId: METHOD_ID },
+      {
+        ok: false,
+        methodId: METHOD_ID,
+        orderNumber: LOCK.orderNumber,
+        error: "Sendcloud is not configured.",
+      },
       { status: 503 },
     );
   }
 
   try {
-    const result = await lookupSendcloudV3CompatShippingOption29631();
-    const { shippingOptionCode, contractId, rawMappingConfirmed } = result.mapping;
+    const result = await discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic();
+    const { forensic } = result;
 
     console.info("[super-admin/shipping/diagnostic-v3-option-29631]", {
       actorUserId: auth.user.id,
+      orderNumber: LOCK.orderNumber,
       methodId: METHOD_ID,
-      rawMappingConfirmed,
-      hasShippingOptionCode: Boolean(shippingOptionCode),
-      hasContractId: contractId != null,
+      path: result.requestUrlPath,
+      result: forensic.result,
+      exactMatchCount: forensic.exactMatchCount,
+      exactMatchReason: forensic.exactMatchReason,
+      mappingConfirmed: forensic.mappingConfirmed,
+      candidateCount: forensic.candidateCount,
+      hasShippingOptionCode: Boolean(forensic.shippingOptionCode),
       timestamp: new Date().toISOString(),
     });
 
-    if (!rawMappingConfirmed || !shippingOptionCode) {
-      return NextResponse.json(
-        {
-          ok: false,
-          methodId: METHOD_ID,
-          shippingOptionCode: null,
-          contractId: null,
-          rawMappingConfirmed: false,
-          error: "Sendcloud returned no shipping_option_code for method 29631.",
-        },
-        { status: 422 },
-      );
+    const base = {
+      methodId: METHOD_ID,
+      orderId: LOCK.orderId,
+      orderNumber: LOCK.orderNumber,
+      quoteId: LOCK.quoteId,
+      candidateCount: forensic.candidateCount,
+      candidates: forensic.candidates,
+      exactMatchCount: forensic.exactMatchCount,
+      exactMatchReason: forensic.exactMatchReason,
+      mappingConfirmed: forensic.mappingConfirmed,
+      result: forensic.result,
+      shippingOptionCode: forensic.shippingOptionCode,
+      contractId: forensic.contractId,
+      // Explicit aliases retained for Owner forensic checklist
+      SHIPPING_OPTION_CODE: forensic.shippingOptionCode,
+      CONTRACT_ID: forensic.contractId,
+      CANDIDATE_COUNT: forensic.candidateCount,
+      EXACT_MATCH_COUNT: forensic.exactMatchCount,
+      EXACT_MATCH_REASON: forensic.exactMatchReason,
+      MAPPING_CONFIRMED: forensic.mappingConfirmed,
+      RESULT: forensic.result,
+    };
+
+    if (forensic.result === "MAPPING_CONFIRMED" && forensic.shippingOptionCode) {
+      return NextResponse.json({
+        ok: true,
+        ...base,
+      });
     }
 
-    return NextResponse.json({
-      ok: true,
-      methodId: METHOD_ID,
-      shippingOptionCode,
-      contractId,
-      rawMappingConfirmed: true,
-    });
+    const error =
+      forensic.result === "NO_V3_COUNTERPART"
+        ? forensic.exactMatchReason === "EXACT_MATCH_MISSING_SHIPPING_OPTION_CODE"
+          ? "Exact Royal Mail Tracked 48 - Large Letter found without shipping_option_code. NO_V3_COUNTERPART. No code guessed."
+          : "No exact Royal Mail Tracked 48 - Large Letter V3 counterpart. NO_V3_COUNTERPART. No code guessed."
+        : "Multiple exact Royal Mail Tracked 48 - Large Letter candidates. AMBIGUOUS_EXACT_MATCHES. No code selected.";
+
+    return NextResponse.json(
+      {
+        ok: false,
+        ...base,
+        error,
+      },
+      { status: 422 },
+    );
   } catch (error) {
     const message = isSendcloudError(error)
       ? error.message
-      : "Unable to resolve V3 shipping option for method 29631.";
+      : "Unable to discover V3 shipping option for RVXC75CA5BB.";
 
     console.info("[super-admin/shipping/diagnostic-v3-option-29631]", {
       actorUserId: auth.user.id,
+      orderNumber: LOCK.orderNumber,
       methodId: METHOD_ID,
       ok: false,
       errorCode: isSendcloudError(error) ? error.code : "unknown",
       timestamp: new Date().toISOString(),
     });
 
+    const status =
+      isSendcloudError(error) && error.statusCode === 404
+        ? 404
+        : isSendcloudError(error) && error.statusCode === 422
+          ? 422
+          : 502;
+
     return NextResponse.json(
       {
         ok: false,
         methodId: METHOD_ID,
+        orderId: LOCK.orderId,
+        orderNumber: LOCK.orderNumber,
+        candidateCount: 0,
+        candidates: [],
+        exactMatchCount: 0,
+        exactMatchReason: "NO_EXACT_ROYAL_MAIL_TRACKED_48_LARGE_LETTER",
+        mappingConfirmed: false,
+        result: "NO_V3_COUNTERPART",
         shippingOptionCode: null,
         contractId: null,
-        rawMappingConfirmed: false,
+        SHIPPING_OPTION_CODE: null,
+        CONTRACT_ID: null,
+        CANDIDATE_COUNT: 0,
+        EXACT_MATCH_COUNT: 0,
+        EXACT_MATCH_REASON: "NO_EXACT_ROYAL_MAIL_TRACKED_48_LARGE_LETTER",
+        MAPPING_CONFIRMED: false,
+        RESULT: "NO_V3_COUNTERPART",
         error: message,
       },
-      { status: isSendcloudError(error) && error.statusCode === 404 ? 404 : 502 },
+      { status },
     );
   }
 }
