@@ -17,16 +17,22 @@ export const PLATFORM_INTEGRATION_P0_SECURITY_CERTIFICATION_V1 = {
       "GET /api/shipping/labels",
       "GET /api/shipping?orderId=",
       "POST /api/shipping/quotes",
+      "GET /api/shipping/sendcloud/tracking",
     ] as const,
-    rule: "Participant (buyer OR seller) for shipping context/quotes; shipping LABEL documents (GET /api/shipping/labels) are SELLER-ONLY via assertOrderShippingSeller",
+    rule: "Participant (buyer OR seller) for shipping context/quotes/tracking refresh; shipping LABEL documents (GET /api/shipping/labels) are SELLER-ONLY via assertOrderShippingSeller",
     labelDocumentAssert: "assertOrderShippingSeller",
     labelDocumentRule: "Authenticated user === order.seller_id; buyers/other sellers/anonymous → 404 fail closed",
+    trackingRefreshAssert: "assertSendcloudTrackingRefreshAccess",
+    trackingRefreshRule:
+      "Buyer OR seller of the order that owns the tracking number; mismatch orderId+trackingNumber → 404; no Sendcloud call until ownership proven",
     reject: [
       "arbitrary orderId",
       "IDOR",
       "admin-client bypass without ownership",
       "hidden ownership bypass",
       "buyer GET shipping label pdfUrl",
+      "arbitrary trackingNumber Sendcloud lookup",
+      "cross-order tracking status mutation",
     ] as const,
   },
 

@@ -17,6 +17,7 @@ describe("Platform Integration P0 — Security & Integration Certification", () 
         "GET /api/shipping/labels",
         "GET /api/shipping?orderId=",
         "POST /api/shipping/quotes",
+        "GET /api/shipping/sendcloud/tracking",
       ]),
     );
 
@@ -30,9 +31,17 @@ describe("Platform Integration P0 — Security & Integration Certification", () 
     expect(labelsSrc).toContain("assertOrderShippingSeller");
     expect(labelsSrc).not.toContain("assertOrderShippingParticipant");
 
-    for (const path of ["app/api/shipping/route.ts", "app/api/shipping/quotes/route.ts"]) {
+    for (const path of [
+      "app/api/shipping/route.ts",
+      "app/api/shipping/quotes/route.ts",
+      "app/api/shipping/sendcloud/tracking/route.ts",
+    ]) {
       const src = readSource(path);
-      expect(src).toContain("assertOrderShippingParticipant");
+      if (path.includes("sendcloud/tracking")) {
+        expect(src).toContain("assertSendcloudTrackingRefreshAccess");
+      } else {
+        expect(src).toContain("assertOrderShippingParticipant");
+      }
     }
   });
 
