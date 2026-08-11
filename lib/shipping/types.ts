@@ -68,6 +68,14 @@ export type ShippingAddress = {
   validated: boolean;
 };
 
+/**
+ * Quote API generation surface for Sendcloud dual-identity quotes.
+ * - v2: legacy method-id quote identity only (no confirmed V3 label code)
+ * - v3: V3 shipping_option_code present without a V2 method bridge
+ * - v2+v3: legacy quote id + confirmed V3 label identity
+ */
+export type ShippingQuoteApiVersion = "v2" | "v3" | "v2+v3";
+
 export type ShippingQuote = {
   id: string;
   providerId: string;
@@ -79,6 +87,27 @@ export type ShippingQuote = {
   estimatedDeliveryAt?: string | null;
   recommended?: "cheapest" | "fastest";
   expiresAt?: string;
+  /**
+   * Confirmed Sendcloud V3 shipping_option_code for label creation.
+   * NEVER derived from V2 method.id / sendcloud:<methodId>.
+   * Optional — legacy V2-only quotes omit this (label path fail-closed).
+   */
+  shippingOptionCode?: string;
+  /** Optional Sendcloud contract id when actually returned by V3 discovery. */
+  contractId?: string;
+  /** Sendcloud-specific V2 shipping method id (legacy bridge). Never treat as shippingOptionCode. */
+  v2MethodId?: number;
+  /** Which API surfaces contributed to this quote identity. */
+  quoteApiVersion?: ShippingQuoteApiVersion;
+};
+
+/** Persisted jsonb payload on shipping_quotes — preserves V3 metadata without a migration. */
+export type ShippingQuotePayload = {
+  externalQuoteId: string;
+  v2MethodId?: number;
+  shippingOptionCode?: string;
+  contractId?: string;
+  quoteApiVersion?: ShippingQuoteApiVersion;
 };
 
 export type ShippingPricing = {

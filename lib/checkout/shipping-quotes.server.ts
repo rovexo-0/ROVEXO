@@ -108,6 +108,10 @@ function pickCheapestPerCarrier(quotes: ShippingQuote[]): CheckoutCarrierQuote[]
         serviceName: quote.serviceName,
         price: quote.pricePence / 100,
         eta: formatEta(quote),
+        ...(quote.shippingOptionCode ? { shippingOptionCode: quote.shippingOptionCode } : {}),
+        ...(quote.contractId ? { contractId: quote.contractId } : {}),
+        ...(quote.v2MethodId != null ? { v2MethodId: quote.v2MethodId } : {}),
+        ...(quote.quoteApiVersion ? { quoteApiVersion: quote.quoteApiVersion } : {}),
       };
     });
 }

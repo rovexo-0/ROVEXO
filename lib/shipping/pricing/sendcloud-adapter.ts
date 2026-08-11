@@ -90,6 +90,10 @@ export class SendcloudAdapter implements ShippingProvider {
         declaredValueGbp: request.declaredValueGbp,
         labelSize: request.labelSize,
         idempotencyKey: request.idempotencyKey,
+        shippingOptionCode: request.shippingOptionCode,
+        contractId: request.contractId,
+        v2MethodId: request.v2MethodId,
+        existingProviderParcelId: request.existingProviderParcelId,
       });
 
       // Success requires tracking + usable label URL — parcel id alone is not a generated label.
@@ -109,6 +113,13 @@ export class SendcloudAdapter implements ShippingProvider {
       };
     } catch (error) {
       console.error("[shipping/sendcloud] Label creation failed:", error);
+      if (
+        isSendcloudError(error) &&
+        typeof error.message === "string" &&
+        error.message.includes("shipping_option_code")
+      ) {
+        return emptyLabelResponse("quote_expired");
+      }
       return emptyLabelResponse("quote_expired");
     }
   }

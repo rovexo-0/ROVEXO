@@ -4,8 +4,15 @@ import { DEFAULT_SELLER_LABEL_SIZE } from "@/lib/shipping/label-size";
 import { PARCEL_TIER_OPTIONS } from "@/lib/shipping/parcels";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 import type { SendcloudParcelCreatePayload } from "@/lib/shipping/sendcloud/client";
-import type { SendcloudShippingMethod } from "@/lib/shipping/sendcloud/types";
+import type {
+  SendcloudShippingMethod,
+  SendcloudV3QuoteMetadata,
+} from "@/lib/shipping/sendcloud/types";
 import { mapSendcloudCarrierToUk } from "@/lib/shipping/sendcloud/carrier-aliases";
+import {
+  isConfirmedSendcloudV3ShippingOptionCode,
+  resolveShippingQuoteApiVersion,
+} from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 
 export const SENDCLOUD_QUOTE_PREFIX = "sendcloud:";
 
@@ -101,8 +108,14 @@ function leadTimeDays(method: SendcloudShippingMethod): { min: number; max: numb
  * Sendcloud country `price` is used as returned (pence). Official method schema does not
  * expose a separate VAT amount on /shipping_methods — do not fabricate VAT lines.
  * UK-first: ShippingQuote.currency is typed GBP (canonical production currency).
+ *
+ * V3 label identity is OPTIONAL and MUST come from confirmed discovery metadata only.
+ * NEVER: shippingOptionCode = String(method.id) / parseSendcloudQuoteId / serviceName guess.
  */
-export function mapSendcloudMethodToQuote(method: SendcloudShippingMethod): ShippingQuote | null {
+export function mapSendcloudMethodToQuote(
+  method: SendcloudShippingMethod,
+  v3?: SendcloudV3QuoteMetadata | null,
+): ShippingQuote | null {
   const price = countryPriceForGb(method);
   if (price == null || !Number.isFinite(price) || price < 0) return null;
 
@@ -110,6 +123,17 @@ export function mapSendcloudMethodToQuote(method: SendcloudShippingMethod): Ship
   if (!carrier) return null;
 
   const estimatedDays = leadTimeDays(method);
+  const v2MethodId = method.id;
+  const shippingOptionCode = isConfirmedSendcloudV3ShippingOptionCode(
+    v3?.shippingOptionCode,
+    v2MethodId,
+  )
+    ? v3!.shippingOptionCode!.trim()
+    : undefined;
+  const contractId =
+    typeof v3?.contractId === "string" && v3.contractId.trim()
+      ? v3.contractId.trim()
+      : undefined;
 
   return {
     id: encodeSendcloudQuoteId(method.id),
@@ -119,6 +143,10 @@ export function mapSendcloudMethodToQuote(method: SendcloudShippingMethod): Ship
     pricePence: Math.round(price * 100),
     currency: "GBP",
     estimatedDays,
+    v2MethodId,
+    ...(shippingOptionCode ? { shippingOptionCode } : {}),
+    ...(contractId ? { contractId } : {}),
+    quoteApiVersion: resolveShippingQuoteApiVersion({ shippingOptionCode, v2MethodId }),
   };
 }
 

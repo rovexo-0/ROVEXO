@@ -235,11 +235,12 @@ describe("POST /api/super-admin/shipping/diagnostic-v3-option-29631", () => {
     );
     const discoverEnd = client.indexOf("async function sendcloudRequestOnce", discoverStart);
     const discoverFn = client.slice(discoverStart, discoverEnd);
-    expect(discoverFn).toContain("sendcloudV3Request");
+    expect(discoverFn).toContain("fetchSendcloudV3ShippingOptionsCatalog");
     expect(discoverFn).toContain("buildV3Option29631ForensicReport");
     expect(discoverFn).not.toContain("createSendcloudParcel");
     expect(discoverFn).not.toContain("/parcels");
     expect(discoverFn).not.toContain("/shipments");
+    expect(discoverFn).not.toContain("announceSendcloudShipmentV3");
     expect(discoverFn).not.toContain("raw,");
 
     expect(lock).toContain('path: "/shipping-options"');

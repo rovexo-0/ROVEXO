@@ -23,6 +23,12 @@ import {
   type SendcloudV3Option29631ForensicReport,
   type SendcloudV3Tracked48LargeLetterMatch,
 } from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
+import {
+  SENDCLOUD_V3_SHIPMENTS_ANNOUNCE_PATH,
+  type SendcloudV3AnnounceShipmentRequest,
+  type SendcloudV3AnnounceShipmentResult,
+} from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
+import { parseSendcloudV3AnnounceShipmentResult } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import { getShippingRecord } from "@/lib/shipping/store";
 import type { ParcelTier } from "@/lib/shipping/types";
 
@@ -113,7 +119,7 @@ export type DiscoverRvxc75ca5bbV3OptionResult = {
 
 /**
  * Read-only V3 shipping-options discovery for locked RVXC75CA5BB / method 29631.
- * POST /api/v3/shipping-options using persisted shipment params — no shipment/parcel/label.
+ * Uses shared catalog fetch (cached) — no shipment/parcel/label.
  * Does not return raw Sendcloud payloads to callers (forensic only).
  */
 export async function discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic(): Promise<DiscoverRvxc75ca5bbV3OptionResult> {
@@ -153,7 +159,7 @@ export async function discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic(): Promi
     record.pricing?.quotes?.find((q) => q.id === lock.quoteId) ??
     null;
 
-  const requestBody: Record<string, unknown> = {
+  const requestBody = {
     from_country_code: normalizeCountryCode(collection.country),
     to_country_code: normalizeCountryCode(delivery.country),
     from_postal_code: collection.postcode.replace(/\s+/g, "").toUpperCase(),
@@ -173,9 +179,21 @@ export async function discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic(): Promi
     ],
   };
 
-  const raw = await sendcloudV3Request<unknown>(lock.path, {
-    method: "POST",
-    body: JSON.stringify(requestBody),
+  const { fetchSendcloudV3ShippingOptionsCatalog } = await import(
+    "@/lib/shipping/sendcloud/v3-catalog-v1"
+  );
+  const raw = await fetchSendcloudV3ShippingOptionsCatalog({
+    fromCountryCode: normalizeCountryCode(collection.country),
+    toCountryCode: normalizeCountryCode(delivery.country),
+    fromPostalCode: collection.postcode,
+    toPostalCode: delivery.postcode,
+    parcelTier: tier,
+    weightKg: spec.weightKg,
+    lengthCm,
+    widthCm,
+    heightCm,
+    carrierCode: lock.targetCarrierCode,
+    calculateQuotes: true,
   });
 
   const forensic = buildV3Option29631ForensicReport(raw);
@@ -451,4 +469,48 @@ export async function cancelSendcloudParcel(parcelId: number): Promise<void> {
   await sendcloudRequest<{ status?: string; message?: string }>(`/parcels/${parcelId}/cancel`, {
     method: "POST",
   });
+}
+
+/** In-process lock: one ROVEXO external_reference_id → one in-flight V3 announce. */
+const v3AnnounceInflight = new Map<string, Promise<SendcloudV3AnnounceShipmentResult>>();
+
+/**
+ * POST /shipments/announce — synchronous create+announce.
+ * HTTP 409 → safe reuse of existing shipment (never create a second blindly).
+ * Never calls V2 /parcels.
+ */
+export async function announceSendcloudShipmentV3(
+  payload: SendcloudV3AnnounceShipmentRequest,
+): Promise<SendcloudV3AnnounceShipmentResult> {
+  const lockKey = payload.external_reference_id?.trim() || null;
+
+  const run = async (): Promise<SendcloudV3AnnounceShipmentResult> => {
+    try {
+      const body = await sendcloudV3Request<unknown>(SENDCLOUD_V3_SHIPMENTS_ANNOUNCE_PATH, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      return parseSendcloudV3AnnounceShipmentResult(body, { reusedExisting: false });
+    } catch (error) {
+      if (isSendcloudError(error) && error.statusCode === 409) {
+        return parseSendcloudV3AnnounceShipmentResult(error.details, { reusedExisting: true });
+      }
+      throw error;
+    }
+  };
+
+  if (!lockKey) {
+    return run();
+  }
+
+  const existing = v3AnnounceInflight.get(lockKey);
+  if (existing) {
+    return existing;
+  }
+
+  const promise = run().finally(() => {
+    v3AnnounceInflight.delete(lockKey);
+  });
+  v3AnnounceInflight.set(lockKey, promise);
+  return promise;
 }

@@ -13,10 +13,12 @@ import type {
   ShippingAddress,
   ShippingLabelArtifact,
   ShippingPricing,
+  ShippingQuotePayload,
   ShippingRecord,
   ShippingStatus,
   ShippingTrackingEvent,
 } from "@/lib/shipping/types";
+import { shippingQuoteFromPayloadRow, buildShippingQuotePayload } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import {
   estimateDeliveryDate,
   isValidTrackingNumber,
@@ -77,7 +79,7 @@ type QuoteRow = {
   estimated_days_max: number;
   recommended: string | null;
   expires_at: string | null;
-  quote_payload?: { externalQuoteId?: string } | null;
+  quote_payload?: ShippingQuotePayload | { externalQuoteId?: string } | null;
 };
 
 function mapLabel(row: LabelRow | null): ShippingLabelArtifact | null {
@@ -95,17 +97,21 @@ function mapLabel(row: LabelRow | null): ShippingLabelArtifact | null {
 function mapPricing(quotes: QuoteRow[], selectedQuoteId: string | null): ShippingPricing | null {
   if (quotes.length === 0) return null;
   return {
-    quotes: quotes.map((quote) => ({
-      id: quote.quote_payload?.externalQuoteId ?? quote.id,
-      providerId: quote.provider_id,
-      carrier: quote.carrier,
-      serviceName: quote.service_name,
-      pricePence: quote.price_pence,
-      currency: "GBP",
-      estimatedDays: { min: quote.estimated_days_min, max: quote.estimated_days_max },
-      recommended: quote.recommended === "cheapest" || quote.recommended === "fastest" ? quote.recommended : undefined,
-      expiresAt: quote.expires_at ?? undefined,
-    })),
+    quotes: quotes.map((quote) =>
+      shippingQuoteFromPayloadRow({
+        id: quote.id,
+        providerId: quote.provider_id,
+        carrier: quote.carrier,
+        serviceName: quote.service_name,
+        pricePence: quote.price_pence,
+        currency: quote.currency,
+        estimatedDaysMin: quote.estimated_days_min,
+        estimatedDaysMax: quote.estimated_days_max,
+        recommended: quote.recommended,
+        expiresAt: quote.expires_at,
+        quotePayload: quote.quote_payload ?? null,
+      }),
+    ),
     selectedQuoteId,
     currency: "GBP",
     providerAvailable: quotes.length > 0,
@@ -386,7 +392,7 @@ export async function saveShippingQuotes(input: {
           estimated_days_max: quote.estimatedDays.max,
           recommended: quote.recommended ?? null,
           expires_at: quote.expiresAt ?? null,
-          quote_payload: isUuid(externalId) ? null : { externalQuoteId: externalId },
+          quote_payload: isUuid(externalId) ? null : buildShippingQuotePayload(quote),
         };
       }),
     );

@@ -131,6 +131,22 @@ export async function getShipmentParcelById(parcelId: string): Promise<ShipmentP
   return mapParcelRow(parcelRow, labels.get(parcelRow.id) ?? null);
 }
 
+/** Read persisted Sendcloud/provider parcel id for idempotent label retries. */
+export async function getProviderParcelIdForShipmentParcel(
+  parcelId: string,
+): Promise<number | null> {
+  const admin = createShippingAdminClient();
+  const { data } = await admin
+    .from("shipping_labels_v1")
+    .select("provider_parcel_id")
+    .eq("shipment_parcel_id", parcelId)
+    .maybeSingle();
+  const raw = (data as { provider_parcel_id?: string | null } | null)?.provider_parcel_id;
+  if (!raw) return null;
+  const parsed = Number.parseInt(String(raw).trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 async function renumberParcels(shippingRecordId: string): Promise<void> {
   const admin = createShippingAdminClient();
   const { data: rows } = await admin

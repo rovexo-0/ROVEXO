@@ -33,6 +33,12 @@ export type ShippingLabelRequest = {
   idempotencyKey?: string;
   /** Force in-app demo adapter (Full Demo actors — never real Sendcloud). */
   forceDemoShipping?: boolean;
+  /** Confirmed Sendcloud V3 shipping_option_code from persisted quote_payload. */
+  shippingOptionCode?: string | null;
+  contractId?: string | null;
+  v2MethodId?: number | null;
+  /** Existing provider parcel id — prevent duplicate shipment creation. */
+  existingProviderParcelId?: number | null;
 };
 
 export type ShippingLabelResponse = {

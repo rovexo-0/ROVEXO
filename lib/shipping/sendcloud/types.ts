@@ -60,6 +60,17 @@ export type SendcloudLabelResult = {
   pdfUrl: string | null;
   carrier: string | null;
   serviceName: string | null;
+  /** V3 shipment id when created via /shipments/announce (string UUID or opaque id). */
+  shipmentId?: string | null;
+  /** True when HTTP 409 / existing provider id was reused. */
+  reusedExisting?: boolean;
+};
+
+/** Confirmed V3 label identity — never conflated with sendcloud:<v2MethodId>. */
+export type SendcloudV3QuoteMetadata = {
+  shippingOptionCode?: string;
+  contractId?: string;
+  v2MethodId?: number;
 };
 
 export type SendcloudWebhookPayload = {

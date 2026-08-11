@@ -11,7 +11,7 @@ import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
-import { isSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   createShipmentParcel,
   listShipmentParcelsForOrder,
@@ -165,6 +165,8 @@ function buildPersistedCheckoutQuote(order: PaidOrderShippingRow): ShippingQuote
   const quoteId = order.selected_shipping_quote_id?.trim() || null;
   if (!quoteId) return null;
 
+  const v2MethodId = isSendcloudQuoteId(quoteId) ? parseSendcloudQuoteId(quoteId) : null;
+
   return {
     id: quoteId,
     providerId: isSendcloudQuoteId(quoteId) ? "sendcloud" : "checkout",
@@ -173,6 +175,8 @@ function buildPersistedCheckoutQuote(order: PaidOrderShippingRow): ShippingQuote
     pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
     currency: "GBP",
     estimatedDays: { min: 1, max: 5 },
+    // Legacy bridge only — never invent shippingOptionCode for sendcloud:N.
+    ...(v2MethodId != null ? { v2MethodId, quoteApiVersion: "v2" as const } : {}),
   };
 }
 

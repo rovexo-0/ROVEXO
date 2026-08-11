@@ -106,6 +106,26 @@ export async function generateShippingLabelForOrder(
     return { ok: false as const, error: "No shipping quote available for this order." };
   }
 
+  const selectedQuote =
+    record?.pricing?.quotes?.find((q) => q.id === quoteId) ??
+    record?.pricing?.quotes?.[0] ??
+    null;
+
+  // Sendcloud production: fail closed when V3 shipping_option_code was never confirmed.
+  // Never invent codes from sendcloud:N / method.id. Demo path skips this gate.
+  if (
+    !forceDemoShipping &&
+    !mustUseDemoShipping() &&
+    selectedQuote?.providerId === "sendcloud" &&
+    !selectedQuote.shippingOptionCode
+  ) {
+    return {
+      ok: false as const,
+      error:
+        "Sendcloud V3 shipping_option_code is required for label generation. This order’s quote has no confirmed V3 counterpart (legacy sendcloud:N alone cannot create labels).",
+    };
+  }
+
   let parcel = parcelId ? await getShipmentParcelById(parcelId) : null;
 
   if (parcel?.label?.status === "ready" && parcel.trackingNumber && parcel.label.pdfUrl) {
@@ -158,6 +178,14 @@ export async function generateShippingLabelForOrder(
 
   const sellerSettings = await getSellerShippingSettings(sellerId);
 
+  let existingProviderParcelId: number | null = null;
+  if (parcel?.id) {
+    const { getProviderParcelIdForShipmentParcel } = await import(
+      "@/lib/shipping/parcels-repository"
+    );
+    existingProviderParcelId = await getProviderParcelIdForShipmentParcel(parcel.id);
+  }
+
   const labelRecord = await generateOrderShippingLabel(orderId, {
     quoteId,
     orderId,
@@ -170,6 +198,10 @@ export async function generateShippingLabelForOrder(
     labelSize: sellerSettings.defaultLabelSize,
     idempotencyKey: `rovexo-order-${orderId}-parcel-${parcel.parcelNumber}`,
     forceDemoShipping,
+    shippingOptionCode: selectedQuote?.shippingOptionCode ?? null,
+    contractId: selectedQuote?.contractId ?? null,
+    v2MethodId: selectedQuote?.v2MethodId ?? null,
+    existingProviderParcelId,
   });
 
   const updatedParcel = await getShipmentParcelById(parcel.id);
