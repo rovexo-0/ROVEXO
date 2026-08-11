@@ -201,12 +201,29 @@ export async function findShippingRecordByTrackingNumber(
 
 export async function ensureShippingRecord(input: {
   orderId: string;
+  orderNumber?: string | null;
   legacyParcelSize?: LegacyParcelSize | null;
   categorySlug?: string | null;
   manualTier?: ParcelTier | null;
+  carrier?: string | null;
+  selectedQuoteId?: string | null;
 }): Promise<ShippingRecord | null> {
   const existing = await getShippingRecord(input.orderId);
-  if (existing) return existing;
+  if (existing) {
+    if (input.carrier || input.selectedQuoteId) {
+      const admin = createShippingAdminClient();
+      const patch: Record<string, unknown> = {};
+      if (input.carrier && !existing.carrier) patch.carrier = input.carrier;
+      if (input.selectedQuoteId && !existing.pricing?.selectedQuoteId) {
+        patch.selected_quote_id = input.selectedQuoteId;
+      }
+      if (Object.keys(patch).length > 0) {
+        await admin.from("shipping_records").update(patch).eq("order_id", input.orderId);
+        return getShippingRecord(input.orderId);
+      }
+    }
+    return existing;
+  }
 
   const detection = detectParcelTier({
     legacyParcelSize: input.legacyParcelSize ?? null,
@@ -224,11 +241,26 @@ export async function ensureShippingRecord(input: {
       manual_override_tier: input.manualTier ?? null,
       category_slug: input.categorySlug ?? null,
       status: "preparing",
+      carrier: input.carrier ?? null,
+      selected_quote_id: input.selectedQuoteId ?? null,
     })
     .select("*")
     .single();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    // Concurrent webhook / retry: unique(order_id) → re-read existing (idempotent).
+    if (error && /duplicate key|unique/i.test(error.message)) {
+      return getShippingRecord(input.orderId);
+    }
+    console.error("[shipping] ensureShippingRecord insert failed", {
+      orderId: input.orderId,
+      orderNumber: input.orderNumber ?? null,
+      failureStage: "shipping_records.insert",
+      code: (error as { code?: string } | null)?.code ?? null,
+      message: error?.message ?? "no_data",
+    });
+    return null;
+  }
 
   const recordRow = data as RecordRow;
   const initialEvent = createTrackingEvent({ status: "preparing", title: "Order preparing for dispatch" });

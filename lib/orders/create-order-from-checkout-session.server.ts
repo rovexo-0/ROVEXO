@@ -41,6 +41,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
   checkoutSessionPublicId: string;
   shippingAddressId?: string | null;
   deliveryCarrier?: string | null;
+  selectedShippingQuoteId?: string | null;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
   /** When false, only creates order + marks session paid (caller runs fulfillment). */
@@ -99,6 +100,10 @@ export async function createOrderFromPaidCheckoutSession(input: {
   const resolvedPlatformFee = Number.isFinite(platformFee) ? platformFee : feeCalc;
   const deliveryCarrier =
     input.deliveryCarrier?.trim() || getDeliveryCarrierFromQuote(null);
+  const selectedShippingQuoteId =
+    input.selectedShippingQuoteId?.trim() ||
+    session.selected_shipping_quote_id?.trim() ||
+    null;
 
   const { data: orderNumber } = await admin.rpc("generate_order_number");
   const resolvedOrderNumber = orderNumber ?? `RVX${Date.now().toString(36).toUpperCase()}`;
@@ -141,6 +146,8 @@ export async function createOrderFromPaidCheckoutSession(input: {
       invoice_number: invoiceNumber,
       reserved_until: null,
       shipping_address_id: input.shippingAddressId ?? null,
+      selected_shipping_quote_id: selectedShippingQuoteId,
+      shipping_setup_status: "pending",
       stripe_session_id: input.stripeSessionId ?? null,
       stripe_payment_intent_id: input.stripePaymentIntentId ?? null,
     })

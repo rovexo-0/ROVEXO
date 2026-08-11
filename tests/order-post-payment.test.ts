@@ -16,11 +16,13 @@ describe("order post-payment pipeline", () => {
 
     expect(source).toContain("openEscrowForOrder");
     expect(source).toContain("ensureOrderShippingPipeline");
+    expect(source).toContain("ensureOrderShippingPersistence");
     expect(source).toContain("notifyOrderPaid");
     expect(source).toContain("sellerHasSaleTransaction");
     expect(source).toContain("PAID_ORDER_STATUSES");
     expect(source).toContain("Failed to create shipping record");
     expect(source).toContain("Failed to create shipment parcel");
+    expect(source).toContain("repair_required");
   });
 
   it("fails loudly when escrow wallet credit is missing", () => {

@@ -11,6 +11,7 @@ import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
+import { isSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   createShipmentParcel,
   listShipmentParcelsForOrder,
@@ -23,8 +24,13 @@ import {
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import type { UkCarrier } from "@/lib/shipping/carriers";
-import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
+import type { ShippingAddress, ShippingPricing, ShippingQuote } from "@/lib/shipping/types";
 import { markProductSold } from "@/lib/inventory/service";
+import {
+  isShippingSetupReady,
+  type ShippingSetupStatus,
+} from "@/lib/shipping/shipping-setup-status-v1";
+import { resolveListingParcelTier } from "@/lib/shipping/parcels";
 
 const PAID_ORDER_STATUSES = new Set([
   "awaiting_shipment",
@@ -42,7 +48,7 @@ type OrderItemRow = {
   slug: string;
 };
 
-type PaidOrderRow = {
+export type PaidOrderShippingRow = {
   id: string;
   order_number: string;
   status: string;
@@ -52,6 +58,7 @@ type PaidOrderRow = {
   delivery_fee: number | null;
   delivery_carrier: string;
   shipping_address_id: string | null;
+  selected_shipping_quote_id?: string | null;
   order_items: OrderItemRow[];
 };
 
@@ -132,8 +139,14 @@ function pickSelectedQuoteId(
   quotes: ShippingQuote[],
   carrier: string,
   deliveryFee: number,
+  preferredQuoteId?: string | null,
 ): string | null {
-  if (quotes.length === 0) return null;
+  if (preferredQuoteId) {
+    const exactId = quotes.find((quote) => quote.id === preferredQuoteId);
+    if (exactId) return exactId.id;
+  }
+
+  if (quotes.length === 0) return preferredQuoteId ?? null;
 
   const carrierQuotes = quotes.filter((quote) => String(quote.carrier) === carrier);
   const pool = carrierQuotes.length > 0 ? carrierQuotes : quotes;
@@ -145,11 +158,78 @@ function pickSelectedQuoteId(
   const supported = pool.find((quote) =>
     CHECKOUT_CARRIERS.includes(String(quote.carrier) as UkCarrier),
   );
-  return (supported ?? pool[0])?.id ?? null;
+  return (supported ?? pool[0])?.id ?? preferredQuoteId ?? null;
 }
 
-async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
-  const record = await ensureShippingRecord({ orderId: order.id });
+function buildPersistedCheckoutQuote(order: PaidOrderShippingRow): ShippingQuote | null {
+  const quoteId = order.selected_shipping_quote_id?.trim() || null;
+  if (!quoteId) return null;
+
+  return {
+    id: quoteId,
+    providerId: isSendcloudQuoteId(quoteId) ? "sendcloud" : "checkout",
+    carrier: order.delivery_carrier || "Royal Mail",
+    serviceName: order.delivery_carrier || "Selected delivery",
+    pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
+    currency: "GBP",
+    estimatedDays: { min: 1, max: 5 },
+  };
+}
+
+export async function markOrderShippingSetupStatus(
+  orderId: string,
+  status: ShippingSetupStatus,
+): Promise<void> {
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("orders")
+    .update({ shipping_setup_status: status })
+    .eq("id", orderId);
+  if (error) {
+    console.error("[orders/post-payment] shipping_setup_status update failed", {
+      orderId,
+      failureStage: "orders.shipping_setup_status",
+      code: error.code,
+      message: error.message,
+      status,
+    });
+  }
+}
+
+async function resolveOrderParcelSize(order: PaidOrderShippingRow): Promise<string | null> {
+  const productId = order.order_items?.[0]?.product_id;
+  if (!productId) return null;
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("products")
+    .select("parcel_size")
+    .eq("id", productId)
+    .maybeSingle();
+  return (data as { parcel_size?: string | null } | null)?.parcel_size ?? null;
+}
+
+/**
+ * Durable post-payment shipping persistence (internal only).
+ * Creates shipping_records + selected quote association + addresses + internal parcel.
+ * Never creates a Sendcloud parcel / label.
+ */
+export async function ensureOrderShippingPersistence(
+  order: PaidOrderShippingRow,
+  options?: { allowLiveQuoteEnrichment?: boolean },
+): Promise<{ recordId: string; selectedQuoteId: string | null }> {
+  const allowLiveQuoteEnrichment = options?.allowLiveQuoteEnrichment !== false;
+  const preferredQuoteId = order.selected_shipping_quote_id?.trim() || null;
+  const parcelSize = await resolveOrderParcelSize(order);
+  const parcelTier = resolveListingParcelTier(parcelSize, "small_parcel");
+
+  const record = await ensureShippingRecord({
+    orderId: order.id,
+    orderNumber: order.order_number,
+    legacyParcelSize: null,
+    manualTier: parcelTier,
+    carrier: order.delivery_carrier || null,
+    selectedQuoteId: preferredQuoteId,
+  });
   if (!record) {
     throw new Error(`Failed to create shipping record for order ${order.id}.`);
   }
@@ -165,27 +245,89 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
     sellerProfile?.full_name?.trim() || "Seller",
   );
 
-  if (collectionAddress && deliveryAddress) {
+  if (collectionAddress || deliveryAddress || order.delivery_carrier) {
     const shippingAdmin = createShippingAdminClient();
     await shippingAdmin
       .from("shipping_records")
       .update({
-        collection_address: collectionAddress,
-        delivery_address: deliveryAddress,
+        ...(collectionAddress ? { collection_address: collectionAddress } : {}),
+        ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
+        ...(order.delivery_carrier ? { carrier: order.delivery_carrier } : {}),
+        ...(preferredQuoteId ? { selected_quote_id: preferredQuoteId } : {}),
       })
       .eq("order_id", order.id);
   }
 
-  const refreshed = await getShippingRecord(order.id);
+  let refreshed = await getShippingRecord(order.id);
   const hasQuotes = (refreshed?.pricing?.quotes.length ?? 0) > 0;
+  const hasSelected =
+    Boolean(refreshed?.pricing?.selectedQuoteId) || Boolean(preferredQuoteId);
 
-  if (!hasQuotes && collectionAddress && deliveryAddress) {
+  // Always persist the exact checkout-selected method identity when present.
+  // Never reconstruct method id from carrier name / price alone.
+  const checkoutQuote = buildPersistedCheckoutQuote(order);
+  if (checkoutQuote && (!hasQuotes || refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id)) {
+    if (allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
+      const collectionValidated = ShippingService.validateAddress(collectionAddress);
+      const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
+      if (collectionValidated.valid && deliveryValidated.valid) {
+        try {
+          const pricing = await fetchShippingQuotesServer({
+            parcelTier: refreshed?.parcelTier ?? parcelTier,
+            collectionAddress: collectionValidated.normalized,
+            deliveryAddress: deliveryValidated.normalized,
+            preferredCarriers: CHECKOUT_CARRIERS,
+          });
+          if (pricing.quotes.length > 0) {
+            const selected =
+              pickSelectedQuoteId(
+                pricing.quotes,
+                order.delivery_carrier,
+                Number(order.delivery_fee ?? 0),
+                preferredQuoteId,
+              ) ?? checkoutQuote.id;
+            const quotes = pricing.quotes.some((q) => q.id === selected)
+              ? pricing.quotes
+              : [...pricing.quotes, checkoutQuote];
+            const merged: ShippingPricing = {
+              quotes,
+              selectedQuoteId: selected,
+              currency: "GBP",
+              providerAvailable: pricing.providerAvailable,
+            };
+            await saveShippingQuotes({ orderId: order.id, pricing: merged });
+            refreshed = await getShippingRecord(order.id);
+          }
+        } catch (error) {
+          console.warn("[orders/post-payment] live quote enrichment skipped", {
+            orderId: order.id,
+            orderNumber: order.order_number,
+            failureStage: "live_quote_enrichment",
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    }
+
+    refreshed = await getShippingRecord(order.id);
+    if ((refreshed?.pricing?.quotes.length ?? 0) === 0 || refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id) {
+      const pricing: ShippingPricing = {
+        quotes: [checkoutQuote],
+        selectedQuoteId: checkoutQuote.id,
+        currency: "GBP",
+        providerAvailable: true,
+      };
+      await saveShippingQuotes({ orderId: order.id, pricing });
+      refreshed = await getShippingRecord(order.id);
+    }
+  } else if (!hasQuotes && allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
+    // Legacy orders without selected_shipping_quote_id — best-effort live quotes.
     const collectionValidated = ShippingService.validateAddress(collectionAddress);
     const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
 
     if (collectionValidated.valid && deliveryValidated.valid) {
       const pricing = await fetchShippingQuotesServer({
-        parcelTier: refreshed?.parcelTier ?? "small_parcel",
+        parcelTier: refreshed?.parcelTier ?? parcelTier,
         collectionAddress: collectionValidated.normalized,
         deliveryAddress: deliveryValidated.normalized,
         preferredCarriers: CHECKOUT_CARRIERS,
@@ -197,14 +339,14 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
             pricing.quotes,
             order.delivery_carrier,
             Number(order.delivery_fee ?? 0),
+            preferredQuoteId,
           ) ?? pricing.selectedQuoteId;
         await saveShippingQuotes({ orderId: order.id, pricing });
       }
     }
   }
 
-  // Full Demo / Sendcloud sandbox: always materialize demo quotes so virtual
-  // label generation cannot fail solely because checkout omitted addresses.
+  // Full Demo / Sendcloud sandbox: materialize demo quotes when still empty.
   const afterAddressQuotes = await getShippingRecord(order.id);
   if ((afterAddressQuotes?.pricing?.quotes.length ?? 0) === 0 && mustUseDemoShipping()) {
     const demoCollection: ShippingAddress = collectionAddress ?? {
@@ -226,7 +368,7 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
       validated: true,
     };
     const demoPricing = await fetchShippingQuotesServer({
-      parcelTier: afterAddressQuotes?.parcelTier ?? refreshed?.parcelTier ?? "small_parcel",
+      parcelTier: afterAddressQuotes?.parcelTier ?? refreshed?.parcelTier ?? parcelTier,
       collectionAddress: demoCollection,
       deliveryAddress: demoDelivery,
       preferredCarriers: CHECKOUT_CARRIERS,
@@ -237,11 +379,13 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
           demoPricing.quotes,
           order.delivery_carrier,
           Number(order.delivery_fee ?? 0),
+          preferredQuoteId,
         ) ?? demoPricing.selectedQuoteId;
       await saveShippingQuotes({ orderId: order.id, pricing: demoPricing });
     }
   }
 
+  // Internal shipment parcel row only — never a Sendcloud parcel.
   const parcels = await listShipmentParcelsForOrder(order.id);
   if (parcels.length === 0) {
     const parcel = await createShipmentParcel({
@@ -255,11 +399,32 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
       throw new Error(`Failed to create shipment parcel for order ${order.id}.`);
     }
   }
+
+  const finalRecord = await getShippingRecord(order.id);
+  if (!finalRecord) {
+    throw new Error(`Failed to create shipping record for order ${order.id}.`);
+  }
+
+  void hasSelected;
+  return {
+    recordId: finalRecord.id,
+    selectedQuoteId:
+      finalRecord.pricing?.selectedQuoteId ?? preferredQuoteId ?? null,
+  };
+}
+
+/** @deprecated Prefer ensureOrderShippingPersistence — kept for call-site clarity. */
+async function ensureOrderShippingPipeline(order: PaidOrderShippingRow): Promise<void> {
+  await ensureOrderShippingPersistence(order, { allowLiveQuoteEnrichment: true });
 }
 
 /**
  * Idempotent post-payment pipeline for marketplace orders.
  * Safe to call from Stripe webhooks, checkout confirmation, and retries.
+ *
+ * Payment success semantics are preserved even when shipping persistence fails:
+ * order stays paid / awaiting_shipment, buyer is not re-charged, and
+ * shipping_setup_status becomes repair_required for observable repair.
  */
 export async function completePaidOrderFulfillment(input: {
   orderId: string;
@@ -267,7 +432,12 @@ export async function completePaidOrderFulfillment(input: {
   stripePaymentIntentId?: string | null;
   /** When true, inventory was claimed in createOrderFromPaidCheckoutSession. */
   inventoryAlreadyClaimed?: boolean;
-}): Promise<{ success: boolean; error?: string; conversationId?: string }> {
+}): Promise<{
+  success: boolean;
+  error?: string;
+  conversationId?: string;
+  shippingSetupStatus?: ShippingSetupStatus;
+}> {
   try {
     return await runCompletePaidOrderFulfillment(input);
   } catch (error) {
@@ -287,7 +457,12 @@ async function runCompletePaidOrderFulfillment(input: {
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
   inventoryAlreadyClaimed?: boolean;
-}): Promise<{ success: boolean; error?: string; conversationId?: string }> {
+}): Promise<{
+  success: boolean;
+  error?: string;
+  conversationId?: string;
+  shippingSetupStatus?: ShippingSetupStatus;
+}> {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
@@ -302,6 +477,8 @@ async function runCompletePaidOrderFulfillment(input: {
       delivery_fee,
       delivery_carrier,
       shipping_address_id,
+      selected_shipping_quote_id,
+      shipping_setup_status,
       order_items ( product_id, title, image_url, quantity, slug )
     `,
     )
@@ -312,7 +489,7 @@ async function runCompletePaidOrderFulfillment(input: {
     return { success: false, error: "Order not found." };
   }
 
-  const row = order as PaidOrderRow;
+  const row = order as PaidOrderShippingRow & { shipping_setup_status?: string | null };
   const awaitingPayment = row.status === "awaiting_payment";
   const alreadyPaid = PAID_ORDER_STATUSES.has(row.status);
 
@@ -367,14 +544,32 @@ async function runCompletePaidOrderFulfillment(input: {
     throw new Error("Failed to open seller escrow — pending wallet sale was not recorded.");
   }
 
-  await ensureOrderShippingPipeline(row);
+  let shippingSetupStatus: ShippingSetupStatus =
+    (row.shipping_setup_status as ShippingSetupStatus | undefined) ?? "pending";
+
+  try {
+    await ensureOrderShippingPipeline(row);
+    await markOrderShippingSetupStatus(input.orderId, "ready");
+    shippingSetupStatus = "ready";
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await markOrderShippingSetupStatus(input.orderId, "repair_required");
+    shippingSetupStatus = "repair_required";
+    console.error("[orders/post-payment] shipping persistence failed", {
+      orderId: input.orderId,
+      orderNumber: row.order_number,
+      failureStage: "ensureOrderShippingPersistence",
+      message,
+    });
+    // Fail-closed for shipping, but do not unwind payment / escrow / order.
+  }
 
   // Inventory claim: createOrderFromPaidCheckoutSession claims first (race winner).
   // Legacy awaiting_payment orders still claim here.
   if (!input.inventoryAlreadyClaimed) {
     const soldLines = (row.order_items ?? []).filter((line) => line.product_id);
     if (soldLines.length === 0) {
-      return { success: false, error: "Order item missing." };
+      return { success: false, error: "Order item missing.", shippingSetupStatus };
     }
     for (const line of soldLines) {
       const qty = Math.max(1, Number(line.quantity) || 1);
@@ -398,7 +593,7 @@ async function runCompletePaidOrderFulfillment(input: {
     console.warn("[orders/post-payment] conversation:", conversation.error);
   }
 
-  if (isSendcloudConfigured()) {
+  if (isSendcloudConfigured() && isShippingSetupReady(shippingSetupStatus)) {
     try {
       await generateShippingLabelForOrder(input.orderId, row.seller_id);
     } catch (error) {
@@ -429,5 +624,6 @@ async function runCompletePaidOrderFulfillment(input: {
   return {
     success: true,
     conversationId: "conversationId" in conversation ? conversation.conversationId : undefined,
+    shippingSetupStatus,
   };
 }

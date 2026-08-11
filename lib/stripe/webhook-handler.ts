@@ -236,6 +236,7 @@ async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
           checkoutSessionPublicId: checkoutSessionId,
           shippingAddressId: paymentIntent.metadata?.shippingAddressId || null,
           deliveryCarrier: paymentIntent.metadata?.deliveryCarrier || null,
+          selectedShippingQuoteId: paymentIntent.metadata?.shippingQuoteId || null,
           stripePaymentIntentId: paymentIntent.id,
         });
         if (!result.success) {

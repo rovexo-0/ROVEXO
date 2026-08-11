@@ -222,6 +222,10 @@ async function finalizePendingOrderCheckoutSession(
     .from("orders")
     .update({
       delivery_carrier: deliveryCarrier,
+      selected_shipping_quote_id:
+        typeof input.shippingQuoteId === "string" && input.shippingQuoteId.trim()
+          ? input.shippingQuoteId.trim()
+          : null,
       platform_fee: platformFee,
       seller_payout: sellerAmount,
       shipping_address_id: input.shippingAddressId ?? null,
@@ -474,6 +478,10 @@ async function finalizeCheckoutSessionPayment(
 
   let deliveryCarrier = getDeliveryCarrierFromQuote(null);
   let shippingRefinedFromQuote = false;
+  let selectedShippingQuoteId: string | null =
+    typeof input.shippingQuoteId === "string" && input.shippingQuoteId.trim()
+      ? input.shippingQuoteId.trim()
+      : session.selected_shipping_quote_id?.trim() || null;
   if (input.shippingQuoteId && input.shippingAddressId) {
     const { data: shippingAddress } = await admin
       .from("shipping_addresses")
@@ -493,6 +501,9 @@ async function finalizeCheckoutSessionPayment(
         input.shippingQuoteId ?? "",
       );
       deliveryCarrier = getDeliveryCarrierFromQuote(selectedQuote);
+      if (selectedQuote?.id) {
+        selectedShippingQuoteId = selectedQuote.id;
+      }
       if (
         !listingShippingKnown &&
         selectedQuote &&
@@ -502,20 +513,32 @@ async function finalizeCheckoutSessionPayment(
         lockedDelivery = roundMoney(selectedQuote.price);
         lockedTotal = roundMoney(lockedItemPrice + lockedPlatformFee + lockedDelivery);
         shippingRefinedFromQuote = true;
-        const { error: amountError } = await admin
-          .from("checkout_sessions")
-          .update({
-            shipping: lockedDelivery,
-            total: lockedTotal,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", session.id)
-          .eq("status", "open");
-        if (amountError) {
-          return { error: "Unable to lock shipping total." };
-        }
+      }
+      // Persist exact Sendcloud quote identity (sendcloud:<methodId>) — never reconstruct later.
+      const { error: amountError } = await admin
+        .from("checkout_sessions")
+        .update({
+          selected_shipping_quote_id: selectedShippingQuoteId,
+          updated_at: new Date().toISOString(),
+          ...(shippingRefinedFromQuote
+            ? { shipping: lockedDelivery, total: lockedTotal }
+            : {}),
+        })
+        .eq("id", session.id)
+        .eq("status", "open");
+      if (amountError) {
+        return { error: "Unable to lock shipping total." };
       }
     }
+  } else if (selectedShippingQuoteId && !session.selected_shipping_quote_id) {
+    await admin
+      .from("checkout_sessions")
+      .update({
+        selected_shipping_quote_id: selectedShippingQuoteId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", session.id)
+      .eq("status", "open");
   }
 
   if (!listingShippingKnown && !input.shippingQuoteId) {
@@ -581,6 +604,7 @@ async function finalizeCheckoutSessionPayment(
       checkoutSessionPublicId: session.public_id,
       shippingAddressId: input.shippingAddressId,
       deliveryCarrier,
+      selectedShippingQuoteId,
       stripeSessionId: virtualSessionId,
       stripePaymentIntentId: virtualPi,
       fulfill: false,
@@ -648,6 +672,7 @@ async function finalizeCheckoutSessionPayment(
       checkoutSessionPublicId: session.public_id,
       shippingAddressId: input.shippingAddressId,
       deliveryCarrier,
+      selectedShippingQuoteId,
       stripeSessionId: `dev-${session.public_id}`,
       stripePaymentIntentId: null,
     });
@@ -752,6 +777,7 @@ async function finalizeCheckoutSessionPayment(
         productId: product.id,
         shippingAddressId: input.shippingAddressId,
         deliveryCarrier,
+        shippingQuoteId: selectedShippingQuoteId ?? "",
         paymentMethodId: selected?.id ?? "",
         offerId: session.offer_id ?? "",
         bundleId: bundleSnap?.bundleId ?? "",
@@ -769,6 +795,7 @@ async function finalizeCheckoutSessionPayment(
           productId: product.id,
           shippingAddressId: input.shippingAddressId,
           deliveryCarrier,
+          shippingQuoteId: selectedShippingQuoteId ?? "",
           offerId: session.offer_id ?? "",
           bundleId: bundleSnap?.bundleId ?? "",
           bundleLines: bundleLinesMeta,
@@ -912,6 +939,7 @@ export async function fulfillOrderFromStripeSession(session: {
       checkoutSessionPublicId: checkoutSessionId,
       shippingAddressId: metadata.shippingAddressId || null,
       deliveryCarrier: metadata.deliveryCarrier || null,
+      selectedShippingQuoteId: metadata.shippingQuoteId || null,
       stripeSessionId: session.id,
       stripePaymentIntentId: paymentIntentId,
     });

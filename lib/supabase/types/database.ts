@@ -769,6 +769,7 @@ export type Database = {
           created_at: string
           updated_at: string
           paid_at: string | null
+          selected_shipping_quote_id: string | null
         }
         Insert: {
           id?: string
@@ -792,6 +793,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
           paid_at?: string | null
+          selected_shipping_quote_id?: string | null
         }
         Update: {
           id?: string
@@ -815,6 +817,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
           paid_at?: string | null
+          selected_shipping_quote_id?: string | null
         }
         Relationships: []
       }
@@ -2570,6 +2573,8 @@ export type Database = {
           review_window_opens_at: string | null
           review_window_closes_at: string | null
           review_window_closed: boolean
+          selected_shipping_quote_id: string | null
+          shipping_setup_status: string
         }
         Insert: {
           buyer_id: string
@@ -2617,6 +2622,8 @@ export type Database = {
           review_window_opens_at?: string | null
           review_window_closes_at?: string | null
           review_window_closed?: boolean
+          selected_shipping_quote_id?: string | null
+          shipping_setup_status?: string
         }
         Update: {
           buyer_id?: string
@@ -2664,6 +2671,8 @@ export type Database = {
           review_window_opens_at?: string | null
           review_window_closes_at?: string | null
           review_window_closed?: boolean
+          selected_shipping_quote_id?: string | null
+          shipping_setup_status?: string
         }
         Relationships: [
           {

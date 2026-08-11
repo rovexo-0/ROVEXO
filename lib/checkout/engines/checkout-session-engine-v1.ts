@@ -51,6 +51,8 @@ export type CheckoutSessionRow = {
   paid_at: string | null;
   /** Bundle Engine Phase 1 — immutable snapshot when multi-item. */
   bundle_lines?: BundleCheckoutSnapshotV1 | null;
+  /** Selected shipping quote id (e.g. sendcloud:<methodId>) locked at Confirm & Pay. */
+  selected_shipping_quote_id?: string | null;
 };
 
 export type PaymentIntentShell = {
