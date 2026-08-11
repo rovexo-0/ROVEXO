@@ -197,6 +197,12 @@ export async function markOrderShippingSetupStatus(
       message: error.message,
       status,
     });
+    // Fail-loud: never leave a failed status write looking like a normal pending order.
+    throw new Error(
+      `FATAL_SHIPPING_SETUP_STATUS_UPDATE: failed to set shipping_setup_status=${status} for order ${orderId}: ${error.message}${
+        error.code ? ` (code=${error.code})` : ""
+      }`,
+    );
   }
 }
 
@@ -226,6 +232,7 @@ export async function ensureOrderShippingPersistence(
   const parcelSize = await resolveOrderParcelSize(order);
   const parcelTier = resolveListingParcelTier(parcelSize, "small_parcel");
 
+  // INSERT failures throw from ensureShippingRecord (never silent null).
   const record = await ensureShippingRecord({
     orderId: order.id,
     orderNumber: order.order_number,
@@ -551,14 +558,30 @@ async function runCompletePaidOrderFulfillment(input: {
   let shippingSetupStatus: ShippingSetupStatus =
     (row.shipping_setup_status as ShippingSetupStatus | undefined) ?? "pending";
 
+  let shippingPersistenceFailed = false;
   try {
     await ensureOrderShippingPipeline(row);
-    await markOrderShippingSetupStatus(input.orderId, "ready");
-    shippingSetupStatus = "ready";
   } catch (error) {
+    shippingPersistenceFailed = true;
     const message = error instanceof Error ? error.message : String(error);
-    await markOrderShippingSetupStatus(input.orderId, "repair_required");
-    shippingSetupStatus = "repair_required";
+    try {
+      await markOrderShippingSetupStatus(input.orderId, "repair_required");
+      shippingSetupStatus = "repair_required";
+    } catch (statusError) {
+      const statusMessage =
+        statusError instanceof Error ? statusError.message : String(statusError);
+      console.error("[orders/post-payment] FATAL shipping_setup_status update failed", {
+        orderId: input.orderId,
+        orderNumber: row.order_number,
+        failureStage: "orders.shipping_setup_status.repair_required",
+        message: statusMessage,
+        priorShippingError: message,
+      });
+      // Distinct fatal: must not appear as a normal pending paid order.
+      throw statusError instanceof Error
+        ? statusError
+        : new Error(statusMessage);
+    }
     console.error("[orders/post-payment] shipping persistence failed", {
       orderId: input.orderId,
       orderNumber: row.order_number,
@@ -566,6 +589,11 @@ async function runCompletePaidOrderFulfillment(input: {
       message,
     });
     // Fail-closed for shipping, but do not unwind payment / escrow / order.
+  }
+
+  if (!shippingPersistenceFailed) {
+    await markOrderShippingSetupStatus(input.orderId, "ready");
+    shippingSetupStatus = "ready";
   }
 
   // Inventory claim: createOrderFromPaidCheckoutSession claims first (race winner).

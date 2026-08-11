@@ -29,4 +29,12 @@ describe("order post-payment pipeline", () => {
     const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
     expect(source).toContain("throw new Error(\"Failed to open seller escrow");
   });
+
+  it("P4: shipping status update failures are fail-loud (not silent pending)", () => {
+    const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
+    expect(source).toContain("FATAL_SHIPPING_SETUP_STATUS_UPDATE");
+    expect(source).toContain("shippingPersistenceFailed");
+    expect(source).toContain("orders.shipping_setup_status.repair_required");
+  });
 });
+

@@ -300,12 +300,16 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     expect(ensureShippingRecord).toHaveBeenCalledTimes(1);
   });
 
-  it("D: shipping_record insert failure is observable (structured log contract)", () => {
+  it("D: shipping_record insert failure propagates (fail-loud, not silent null)", () => {
     const store = readFileSync("lib/shipping/store.ts", "utf8");
     expect(store).toContain("[shipping] ensureShippingRecord insert failed");
     expect(store).toContain("failureStage: \"shipping_records.insert\"");
     expect(store).toContain("orderId: input.orderId");
     expect(store).toContain("/duplicate key|unique/i");
+    expect(store).toContain("Failed to insert shipping_records for order");
+    expect(store).not.toMatch(
+      /ensureShippingRecord insert failed[\s\S]{0,400}return null;/,
+    );
   });
 
   it("E: paid order with shipping persistence failure enters repair_required", () => {
@@ -313,6 +317,183 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required")');
     expect(source).toContain("[orders/post-payment] shipping persistence failed");
     expect(source).toContain("shippingSetupStatus");
+    expect(source).toContain("FATAL_SHIPPING_SETUP_STATUS_UPDATE");
+    expect(source).toContain("FATAL shipping_setup_status update failed");
+  });
+
+  it("P4-A: shipping_records creation does NOT require quote_payload", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    await ensureOrderShippingPersistence(
+      {
+        id: "ord-1",
+        order_number: "RVXTEST",
+        status: "awaiting_shipment",
+        buyer_id: "b1",
+        seller_id: "s1",
+        item_price: 10,
+        delivery_fee: 3.2,
+        delivery_carrier: "InPost",
+        shipping_address_id: "addr-1",
+        selected_shipping_quote_id: "sendcloud:27227",
+        order_items: [
+          {
+            product_id: "p1",
+            title: "Item",
+            image_url: "/x.png",
+            quantity: 1,
+            slug: "item",
+          },
+        ],
+      },
+      { allowLiveQuoteEnrichment: false },
+    );
+    expect(ensureShippingRecord).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderId: "ord-1",
+        selectedQuoteId: "sendcloud:27227",
+      }),
+    );
+    expect(ensureShippingRecord.mock.calls[0]?.[0]).not.toHaveProperty("quotePayload");
+    expect(ensureShippingRecord.mock.calls[0]?.[0]).not.toHaveProperty("quote_payload");
+  });
+
+  it("P4-B: shipping_records creation does NOT require shippingOptionCode", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    await ensureOrderShippingPersistence(
+      {
+        id: "ord-1",
+        order_number: "RVXTEST",
+        status: "awaiting_shipment",
+        buyer_id: "b1",
+        seller_id: "s1",
+        item_price: 10,
+        delivery_fee: 3.2,
+        delivery_carrier: "InPost",
+        shipping_address_id: "addr-1",
+        selected_shipping_quote_id: "sendcloud:27227",
+        order_items: [
+          {
+            product_id: "p1",
+            title: "Item",
+            image_url: "/x.png",
+            quantity: 1,
+            slug: "item",
+          },
+        ],
+      },
+      { allowLiveQuoteEnrichment: false },
+    );
+    expect(ensureShippingRecord.mock.calls[0]?.[0]).not.toHaveProperty("shippingOptionCode");
+    const store = readFileSync("lib/shipping/store.ts", "utf8");
+    expect(store).not.toMatch(
+      /ensureShippingRecord[\s\S]{0,800}shippingOptionCode/,
+    );
+  });
+
+  it("P4-C: simulated shipping_records INSERT failure fails post-payment persistence", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    ensureShippingRecord.mockRejectedValueOnce(
+      new Error("Failed to insert shipping_records for order ord-1: simulated insert fail"),
+    );
+    await expect(
+      ensureOrderShippingPersistence(
+        {
+          id: "ord-1",
+          order_number: "RVXTEST",
+          status: "awaiting_shipment",
+          buyer_id: "b1",
+          seller_id: "s1",
+          item_price: 10,
+          delivery_fee: 3.2,
+          delivery_carrier: "InPost",
+          shipping_address_id: "addr-1",
+          selected_shipping_quote_id: "sendcloud:27227",
+          order_items: [
+            {
+              product_id: "p1",
+              title: "Item",
+              image_url: "/x.png",
+              quantity: 1,
+              slug: "item",
+            },
+          ],
+        },
+        { allowLiveQuoteEnrichment: false },
+      ),
+    ).rejects.toThrow(/Failed to insert shipping_records/);
+  });
+
+  it("P4-D: persistence failure path marks shipping_setup_status=repair_required", async () => {
+    const { markOrderShippingSetupStatus } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
+    expect(source).toContain("shippingPersistenceFailed");
+    expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required")');
+    // Behavioral: successful status update resolves (orders update mocked ok).
+    await expect(markOrderShippingSetupStatus("ord-1", "repair_required")).resolves.toBeUndefined();
+  });
+
+  it("P4-E: failed shipping_setup_status update is not silently treated as success", async () => {
+    createAdminFrom.mockImplementation((table: string) => {
+      if (table === "orders") {
+        return {
+          update: vi.fn(() => ({
+            eq: vi.fn(async () => ({
+              error: { code: "PGRST", message: "simulated status update fail" },
+            })),
+          })),
+          select: vi.fn(() => adminChain(null)),
+        };
+      }
+      return adminChain(null);
+    });
+    const { markOrderShippingSetupStatus } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    await expect(markOrderShippingSetupStatus("ord-1", "repair_required")).rejects.toThrow(
+      /FATAL_SHIPPING_SETUP_STATUS_UPDATE/,
+    );
+  });
+
+  it("P4-F: successful existing shipping persistence remains unchanged", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    const result = await ensureOrderShippingPersistence(
+      {
+        id: "ord-1",
+        order_number: "RVXTEST",
+        status: "awaiting_shipment",
+        buyer_id: "b1",
+        seller_id: "s1",
+        item_price: 10,
+        delivery_fee: 2.38,
+        delivery_carrier: "Royal Mail",
+        shipping_address_id: "addr-1",
+        selected_shipping_quote_id: "sendcloud:42",
+        order_items: [
+          {
+            product_id: "p1",
+            title: "Item",
+            image_url: "/x.png",
+            quantity: 1,
+            slug: "item",
+          },
+        ],
+      },
+      { allowLiveQuoteEnrichment: false },
+    );
+    expect(result.recordId).toBe("sr-1");
+    expect(result.selectedQuoteId).toBe("sendcloud:42");
+    expect(ensureShippingRecord).toHaveBeenCalledTimes(1);
+    expect(createShipmentParcel).toHaveBeenCalledTimes(1);
   });
 
   it("F: repair path is idempotent and exported", () => {

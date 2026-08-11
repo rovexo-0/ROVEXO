@@ -256,16 +256,24 @@ export async function ensureShippingRecord(input: {
   if (error || !data) {
     // Concurrent webhook / retry: unique(order_id) → re-read existing (idempotent).
     if (error && /duplicate key|unique/i.test(error.message)) {
-      return getShippingRecord(input.orderId);
+      const raced = await getShippingRecord(input.orderId);
+      if (raced) return raced;
     }
+    const code = (error as { code?: string } | null)?.code ?? null;
+    const message = error?.message ?? "no_data";
     console.error("[shipping] ensureShippingRecord insert failed", {
       orderId: input.orderId,
       orderNumber: input.orderNumber ?? null,
       failureStage: "shipping_records.insert",
-      code: (error as { code?: string } | null)?.code ?? null,
-      message: error?.message ?? "no_data",
+      code,
+      message,
     });
-    return null;
+    // Never convert INSERT failure into a silent null "success" — callers must fail closed.
+    throw new Error(
+      `Failed to insert shipping_records for order ${input.orderId}: ${message}${
+        code ? ` (code=${code})` : ""
+      }`,
+    );
   }
 
   const recordRow = data as RecordRow;
