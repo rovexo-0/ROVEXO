@@ -4,6 +4,7 @@ import {
   getSendcloudBaseUrl,
   getSendcloudPublicKey,
   getSendcloudSecretKey,
+  getSendcloudV3BaseUrl,
 } from "@/lib/shipping/env";
 import { SendcloudError } from "@/lib/shipping/sendcloud/errors";
 import type {
@@ -11,6 +12,11 @@ import type {
   SendcloudParcelResponse,
   SendcloudShippingMethod,
 } from "@/lib/shipping/sendcloud/types";
+import {
+  SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1,
+  extractV3CompatMappingFor29631,
+  type SendcloudV3CompatOption29631Mapping,
+} from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
 
 /** Bound below router Promise.race (30s) so the underlying fetch is aborted first. */
 export const SENDCLOUD_DEFAULT_TIMEOUT_MS = 25_000;
@@ -41,6 +47,8 @@ type SendcloudRequestInit = RequestInit & {
    * blind retries can create duplicate parcels.
    */
   retrySafeGet?: boolean;
+  /** Override API base URL (defaults to Sendcloud v2). */
+  baseUrlOverride?: string;
 };
 
 /**
@@ -71,8 +79,46 @@ export async function sendcloudRequest<T>(path: string, init?: SendcloudRequestI
   throw lastError instanceof Error ? lastError : new SendcloudError("network_error", String(lastError));
 }
 
+/** Canonical Sendcloud API v3 HTTP transport (same Basic auth as v2). */
+export async function sendcloudV3Request<T>(
+  path: string,
+  init?: Omit<SendcloudRequestInit, "baseUrlOverride">,
+): Promise<T> {
+  return sendcloudRequest<T>(path, {
+    ...init,
+    baseUrlOverride: getSendcloudV3BaseUrl(),
+  });
+}
+
+/**
+ * Read-only V3 compat lookup for locked method 29631 only.
+ * POST /api/v3/compat/shipping-options — no shipment/parcel/label.
+ */
+export async function lookupSendcloudV3CompatShippingOption29631(): Promise<{
+  raw: unknown;
+  mapping: SendcloudV3CompatOption29631Mapping;
+  requestUrlPath: string;
+  requestBody: { shipping_method_ids: [typeof SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.methodId] };
+}> {
+  const methodId = SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.methodId;
+  const path = SENDCLOUD_V3_COMPAT_OPTION_29631_DIAGNOSTIC_V1.path;
+  const requestBody = { shipping_method_ids: [methodId] as [typeof methodId] };
+
+  const raw = await sendcloudV3Request<unknown>(path, {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+  });
+
+  return {
+    raw,
+    mapping: extractV3CompatMappingFor29631(raw),
+    requestUrlPath: path,
+    requestBody,
+  };
+}
+
 async function sendcloudRequestOnce<T>(path: string, init?: SendcloudRequestInit): Promise<T> {
-  const baseUrl = getSendcloudBaseUrl();
+  const baseUrl = init?.baseUrlOverride ?? getSendcloudBaseUrl();
   const url = new URL(`${baseUrl}${path.startsWith("/") ? path : `/${path}`}`);
 
   if (init?.searchParams) {
@@ -98,7 +144,14 @@ async function sendcloudRequestOnce<T>(path: string, init?: SendcloudRequestInit
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const { searchParams: _sp, timeoutMs: _t, retrySafeGet: _r, signal: _s, ...fetchInit } = init ?? {};
+    const {
+      searchParams: _sp,
+      timeoutMs: _t,
+      retrySafeGet: _r,
+      signal: _s,
+      baseUrlOverride: _b,
+      ...fetchInit
+    } = init ?? {};
     const response = await fetch(url.toString(), {
       ...fetchInit,
       signal: controller.signal,

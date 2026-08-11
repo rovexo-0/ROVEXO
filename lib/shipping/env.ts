@@ -4,8 +4,10 @@ const PUBLIC_KEY_ENV = "SENDCLOUD_PUBLIC_KEY";
 const SECRET_KEY_ENV = "SENDCLOUD_SECRET_KEY";
 const WEBHOOK_SECRET_ENV = "SENDCLOUD_WEBHOOK_SECRET";
 const BASE_URL_ENV = "SENDCLOUD_BASE_URL";
+const V3_BASE_URL_ENV = "SENDCLOUD_V3_BASE_URL";
 
 export const SENDCLOUD_DEFAULT_BASE_URL = "https://panel.sendcloud.sc/api/v2";
+export const SENDCLOUD_DEFAULT_V3_BASE_URL = "https://panel.sendcloud.sc/api/v3";
 
 export function isSendcloudConfigured(): boolean {
   return Boolean(
@@ -38,6 +40,16 @@ export function getSendcloudSecretKey(): string {
 export function getSendcloudBaseUrl(): string {
   const configured = process.env[BASE_URL_ENV]?.trim();
   if (!configured) return SENDCLOUD_DEFAULT_BASE_URL;
+  return configured.replace(/\/+$/, "");
+}
+
+/**
+ * Sendcloud API v3 base — independent of v2 SENDCLOUD_BASE_URL.
+ * Optional override: SENDCLOUD_V3_BASE_URL.
+ */
+export function getSendcloudV3BaseUrl(): string {
+  const configured = process.env[V3_BASE_URL_ENV]?.trim();
+  if (!configured) return SENDCLOUD_DEFAULT_V3_BASE_URL;
   return configured.replace(/\/+$/, "");
 }
 
