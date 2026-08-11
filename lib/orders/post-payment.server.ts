@@ -31,6 +31,7 @@ import {
   type ShippingSetupStatus,
 } from "@/lib/shipping/shipping-setup-status-v1";
 import { resolveListingParcelTier } from "@/lib/shipping/parcels";
+import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
 
 const PAID_ORDER_STATUSES = new Set([
   "awaiting_shipment",
@@ -183,6 +184,10 @@ function buildPersistedCheckoutQuote(order: PaidOrderShippingRow): ShippingQuote
 export async function markOrderShippingSetupStatus(
   orderId: string,
   status: ShippingSetupStatus,
+  correlation?: {
+    orderNumber?: string | null;
+    selectedShippingQuoteId?: string | null;
+  },
 ): Promise<void> {
   const admin = createAdminClient();
   const { error } = await admin
@@ -190,6 +195,20 @@ export async function markOrderShippingSetupStatus(
     .update({ shipping_setup_status: status })
     .eq("id", orderId);
   if (error) {
+    const failureStage =
+      status === "repair_required"
+        ? "orders.shipping_setup_status.repair_required"
+        : status === "ready"
+          ? "orders.shipping_setup_status.ready"
+          : "orders.shipping_setup_status";
+    logShippingPersistenceFailure({
+      failureStage,
+      orderId,
+      orderNumber: correlation?.orderNumber ?? null,
+      selectedShippingQuoteId: correlation?.selectedShippingQuoteId ?? null,
+      shippingRecordOperation: "status_update",
+      error,
+    });
     console.error("[orders/post-payment] shipping_setup_status update failed", {
       orderId,
       failureStage: "orders.shipping_setup_status",
@@ -229,6 +248,31 @@ export async function ensureOrderShippingPersistence(
 ): Promise<{ recordId: string; selectedQuoteId: string | null }> {
   const allowLiveQuoteEnrichment = options?.allowLiveQuoteEnrichment !== false;
   const preferredQuoteId = order.selected_shipping_quote_id?.trim() || null;
+
+  try {
+    return await runEnsureOrderShippingPersistence(order, {
+      allowLiveQuoteEnrichment,
+      preferredQuoteId,
+    });
+  } catch (error) {
+    // INSERT path already emits shipping_records.insert — still emit pipeline correlation.
+    logShippingPersistenceFailure({
+      failureStage: "ensureOrderShippingPersistence",
+      orderId: order.id,
+      orderNumber: order.order_number,
+      selectedShippingQuoteId: preferredQuoteId,
+      shippingRecordOperation: "persist_pipeline",
+      error,
+    });
+    throw error;
+  }
+}
+
+async function runEnsureOrderShippingPersistence(
+  order: PaidOrderShippingRow,
+  options: { allowLiveQuoteEnrichment: boolean; preferredQuoteId: string | null },
+): Promise<{ recordId: string; selectedQuoteId: string | null }> {
+  const { allowLiveQuoteEnrichment, preferredQuoteId } = options;
   const parcelSize = await resolveOrderParcelSize(order);
   const parcelTier = resolveListingParcelTier(parcelSize, "small_parcel");
 
@@ -564,12 +608,32 @@ async function runCompletePaidOrderFulfillment(input: {
   } catch (error) {
     shippingPersistenceFailed = true;
     const message = error instanceof Error ? error.message : String(error);
+    const selectedShippingQuoteId = row.selected_shipping_quote_id?.trim() || null;
+    logShippingPersistenceFailure({
+      failureStage: "ensureOrderShippingPersistence",
+      orderId: input.orderId,
+      orderNumber: row.order_number,
+      selectedShippingQuoteId,
+      shippingRecordOperation: "fulfillment_catch",
+      error,
+    });
     try {
-      await markOrderShippingSetupStatus(input.orderId, "repair_required");
+      await markOrderShippingSetupStatus(input.orderId, "repair_required", {
+        orderNumber: row.order_number,
+        selectedShippingQuoteId,
+      });
       shippingSetupStatus = "repair_required";
     } catch (statusError) {
       const statusMessage =
         statusError instanceof Error ? statusError.message : String(statusError);
+      logShippingPersistenceFailure({
+        failureStage: "orders.shipping_setup_status.repair_required",
+        orderId: input.orderId,
+        orderNumber: row.order_number,
+        selectedShippingQuoteId,
+        shippingRecordOperation: "status_update",
+        error: statusError,
+      });
       console.error("[orders/post-payment] FATAL shipping_setup_status update failed", {
         orderId: input.orderId,
         orderNumber: row.order_number,
@@ -592,7 +656,10 @@ async function runCompletePaidOrderFulfillment(input: {
   }
 
   if (!shippingPersistenceFailed) {
-    await markOrderShippingSetupStatus(input.orderId, "ready");
+    await markOrderShippingSetupStatus(input.orderId, "ready", {
+      orderNumber: row.order_number,
+      selectedShippingQuoteId: row.selected_shipping_quote_id?.trim() || null,
+    });
     shippingSetupStatus = "ready";
   }
 

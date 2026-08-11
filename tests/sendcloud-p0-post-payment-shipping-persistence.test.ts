@@ -314,8 +314,9 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
 
   it("E: paid order with shipping persistence failure enters repair_required", () => {
     const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
-    expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required")');
+    expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required"');
     expect(source).toContain("[orders/post-payment] shipping persistence failed");
+    expect(source).toContain("logShippingPersistenceFailure");
     expect(source).toContain("shippingSetupStatus");
     expect(source).toContain("FATAL_SHIPPING_SETUP_STATUS_UPDATE");
     expect(source).toContain("FATAL shipping_setup_status update failed");
@@ -435,7 +436,7 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     );
     const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
     expect(source).toContain("shippingPersistenceFailed");
-    expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required")');
+    expect(source).toContain('markOrderShippingSetupStatus(input.orderId, "repair_required"');
     // Behavioral: successful status update resolves (orders update mocked ok).
     await expect(markOrderShippingSetupStatus("ord-1", "repair_required")).resolves.toBeUndefined();
   });

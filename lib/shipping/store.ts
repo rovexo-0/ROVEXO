@@ -27,6 +27,7 @@ import {
 import { createOrderShipment, getOrderShipment } from "@/lib/shipping/service";
 import { attachLabelToParcel, createShipmentParcel, listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import type { ShipmentParcel } from "@/lib/shipping/types";
+import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -261,6 +262,16 @@ export async function ensureShippingRecord(input: {
     }
     const code = (error as { code?: string } | null)?.code ?? null;
     const message = error?.message ?? "no_data";
+    // P5.5 — structured, credential-free failure diagnostics (console-only).
+    logShippingPersistenceFailure({
+      failureStage: "shipping_records.insert",
+      orderId: input.orderId,
+      orderNumber: input.orderNumber ?? null,
+      selectedShippingQuoteId: input.selectedQuoteId ?? null,
+      shippingRecordOperation: "insert",
+      error: error ?? { message: "no_data" },
+    });
+    // Keep legacy search string for log greps.
     console.error("[shipping] ensureShippingRecord insert failed", {
       orderId: input.orderId,
       orderNumber: input.orderNumber ?? null,
