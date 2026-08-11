@@ -1590,7 +1590,19 @@ export function ConversationHub({
               body: JSON.stringify({ orderId: order.id }),
             });
         if (!response.ok) {
-          pushToast({ title: "Unable to get shipping label.", variant: "error" });
+          let toastTitle = "Unable to get shipping label.";
+          try {
+            const failure = (await response.json()) as { error?: unknown };
+            if (typeof failure.error === "string") {
+              const apiError = failure.error.trim();
+              if (apiError.length > 0 && apiError.length <= 280) {
+                toastTitle = apiError;
+              }
+            }
+          } catch {
+            /* keep fallback when body is missing or not JSON */
+          }
+          pushToast({ title: toastTitle, variant: "error" });
           return;
         }
         const payload = (await response.json()) as {
