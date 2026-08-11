@@ -5,6 +5,8 @@ export type SendcloudErrorCode =
   | "label_failed"
   | "tracking_not_found"
   | "api_error"
+  | "timeout"
+  | "network_error"
   | "webhook_invalid";
 
 export class SendcloudError extends Error {

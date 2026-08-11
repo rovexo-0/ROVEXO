@@ -108,7 +108,7 @@ export async function generateShippingLabelForOrder(
 
   let parcel = parcelId ? await getShipmentParcelById(parcelId) : null;
 
-  if (parcel?.label?.status === "ready" && parcel.trackingNumber) {
+  if (parcel?.label?.status === "ready" && parcel.trackingNumber && parcel.label.pdfUrl) {
     return {
       ok: true as const,
       label: parcel.label,
@@ -180,6 +180,24 @@ export async function generateShippingLabelForOrder(
     return {
       ok: false as const,
       error: "Label generation completed without a tracking number.",
+    };
+  }
+
+  const labelUrl =
+    updatedParcel?.label?.pdfUrl ??
+    labelRecord?.label?.pdfUrl ??
+    null;
+  const hasUsableLabelUrl =
+    typeof labelUrl === "string" &&
+    (labelUrl.startsWith("http://") ||
+      labelUrl.startsWith("https://") ||
+      // Demo / stored bucket paths are acceptable after persistence for non-fabricated labels.
+      labelUrl.length > 0);
+
+  if (!hasUsableLabelUrl) {
+    return {
+      ok: false as const,
+      error: "Label generation completed without a usable label URL.",
     };
   }
 

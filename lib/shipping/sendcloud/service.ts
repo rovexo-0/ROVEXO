@@ -3,6 +3,8 @@ import "server-only";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import {
   buildSendcloudParcelPayload,
+  extractSendcloudLabelUrl,
+  isUsableSendcloudLabelUrl,
   mapSendcloudMethodToQuote,
   normalizeCountryCode,
   parseSendcloudQuoteId,
@@ -16,7 +18,6 @@ import {
   listSendcloudShippingMethods,
 } from "@/lib/shipping/sendcloud/client";
 import { SendcloudError, toSendcloudError } from "@/lib/shipping/sendcloud/errors";
-import { extractSendcloudLabelUrl } from "@/lib/shipping/pricing/sendcloud-mappers";
 import { mapSendcloudCarrier, mapSendcloudTrackingStatus } from "@/lib/shipping/sendcloud/status-mapper";
 import type {
   SendcloudHealthResult,
@@ -76,11 +77,12 @@ export const SendcloudService = {
     assertConfigured();
 
     const spec = parcelSpecFromTier(input.parcelTier, input.weightKg);
+    // GET /shipping_methods does not accept weight/dimensions query params (Sendcloud OpenAPI v2).
+    // Weight is applied locally against each method's min_weight / max_weight.
     const methods = await listSendcloudShippingMethods({
       toCountry: normalizeCountryCode(input.deliveryAddress.country),
       toPostalCode: input.deliveryAddress.postcode,
       fromPostalCode: input.collectionAddress.postcode,
-      fromCountry: normalizeCountryCode(input.collectionAddress.country),
     });
 
     const filtered = methods.filter((method) => {
@@ -119,9 +121,11 @@ export const SendcloudService = {
     parcelTier: ParcelTier;
     weightKg?: number;
     deliveryAddress: ShippingAddress;
+    collectionAddress: ShippingAddress;
     orderNumber: string;
     declaredValueGbp?: number;
     labelSize?: SellerDefaultLabelSize;
+    idempotencyKey?: string;
   }): Promise<SendcloudLabelResult> {
     assertConfigured();
 
@@ -130,23 +134,46 @@ export const SendcloudService = {
       throw new SendcloudError("label_failed", "Invalid or expired Sendcloud quote id");
     }
 
+    if (!input.collectionAddress?.line1?.trim() || !input.collectionAddress?.postcode?.trim()) {
+      throw new SendcloudError(
+        "invalid_address",
+        "Seller dispatch address is required for Sendcloud parcel creation",
+      );
+    }
+
     const parcel = await createSendcloudParcel(
       buildSendcloudParcelPayload({
         methodId,
         parcelTier: input.parcelTier,
         weightKg: input.weightKg,
         deliveryAddress: input.deliveryAddress,
+        collectionAddress: input.collectionAddress,
         orderNumber: input.orderNumber,
         declaredValueGbp: input.declaredValueGbp,
+        externalReference: input.idempotencyKey,
       }),
     );
 
     const labelSize = resolveSellerDefaultLabelSize(input.labelSize);
+    const trackingNumber = parcel.tracking_number?.trim() || null;
+    const pdfUrl = extractSendcloudLabelUrl(parcel, labelSize);
+
+    // Never report label success without usable tracking + label URL (do not fabricate URLs).
+    if (!trackingNumber) {
+      throw new SendcloudError("label_failed", "Sendcloud parcel created without a tracking number", {
+        details: { parcelId: parcel.id },
+      });
+    }
+    if (!isUsableSendcloudLabelUrl(pdfUrl)) {
+      throw new SendcloudError("label_failed", "Sendcloud parcel created without a usable label URL", {
+        details: { parcelId: parcel.id },
+      });
+    }
 
     return {
       parcelId: parcel.id,
-      trackingNumber: parcel.tracking_number?.trim() || null,
-      pdfUrl: extractSendcloudLabelUrl(parcel, labelSize),
+      trackingNumber,
+      pdfUrl,
       carrier: parcel.carrier?.code ? mapSendcloudCarrier(parcel.carrier.code) : null,
       serviceName: parcel.shipment?.name ?? null,
     };

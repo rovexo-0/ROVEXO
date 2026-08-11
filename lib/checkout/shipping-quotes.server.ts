@@ -6,11 +6,15 @@ import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server
 import { isSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { ShippingService } from "@/lib/shipping/engine";
+import { resolveListingParcelTier } from "@/lib/shipping/parcels";
 import type { UkCarrier } from "@/lib/shipping/carriers";
-import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
+import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 
 import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
 import { formatCheckoutDeliveryEta } from "@/lib/shipping/delivery-estimate";
+
+/** Existing safe fallback when listing has no parcel size (do not invent a new taxonomy). */
+const CHECKOUT_PARCEL_TIER_FALLBACK: ParcelTier = "small_parcel";
 
 function inferCity(addressLine: string, postcode: string): string {
   const segments = addressLine.split(",").map((part) => part.trim()).filter(Boolean);
@@ -129,7 +133,7 @@ export async function fetchCheckoutCarrierQuotes(input: {
   const admin = createAdminClient();
   const { data: product } = await admin
     .from("products")
-    .select("seller_id, profiles!products_seller_id_fkey(full_name)")
+    .select("seller_id, parcel_size, profiles!products_seller_id_fkey(full_name)")
     .eq("slug", input.productSlug)
     .maybeSingle();
 
@@ -160,8 +164,13 @@ export async function fetchCheckoutCarrierQuotes(input: {
     return { live: true, options: [], reason: "address_incomplete" };
   }
 
+  const parcelTier = resolveListingParcelTier(
+    (product as { parcel_size?: string | null }).parcel_size,
+    CHECKOUT_PARCEL_TIER_FALLBACK,
+  );
+
   const pricing = await fetchShippingQuotesServer({
-    parcelTier: "small_parcel",
+    parcelTier,
     collectionAddress: collectionValidated.normalized,
     deliveryAddress: deliveryValidated.normalized,
     preferredCarriers: CHECKOUT_CARRIERS,

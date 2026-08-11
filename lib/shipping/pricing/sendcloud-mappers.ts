@@ -96,9 +96,15 @@ function leadTimeDays(method: SendcloudShippingMethod): { min: number; max: numb
   return { min: days, max: days + 1 };
 }
 
+/**
+ * Map Sendcloud shipping method → ROVEXO quote.
+ * Sendcloud country `price` is used as returned (pence). Official method schema does not
+ * expose a separate VAT amount on /shipping_methods — do not fabricate VAT lines.
+ * UK-first: ShippingQuote.currency is typed GBP (canonical production currency).
+ */
 export function mapSendcloudMethodToQuote(method: SendcloudShippingMethod): ShippingQuote | null {
   const price = countryPriceForGb(method);
-  if (price == null || !Number.isFinite(price)) return null;
+  if (price == null || !Number.isFinite(price) || price < 0) return null;
 
   const carrier = mapSendcloudMethodCarrier(method.carrier);
   if (!carrier) return null;
@@ -121,11 +127,27 @@ export function buildSendcloudParcelPayload(input: {
   parcelTier: ParcelTier;
   weightKg?: number;
   deliveryAddress: ShippingAddress;
+  /** Seller dispatch / collection — required for outbound payload integrity. */
+  collectionAddress: ShippingAddress;
   orderNumber: string;
   declaredValueGbp?: number;
+  /** Propagated to Sendcloud `external_reference` (official unique idempotence field). */
+  externalReference?: string;
 }): SendcloudParcelCreatePayload {
   const spec = parcelSpecFromTier(input.parcelTier, input.weightKg);
+  if (
+    !Number.isFinite(spec.weightKg) ||
+    spec.weightKg <= 0 ||
+    !Number.isFinite(spec.lengthCm) ||
+    !Number.isFinite(spec.widthCm) ||
+    !Number.isFinite(spec.heightCm)
+  ) {
+    throw new Error("Invalid parcel dimensions for Sendcloud parcel create");
+  }
+
   const address = toSendcloudAddress(input.deliveryAddress);
+  const collection = toSendcloudAddress(input.collectionAddress);
+  const externalReference = input.externalReference?.trim();
 
   return {
     ...address,
@@ -137,9 +159,31 @@ export function buildSendcloudParcelPayload(input: {
     height: String(spec.heightCm),
     order_number: input.orderNumber,
     reference: input.orderNumber,
+    ...(externalReference ? { external_reference: externalReference } : {}),
     total_order_value: (input.declaredValueGbp ?? 50).toFixed(2),
     total_order_value_currency: "GBP",
+    // Official Create Parcel OpenAPI supports from_* for sender/collection.
+    from_name: collection.name,
+    from_address_1: collection.address,
+    from_house_number: collection.house_number,
+    from_city: collection.city,
+    from_postal_code: collection.postal_code,
+    from_country: collection.country,
+    from_telephone: collection.telephone || undefined,
+    from_email: collection.email || undefined,
   };
+}
+
+/** True when Sendcloud returned a usable label URL (never fabricate). */
+export function isUsableSendcloudLabelUrl(url: string | null | undefined): boolean {
+  const trimmed = url?.trim();
+  if (!trimmed) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 export function extractSendcloudLabelUrl(

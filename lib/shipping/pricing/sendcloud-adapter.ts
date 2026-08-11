@@ -2,6 +2,7 @@ import "server-only";
 
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import {
+  isUsableSendcloudLabelUrl,
   parseSendcloudQuoteId,
 } from "@/lib/shipping/pricing/sendcloud-mappers";
 import { SendcloudService } from "@/lib/shipping/sendcloud/service";
@@ -75,15 +76,26 @@ export class SendcloudAdapter implements ShippingProvider {
       return emptyLabelResponse("quote_expired");
     }
 
+    if (!request.collectionAddress?.line1?.trim() || !request.collectionAddress?.postcode?.trim()) {
+      return emptyLabelResponse("quote_expired");
+    }
+
     try {
       const label = await SendcloudService.generateLabel({
         quoteId: request.quoteId,
         parcelTier: request.parcelTier,
         deliveryAddress: request.deliveryAddress,
+        collectionAddress: request.collectionAddress,
         orderNumber: request.orderNumber,
         declaredValueGbp: request.declaredValueGbp,
         labelSize: request.labelSize,
+        idempotencyKey: request.idempotencyKey,
       });
+
+      // Success requires tracking + usable label URL — parcel id alone is not a generated label.
+      if (!label.trackingNumber?.trim() || !isUsableSendcloudLabelUrl(label.pdfUrl)) {
+        return emptyLabelResponse("quote_expired");
+      }
 
       return {
         available: true,

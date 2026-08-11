@@ -125,11 +125,32 @@ export async function getBuyerOrderCancellationEligibility(
   return { canCancel: eligibility.allowed, reason: eligibility.reason };
 }
 
+function isIdempotentSendcloudCancelError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("already cancelled") ||
+    normalized.includes("already canceled") ||
+    normalized.includes("parcel is cancelled") ||
+    normalized.includes("parcel is canceled") ||
+    normalized.includes("not found")
+  );
+}
+
+/**
+ * Cancel announced Sendcloud parcels. Idempotent for already-cancelled / missing parcels.
+ * Must ONLY run after a confirmed Stripe refund (or when no payment refund is required).
+ */
 async function cancelSendcloudParcels(providerParcelIds: string[]): Promise<void> {
   for (const rawId of providerParcelIds) {
     const parcelId = Number.parseInt(rawId, 10);
     if (!Number.isFinite(parcelId) || parcelId <= 0) continue;
-    await SendcloudService.cancelParcel(parcelId);
+    try {
+      await SendcloudService.cancelParcel(parcelId);
+    } catch (error) {
+      if (isIdempotentSendcloudCancelError(error)) continue;
+      throw error;
+    }
   }
 }
 
@@ -163,6 +184,26 @@ async function voidLocalShippingArtifacts(orderId: string): Promise<void> {
       description: BUYER_CANCELLATION_REASON,
     });
   }
+}
+
+/**
+ * Refund succeeded but carrier cancel failed — never reverse the refund.
+ * Use existing shipping status `failed` for reconciliation (do not mark cancelled).
+ */
+async function markCarrierCancellationFailed(orderId: string, detail: string): Promise<void> {
+  const record = await getShippingRecord(orderId);
+  if (!record) return;
+  if (record.status === "cancelled") return;
+
+  await updateShippingRecordStatus({
+    orderId,
+    status: "failed",
+    title: "Carrier cancellation pending",
+    description: `Buyer refund completed. Sendcloud parcel cancellation requires reconciliation: ${detail}`.slice(
+      0,
+      500,
+    ),
+  });
 }
 
 async function markOrderCancelled(input: {
@@ -244,20 +285,8 @@ export async function cancelBuyerOrder(input: {
     return { success: true };
   }
 
-  if (context.providerParcelIds.length > 0) {
-    try {
-      await cancelSendcloudParcels(context.providerParcelIds);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      return {
-        success: false,
-        error: message.includes("collected") || message.includes("Cancellation rejected")
-          ? "Shipment has already been collected and cannot be cancelled."
-          : `Unable to cancel shipment: ${message}`,
-      };
-    }
-  }
-
+  // Financial authority first: never cancel the carrier parcel before a confirmed refund.
+  // If refund fails → preserve Sendcloud shipment. If refund OK + Sendcloud fails → keep refund.
   let stripeRefundId = context.stripeRefundId;
 
   if (context.paidAt || context.stripePaymentIntentId) {
@@ -285,7 +314,24 @@ export async function cancelBuyerOrder(input: {
     await releaseProductInventory(context.productId, context.productQuantity);
   }
 
-  await voidLocalShippingArtifacts(input.orderId);
+  let carrierCancelOk = true;
+  if (context.providerParcelIds.length > 0) {
+    try {
+      await cancelSendcloudParcels(context.providerParcelIds);
+    } catch (error) {
+      carrierCancelOk = false;
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[orders/cancel] Sendcloud cancel failed after refund — reconciliation required:", {
+        orderId: input.orderId,
+        message,
+      });
+      await markCarrierCancellationFailed(input.orderId, message);
+    }
+  }
+
+  if (carrierCancelOk) {
+    await voidLocalShippingArtifacts(input.orderId);
+  }
   await markOrderCancelled({ orderId: input.orderId });
 
   const admin = createAdminClient();

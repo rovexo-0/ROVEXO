@@ -12,6 +12,9 @@ import type {
   SendcloudShippingMethod,
 } from "@/lib/shipping/sendcloud/types";
 
+/** Bound below router Promise.race (30s) so the underlying fetch is aborted first. */
+export const SENDCLOUD_DEFAULT_TIMEOUT_MS = 25_000;
+
 function getAuthHeader(): string {
   const publicKey = getSendcloudPublicKey();
   const secretKey = getSendcloudSecretKey();
@@ -19,10 +22,56 @@ function getAuthHeader(): string {
   return `Basic ${encoded}`;
 }
 
-async function sendcloudRequest<T>(
-  path: string,
-  init?: RequestInit & { searchParams?: Record<string, string | number | boolean | undefined> },
-): Promise<T> {
+function isAbortError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const name = "name" in error ? String((error as { name?: unknown }).name) : "";
+  return name === "AbortError" || name === "TimeoutError";
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type SendcloudRequestInit = RequestInit & {
+  searchParams?: Record<string, string | number | boolean | undefined>;
+  /** Override default request timeout (AbortSignal). */
+  timeoutMs?: number;
+  /**
+   * Conservative GET-only retry. Never enable for POST /parcels or cancel —
+   * blind retries can create duplicate parcels.
+   */
+  retrySafeGet?: boolean;
+};
+
+/**
+ * Canonical Sendcloud HTTP transport.
+ * AbortController timeout aborts the underlying fetch (router Promise.race alone does not).
+ */
+export async function sendcloudRequest<T>(path: string, init?: SendcloudRequestInit): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  const maxAttempts = init?.retrySafeGet && method === "GET" ? 2 : 1;
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await sendcloudRequestOnce<T>(path, init);
+    } catch (error) {
+      lastError = error;
+      const retryable =
+        init?.retrySafeGet &&
+        method === "GET" &&
+        attempt < maxAttempts &&
+        isSendcloudError(error) &&
+        (error.code === "timeout" || error.code === "network_error");
+      if (!retryable) throw error;
+      await sleep(250 * attempt);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new SendcloudError("network_error", String(lastError));
+}
+
+async function sendcloudRequestOnce<T>(path: string, init?: SendcloudRequestInit): Promise<T> {
   const baseUrl = getSendcloudBaseUrl();
   const url = new URL(`${baseUrl}${path.startsWith("/") ? path : `/${path}`}`);
 
@@ -34,42 +83,81 @@ async function sendcloudRequest<T>(
     }
   }
 
-  const response = await fetch(url.toString(), {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: getAuthHeader(),
-      ...(init?.headers ?? {}),
-    },
-  });
-
-  const text = await response.text();
-  let body: unknown = null;
-  if (text) {
-    try {
-      body = JSON.parse(text) as unknown;
-    } catch {
-      body = text;
+  const timeoutMs = init?.timeoutMs ?? SENDCLOUD_DEFAULT_TIMEOUT_MS;
+  const controller = new AbortController();
+  const callerSignal = init?.signal;
+  const onCallerAbort = () => controller.abort();
+  if (callerSignal) {
+    if (callerSignal.aborted) {
+      controller.abort();
+    } else {
+      callerSignal.addEventListener("abort", onCallerAbort, { once: true });
     }
   }
 
-  if (!response.ok) {
-    const message =
-      typeof body === "object" &&
-      body !== null &&
-      "error" in body &&
-      typeof (body as { error?: { message?: string } }).error?.message === "string"
-        ? (body as { error: { message: string } }).error.message
-        : `Sendcloud API error (${response.status})`;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    throw new SendcloudError("api_error", message, {
-      statusCode: response.status,
-      details: body,
+  try {
+    const { searchParams: _sp, timeoutMs: _t, retrySafeGet: _r, signal: _s, ...fetchInit } = init ?? {};
+    const response = await fetch(url.toString(), {
+      ...fetchInit,
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(),
+        ...(init?.headers ?? {}),
+      },
     });
-  }
 
-  return body as T;
+    const text = await response.text();
+    let body: unknown = null;
+    if (text) {
+      try {
+        body = JSON.parse(text) as unknown;
+      } catch {
+        body = text;
+      }
+    }
+
+    if (!response.ok) {
+      const message =
+        typeof body === "object" &&
+        body !== null &&
+        "error" in body &&
+        typeof (body as { error?: { message?: string } }).error?.message === "string"
+          ? (body as { error: { message: string } }).error.message
+          : `Sendcloud API error (${response.status})`;
+
+      throw new SendcloudError("api_error", message, {
+        statusCode: response.status,
+        details: body,
+      });
+    }
+
+    return body as T;
+  } catch (error) {
+    if (error instanceof SendcloudError) throw error;
+
+    if (isAbortError(error) || controller.signal.aborted) {
+      if (callerSignal?.aborted) {
+        throw new SendcloudError("network_error", "Sendcloud request aborted", { statusCode: 499 });
+      }
+      throw new SendcloudError("timeout", `Sendcloud request timed out after ${timeoutMs}ms`, {
+        statusCode: 408,
+      });
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+    throw new SendcloudError("network_error", `Sendcloud network error: ${message}`);
+  } finally {
+    clearTimeout(timeoutId);
+    callerSignal?.removeEventListener("abort", onCallerAbort);
+  }
+}
+
+function isSendcloudError(error: unknown): error is SendcloudError {
+  return error instanceof SendcloudError;
 }
 
 export async function checkSendcloudApiHealth(): Promise<SendcloudHealthResult> {
@@ -93,22 +181,26 @@ export async function checkSendcloudApiHealth(): Promise<SendcloudHealthResult> 
   }
 }
 
+/**
+ * GET /shipping_methods — supported query params per Sendcloud OpenAPI v2:
+ * sender_address, service_point_id, is_return, from_postal_code, to_postal_code, to_country, cursor, limit.
+ * Weight/dimensions are NOT request parameters on this endpoint; callers filter locally by min_weight/max_weight.
+ */
 export async function listSendcloudShippingMethods(input: {
   toCountry: string;
   toPostalCode: string;
   fromPostalCode: string;
-  fromCountry?: string;
   isReturn?: boolean;
 }): Promise<SendcloudShippingMethod[]> {
   const response = await sendcloudRequest<{ shipping_methods?: SendcloudShippingMethod[] }>(
     "/shipping_methods",
     {
       method: "GET",
+      retrySafeGet: true,
       searchParams: {
         to_country: input.toCountry,
         to_postal_code: input.toPostalCode,
         from_postal_code: input.fromPostalCode,
-        from_country: input.fromCountry,
         is_return: input.isReturn ?? false,
       },
     },
@@ -117,6 +209,11 @@ export async function listSendcloudShippingMethods(input: {
   return response.shipping_methods ?? [];
 }
 
+/**
+ * Parcel create payload — fields verified against Sendcloud API v2 Create Parcel OpenAPI.
+ * Idempotency: `external_reference` (unique) — not an HTTP idempotency header.
+ * Sender: `from_*` fields and/or `sender_address` id; omit only when using Sendcloud default sender.
+ */
 export type SendcloudParcelCreatePayload = {
   name: string;
   company_name?: string;
@@ -132,43 +229,80 @@ export type SendcloudParcelCreatePayload = {
   weight: string;
   order_number?: string;
   reference?: string;
+  /** Official unique idempotence field (Sendcloud FAQ / OpenAPI). */
+  external_reference?: string;
   length?: string;
   width?: string;
   height?: string;
   total_order_value?: string;
   total_order_value_currency?: string;
+  from_name?: string;
+  from_company_name?: string;
+  from_address_1?: string;
+  from_address_2?: string;
+  from_house_number?: string;
+  from_city?: string;
+  from_postal_code?: string;
+  from_country?: string;
+  from_telephone?: string;
+  from_email?: string;
+  sender_address?: number;
 };
+
+/** In-process lock: one ROVEXO idempotency key → one in-flight Sendcloud POST /parcels. */
+const parcelCreateInflight = new Map<string, Promise<SendcloudParcelResponse>>();
 
 export async function createSendcloudParcel(
   parcel: SendcloudParcelCreatePayload,
 ): Promise<SendcloudParcelResponse> {
-  const response = await sendcloudRequest<{
-    parcel?: SendcloudParcelResponse;
-    failed_parcels?: Array<{ parcel?: SendcloudParcelResponse; errors?: unknown }>;
-  }>("/parcels", {
-    method: "POST",
-    body: JSON.stringify({ parcel }),
+  const lockKey = parcel.external_reference?.trim() || null;
+
+  const run = async (): Promise<SendcloudParcelResponse> => {
+    // POST /parcels — no automatic retry (duplicate parcel risk).
+    const response = await sendcloudRequest<{
+      parcel?: SendcloudParcelResponse;
+      failed_parcels?: Array<{ parcel?: SendcloudParcelResponse; errors?: unknown }>;
+    }>("/parcels", {
+      method: "POST",
+      body: JSON.stringify({ parcel }),
+    });
+
+    if (response.failed_parcels?.length) {
+      const firstError = response.failed_parcels[0]?.errors;
+      throw new SendcloudError(
+        "label_failed",
+        typeof firstError === "string" ? firstError : "Sendcloud failed to create parcel",
+        { details: response.failed_parcels },
+      );
+    }
+
+    if (!response.parcel) {
+      throw new SendcloudError("label_failed", "Sendcloud returned no parcel in response");
+    }
+
+    return response.parcel;
+  };
+
+  if (!lockKey) {
+    return run();
+  }
+
+  const existing = parcelCreateInflight.get(lockKey);
+  if (existing) {
+    return existing;
+  }
+
+  const promise = run().finally(() => {
+    parcelCreateInflight.delete(lockKey);
   });
-
-  if (response.failed_parcels?.length) {
-    const firstError = response.failed_parcels[0]?.errors;
-    throw new SendcloudError(
-      "label_failed",
-      typeof firstError === "string" ? firstError : "Sendcloud failed to create parcel",
-      { details: response.failed_parcels },
-    );
-  }
-
-  if (!response.parcel) {
-    throw new SendcloudError("label_failed", "Sendcloud returned no parcel in response");
-  }
-
-  return response.parcel;
+  parcelCreateInflight.set(lockKey, promise);
+  return promise;
 }
 
 export async function getSendcloudParcel(parcelId: number): Promise<SendcloudParcelResponse> {
   const response = await sendcloudRequest<{ parcel: SendcloudParcelResponse }>(`/parcels/${parcelId}`, {
     method: "GET",
+    retrySafeGet: true,
   });
   return response.parcel;
 }
@@ -176,13 +310,14 @@ export async function getSendcloudParcel(parcelId: number): Promise<SendcloudPar
 export async function getSendcloudTracking(trackingNumber: string): Promise<SendcloudParcelResponse | null> {
   const response = await sendcloudRequest<{ parcels?: SendcloudParcelResponse[] }>("/parcels", {
     method: "GET",
+    retrySafeGet: true,
     searchParams: { tracking_number: trackingNumber },
   });
 
   return response.parcels?.[0] ?? null;
 }
 
-/** POST /parcels/{id}/cancel — cancel announced parcel or delete unannounced parcel. */
+/** POST /parcels/{id}/cancel — no blind automatic retries (not idempotency-guaranteed across all states). */
 export async function cancelSendcloudParcel(parcelId: number): Promise<void> {
   await sendcloudRequest<{ status?: string; message?: string }>(`/parcels/${parcelId}/cancel`, {
     method: "POST",

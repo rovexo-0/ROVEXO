@@ -240,3 +240,19 @@ export function isParcelTier(value: string): value is ParcelTier {
 export function isLegacyParcelSize(value: string): value is LegacyParcelSize {
   return value === "small" || value === "medium" || value === "large" || value === "xl" || value === "custom";
 }
+
+/**
+ * Resolve listing `parcel_size` (legacy or canonical) to a ParcelTier.
+ * Missing / unknown → existing safe fallback `small_parcel` (checkout historical default).
+ */
+export function resolveListingParcelTier(
+  parcelSize: string | null | undefined,
+  fallback: ParcelTier = "small_parcel",
+): ParcelTier {
+  if (!parcelSize?.trim()) return normalizeTier(fallback);
+  const trimmed = parcelSize.trim();
+  if (isParcelTier(trimmed)) return normalizeTier(trimmed);
+  if (isLegacyParcelSize(trimmed)) return mapLegacyParcelSize(trimmed);
+  return normalizeTier(fallback);
+}
+
