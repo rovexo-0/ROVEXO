@@ -303,9 +303,8 @@ export const SendcloudService = {
     }
 
     const isInPostGb = shippingOptionCode.toLowerCase().startsWith("inpost_gb:");
-    const fromPhone = isInPostGb
-      ? normalizeInPostGbPhoneForSendcloudAnnounce(from.telephone)
-      : from.telephone;
+    // InPost GB: recipient phone required; sender phone not required and must be omitted
+    // (Sendcloud returns a field-agnostic invalid-phone error when optional from phone is sent).
     const toPhone = isInPostGb
       ? normalizeInPostGbPhoneForSendcloudAnnounce(to.telephone)
       : to.telephone;
@@ -318,7 +317,9 @@ export const SendcloudService = {
         postal_code: normalizeSendcloudPostalCode(from.postal_code),
         city: from.city,
         country_code: from.country,
-        phone_number: fromPhone || undefined,
+        ...(isInPostGb
+          ? {}
+          : { phone_number: from.telephone || undefined }),
         email: from.email || undefined,
       },
       to_address: {

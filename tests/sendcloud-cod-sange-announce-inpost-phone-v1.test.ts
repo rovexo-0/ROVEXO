@@ -274,7 +274,8 @@ describe("COD SÂNGE — InPost announce mapping", () => {
     expect(payload.ship_with.properties.shipping_option_code).toBe(V3_CODE);
     expect(payload.ship_with.properties.contract_id).toBe(40353);
     expect(payload.to_address.phone_number).toBe("07438969272");
-    expect(payload.from_address.phone_number).toBe("07700900456");
+    expect(payload.from_address.phone_number).toBeUndefined();
+    expect("phone_number" in payload.from_address).toBe(false);
     expect(payload.parcels[0]?.weight.value).toBe("2.000");
     expect(payload.parcels[0]?.dimensions).toEqual({
       length: "45",
@@ -324,6 +325,8 @@ describe("COD SÂNGE — InPost announce mapping", () => {
     expect(payload.to_address.email).toBe("buyer@example.test");
     expect(payload.to_address.postal_code).toBe("WS29RD");
     expect(payload.from_address.postal_code).toBe("WS29RD");
+    expect(payload.from_address.phone_number).toBeUndefined();
+    expect("phone_number" in payload.from_address).toBe(false);
     expect(payload.to_address.house_number).toBe("83");
     expect(payload.parcels[0]?.weight.value).toBe("2.000");
     expect(payload.parcels[0]?.dimensions).toEqual({
@@ -332,6 +335,45 @@ describe("COD SÂNGE — InPost announce mapping", () => {
       height: "10",
       unit: "cm",
     });
+  });
+
+  it("non-InPost announce still includes sender phone_number unchanged", async () => {
+    announceSendcloudShipmentV3.mockResolvedValue({
+      shipmentId: "rm-shipment-1",
+      parcelId: 1001,
+      trackingNumber: "RMTRACK",
+      pdfUrl: "https://example.test/rm-label.pdf",
+      carrierCode: "royal_mail",
+      serviceName: "royal_mail:tracked-24",
+      reusedExisting: false,
+    });
+
+    const { SendcloudService } = await import("@/lib/shipping/sendcloud/service");
+    await SendcloudService.generateLabel({
+      quoteId: "sendcloud:1001",
+      parcelTier: "small_parcel",
+      weightKg: 2,
+      lengthCm: 45,
+      widthCm: 10,
+      heightCm: 10,
+      deliveryAddress: { ...baseAddrs.deliveryAddress, phone: "+447438969272" },
+      collectionAddress: { ...baseAddrs.collectionAddress, phone: "+447700900456" },
+      orderNumber: "RVX8343A7C7",
+      shippingOptionCode: "royal_mail:tracked-24",
+      v2MethodId: 1001,
+      idempotencyKey: "rovexo-order-announce-non-inpost-phone-1",
+    });
+
+    expect(announceSendcloudShipmentV3).toHaveBeenCalledTimes(1);
+    const payload = announceSendcloudShipmentV3.mock.calls[0]![0] as {
+      from_address: { phone_number?: string };
+      to_address: { phone_number?: string };
+      ship_with: { properties: { shipping_option_code: string } };
+    };
+    expect(payload.ship_with.properties.shipping_option_code).toBe("royal_mail:tracked-24");
+    // Non-InPost: no InPost normalization / omit — raw trimmed telephone from mapper.
+    expect(payload.from_address.phone_number).toBe("+447700900456");
+    expect(payload.to_address.phone_number).toBe("+447438969272");
   });
 
   it("label-generation enriches profile phone/email into announce addresses", () => {

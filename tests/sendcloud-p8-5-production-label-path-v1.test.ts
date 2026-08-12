@@ -218,7 +218,7 @@ describe("P8.5 production label path", () => {
     );
   });
 
-  it("I/J — announce payload uses selected V3 option + success yields usable label", async () => {
+  it("I/J — announce payload uses selected V3 option + InPost phone contract + success yields usable label", async () => {
     announceSendcloudShipmentV3.mockResolvedValue({
       shipmentId: "ship-1",
       parcelId: 99123,
@@ -244,7 +244,7 @@ describe("P8.5 production label path", () => {
         city: "London",
         postcode: "E1 6AN",
         country: "GB",
-        phone: "07700900123",
+        phone: "+447438969272",
         validated: true,
       },
       collectionAddress: {
@@ -254,7 +254,7 @@ describe("P8.5 production label path", () => {
         city: "Walsall",
         postcode: "WS2 9RD",
         country: "GB",
-        phone: "07700900456",
+        phone: "+447389890958",
         validated: true,
       },
       orderNumber: "RVX8343A7C7",
@@ -270,6 +270,7 @@ describe("P8.5 production label path", () => {
         type: string;
         properties: { shipping_option_code: string; contract_id?: number };
       };
+      from_address: { phone_number?: string };
       to_address: { phone_number?: string; postal_code: string };
       parcels: Array<{
         weight: { value: string; unit: string };
@@ -279,7 +280,9 @@ describe("P8.5 production label path", () => {
     expect(payload.ship_with.type).toBe("shipping_option_code");
     expect(payload.ship_with.properties.shipping_option_code).toBe(V3_CODE);
     expect(payload.ship_with.properties.contract_id).toBe(40353);
-    expect(payload.to_address.phone_number).toBe("07700900123");
+    expect(payload.to_address.phone_number).toBe("07438969272");
+    expect(payload.from_address.phone_number).toBeUndefined();
+    expect("phone_number" in payload.from_address).toBe(false);
     expect(payload.to_address.postal_code).toBe("E16AN");
     expect(payload.parcels[0]?.weight).toEqual({ value: "2.000", unit: "kg" });
     expect(payload.parcels[0]?.dimensions).toEqual({

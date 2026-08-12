@@ -244,6 +244,16 @@ describe("P8.6 announce response parsing", () => {
     expect(result.pdfUrl).toBeNull();
     expect(getSendcloudParcel).toHaveBeenCalledWith(PARCEL_ID);
     expect(announceSendcloudShipmentV3).toHaveBeenCalledTimes(1);
+    const payload = announceSendcloudShipmentV3.mock.calls[0]![0] as {
+      from_address: { phone_number?: string };
+      to_address: { phone_number?: string };
+      ship_with: { properties: { shipping_option_code: string; contract_id?: number } };
+    };
+    expect(payload.ship_with.properties.shipping_option_code).toBe(V3_CODE);
+    expect(payload.ship_with.properties.contract_id).toBe(40353);
+    expect(payload.to_address.phone_number).toBe("07700900123");
+    expect(payload.from_address.phone_number).toBeUndefined();
+    expect("phone_number" in payload.from_address).toBe(false);
   });
 
   it("4b — hydrate fills tracking + label URL from existing GET /parcels when announce omits them", async () => {
