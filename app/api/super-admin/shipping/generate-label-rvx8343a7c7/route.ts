@@ -45,6 +45,8 @@ export function resolveControlledLabelHttpStatus(
     providerStatus >= 400 &&
     providerStatus < 600
   ) {
+    // Propagate known provider client errors safely; other 4xx/5xx → 502.
+    if (providerStatus === 400) return 400;
     if (providerStatus === 404) return 404;
     if (providerStatus === 422) return 422;
     return 502;
@@ -109,6 +111,7 @@ export async function POST(request: Request) {
     SENDCLOUD_CALLED: result.sendcloudCalled,
     SENDCLOUD_HTTP_STATUS: result.sendcloudHttpStatus,
     FAILURE_KIND: result.failureKind,
+    PROVIDER_DETAILS: result.providerDetails,
     SHIPMENT_CREATED: result.shipmentCreated,
     PARCEL_CREATED_EXTERNALLY: result.parcelCreatedExternally,
     LABEL_CREATED: result.labelCreated,

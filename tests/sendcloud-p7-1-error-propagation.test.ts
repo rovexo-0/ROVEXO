@@ -71,6 +71,7 @@ function baseResult(
     sendcloudCalled: false,
     sendcloudHttpStatus: null,
     failureKind: "rovexo_validation",
+    providerDetails: null,
     shipmentCreated: false,
     parcelCreatedExternally: false,
     labelCreated: false,

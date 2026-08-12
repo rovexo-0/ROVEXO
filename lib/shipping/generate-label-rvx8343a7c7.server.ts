@@ -40,6 +40,8 @@ export type ControlledLabelRvx8343a7c7Result = {
   sendcloudCalled: boolean;
   sendcloudHttpStatus: number | null;
   failureKind: ShippingLabelFailureKind | null;
+  /** Sanitized original Sendcloud response body when present (P7.2.1). */
+  providerDetails: unknown | null;
   shipmentCreated: boolean;
   parcelCreatedExternally: boolean;
   labelCreated: boolean;
@@ -178,6 +180,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       sendcloudCalled: false,
       sendcloudHttpStatus: null,
       failureKind: null,
+      providerDetails: null,
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,
@@ -204,6 +207,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       sendcloudCalled: false,
       sendcloudHttpStatus: null,
       failureKind: "rovexo_validation",
+      providerDetails: null,
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,
@@ -245,6 +249,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
         sendcloudCalled,
         sendcloudHttpStatus,
         failureKind: failure.kind,
+        providerDetails: failure.providerDetails ?? null,
         shipmentCreated: false,
         parcelCreatedExternally: false,
         labelCreated: false,
@@ -271,6 +276,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       sendcloudCalled: !idempotent,
       sendcloudHttpStatus: null,
       failureKind: null,
+      providerDetails: null,
       shipmentCreated: !idempotent,
       parcelCreatedExternally: !idempotent,
       labelCreated: !idempotent,
@@ -300,6 +306,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       sendcloudCalled: failure.providerRequestAttempted,
       sendcloudHttpStatus,
       failureKind: failure.kind,
+      providerDetails: failure.providerDetails ?? null,
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,

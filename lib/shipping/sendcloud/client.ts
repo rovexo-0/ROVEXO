@@ -31,6 +31,7 @@ import {
 import { parseSendcloudV3AnnounceShipmentResult } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import { getShippingRecord } from "@/lib/shipping/store";
 import type { ParcelTier } from "@/lib/shipping/types";
+import { buildSendcloudHttpFailureFromBody } from "@/lib/shipping/pricing/label-provider-failure-v1";
 
 /** Bound below router Promise.race (30s) so the underlying fetch is aborted first. */
 export const SENDCLOUD_DEFAULT_TIMEOUT_MS = 25_000;
@@ -268,14 +269,8 @@ async function sendcloudRequestOnce<T>(path: string, init?: SendcloudRequestInit
     }
 
     if (!response.ok) {
-      const message =
-        typeof body === "object" &&
-        body !== null &&
-        "error" in body &&
-        typeof (body as { error?: { message?: string } }).error?.message === "string"
-          ? (body as { error: { message: string } }).error.message
-          : `Sendcloud API error (${response.status})`;
-
+      // P7.2.1: preserve original provider body; never invent a fake provider message.
+      const { message } = buildSendcloudHttpFailureFromBody(body);
       throw new SendcloudError("api_error", message, {
         statusCode: response.status,
         details: body,
