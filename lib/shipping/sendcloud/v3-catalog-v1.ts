@@ -38,8 +38,10 @@ async function v3Request<T>(
   return sendcloudV3Request<T>(path, init);
 }
 
+import { normalizeSendcloudPostalCode } from "@/lib/shipping/pricing/sendcloud-mappers";
+
 function normalizePostal(postcode: string): string {
-  return postcode.replace(/\s+/g, "").toUpperCase();
+  return normalizeSendcloudPostalCode(postcode);
 }
 
 /** Build official V3 shipping-options request body (read-only discovery). */

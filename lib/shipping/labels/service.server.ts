@@ -45,14 +45,19 @@ export async function generateShippingLabel(
 
   const { platformFeePence } = applyInternalLabelFee(0);
 
+  const tracking = response.trackingNumber?.trim() || null;
+  const pdfUrl = response.pdfUrl?.trim() || null;
+  const labelReady = Boolean(tracking && pdfUrl);
+
   return {
     label: {
-      trackingNumber: response.trackingNumber,
-      barcode: response.barcode,
-      qrPayload: response.qrPayload,
-      pdfUrl: response.pdfUrl,
+      trackingNumber: tracking,
+      barcode: tracking,
+      qrPayload: tracking,
+      pdfUrl,
       carrier: response.carrier ?? "Royal Mail",
-      status: "ready",
+      // P8.6: announced without sync tracking stays pending until webhook/refresh fills it.
+      status: labelReady ? "ready" : "pending",
     },
     internalPlatformFeePence: platformFeePence,
     providerId: response.providerId,

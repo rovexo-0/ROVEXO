@@ -1,6 +1,7 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
 import { DEFAULT_SELLER_LABEL_SIZE } from "@/lib/shipping/label-size";
+import { applyRovexoShippingMarkup } from "@/lib/shipping/labels/fee";
 import { PARCEL_TIER_OPTIONS } from "@/lib/shipping/parcels";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 import type { SendcloudParcelCreatePayload } from "@/lib/shipping/sendcloud/client";
@@ -25,6 +26,45 @@ export function normalizeCountryCode(country: string): string {
     return normalized.toUpperCase();
   }
   return country.trim().slice(0, 2).toUpperCase();
+}
+
+/** Same postal shape as V3 /shipping-options catalog requests (strip spaces, upper). */
+export function normalizeSendcloudPostalCode(postcode: string): string {
+  return postcode.replace(/\s+/g, "").toUpperCase();
+}
+
+/**
+ * Outbound-only phone for Sendcloud InPost GB announce (`phone_number`).
+ *
+ * Live Sendcloud/InPost rejected E.164 (`+447438969272`) as invalid.
+ * Existing ROVEXO InPost announce fixtures use UK national `07…` (11 digits).
+ * Digits are never invented; non-UK-mobile shapes are returned trimmed unchanged.
+ * Does not mutate stored profile/address phones — call only when serializing announce.
+ */
+export function normalizeInPostGbPhoneForSendcloudAnnounce(phone: string): string {
+  const trimmed = phone.trim();
+  if (!trimmed) return "";
+
+  const digits = trimmed.replace(/\D/g, "");
+
+  // Already UK national mobile: 07XXXXXXXXX
+  if (digits.length === 11 && digits.startsWith("07")) {
+    return digits;
+  }
+
+  // E.164 / international: 44 + 10-digit mobile (7XXXXXXXXX) → 07XXXXXXXXX
+  // Covers +447…, 00447…, 447… (same digit sequence after stripping non-digits).
+  if (digits.length === 12 && digits.startsWith("44") && digits[2] === "7") {
+    return `0${digits.slice(2)}`;
+  }
+
+  // Bare 10-digit UK mobile body (7XXXXXXXXX) → 07XXXXXXXXX
+  if (digits.length === 10 && digits.startsWith("7")) {
+    return `0${digits}`;
+  }
+
+  // Unrelated / non-UK-mobile: do not corrupt.
+  return trimmed;
 }
 
 export function isSendcloudQuoteId(quoteId: string): boolean {
@@ -87,8 +127,8 @@ export function toSendcloudAddress(address: ShippingAddress) {
     city: address.city,
     postal_code: address.postcode,
     country: normalizeCountryCode(address.country),
-    telephone: address.phone ?? "",
-    email: "",
+    telephone: address.phone?.trim() ?? "",
+    email: address.email?.trim() ?? "",
   };
 }
 
@@ -110,8 +150,9 @@ function leadTimeDays(method: SendcloudShippingMethod): { min: number; max: numb
 
 /**
  * Map Sendcloud shipping method → ROVEXO quote.
- * Sendcloud country `price` is used as returned (pence). Official method schema does not
- * expose a separate VAT amount on /shipping_methods — do not fabricate VAT lines.
+ * Provider cost = Sendcloud country `price` → pence (unchanged derivation).
+ * Buyer price = provider + ROVEXO_SHIPPING_MARKUP_PENCE (applied once here).
+ * Official method schema does not expose a separate VAT amount on /shipping_methods.
  * UK-first: ShippingQuote.currency is typed GBP (canonical production currency).
  *
  * V3 label identity is OPTIONAL and MUST come from confirmed discovery metadata only.
@@ -126,6 +167,9 @@ export function mapSendcloudMethodToQuote(
 
   const carrier = mapSendcloudMethodCarrier(method.carrier);
   if (!carrier) return null;
+
+  const providerPricePence = Math.round(price * 100);
+  const { buyerPricePence } = applyRovexoShippingMarkup(providerPricePence);
 
   const estimatedDays = leadTimeDays(method);
   const v2MethodId = method.id;
@@ -145,7 +189,8 @@ export function mapSendcloudMethodToQuote(
     providerId: "sendcloud",
     carrier,
     serviceName: method.name,
-    pricePence: Math.round(price * 100),
+    pricePence: buyerPricePence,
+    providerPricePence,
     currency: "GBP",
     estimatedDays,
     v2MethodId,

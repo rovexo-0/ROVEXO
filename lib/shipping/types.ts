@@ -65,6 +65,8 @@ export type ShippingAddress = {
   postcode: string;
   country: string;
   phone?: string;
+  /** Optional contact email for carrier announce (e.g. Sendcloud InPost). */
+  email?: string;
   validated: boolean;
 };
 
@@ -78,10 +80,21 @@ export type ShippingQuoteApiVersion = "v2" | "v3" | "v2+v3";
 
 export type ShippingQuote = {
   id: string;
+  /**
+   * shipping_quotes row UUID when hydrate remaps `id` → externalQuoteId (e.g. sendcloud:N).
+   * Used only to resolve selected_quote_id row UUIDs — never sent to Sendcloud as quote id.
+   */
+  quoteRowId?: string;
   providerId: string;
   carrier: UkCarrier | string;
   serviceName: string;
+  /** Buyer-payable shipping (provider cost + ROVEXO shipping markup), integer pence. */
   pricePence: number;
+  /**
+   * Unmodified Sendcloud / provider label cost in integer pence when known.
+   * Optional — demo / legacy quotes may omit. Never includes ROVEXO markup.
+   */
+  providerPricePence?: number;
   currency: "GBP";
   estimatedDays: { min: number; max: number };
   estimatedDeliveryAt?: string | null;

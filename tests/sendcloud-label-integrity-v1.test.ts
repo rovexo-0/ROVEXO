@@ -122,7 +122,7 @@ describe("SendcloudAdapter createLabel integrity", () => {
     expect(result.pdfUrl).toContain("https://");
   });
 
-  it("missing label URL => not success", async () => {
+  it("missing label URL with provider parcel id => announce success (P8.6 async label OK)", async () => {
     generateLabel.mockResolvedValue({
       parcelId: 99,
       trackingNumber: "TRACK1",
@@ -148,8 +148,10 @@ describe("SendcloudAdapter createLabel integrity", () => {
       v2MethodId: 8,
     });
 
-    expect(result.available).toBe(false);
-    expect(result.trackingNumber).toBeNull();
+    expect(result.available).toBe(true);
+    expect(result.trackingNumber).toBe("TRACK1");
+    expect(result.pdfUrl).toBeNull();
+    expect(result.sendcloudParcelId).toBe(99);
   });
 
   it("Sendcloud error => not success", async () => {
@@ -175,11 +177,42 @@ describe("SendcloudAdapter createLabel integrity", () => {
     expect(result.available).toBe(false);
   });
 
-  it("tracking missing => not success", async () => {
+  it("tracking missing with provider parcel id => announce success (P8.6 async tracking OK)", async () => {
     generateLabel.mockResolvedValue({
       parcelId: 99,
       trackingNumber: null,
       pdfUrl: "https://panel.sendcloud.sc/label/1.pdf",
+      carrier: "Royal Mail",
+      serviceName: "Tracked 48",
+    });
+
+    const { SendcloudAdapter } = await import("@/lib/shipping/pricing/sendcloud-adapter");
+    const adapter = new SendcloudAdapter();
+    const result = await adapter.createLabel({
+      quoteId: "sendcloud:8",
+      orderId: "o1",
+      orderNumber: "RVX-1",
+      parcelTier: "small_parcel",
+      weightKg: 0.5,
+      lengthCm: 20,
+      widthCm: 15,
+      heightCm: 5,
+      collectionAddress: collection,
+      deliveryAddress: delivery,
+      shippingOptionCode: "royal_mail:tracked_48",
+      v2MethodId: 8,
+    });
+
+    expect(result.available).toBe(true);
+    expect(result.trackingNumber).toBeNull();
+    expect(result.sendcloudParcelId).toBe(99);
+  });
+
+  it("missing provider parcel id => not success", async () => {
+    generateLabel.mockResolvedValue({
+      parcelId: 0,
+      trackingNumber: null,
+      pdfUrl: null,
       carrier: "Royal Mail",
       serviceName: "Tracked 48",
     });

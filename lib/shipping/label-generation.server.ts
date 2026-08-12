@@ -55,7 +55,9 @@ export async function generateShippingLabelForOrder(
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, order_number, seller_id, buyer_id, shipping_address_id, status")
+    .select(
+      "id, order_number, seller_id, buyer_id, shipping_address_id, status, selected_shipping_quote_id",
+    )
     .eq("id", orderId)
     .maybeSingle();
 
@@ -74,13 +76,34 @@ export async function generateShippingLabelForOrder(
   const partyIds = [order.seller_id, order.buyer_id].filter(Boolean) as string[];
   const { data: partyProfiles } = await admin
     .from("profiles")
-    .select("id, email")
+    .select("id, email, phone")
     .in("id", partyIds);
   const partyEmails = (partyProfiles ?? []).map((p) => p.email);
+  const profileById = new Map(
+    (partyProfiles ?? []).map((p) => [
+      p.id,
+      {
+        email: typeof p.email === "string" ? p.email.trim() : "",
+        phone: typeof p.phone === "string" ? p.phone.trim() : "",
+      },
+    ]),
+  );
+  const sellerContact = profileById.get(order.seller_id) ?? { email: "", phone: "" };
+  const buyerContact = order.buyer_id
+    ? profileById.get(order.buyer_id) ?? { email: "", phone: "" }
+    : { email: "", phone: "" };
   const forceDemoShipping = mustUseDemoShippingForActors(...partyEmails);
 
   let record = await getShippingRecord(orderId);
-  let quoteId = record?.pricing?.selectedQuoteId ?? record?.pricing?.quotes[0]?.id;
+  // P8.5: production selection is persisted identity only — never quotes[0].
+  const orderSelectedQuoteId =
+    typeof order.selected_shipping_quote_id === "string"
+      ? order.selected_shipping_quote_id.trim()
+      : "";
+  let quoteId =
+    record?.pricing?.selectedQuoteId?.trim() ||
+    orderSelectedQuoteId ||
+    null;
 
   // Full Demo / sandbox / Playwright: materialize demo quotes if checkout never attached any.
   const shouldSeedDemoQuotes =
@@ -126,27 +149,27 @@ export async function generateShippingLabelForOrder(
       record = await getShippingRecord(orderId);
       quoteId =
         record?.pricing?.selectedQuoteId ??
-        record?.pricing?.quotes[0]?.id ??
         demoPricing.selectedQuoteId ??
         demoResponse.quotes[0]!.id;
     }
   }
 
   if (!quoteId) {
-    return rovexoValidationFailure("No shipping quote available for this order.");
+    return rovexoValidationFailure("No shipping quote selected for this order.");
   }
 
-  // P7.35: hydrate-selected quote must retain quote_payload.shippingOptionCode.
-  // When selected_quote_id is a row UUID, hydrated quote.id is externalQuoteId —
-  // exact find fails; prefer confirmed V3 quote over quotes[0].
+  // P8.5: resolve selected identity (row UUID ↔ externalQuoteId) — never quotes[0].
   const selectedQuote = resolveSelectedShippingQuoteForLabel(
     record?.pricing?.quotes,
     quoteId,
   );
-  // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
-  if (selectedQuote?.id) {
-    quoteId = selectedQuote.id;
+  if (!selectedQuote?.id) {
+    return rovexoValidationFailure(
+      "Selected shipping quote could not be resolved for this order.",
+    );
   }
+  // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
+  quoteId = selectedQuote.id;
 
   // Sendcloud production: fail closed when V3 shipping_option_code was never confirmed.
   // Never invent codes from sendcloud:N / method.id. Demo path skips this gate.
@@ -240,6 +263,19 @@ export async function generateShippingLabelForOrder(
     );
   }
 
+  // Enrich contact fields for carrier announce (does not change postcode/line1/city).
+  // InPost GB announcement requires recipient UK mobile; email helps carrier notify.
+  const collectionAddressForLabel: ShippingAddress = {
+    ...collectionAddress,
+    phone: collectionAddress.phone?.trim() || sellerContact.phone || undefined,
+    email: collectionAddress.email?.trim() || sellerContact.email || undefined,
+  };
+  const deliveryAddressForLabel: ShippingAddress = {
+    ...deliveryAddress,
+    phone: deliveryAddress.phone?.trim() || buyerContact.phone || undefined,
+    email: deliveryAddress.email?.trim() || buyerContact.email || undefined,
+  };
+
   // P7.21: production Sendcloud announce requires real shipment_parcels measurements.
   // Never silently substitute parcel-tier maximum envelopes (e.g. medium → 5kg / 61×46×46).
   // Missing measurements → fail closed on this parcel (do not create another).
@@ -268,8 +304,8 @@ export async function generateShippingLabelForOrder(
     orderId,
     orderNumber: order.order_number,
     parcelTier: record?.parcelTier ?? "small_parcel",
-    collectionAddress,
-    deliveryAddress,
+    collectionAddress: collectionAddressForLabel,
+    deliveryAddress: deliveryAddressForLabel,
     parcelId: parcel.id,
     parcelNumber: parcel.parcelNumber,
     ...(parcelMeasurements
@@ -293,7 +329,19 @@ export async function generateShippingLabelForOrder(
   const trackingNumber =
     updatedParcel?.trackingNumber ?? labelRecord?.trackingNumber ?? null;
 
-  if (!trackingNumber) {
+  let existingProviderAfterSave: number | null = null;
+  if (parcel?.id) {
+    const { getProviderParcelIdForShipmentParcel } = await import(
+      "@/lib/shipping/parcels-repository"
+    );
+    existingProviderAfterSave = await getProviderParcelIdForShipmentParcel(parcel.id);
+  }
+
+  // P8.6: successful announce persists provider parcel id even when tracking is async.
+  const announcePersisted =
+    existingProviderAfterSave != null && existingProviderAfterSave > 0;
+
+  if (!trackingNumber && !announcePersisted) {
     const failure =
       providerFailure ??
       shippingLabelProviderFailure({
@@ -322,7 +370,10 @@ export async function generateShippingLabelForOrder(
       // Demo / stored bucket paths are acceptable after persistence for non-fabricated labels.
       labelUrl.length > 0);
 
-  if (!hasUsableLabelUrl) {
+  // Tracking present but label URL missing:
+  // - with announcePersisted → SUCCESS pending (label/PDF may arrive via webhook)
+  // - without announcePersisted → fail closed (no provider identity to recover)
+  if (trackingNumber && !hasUsableLabelUrl && !announcePersisted) {
     const failure =
       providerFailure ??
       shippingLabelProviderFailure({

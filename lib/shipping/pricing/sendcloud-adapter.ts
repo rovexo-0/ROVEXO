@@ -165,13 +165,13 @@ export class SendcloudAdapter implements ShippingProvider {
         existingProviderParcelId: request.existingProviderParcelId,
       });
 
-      // Success requires tracking + usable label URL — parcel id alone is not a generated label.
-      if (!label.trackingNumber?.trim() || !isUsableSendcloudLabelUrl(label.pdfUrl)) {
+      // P8.6: announce success = provider parcel id. Tracking/label may arrive async.
+      if (!(label.parcelId > 0)) {
         return unavailableLabel(
           "quote_expired",
           shippingLabelProviderFailure({
             kind: "provider_empty_result",
-            message: "Sendcloud returned no usable tracking number or label URL.",
+            message: "Sendcloud returned no provider parcel id after announce.",
             statusCode: null,
             providerId: this.id,
             providerRequestAttempted: true,
@@ -180,12 +180,15 @@ export class SendcloudAdapter implements ShippingProvider {
         );
       }
 
+      const tracking = label.trackingNumber?.trim() || null;
+      const pdf = isUsableSendcloudLabelUrl(label.pdfUrl) ? label.pdfUrl : null;
+
       return {
         available: true,
-        trackingNumber: label.trackingNumber,
-        barcode: label.trackingNumber,
-        qrPayload: label.trackingNumber,
-        pdfUrl: label.pdfUrl,
+        trackingNumber: tracking,
+        barcode: tracking,
+        qrPayload: tracking,
+        pdfUrl: pdf,
         carrier: label.carrier,
         sendcloudParcelId: label.parcelId,
         serviceCode: label.serviceName,

@@ -10,6 +10,8 @@ import {
   isUsableSendcloudLabelUrl,
   mapSendcloudMethodToQuote,
   normalizeCountryCode,
+  normalizeInPostGbPhoneForSendcloudAnnounce,
+  normalizeSendcloudPostalCode,
   parseSendcloudQuoteId,
   parcelSpecFromTier,
   toSendcloudAddress,
@@ -232,22 +234,24 @@ export const SendcloudService = {
     void input.parcelTier;
 
     // Idempotency: reuse existing provider parcel when already persisted.
+    // P8.6: parcel id alone is enough — never announce a second shipment because
+    // tracking/label are still async after a successful prior announce.
     if (input.existingProviderParcelId != null && input.existingProviderParcelId > 0) {
       try {
         const existing = await getSendcloudParcel(input.existingProviderParcelId);
         const labelSize = resolveSellerDefaultLabelSize(input.labelSize);
         const trackingNumber = existing.tracking_number?.trim() || null;
         const pdfUrl = extractSendcloudLabelUrl(existing, labelSize);
-        if (trackingNumber && isUsableSendcloudLabelUrl(pdfUrl)) {
-          return {
-            parcelId: existing.id,
-            trackingNumber,
-            pdfUrl,
-            carrier: existing.carrier?.code ? mapSendcloudCarrier(existing.carrier.code) : null,
-            serviceName: existing.shipment?.name ?? shippingOptionCode,
-            reusedExisting: true,
-          };
-        }
+        return {
+          parcelId: existing.id,
+          trackingNumber,
+          pdfUrl: isUsableSendcloudLabelUrl(pdfUrl) ? pdfUrl : null,
+          carrier: existing.carrier?.code ? mapSendcloudCarrier(existing.carrier.code) : null,
+          serviceName: existing.shipment?.name ?? shippingOptionCode,
+          shipmentId:
+            existing.shipment?.id != null ? String(existing.shipment.id) : null,
+          reusedExisting: true,
+        };
       } catch {
         // Fall through to announce when refresh fails.
       }
@@ -256,31 +260,75 @@ export const SendcloudService = {
     const from = toSendcloudAddress(input.collectionAddress);
     const to = toSendcloudAddress(input.deliveryAddress);
 
+    // Sendcloud InPost UK: recipient UK mobile is mandatory for announcement.
+    // Catalog requirements.fields may be empty; carrier announcement fails (1002) without phone.
+    if (
+      shippingOptionCode.toLowerCase().startsWith("inpost_gb:") &&
+      !to.telephone.trim()
+    ) {
+      throw new SendcloudError(
+        "invalid_address",
+        "InPost GB requires a recipient UK mobile number for label announcement.",
+        {
+          details: {
+            reason: "INPOST_RECIPIENT_PHONE_REQUIRED",
+            shippingOptionCode,
+            contractId: input.contractId ?? null,
+          },
+        },
+      );
+    }
+
     const contractRaw = input.contractId?.trim();
     const contractId =
       contractRaw && /^\d+$/.test(contractRaw)
         ? Number.parseInt(contractRaw, 10)
         : contractRaw || undefined;
 
+    // Broker options (e.g. contract 40353) must transmit contract_id when known.
+    if (
+      shippingOptionCode.toLowerCase().startsWith("inpost_gb:") &&
+      contractId == null
+    ) {
+      throw new SendcloudError(
+        "label_failed",
+        "InPost GB V3 announce requires the catalog contract_id for this shipping option.",
+        {
+          details: {
+            reason: "INPOST_CONTRACT_ID_REQUIRED",
+            shippingOptionCode,
+          },
+        },
+      );
+    }
+
+    const isInPostGb = shippingOptionCode.toLowerCase().startsWith("inpost_gb:");
+    const fromPhone = isInPostGb
+      ? normalizeInPostGbPhoneForSendcloudAnnounce(from.telephone)
+      : from.telephone;
+    const toPhone = isInPostGb
+      ? normalizeInPostGbPhoneForSendcloudAnnounce(to.telephone)
+      : to.telephone;
+
     const announced = await announceSendcloudShipmentV3({
       from_address: {
         name: from.name,
         address_line_1: from.address,
         house_number: from.house_number,
-        postal_code: from.postal_code,
+        postal_code: normalizeSendcloudPostalCode(from.postal_code),
         city: from.city,
         country_code: from.country,
-        phone_number: from.telephone || undefined,
+        phone_number: fromPhone || undefined,
         email: from.email || undefined,
       },
       to_address: {
         name: to.name,
         address_line_1: to.address,
         house_number: to.house_number,
-        postal_code: to.postal_code,
+        postal_code: normalizeSendcloudPostalCode(to.postal_code),
         city: to.city,
         country_code: to.country,
-        phone_number: to.telephone || undefined,
+        phone_number: toPhone || undefined,
         email: to.email || undefined,
       },
       ship_with: {
@@ -311,26 +359,57 @@ export const SendcloudService = {
       label_details: { mime_type: "application/pdf", dpi: 72 },
     });
 
-    const trackingNumber = announced.trackingNumber?.trim() || null;
-    const pdfUrl = announced.pdfUrl;
-
-    if (!trackingNumber) {
-      throw new SendcloudError("label_failed", "Sendcloud shipment announced without a tracking number", {
-        details: { shipmentId: announced.shipmentId, parcelId: announced.parcelId },
-      });
+    // P8.6: announce success = provider parcel identity. Tracking/label may be async.
+    const parcelId =
+      announced.parcelId != null && announced.parcelId > 0 ? announced.parcelId : null;
+    if (!parcelId) {
+      throw new SendcloudError(
+        "label_failed",
+        "Sendcloud shipment announced without a provider parcel id",
+        {
+          details: {
+            shipmentId: announced.shipmentId,
+            parcelId: announced.parcelId,
+            reason: "ANNOUNCE_MISSING_PARCEL_ID",
+          },
+        },
+      );
     }
-    if (!isUsableSendcloudLabelUrl(pdfUrl)) {
-      throw new SendcloudError("label_failed", "Sendcloud shipment announced without a usable label URL", {
-        details: { shipmentId: announced.shipmentId, parcelId: announced.parcelId },
-      });
+
+    let trackingNumber = announced.trackingNumber?.trim() || null;
+    let pdfUrl = announced.pdfUrl;
+    let carrierCode = announced.carrierCode;
+    let serviceName = announced.serviceName;
+
+    // Single existing GET /parcels/{id} hydrate — not a polling engine.
+    // Fills tracking / label URL when announce body omits them.
+    if (!trackingNumber || !isUsableSendcloudLabelUrl(pdfUrl)) {
+      try {
+        const refreshed = await getSendcloudParcel(parcelId);
+        trackingNumber = trackingNumber || refreshed.tracking_number?.trim() || null;
+        if (!isUsableSendcloudLabelUrl(pdfUrl)) {
+          pdfUrl = extractSendcloudLabelUrl(
+            refreshed,
+            resolveSellerDefaultLabelSize(input.labelSize),
+          );
+        }
+        if (!carrierCode && refreshed.carrier?.code) {
+          carrierCode = refreshed.carrier.code;
+        }
+        if (!serviceName && refreshed.shipment?.name) {
+          serviceName = refreshed.shipment.name;
+        }
+      } catch {
+        // Keep announce values; tracking/label may arrive via existing webhook path.
+      }
     }
 
     return {
-      parcelId: announced.parcelId ?? 0,
+      parcelId,
       trackingNumber,
-      pdfUrl,
-      carrier: announced.carrierCode ? mapSendcloudCarrier(announced.carrierCode) : null,
-      serviceName: announced.serviceName ?? shippingOptionCode,
+      pdfUrl: isUsableSendcloudLabelUrl(pdfUrl) ? pdfUrl : null,
+      carrier: carrierCode ? mapSendcloudCarrier(carrierCode) : null,
+      serviceName: serviceName ?? shippingOptionCode,
       shipmentId: announced.shipmentId,
       reusedExisting: announced.reusedExisting,
     };

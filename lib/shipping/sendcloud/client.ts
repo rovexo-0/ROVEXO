@@ -33,7 +33,7 @@ import {
   type SendcloudV3AnnounceShipmentRequest,
   type SendcloudV3AnnounceShipmentResult,
 } from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
-import { parseSendcloudV3AnnounceShipmentResult } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
+import { parseSendcloudV3AnnounceShipmentResult, extractSendcloudV3AnnounceFailure } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import { getShippingRecord } from "@/lib/shipping/store";
 import type { ParcelTier } from "@/lib/shipping/types";
 import { buildSendcloudHttpFailureFromBody } from "@/lib/shipping/pricing/label-provider-failure-v1";
@@ -626,9 +626,23 @@ export async function announceSendcloudShipmentV3(
         method: "POST",
         body: JSON.stringify(payload),
       });
+      const announcementFailure = extractSendcloudV3AnnounceFailure(body);
+      if (announcementFailure) {
+        throw new SendcloudError("label_failed", announcementFailure.message, {
+          statusCode: 200,
+          details: announcementFailure.details,
+        });
+      }
       return parseSendcloudV3AnnounceShipmentResult(body, { reusedExisting: false });
     } catch (error) {
       if (isSendcloudError(error) && error.statusCode === 409) {
+        const announcementFailure = extractSendcloudV3AnnounceFailure(error.details);
+        if (announcementFailure) {
+          throw new SendcloudError("label_failed", announcementFailure.message, {
+            statusCode: 409,
+            details: announcementFailure.details,
+          });
+        }
         return parseSendcloudV3AnnounceShipmentResult(error.details, { reusedExisting: true });
       }
       throw error;

@@ -208,8 +208,17 @@ export function shippingQuoteFromPayloadRow(input: {
     payload?.quoteApiVersion ??
     resolveShippingQuoteApiVersion({ shippingOptionCode, v2MethodId });
 
+  // Preserve DB row UUID when hydrate remaps id → externalQuoteId (P8.5).
+  const quoteRowId =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      input.id,
+    ) && input.id !== externalId
+      ? input.id
+      : undefined;
+
   return {
     id: externalId,
+    ...(quoteRowId ? { quoteRowId } : {}),
     providerId: input.providerId,
     carrier: input.carrier,
     serviceName: input.serviceName,
@@ -228,9 +237,119 @@ export function shippingQuoteFromPayloadRow(input: {
   };
 }
 
+function extractAnnouncePdfUrl(...documentLists: unknown[]): string | null {
+  for (const list of documentLists) {
+    if (!Array.isArray(list)) continue;
+    let fallback: string | null = null;
+    for (const doc of list) {
+      const d = asRecord(doc);
+      const link = str(d?.link) ?? str(d?.url);
+      if (!link) continue;
+      const type = str(d?.type)?.toLowerCase();
+      if (type === "label") return link;
+      if (!fallback) fallback = link;
+    }
+    if (fallback) return fallback;
+  }
+  return null;
+}
+
+function extractAnnounceTrackingNumber(parcel: Record<string, unknown> | null): string | null {
+  if (!parcel) return null;
+  const direct =
+    str(parcel.tracking_number) ??
+    str(parcel.trackingNumber) ??
+    str(parcel.tracking_code) ??
+    str(parcel.trackingCode);
+  if (direct) return direct;
+  const nested = asRecord(parcel.tracking);
+  return str(nested?.number) ?? str(nested?.code) ?? str(nested?.tracking_number) ?? null;
+}
+
+function extractAnnounceParcelId(parcel: Record<string, unknown> | null): number | null {
+  if (!parcel) return null;
+  const parcelIdRaw = parcel.id ?? parcel.parcel_id ?? parcel.parcelId;
+  if (typeof parcelIdRaw === "number" && Number.isFinite(parcelIdRaw) && parcelIdRaw > 0) {
+    return parcelIdRaw;
+  }
+  if (typeof parcelIdRaw === "string" && /^\d+$/.test(parcelIdRaw.trim())) {
+    const parsed = Number.parseInt(parcelIdRaw.trim(), 10);
+    return parsed > 0 ? parsed : null;
+  }
+  return null;
+}
+
+/**
+ * Official V3 sync announce may return HTTP 2xx with carrier announcement failure.
+ * Detect errors[] / Announcement Failed / status id 1002 — never treat as label success.
+ */
+export function extractSendcloudV3AnnounceFailure(body: unknown): {
+  message: string;
+  details: Record<string, unknown>;
+} | null {
+  const root = asRecord(body);
+  const data = asRecord(root?.data) ?? root;
+  const parcels = Array.isArray(data?.parcels) ? (data!.parcels as unknown[]) : [];
+  const first = asRecord(parcels[0]);
+
+  const errorList = Array.isArray(data?.errors)
+    ? (data!.errors as unknown[])
+    : Array.isArray(root?.errors)
+      ? (root!.errors as unknown[])
+      : [];
+
+  const errorDetails: string[] = [];
+  for (const item of errorList) {
+    const rec = asRecord(item);
+    if (!rec) continue;
+    const detail =
+      str(rec.detail) ?? str(rec.message) ?? str(rec.title) ?? str(rec.code);
+    if (detail) errorDetails.push(detail);
+  }
+
+  const statusRec =
+    asRecord(first?.status) ?? asRecord(data?.status) ?? asRecord(root?.status);
+  const statusIdRaw = statusRec?.id ?? statusRec?.code;
+  const statusId =
+    typeof statusIdRaw === "number"
+      ? statusIdRaw
+      : typeof statusIdRaw === "string" && /^\d+$/.test(statusIdRaw.trim())
+        ? Number.parseInt(statusIdRaw.trim(), 10)
+        : null;
+  const statusMessage =
+    str(statusRec?.message) ?? str(statusRec?.code) ?? str(statusRec?.name);
+  const statusFailed =
+    statusId === 1002 ||
+    (statusMessage != null &&
+      /announcement\s*failed/i.test(statusMessage)) ||
+    (typeof statusIdRaw === "string" &&
+      /announcement_failed/i.test(statusIdRaw));
+
+  if (!statusFailed && errorDetails.length === 0) return null;
+
+  const message =
+    errorDetails[0] ??
+    statusMessage ??
+    "Sendcloud carrier announcement failed";
+
+  return {
+    message,
+    details: {
+      reason: "ANNOUNCEMENT_FAILED",
+      statusId,
+      statusMessage,
+      errors: errorDetails,
+      shipmentId: str(data?.id) ?? str(data?.shipment_id) ?? null,
+      parcelId: extractAnnounceParcelId(first),
+    },
+  };
+}
+
 /**
  * Extract tracking + label from V3 announce response (201 or 409 body).
  * Never fabricates URLs or tracking numbers.
+ * Tracking / label documents may be absent at announce time (async assignment).
+ * Caller must reject extractSendcloudV3AnnounceFailure(...) before treating as success.
  */
 export function parseSendcloudV3AnnounceShipmentResult(
   body: unknown,
@@ -248,28 +367,20 @@ export function parseSendcloudV3AnnounceShipmentResult(
   const data = asRecord(root?.data) ?? root;
   const parcels = Array.isArray(data?.parcels) ? (data!.parcels as unknown[]) : [];
   const first = asRecord(parcels[0]);
-  const documents = Array.isArray(first?.documents) ? (first!.documents as unknown[]) : [];
-  let pdfUrl: string | null = null;
-  for (const doc of documents) {
-    const d = asRecord(doc);
-    const link = str(d?.link);
-    const type = str(d?.type)?.toLowerCase();
-    if (link && (type === "label" || !type)) {
-      pdfUrl = link;
-      if (type === "label") break;
-    }
-  }
+  const labelObj = asRecord(first?.label);
+  const normalPrinter = Array.isArray(labelObj?.normal_printer)
+    ? str(labelObj.normal_printer[0])
+    : null;
+  const labelPrinter = str(labelObj?.label_printer);
+  const pdfUrl =
+    extractAnnouncePdfUrl(first?.documents, data?.documents, root?.documents) ??
+    normalPrinter ??
+    labelPrinter ??
+    null;
 
-  const trackingNumber = str(first?.tracking_number);
-  const parcelIdRaw = first?.id;
-  const parcelId =
-    typeof parcelIdRaw === "number" && Number.isFinite(parcelIdRaw)
-      ? parcelIdRaw
-      : typeof parcelIdRaw === "string" && /^\d+$/.test(parcelIdRaw)
-        ? Number.parseInt(parcelIdRaw, 10)
-        : null;
-
-  const shipmentId = str(data?.id);
+  const trackingNumber = extractAnnounceTrackingNumber(first);
+  const parcelId = extractAnnounceParcelId(first);
+  const shipmentId = str(data?.id) ?? str(data?.shipment_id) ?? str(data?.shipmentId);
   const shipWith = asRecord(data?.ship_with);
   const props = asRecord(shipWith?.properties);
   const carrier = asRecord(first?.carrier) ?? asRecord(data?.carrier);

@@ -119,26 +119,39 @@ export function parseSelectedShippingQuotePayload(
 }
 
 /**
- * Resolve the quote used for label generation.
- * Prefer exact selectedQuoteId match (external id e.g. sendcloud:27227).
- * When selected_quote_id is a shipping_quotes row UUID, hydrated quote.id is the
- * external id — exact match fails; prefer a quote that already has a confirmed V3
- * shippingOptionCode instead of blindly taking quotes[0] (P7.35).
+ * Resolve the quote used for label generation (P8.5).
+ * Deterministic identity only — never quotes[0], never first-V3 guess.
+ *
+ * Match order:
+ * 1. hydrated quote.id === selectedQuoteId (external e.g. sendcloud:27227)
+ * 2. quote.quoteRowId === selectedQuoteId (shipping_quotes row UUID)
+ * 3. sendcloud:N ↔ v2MethodId on a hydrated quote
+ *
+ * Missing / unresolvable selection → null (fail closed; do not call Sendcloud).
  */
 export function resolveSelectedShippingQuoteForLabel(
   quotes: ShippingQuote[] | null | undefined,
   selectedQuoteId: string | null | undefined,
 ): ShippingQuote | null {
   if (!quotes?.length) return null;
-  if (selectedQuoteId) {
-    const exact = quotes.find((q) => q.id === selectedQuoteId);
-    if (exact) return exact;
+  const selected = typeof selectedQuoteId === "string" ? selectedQuoteId.trim() : "";
+  if (!selected) return null;
+
+  const exact = quotes.find((q) => q.id === selected);
+  if (exact) return exact;
+
+  const byRow = quotes.find((q) => q.quoteRowId === selected);
+  if (byRow) return byRow;
+
+  if (isSendcloudQuoteId(selected)) {
+    const methodId = parseSendcloudQuoteId(selected);
+    if (methodId != null) {
+      const byMethod = quotes.find((q) => q.v2MethodId === methodId);
+      if (byMethod) return byMethod;
+    }
   }
-  const withV3 = quotes.find((q) =>
-    isConfirmedSendcloudV3ShippingOptionCode(q.shippingOptionCode, q.v2MethodId),
-  );
-  if (withV3) return withV3;
-  return quotes[0] ?? null;
+
+  return null;
 }
 
 /**
