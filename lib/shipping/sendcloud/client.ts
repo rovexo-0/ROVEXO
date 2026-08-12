@@ -24,6 +24,11 @@ import {
   type SendcloudV3Tracked48LargeLetterMatch,
 } from "@/lib/shipping/sendcloud/v3-compat-option-29631-diagnostic-v1";
 import {
+  SENDCLOUD_V3_OPTION_DIAGNOSTIC_8343A7C7_V1,
+  buildV3Option8343a7c7ForensicReport,
+  type SendcloudV3Option8343ForensicReport,
+} from "@/lib/shipping/sendcloud/v3-option-8343a7c7-diagnostic-v1";
+import {
   SENDCLOUD_V3_SHIPMENTS_ANNOUNCE_PATH,
   type SendcloudV3AnnounceShipmentRequest,
   type SendcloudV3AnnounceShipmentResult,
@@ -209,6 +214,142 @@ export async function discoverSendcloudV3OptionForRvxc75ca5bbDiagnostic(): Promi
     methodId: lock.methodId,
     selectedQuoteId: record.pricing?.selectedQuoteId ?? null,
     selectedServiceName: selectedQuote?.serviceName ?? null,
+  };
+}
+
+export type DiscoverRvx8343a7c7V3OptionResult = {
+  requestUrlPath: string;
+  requestBody: Record<string, unknown>;
+  orderId: string;
+  orderNumber: string;
+  methodId: number;
+  lockedShippingOptionCode: string;
+  selectedQuoteId: string | null;
+  selectedServiceName: string | null;
+  forensic: SendcloudV3Option8343ForensicReport;
+  /** Route/parcel context actually sent (postal/country only — no full addresses). */
+  routeContext: {
+    from_country_code: string;
+    to_country_code: string;
+    from_postal_code: string;
+    to_postal_code: string;
+    parcel_weight: string;
+    parcel_weight_unit: "kg";
+    parcel_length: string;
+    parcel_width: string;
+    parcel_height: string;
+    parcel_dimension_unit: "cm";
+  };
+};
+
+/**
+ * Read-only V3 shipping-options discovery for locked RVX8343A7C7 / method 27227.
+ * Uses shared catalog fetch (cached) — no shipment/parcel/label/announce.
+ * Does not return raw Sendcloud payloads to callers (forensic only).
+ * Does not invent parcel/address values — loads from persisted shipping record only.
+ */
+export async function discoverSendcloudV3OptionForRvx8343a7c7Diagnostic(): Promise<DiscoverRvx8343a7c7V3OptionResult> {
+  const lock = SENDCLOUD_V3_OPTION_DIAGNOSTIC_8343A7C7_V1;
+  const record = await getShippingRecord(lock.orderId);
+  if (!record) {
+    throw new SendcloudError(
+      "api_error",
+      "Shipping record not found for locked diagnostic order RVX8343A7C7.",
+      { statusCode: 404 },
+    );
+  }
+
+  const collection = record.collectionAddress;
+  const delivery = record.deliveryAddress;
+  if (
+    !collection?.postcode?.trim() ||
+    !delivery?.postcode?.trim() ||
+    !collection.country?.trim() ||
+    !delivery.country?.trim()
+  ) {
+    throw new SendcloudError(
+      "invalid_address",
+      "Persisted collection/delivery address is incomplete for V3 shipping-options discovery.",
+      { statusCode: 422 },
+    );
+  }
+
+  const parcel = record.parcels?.[0] ?? null;
+  const tier = (record.parcelTier ?? "small_parcel") as ParcelTier;
+  const spec = parcelSpecFromTier(tier, parcel?.weightKg ?? undefined);
+  const lengthCm = parcel?.dimensions?.lengthCm ?? spec.lengthCm;
+  const widthCm = parcel?.dimensions?.widthCm ?? spec.widthCm;
+  const heightCm = parcel?.dimensions?.heightCm ?? spec.heightCm;
+  const weightKg = parcel?.weightKg ?? spec.weightKg;
+  const selectedQuote =
+    record.pricing?.quotes?.find((q) => q.id === record.pricing?.selectedQuoteId) ??
+    record.pricing?.quotes?.find((q) => q.id === lock.quoteId) ??
+    null;
+
+  const fromCountryCode = normalizeCountryCode(collection.country);
+  const toCountryCode = normalizeCountryCode(delivery.country);
+  const fromPostalCode = collection.postcode.replace(/\s+/g, "").toUpperCase();
+  const toPostalCode = delivery.postcode.replace(/\s+/g, "").toUpperCase();
+
+  const requestBody = {
+    from_country_code: fromCountryCode,
+    to_country_code: toCountryCode,
+    from_postal_code: fromPostalCode,
+    to_postal_code: toPostalCode,
+    calculate_quotes: true,
+    parcels: [
+      {
+        weight: { value: String(weightKg), unit: "kg" },
+        dimensions: {
+          length: String(lengthCm),
+          width: String(widthCm),
+          height: String(heightCm),
+          unit: "cm",
+        },
+      },
+    ],
+  };
+
+  const { fetchSendcloudV3ShippingOptionsCatalog } = await import(
+    "@/lib/shipping/sendcloud/v3-catalog-v1"
+  );
+  const raw = await fetchSendcloudV3ShippingOptionsCatalog({
+    fromCountryCode,
+    toCountryCode,
+    fromPostalCode: collection.postcode,
+    toPostalCode: delivery.postcode,
+    parcelTier: tier,
+    weightKg,
+    lengthCm,
+    widthCm,
+    heightCm,
+    calculateQuotes: true,
+  });
+
+  const forensic = buildV3Option8343a7c7ForensicReport(raw);
+
+  return {
+    forensic,
+    requestUrlPath: lock.path,
+    requestBody,
+    orderId: lock.orderId,
+    orderNumber: lock.orderNumber,
+    methodId: lock.methodId,
+    lockedShippingOptionCode: lock.lockedShippingOptionCode,
+    selectedQuoteId: record.pricing?.selectedQuoteId ?? null,
+    selectedServiceName: selectedQuote?.serviceName ?? null,
+    routeContext: {
+      from_country_code: fromCountryCode,
+      to_country_code: toCountryCode,
+      from_postal_code: fromPostalCode,
+      to_postal_code: toPostalCode,
+      parcel_weight: String(weightKg),
+      parcel_weight_unit: "kg",
+      parcel_length: String(lengthCm),
+      parcel_width: String(widthCm),
+      parcel_height: String(heightCm),
+      parcel_dimension_unit: "cm",
+    },
   };
 }
 
