@@ -88,13 +88,7 @@ export type ShippingQuote = {
   providerId: string;
   carrier: UkCarrier | string;
   serviceName: string;
-  /** Buyer-payable shipping (provider cost + ROVEXO shipping markup), integer pence. */
   pricePence: number;
-  /**
-   * Unmodified Sendcloud / provider label cost in integer pence when known.
-   * Optional — demo / legacy quotes may omit. Never includes ROVEXO markup.
-   */
-  providerPricePence?: number;
   currency: "GBP";
   estimatedDays: { min: number; max: number };
   estimatedDeliveryAt?: string | null;

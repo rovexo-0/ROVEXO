@@ -1,7 +1,6 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
 import { DEFAULT_SELLER_LABEL_SIZE } from "@/lib/shipping/label-size";
-import { applyRovexoShippingMarkup } from "@/lib/shipping/labels/fee";
 import { PARCEL_TIER_OPTIONS } from "@/lib/shipping/parcels";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 import type { SendcloudParcelCreatePayload } from "@/lib/shipping/sendcloud/client";
@@ -150,9 +149,8 @@ function leadTimeDays(method: SendcloudShippingMethod): { min: number; max: numb
 
 /**
  * Map Sendcloud shipping method → ROVEXO quote.
- * Provider cost = Sendcloud country `price` → pence (unchanged derivation).
- * Buyer price = provider + ROVEXO_SHIPPING_MARKUP_PENCE (applied once here).
- * Official method schema does not expose a separate VAT amount on /shipping_methods.
+ * Sendcloud country `price` is used as returned (pence). Official method schema does not
+ * expose a separate VAT amount on /shipping_methods — do not fabricate VAT lines.
  * UK-first: ShippingQuote.currency is typed GBP (canonical production currency).
  *
  * V3 label identity is OPTIONAL and MUST come from confirmed discovery metadata only.
@@ -167,9 +165,6 @@ export function mapSendcloudMethodToQuote(
 
   const carrier = mapSendcloudMethodCarrier(method.carrier);
   if (!carrier) return null;
-
-  const providerPricePence = Math.round(price * 100);
-  const { buyerPricePence } = applyRovexoShippingMarkup(providerPricePence);
 
   const estimatedDays = leadTimeDays(method);
   const v2MethodId = method.id;
@@ -189,8 +184,7 @@ export function mapSendcloudMethodToQuote(
     providerId: "sendcloud",
     carrier,
     serviceName: method.name,
-    pricePence: buyerPricePence,
-    providerPricePence,
+    pricePence: Math.round(price * 100),
     currency: "GBP",
     estimatedDays,
     v2MethodId,
