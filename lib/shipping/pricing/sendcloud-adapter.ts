@@ -2,6 +2,10 @@ import "server-only";
 
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import {
+  PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
+  resolveCompleteParcelMeasurements,
+} from "@/lib/shipping/parcels";
+import {
   isUsableSendcloudLabelUrl,
   parseSendcloudQuoteId,
 } from "@/lib/shipping/pricing/sendcloud-mappers";
@@ -118,10 +122,37 @@ export class SendcloudAdapter implements ShippingProvider {
       );
     }
 
+    // P7.21: refuse silent tier-max synthesis — real measurements required before announce.
+    const parcelMeasurements = resolveCompleteParcelMeasurements({
+      weightKg: request.weightKg,
+      dimensions: {
+        lengthCm: request.lengthCm,
+        widthCm: request.widthCm,
+        heightCm: request.heightCm,
+      },
+    });
+    if (!parcelMeasurements) {
+      return unavailableLabel(
+        "quote_expired",
+        shippingLabelProviderFailure({
+          kind: "rovexo_validation",
+          message: PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
+          statusCode: null,
+          providerId: "rovexo",
+          providerRequestAttempted: false,
+          code: "parcel_measurements_required",
+        }),
+      );
+    }
+
     try {
       const label = await SendcloudService.generateLabel({
         quoteId: request.quoteId,
         parcelTier: request.parcelTier,
+        weightKg: parcelMeasurements.weightKg,
+        lengthCm: parcelMeasurements.lengthCm,
+        widthCm: parcelMeasurements.widthCm,
+        heightCm: parcelMeasurements.heightCm,
         deliveryAddress: request.deliveryAddress,
         collectionAddress: request.collectionAddress,
         orderNumber: request.orderNumber,

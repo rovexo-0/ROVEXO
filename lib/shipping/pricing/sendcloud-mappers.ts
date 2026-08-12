@@ -41,6 +41,11 @@ export function encodeSendcloudQuoteId(methodId: number): string {
   return `${SENDCLOUD_QUOTE_PREFIX}${methodId}`;
 }
 
+/**
+ * Derive a package spec from a ROVEXO parcel tier for **quote/pricing** only.
+ * Label announce (P7.21) must pass real shipment_parcels measurements — never call
+ * this with `weightKg` omitted to fabricate a Sendcloud announce package.
+ */
 export function parcelSpecFromTier(tier: ParcelTier, weightKg?: number) {
   const option = PARCEL_TIER_OPTIONS.find((item) => item.id === tier);
   if (!option) {

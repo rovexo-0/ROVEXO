@@ -33,6 +33,15 @@ export type ShippingLabelRequest = {
   declaredValueGbp?: number;
   parcelId?: string;
   parcelNumber?: number;
+  /**
+   * Real parcel measurements from shipment_parcels (P7.21).
+   * Required for Sendcloud announce — never synthesize from parcel tier maxima.
+   * Optional only for Full Demo / forceDemoShipping paths.
+   */
+  weightKg?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
   /** Seller label format — Sendcloud label_printer (4×6) or normal_printer (A4). */
   labelSize?: SellerDefaultLabelSize;
   /** Idempotency key so the same parcel cannot create duplicate shipments. */

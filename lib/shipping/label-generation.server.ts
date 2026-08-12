@@ -4,14 +4,24 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateOrderShippingLabel } from "@/lib/shipping/server";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
 import { getShippingRecord, saveShippingQuotes } from "@/lib/shipping/store";
-import { getShipmentParcelById, createShipmentParcel } from "@/lib/shipping/parcels-repository";
+import {
+  getShipmentParcelById,
+  createShipmentParcel,
+  listShipmentParcelsForOrder,
+} from "@/lib/shipping/parcels-repository";
+import {
+  PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
+  resolveCompleteParcelMeasurements,
+} from "@/lib/shipping/parcels";
+import { resolveShipmentParcelForLabel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
+import { resolveSelectedShippingQuoteForLabel } from "@/lib/shipping/selected-shipping-quote-contract-v1";
 import {
   mustUseDemoShipping,
   mustUseDemoShippingForActors,
 } from "@/lib/full-demo/security";
 import type { ShippingLabelProviderFailure } from "@/lib/shipping/pricing/provider";
 import { shippingLabelProviderFailure } from "@/lib/shipping/pricing/label-provider-failure-v1";
-import type { ShippingAddress } from "@/lib/shipping/types";
+import type { ShippingAddress, ShipmentParcel } from "@/lib/shipping/types";
 
 export type GenerateShippingLabelForOrderFailure = {
   ok: false;
@@ -126,10 +136,17 @@ export async function generateShippingLabelForOrder(
     return rovexoValidationFailure("No shipping quote available for this order.");
   }
 
-  const selectedQuote =
-    record?.pricing?.quotes?.find((q) => q.id === quoteId) ??
-    record?.pricing?.quotes?.[0] ??
-    null;
+  // P7.35: hydrate-selected quote must retain quote_payload.shippingOptionCode.
+  // When selected_quote_id is a row UUID, hydrated quote.id is externalQuoteId —
+  // exact find fails; prefer confirmed V3 quote over quotes[0].
+  const selectedQuote = resolveSelectedShippingQuoteForLabel(
+    record?.pricing?.quotes,
+    quoteId,
+  );
+  // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
+  if (selectedQuote?.id) {
+    quoteId = selectedQuote.id;
+  }
 
   // Sendcloud production: fail closed when V3 shipping_option_code was never confirmed.
   // Never invent codes from sendcloud:N / method.id. Demo path skips this gate.
@@ -144,7 +161,41 @@ export async function generateShippingLabelForOrder(
     );
   }
 
-  let parcel = parcelId ? await getShipmentParcelById(parcelId) : null;
+  if (!record?.id) {
+    return rovexoValidationFailure("Shipping record not found.");
+  }
+
+  // P7.25: reuse Auto Single Parcel (parcels[0]) when parcelId omitted — never spawn extras.
+  // Explicit parcelId: ownership-checked; never create a substitute on miss/mismatch.
+  const explicitParcelId = parcelId?.trim() || null;
+  const loadedExplicitParcel = explicitParcelId
+    ? await getShipmentParcelById(explicitParcelId)
+    : null;
+  const orderParcels = explicitParcelId
+    ? ([] as ShipmentParcel[])
+    : await listShipmentParcelsForOrder(orderId);
+
+  const parcelResolution = resolveShipmentParcelForLabel({
+    shippingRecordId: record.id,
+    explicitParcelId,
+    loadedExplicitParcel,
+    orderParcels,
+  });
+
+  if (parcelResolution.status === "reject") {
+    return rovexoValidationFailure(parcelResolution.error);
+  }
+
+  let parcel: ShipmentParcel | null =
+    parcelResolution.status === "use" ? parcelResolution.parcel : null;
+
+  if (parcelResolution.status === "create") {
+    parcel = await createShipmentParcel({ orderId, productItemIds: [] });
+  }
+
+  if (!parcel) {
+    return rovexoValidationFailure("Unable to prepare shipment parcel.");
+  }
 
   if (parcel?.label?.status === "ready" && parcel.trackingNumber && parcel.label.pdfUrl) {
     return {
@@ -189,11 +240,17 @@ export async function generateShippingLabelForOrder(
     );
   }
 
-  if (!parcel) {
-    parcel = await createShipmentParcel({ orderId, productItemIds: [] });
-  }
-  if (!parcel) {
-    return rovexoValidationFailure("Unable to prepare shipment parcel.");
+  // P7.21: production Sendcloud announce requires real shipment_parcels measurements.
+  // Never silently substitute parcel-tier maximum envelopes (e.g. medium → 5kg / 61×46×46).
+  // Missing measurements → fail closed on this parcel (do not create another).
+  // Full Demo may omit measurements (demo adapter never calls Sendcloud).
+  const allowDemoWithoutMeasurements = forceDemoShipping || mustUseDemoShipping();
+  const parcelMeasurements = resolveCompleteParcelMeasurements({
+    weightKg: parcel.weightKg,
+    dimensions: parcel.dimensions,
+  });
+  if (!allowDemoWithoutMeasurements && !parcelMeasurements) {
+    return rovexoValidationFailure(PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL);
   }
 
   const sellerSettings = await getSellerShippingSettings(sellerId);
@@ -215,6 +272,14 @@ export async function generateShippingLabelForOrder(
     deliveryAddress,
     parcelId: parcel.id,
     parcelNumber: parcel.parcelNumber,
+    ...(parcelMeasurements
+      ? {
+          weightKg: parcelMeasurements.weightKg,
+          lengthCm: parcelMeasurements.lengthCm,
+          widthCm: parcelMeasurements.widthCm,
+          heightCm: parcelMeasurements.heightCm,
+        }
+      : {}),
     labelSize: sellerSettings.defaultLabelSize,
     idempotencyKey: `rovexo-order-${orderId}-parcel-${parcel.parcelNumber}`,
     forceDemoShipping,

@@ -2,6 +2,10 @@ import "server-only";
 
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import {
+  PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
+  resolveCompleteParcelMeasurements,
+} from "@/lib/shipping/parcels";
+import {
   extractSendcloudLabelUrl,
   isUsableSendcloudLabelUrl,
   mapSendcloudMethodToQuote,
@@ -164,7 +168,11 @@ export const SendcloudService = {
   async generateLabel(input: {
     quoteId: string;
     parcelTier: ParcelTier;
+    /** Real package weight (kg) — required for announce (P7.21). */
     weightKg?: number;
+    lengthCm?: number;
+    widthCm?: number;
+    heightCm?: number;
     deliveryAddress: ShippingAddress;
     collectionAddress: ShippingAddress;
     orderNumber: string;
@@ -206,6 +214,23 @@ export const SendcloudService = {
       );
     }
 
+    // P7.21: announce package must be real measurements — never parcelSpecFromTier fallback.
+    const parcelSpec = resolveCompleteParcelMeasurements({
+      weightKg: input.weightKg,
+      dimensions: {
+        lengthCm: input.lengthCm,
+        widthCm: input.widthCm,
+        heightCm: input.heightCm,
+      },
+    });
+    if (!parcelSpec) {
+      throw new SendcloudError("label_failed", PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL, {
+        details: { reason: "PARCEL_MEASUREMENTS_REQUIRED" },
+      });
+    }
+    // Tier remains on the request for callers; announce package is measurements-only.
+    void input.parcelTier;
+
     // Idempotency: reuse existing provider parcel when already persisted.
     if (input.existingProviderParcelId != null && input.existingProviderParcelId > 0) {
       try {
@@ -228,7 +253,6 @@ export const SendcloudService = {
       }
     }
 
-    const spec = parcelSpecFromTier(input.parcelTier, input.weightKg);
     const from = toSendcloudAddress(input.collectionAddress);
     const to = toSendcloudAddress(input.deliveryAddress);
 
@@ -269,12 +293,12 @@ export const SendcloudService = {
       parcels: [
         {
           dimensions: {
-            length: String(spec.lengthCm),
-            width: String(spec.widthCm),
-            height: String(spec.heightCm),
+            length: String(parcelSpec.lengthCm),
+            width: String(parcelSpec.widthCm),
+            height: String(parcelSpec.heightCm),
             unit: "cm",
           },
-          weight: { value: spec.weightKg.toFixed(3), unit: "kg" },
+          weight: { value: parcelSpec.weightKg.toFixed(3), unit: "kg" },
         },
       ],
       order_number: input.orderNumber,

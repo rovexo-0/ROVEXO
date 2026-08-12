@@ -213,6 +213,8 @@ export function parcelTierLabel(tier: ParcelTier | string): string {
 
 /**
  * Internal shippable dimensions for Sendcloud — never shown as user inputs.
+ * Used for quote/pricing classification only. Label announce must NOT silently
+ * substitute these when shipment_parcels measurements are missing (P7.21).
  */
 export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
   const normalized = normalizeTier(tier);
@@ -224,6 +226,52 @@ export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
     lengthCm: maxDimensionsCm.length,
     widthCm: maxDimensionsCm.width,
     heightCm: maxDimensionsCm.height,
+  };
+}
+
+/** Canonical fail-closed copy when label generation lacks real parcel measurements (P7.21). */
+export const PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL =
+  "Shipping label generation requires parcel weight and dimensions.";
+
+/**
+ * Resolve complete real parcel measurements from shipment_parcels (canonical).
+ * Returns null when any required field is missing/invalid — never fabricates tier maxima.
+ */
+export function resolveCompleteParcelMeasurements(input: {
+  weightKg?: number | null;
+  dimensions?: {
+    lengthCm?: number | null;
+    widthCm?: number | null;
+    heightCm?: number | null;
+  } | null;
+}): ParcelDimensions | null {
+  const weightKg = input.weightKg;
+  const lengthCm = input.dimensions?.lengthCm;
+  const widthCm = input.dimensions?.widthCm;
+  const heightCm = input.dimensions?.heightCm;
+
+  if (
+    weightKg == null ||
+    !Number.isFinite(weightKg) ||
+    weightKg <= 0 ||
+    lengthCm == null ||
+    !Number.isFinite(lengthCm) ||
+    lengthCm <= 0 ||
+    widthCm == null ||
+    !Number.isFinite(widthCm) ||
+    widthCm <= 0 ||
+    heightCm == null ||
+    !Number.isFinite(heightCm) ||
+    heightCm <= 0
+  ) {
+    return null;
+  }
+
+  return {
+    weightKg: Number(weightKg),
+    lengthCm: Number(lengthCm),
+    widthCm: Number(widthCm),
+    heightCm: Number(heightCm),
   };
 }
 

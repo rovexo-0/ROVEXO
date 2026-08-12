@@ -33,6 +33,57 @@ function str(v: unknown): string | null {
 }
 
 /**
+ * Coerce shipping_quotes.quote_payload (object or JSON string) for hydrate.
+ * Never invents fields — only unwraps storage shapes + snake_case aliases.
+ * V3 identity validation remains in shippingQuoteFromPayloadRow.
+ */
+export function coerceShippingQuotePayload(
+  raw: unknown,
+): ShippingQuotePayload | null {
+  if (raw == null) return null;
+  let value: unknown = raw;
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+  const row = asRecord(value);
+  if (!row) return null;
+
+  const externalQuoteId =
+    str(row.externalQuoteId) ?? str(row.external_quote_id) ?? "";
+
+  const v2Raw = row.v2MethodId ?? row.v2_method_id;
+  const v2MethodId =
+    typeof v2Raw === "number" && Number.isFinite(v2Raw) && v2Raw > 0
+      ? v2Raw
+      : undefined;
+
+  const shippingOptionCode =
+    str(row.shippingOptionCode) ?? str(row.shipping_option_code) ?? undefined;
+  // str() converts numeric JSON contract ids (e.g. 40353) → "40353"
+  const contractId = str(row.contractId) ?? str(row.contract_id) ?? undefined;
+
+  const quoteApiVersionRaw = row.quoteApiVersion ?? row.quote_api_version;
+  const quoteApiVersion =
+    quoteApiVersionRaw === "v2" ||
+    quoteApiVersionRaw === "v3" ||
+    quoteApiVersionRaw === "v2+v3"
+      ? quoteApiVersionRaw
+      : undefined;
+
+  return {
+    externalQuoteId,
+    ...(v2MethodId != null ? { v2MethodId } : {}),
+    ...(shippingOptionCode ? { shippingOptionCode } : {}),
+    ...(contractId ? { contractId } : {}),
+    ...(quoteApiVersion ? { quoteApiVersion } : {}),
+  };
+}
+
+/**
  * Reject values that are clearly V2 method identities — never treat as V3 codes.
  * Does NOT invent substitutes; only validates confirmed Sendcloud strings.
  */
@@ -133,10 +184,11 @@ export function shippingQuoteFromPayloadRow(input: {
   estimatedDaysMax: number;
   recommended: string | null;
   expiresAt: string | null;
-  quotePayload?: ShippingQuotePayload | { externalQuoteId?: string } | null;
+  quotePayload?: ShippingQuotePayload | { externalQuoteId?: string } | null | unknown;
 }): ShippingQuote {
-  const payload = (input.quotePayload ?? null) as ShippingQuotePayload | null;
-  const externalId = payload?.externalQuoteId ?? input.id;
+  const payload = coerceShippingQuotePayload(input.quotePayload ?? null);
+  const externalId =
+    (payload?.externalQuoteId && payload.externalQuoteId.trim()) || input.id;
   const v2MethodId =
     typeof payload?.v2MethodId === "number" && payload.v2MethodId > 0
       ? payload.v2MethodId
@@ -147,6 +199,7 @@ export function shippingQuoteFromPayloadRow(input: {
   )
     ? payload!.shippingOptionCode!.trim()
     : undefined;
+  // Accept string or numeric JSON contract ids (P7.35 — number was previously dropped).
   const contractId =
     typeof payload?.contractId === "string" && payload.contractId.trim()
       ? payload.contractId.trim()

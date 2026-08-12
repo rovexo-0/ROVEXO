@@ -106,9 +106,15 @@ describe("SendcloudAdapter createLabel integrity", () => {
       orderId: "o1",
       orderNumber: "RVX-1",
       parcelTier: "small_parcel",
+      weightKg: 0.5,
+      lengthCm: 20,
+      widthCm: 15,
+      heightCm: 5,
       collectionAddress: collection,
       deliveryAddress: delivery,
       idempotencyKey: "key-1",
+      shippingOptionCode: "royal_mail:tracked_48",
+      v2MethodId: 8,
     });
 
     expect(result.available).toBe(true);
@@ -132,8 +138,14 @@ describe("SendcloudAdapter createLabel integrity", () => {
       orderId: "o1",
       orderNumber: "RVX-1",
       parcelTier: "small_parcel",
+      weightKg: 0.5,
+      lengthCm: 20,
+      widthCm: 15,
+      heightCm: 5,
       collectionAddress: collection,
       deliveryAddress: delivery,
+      shippingOptionCode: "royal_mail:tracked_48",
+      v2MethodId: 8,
     });
 
     expect(result.available).toBe(false);
@@ -150,8 +162,14 @@ describe("SendcloudAdapter createLabel integrity", () => {
       orderId: "o1",
       orderNumber: "RVX-1",
       parcelTier: "small_parcel",
+      weightKg: 0.5,
+      lengthCm: 20,
+      widthCm: 15,
+      heightCm: 5,
       collectionAddress: collection,
       deliveryAddress: delivery,
+      shippingOptionCode: "royal_mail:tracked_48",
+      v2MethodId: 8,
     });
 
     expect(result.available).toBe(false);
@@ -173,8 +191,14 @@ describe("SendcloudAdapter createLabel integrity", () => {
       orderId: "o1",
       orderNumber: "RVX-1",
       parcelTier: "small_parcel",
+      weightKg: 0.5,
+      lengthCm: 20,
+      widthCm: 15,
+      heightCm: 5,
       collectionAddress: collection,
       deliveryAddress: delivery,
+      shippingOptionCode: "royal_mail:tracked_48",
+      v2MethodId: 8,
     });
 
     expect(result.available).toBe(false);
