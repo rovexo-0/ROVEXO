@@ -163,24 +163,42 @@ function normalizeAppOrigin(raw: string): string {
   return `https://${trimmed}`;
 }
 
+/** Loopback origins are valid for local development only — never for production CSRF/app identity. */
+export function isLoopbackAppOrigin(raw: string): boolean {
+  try {
+    const host = new URL(normalizeAppOrigin(raw)).hostname.toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Canonical app origin for auth callbacks, Stripe return URLs, sitemaps, and metadata.
  * Set `NEXT_PUBLIC_APP_URL` in production (e.g. https://www.rovexo.co.uk).
  * Not used by middleware redirects — missing values do not cause HTTP redirect loops.
+ *
+ * Production fail-closed: ignore loopback / placeholder env values so CSRF and
+ * callbacks never resolve `http://localhost:3000` on a production runtime.
  */
 export function getAppUrl(): string {
   const configured = readFirstEnv("NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL");
   if (configured) {
-    return normalizeAppOrigin(configured);
+    const normalized = normalizeAppOrigin(configured);
+    if (process.env.NODE_ENV === "production" && isLoopbackAppOrigin(normalized)) {
+      // Fall through — local .env.local must not override production origin identity.
+    } else {
+      return normalized;
+    }
   }
 
   const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-  if (productionUrl) {
+  if (productionUrl && !isUnusableSecret(productionUrl) && !isLoopbackAppOrigin(productionUrl)) {
     return normalizeAppOrigin(productionUrl);
   }
 
   const vercelUrl = process.env.VERCEL_URL?.trim();
-  if (vercelUrl) {
+  if (vercelUrl && !isUnusableSecret(vercelUrl) && !isLoopbackAppOrigin(vercelUrl)) {
     return normalizeAppOrigin(vercelUrl);
   }
 

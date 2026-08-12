@@ -77,4 +77,59 @@ describe("csrf origin guard", () => {
     expect(blocked?.status).toBe(403);
     vi.unstubAllEnvs();
   });
+
+  it("allows production Origin against canonical www.rovexo.co.uk", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
+
+    const request = new Request("https://www.rovexo.co.uk/api/shipping/labels", {
+      method: "POST",
+      headers: { origin: "https://www.rovexo.co.uk" },
+    });
+
+    expect(validateMutationOrigin(request)).toBeNull();
+    vi.unstubAllEnvs();
+  });
+
+  it("does not trust loopback APP_URL for production CSRF allowlist", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+
+    // Misconfigured loopback env must not authorize a foreign Origin.
+    const cross = new Request("https://www.rovexo.co.uk/api/shipping/labels", {
+      method: "POST",
+      headers: {
+        host: "www.rovexo.co.uk",
+        origin: "http://localhost:3000",
+      },
+    });
+    expect(validateMutationOrigin(cross)?.status).toBe(403);
+
+    // Real production Origin still passes via request host + canonical DEFAULT.
+    const ok = new Request("https://www.rovexo.co.uk/api/shipping/labels", {
+      method: "POST",
+      headers: {
+        host: "www.rovexo.co.uk",
+        origin: "https://www.rovexo.co.uk",
+      },
+    });
+    expect(validateMutationOrigin(ok)).toBeNull();
+    vi.unstubAllEnvs();
+  });
+
+  it("preserves localhost development Origin allow", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+
+    expect(
+      validateMutationOrigin(
+        new Request("http://127.0.0.1:3000/api/shipping/labels", {
+          method: "POST",
+          headers: { origin: "http://127.0.0.1:3000" },
+        }),
+      ),
+    ).toBeNull();
+    vi.unstubAllEnvs();
+  });
 });

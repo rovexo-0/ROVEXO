@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAppUrl } from "@/lib/supabase/env";
+import { DEFAULT_APP_URL, getAppUrl, isLoopbackAppOrigin } from "@/lib/supabase/env";
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -7,21 +7,44 @@ function normalizeHost(raw: string): string {
   return raw.trim().toLowerCase();
 }
 
+function isUnusableHostConfig(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (!trimmed) return true;
+  if (trimmed === "[SENSITIVE]" || trimmed.startsWith("[SEN")) return true;
+  if (trimmed.includes("[") || trimmed.includes("]")) return true;
+  return false;
+}
+
+function tryAddConfiguredOriginHost(hosts: Set<string>, raw: string, allowLoopback: boolean): void {
+  if (isUnusableHostConfig(raw)) return;
+  try {
+    const url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+    if (!allowLoopback && isLoopbackAppOrigin(url.origin)) return;
+    hosts.add(normalizeHost(url.host));
+  } catch {
+    // ignore invalid URL
+  }
+}
+
 /** Configured public hosts (env) — not the only allow source. */
 function configuredHosts(): Set<string> {
   const hosts = new Set<string>();
+  const allowLoopbackFromEnv = process.env.NODE_ENV !== "production";
+
   for (const key of ["NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL"]) {
     const raw = process.env[key]?.trim();
     if (!raw) continue;
-    try {
-      hosts.add(normalizeHost(new URL(raw.startsWith("http") ? raw : `https://${raw}`).host));
-    } catch {
-      // ignore invalid URL
-    }
+    tryAddConfiguredOriginHost(hosts, raw, allowLoopbackFromEnv);
   }
 
   const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) hosts.add(normalizeHost(vercel));
+  if (vercel) tryAddConfiguredOriginHost(hosts, vercel, allowLoopbackFromEnv);
+
+  // Production identity always includes the canonical ROVEXO origin (never loopback).
+  if (process.env.NODE_ENV === "production") {
+    tryAddConfiguredOriginHost(hosts, getAppUrl(), false);
+    tryAddConfiguredOriginHost(hosts, DEFAULT_APP_URL, false);
+  }
 
   if (process.env.NODE_ENV !== "production") {
     hosts.add("localhost:3000");

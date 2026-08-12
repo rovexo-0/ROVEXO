@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { validateUploadFile, StorageValidationError } from "@/lib/storage/upload";
 import { isSellerRole, isBusinessRole } from "@/lib/auth/session";
 
@@ -111,6 +111,19 @@ describe("getAppUrl", () => {
     expect(source).toContain('DEFAULT_APP_URL = "https://www.rovexo.co.uk"');
     expect(source).toContain('readFirstEnv("NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL")');
     expect(source).toContain("VERCEL_PROJECT_PRODUCTION_URL");
+    expect(source).toContain("isLoopbackAppOrigin");
+  });
+
+  it("ignores loopback APP_URL under production NODE_ENV", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+    vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");
+    vi.stubEnv("VERCEL_URL", "");
+
+    const { getAppUrl } = await import("@/lib/supabase/env");
+    expect(getAppUrl()).toBe("https://www.rovexo.co.uk");
+    vi.unstubAllEnvs();
   });
 });
 
