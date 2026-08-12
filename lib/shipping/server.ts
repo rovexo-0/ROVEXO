@@ -4,9 +4,11 @@ import { generateShippingLabel } from "@/lib/shipping/labels/service.server";
 import { fetchShippingQuotesRouted } from "@/lib/shipping/providers/router";
 import { persistShippingLabelPdf } from "@/lib/shipping/label-storage.server";
 import { isDemoShippingTrackingNumber } from "@/lib/shipping/pricing/demo-adapter";
+import type { ShippingLabelProviderFailure } from "@/lib/shipping/pricing/provider";
 import { saveShippingLabel, saveShippingQuotes } from "@/lib/shipping/store";
 import { debitShippingReserveForLabel } from "@/lib/commerce-engine/shipping-reserve";
 import type { ShippingLabelRequest, ShippingQuoteRequest } from "@/lib/shipping/pricing/provider";
+import type { ShippingRecord } from "@/lib/shipping/types";
 
 export async function fetchOrderShippingQuotes(orderId: string, request: ShippingQuoteRequest) {
   const pricing = await fetchShippingQuotesRouted(request);
@@ -14,8 +16,17 @@ export async function fetchOrderShippingQuotes(orderId: string, request: Shippin
   return pricing;
 }
 
-export async function generateOrderShippingLabel(orderId: string, request: ShippingLabelRequest) {
-  const { label, internalPlatformFeePence, providerId, sendcloud } = await generateShippingLabel(request);
+export type GenerateOrderShippingLabelResult = {
+  record: ShippingRecord | null;
+  providerFailure: ShippingLabelProviderFailure | null;
+};
+
+export async function generateOrderShippingLabel(
+  orderId: string,
+  request: ShippingLabelRequest,
+): Promise<GenerateOrderShippingLabelResult> {
+  const { label, internalPlatformFeePence, providerId, sendcloud, providerFailure } =
+    await generateShippingLabel(request);
   const record = await saveShippingLabel({
     orderId,
     parcelId: request.parcelId,
@@ -65,5 +76,8 @@ export async function generateOrderShippingLabel(orderId: string, request: Shipp
     }
   }
 
-  return record;
+  return {
+    record,
+    providerFailure: providerFailure ?? null,
+  };
 }

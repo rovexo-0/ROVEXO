@@ -184,6 +184,6 @@ describe("SendcloudAdapter createLabel integrity", () => {
     const { readFileSync } = await import("node:fs");
     const src = readFileSync("lib/shipping/label-generation.server.ts", "utf8");
     expect(src).toContain("order.seller_id !== sellerId");
-    expect(src).toContain('error: "Order not found or access denied."');
+    expect(src).toContain('rovexoValidationFailure("Order not found or access denied.")');
   });
 });

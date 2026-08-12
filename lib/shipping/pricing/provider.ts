@@ -1,6 +1,12 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
+import type { ShippingLabelProviderFailure } from "@/lib/shipping/pricing/label-provider-failure-v1";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
+
+export type {
+  ShippingLabelFailureKind,
+  ShippingLabelProviderFailure,
+} from "@/lib/shipping/pricing/label-provider-failure-v1";
 
 export type ShippingQuoteRequest = {
   parcelTier: ParcelTier;
@@ -49,6 +55,8 @@ export type ShippingLabelResponse = {
   pdfUrl: string | null;
   carrier: UkCarrier | string | null;
   reason?: "provider_not_configured" | "quote_expired";
+  /** Structured provider failure — preserves statusCode/message/attempt (P7.1). */
+  providerFailure?: ShippingLabelProviderFailure;
   /** Sendcloud provider metadata — used for DB persistence and webhook mapping. */
   sendcloudParcelId?: number | null;
   serviceCode?: string | null;

@@ -16,6 +16,10 @@ import type {
   ShippingProvider,
   ShippingQuoteRequest,
 } from "@/lib/shipping/pricing/provider";
+import {
+  providerFailureFromUnknownError,
+  shippingLabelProviderFailure,
+} from "@/lib/shipping/pricing/label-provider-failure-v1";
 import type { ShippingPricing, ShippingQuote } from "@/lib/shipping/types";
 
 const PROVIDER_ID: ShippingProviderId = "sendcloud";
@@ -113,6 +117,23 @@ export async function fetchShippingQuotesRouted(
   }
 }
 
+function unavailableRoutedLabel(
+  reason: NonNullable<ShippingLabelResponse["reason"]>,
+  providerFailure: NonNullable<ShippingLabelResponse["providerFailure"]>,
+): RoutedLabelResult {
+  return {
+    available: false,
+    trackingNumber: null,
+    barcode: null,
+    qrPayload: null,
+    pdfUrl: null,
+    carrier: null,
+    reason,
+    providerFailure,
+    providerId: PROVIDER_ID,
+  };
+}
+
 /**
  * Canonical label creation — Sendcloud in production, demo adapter in certification.
  */
@@ -128,47 +149,37 @@ export async function createShippingLabelRouted(
       return { ...response, providerId: PROVIDER_ID };
     } catch (error) {
       console.error("[shipping/router] Demo label creation failed:", error);
-      return {
-        available: false,
-        trackingNumber: null,
-        barcode: null,
-        qrPayload: null,
-        pdfUrl: null,
-        carrier: null,
-        reason: "quote_expired",
-        providerId: PROVIDER_ID,
-      };
+      return unavailableRoutedLabel(
+        "quote_expired",
+        providerFailureFromUnknownError(error, true, PROVIDER_ID),
+      );
     }
   }
 
   if (!isSendcloudConfigured()) {
-    return {
-      available: false,
-      trackingNumber: null,
-      barcode: null,
-      qrPayload: null,
-      pdfUrl: null,
-      carrier: null,
-      reason: "provider_not_configured",
-      providerId: PROVIDER_ID,
-    };
+    return unavailableRoutedLabel(
+      "provider_not_configured",
+      shippingLabelProviderFailure({
+        kind: "provider_not_configured",
+        message: "Sendcloud is not configured.",
+        statusCode: null,
+        providerId: PROVIDER_ID,
+        providerRequestAttempted: false,
+        code: "not_configured",
+      }),
+    );
   }
 
   try {
     const response = await withTimeout(provider.createLabel(request), PROVIDER_TIMEOUT_MS);
+    // Preserve structured providerFailure from adapter — never drop status/message.
     return { ...response, providerId: PROVIDER_ID };
   } catch (error) {
     console.error("[shipping/router] Label creation failed:", error);
-    return {
-      available: false,
-      trackingNumber: null,
-      barcode: null,
-      qrPayload: null,
-      pdfUrl: null,
-      carrier: null,
-      reason: "quote_expired",
-      providerId: PROVIDER_ID,
-    };
+    return unavailableRoutedLabel(
+      "quote_expired",
+      providerFailureFromUnknownError(error, true, PROVIDER_ID),
+    );
   }
 }
 

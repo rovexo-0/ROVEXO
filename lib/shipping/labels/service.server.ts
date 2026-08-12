@@ -2,7 +2,10 @@ import "server-only";
 
 import { applyInternalLabelFee } from "@/lib/shipping/labels/fee";
 import { createShippingLabelRouted } from "@/lib/shipping/providers/router";
-import type { ShippingLabelRequest } from "@/lib/shipping/pricing/provider";
+import type {
+  ShippingLabelProviderFailure,
+  ShippingLabelRequest,
+} from "@/lib/shipping/pricing/provider";
 import type { ShippingLabelArtifact } from "@/lib/shipping/types";
 import type { ShippingProviderId } from "@/lib/shipping/providers/types";
 
@@ -11,6 +14,8 @@ export type LabelGenerationResult = {
   /** Server-side only — never sent to clients */
   internalPlatformFeePence: number;
   providerId: ShippingProviderId;
+  /** Structured provider failure when available=false (P7.1). */
+  providerFailure?: ShippingLabelProviderFailure;
   sendcloud?: {
     parcelId: number;
     serviceCode: string | null;
@@ -34,6 +39,7 @@ export async function generateShippingLabel(
       },
       internalPlatformFeePence: 0,
       providerId: response.providerId,
+      ...(response.providerFailure ? { providerFailure: response.providerFailure } : {}),
     };
   }
 

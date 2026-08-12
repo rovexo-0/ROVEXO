@@ -2,6 +2,7 @@
  * P7 — Controlled label generation for RVX8343A7C7 only.
  * Preflight fail-closed, then ONE call to canonical generateShippingLabelForOrder.
  * Never: compat rediscovery · persist endpoint · other orders · payment mutation.
+ * P7.1: truthful sendcloudCalled / sendcloudHttpStatus — never invent status codes.
  */
 
 import "server-only";
@@ -11,10 +12,14 @@ import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { getShippingRecord } from "@/lib/shipping/store";
 import { listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
-import { isSendcloudError } from "@/lib/shipping/sendcloud/errors";
 import { RVX8343A7C7_CONTROLLED_LABEL_V1 } from "@/lib/orders/rvx8343a7c7-controlled-label-v1";
 import { isShippingSetupReady } from "@/lib/shipping/shipping-setup-status-v1";
+import type { ShippingLabelFailureKind } from "@/lib/shipping/pricing/provider";
 import type { ShippingQuotePayload } from "@/lib/shipping/types";
+import {
+  providerFailureFromUnknownError,
+  sanitizeProviderFailureMessage,
+} from "@/lib/shipping/pricing/label-provider-failure-v1";
 
 const LOCK = RVX8343A7C7_CONTROLLED_LABEL_V1;
 
@@ -34,6 +39,7 @@ export type ControlledLabelRvx8343a7c7Result = {
   shippingQuoteRowId: string | null;
   sendcloudCalled: boolean;
   sendcloudHttpStatus: number | null;
+  failureKind: ShippingLabelFailureKind | null;
   shipmentCreated: boolean;
   parcelCreatedExternally: boolean;
   labelCreated: boolean;
@@ -171,6 +177,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       shippingQuoteRowId: quoteRowId,
       sendcloudCalled: false,
       sendcloudHttpStatus: null,
+      failureKind: null,
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,
@@ -196,6 +203,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       shippingQuoteRowId: quoteRowId,
       sendcloudCalled: false,
       sendcloudHttpStatus: null,
+      failureKind: "rovexo_validation",
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,
@@ -218,16 +226,25 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
     );
 
     if (!result.ok) {
+      const failure = result.providerFailure;
+      const sendcloudCalled = Boolean(failure.providerRequestAttempted);
+      const sendcloudHttpStatus =
+        typeof failure.statusCode === "number" ? failure.statusCode : null;
+      const isHttpReject =
+        failure.kind === "provider_http" ||
+        (sendcloudHttpStatus != null && sendcloudHttpStatus >= 400);
+
       return {
         ...base,
         ok: false,
-        status: "label_failed",
+        status: isHttpReject ? "sendcloud_rejected" : "label_failed",
         shippingSetupStatus: String(order!.shipping_setup_status),
         shippingOptionCode: LOCK.confirmedShippingOptionCode,
         shippingRecordId: record!.id,
         shippingQuoteRowId: quoteRowId,
-        sendcloudCalled: true,
-        sendcloudHttpStatus: null,
+        sendcloudCalled,
+        sendcloudHttpStatus,
+        failureKind: failure.kind,
         shipmentCreated: false,
         parcelCreatedExternally: false,
         labelCreated: false,
@@ -237,7 +254,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
         trackingNumber: null,
         idempotent: false,
         duplicateShipmentPrevented: false,
-        error: result.error,
+        error: sanitizeProviderFailureMessage(result.error || failure.message),
       };
     }
 
@@ -250,8 +267,10 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       shippingOptionCode: LOCK.confirmedShippingOptionCode,
       shippingRecordId: record!.id,
       shippingQuoteRowId: quoteRowId,
+      // Do not invent provider HTTP status on success — announce status is not captured here.
       sendcloudCalled: !idempotent,
-      sendcloudHttpStatus: idempotent ? null : 201,
+      sendcloudHttpStatus: null,
+      failureKind: null,
       shipmentCreated: !idempotent,
       parcelCreatedExternally: !idempotent,
       labelCreated: !idempotent,
@@ -263,23 +282,24 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       duplicateShipmentPrevented: idempotent,
     };
   } catch (error) {
-    const httpStatus = isSendcloudError(error) ? (error.statusCode ?? null) : null;
-    const message = isSendcloudError(error)
-      ? error.message
-      : error instanceof Error
-        ? error.message
-        : "Label generation failed.";
+    const failure = providerFailureFromUnknownError(error, true, "sendcloud");
+    const sendcloudHttpStatus =
+      typeof failure.statusCode === "number" ? failure.statusCode : null;
+    const isHttpReject =
+      failure.kind === "provider_http" ||
+      (sendcloudHttpStatus != null && sendcloudHttpStatus >= 400);
 
     return {
       ...base,
       ok: false,
-      status: isSendcloudError(error) ? "sendcloud_rejected" : "label_failed",
+      status: isHttpReject ? "sendcloud_rejected" : "label_failed",
       shippingSetupStatus: String(order!.shipping_setup_status),
       shippingOptionCode: LOCK.confirmedShippingOptionCode,
       shippingRecordId: record!.id,
       shippingQuoteRowId: quoteRowId,
-      sendcloudCalled: true,
-      sendcloudHttpStatus: httpStatus,
+      sendcloudCalled: failure.providerRequestAttempted,
+      sendcloudHttpStatus,
+      failureKind: failure.kind,
       shipmentCreated: false,
       parcelCreatedExternally: false,
       labelCreated: false,
@@ -289,7 +309,7 @@ export async function generateControlledLabelForRvx8343a7c7(): Promise<Controlle
       trackingNumber: null,
       idempotent: false,
       duplicateShipmentPrevented: false,
-      error: message,
+      error: failure.message,
     };
   }
 }

@@ -5,6 +5,10 @@ import {
   isUsableSendcloudLabelUrl,
   parseSendcloudQuoteId,
 } from "@/lib/shipping/pricing/sendcloud-mappers";
+import {
+  providerFailureFromUnknownError,
+  shippingLabelProviderFailure,
+} from "@/lib/shipping/pricing/label-provider-failure-v1";
 import { SendcloudService } from "@/lib/shipping/sendcloud/service";
 import { isSendcloudError } from "@/lib/shipping/sendcloud/errors";
 import type {
@@ -15,7 +19,10 @@ import type {
   ShippingQuoteResponse,
 } from "@/lib/shipping/pricing/provider";
 
-function emptyLabelResponse(reason: ShippingLabelResponse["reason"]): ShippingLabelResponse {
+function unavailableLabel(
+  reason: NonNullable<ShippingLabelResponse["reason"]>,
+  providerFailure: NonNullable<ShippingLabelResponse["providerFailure"]>,
+): ShippingLabelResponse {
   return {
     available: false,
     trackingNumber: null,
@@ -24,6 +31,7 @@ function emptyLabelResponse(reason: ShippingLabelResponse["reason"]): ShippingLa
     pdfUrl: null,
     carrier: null,
     reason,
+    providerFailure,
   };
 }
 
@@ -69,15 +77,45 @@ export class SendcloudAdapter implements ShippingProvider {
 
   async createLabel(request: ShippingLabelRequest): Promise<ShippingLabelResponse> {
     if (!this.isConfigured()) {
-      return emptyLabelResponse("provider_not_configured");
+      return unavailableLabel(
+        "provider_not_configured",
+        shippingLabelProviderFailure({
+          kind: "provider_not_configured",
+          message: "Sendcloud is not configured.",
+          statusCode: null,
+          providerId: this.id,
+          providerRequestAttempted: false,
+          code: "not_configured",
+        }),
+      );
     }
 
     if (!parseSendcloudQuoteId(request.quoteId)) {
-      return emptyLabelResponse("quote_expired");
+      return unavailableLabel(
+        "quote_expired",
+        shippingLabelProviderFailure({
+          kind: "provider_validation",
+          message: "Invalid or expired Sendcloud quote id.",
+          statusCode: null,
+          providerId: this.id,
+          providerRequestAttempted: false,
+          code: "label_failed",
+        }),
+      );
     }
 
     if (!request.collectionAddress?.line1?.trim() || !request.collectionAddress?.postcode?.trim()) {
-      return emptyLabelResponse("quote_expired");
+      return unavailableLabel(
+        "quote_expired",
+        shippingLabelProviderFailure({
+          kind: "provider_validation",
+          message: "Seller dispatch address is required for Sendcloud shipment creation.",
+          statusCode: null,
+          providerId: this.id,
+          providerRequestAttempted: false,
+          code: "invalid_address",
+        }),
+      );
     }
 
     try {
@@ -98,7 +136,17 @@ export class SendcloudAdapter implements ShippingProvider {
 
       // Success requires tracking + usable label URL — parcel id alone is not a generated label.
       if (!label.trackingNumber?.trim() || !isUsableSendcloudLabelUrl(label.pdfUrl)) {
-        return emptyLabelResponse("quote_expired");
+        return unavailableLabel(
+          "quote_expired",
+          shippingLabelProviderFailure({
+            kind: "provider_empty_result",
+            message: "Sendcloud returned no usable tracking number or label URL.",
+            statusCode: null,
+            providerId: this.id,
+            providerRequestAttempted: true,
+            code: "label_failed",
+          }),
+        );
       }
 
       return {
@@ -113,14 +161,11 @@ export class SendcloudAdapter implements ShippingProvider {
       };
     } catch (error) {
       console.error("[shipping/sendcloud] Label creation failed:", error);
-      if (
-        isSendcloudError(error) &&
-        typeof error.message === "string" &&
-        error.message.includes("shipping_option_code")
-      ) {
-        return emptyLabelResponse("quote_expired");
-      }
-      return emptyLabelResponse("quote_expired");
+      // Preserve SendcloudError statusCode/message — never collapse to a silent empty label.
+      return unavailableLabel(
+        "quote_expired",
+        providerFailureFromUnknownError(error, true, this.id),
+      );
     }
   }
 }

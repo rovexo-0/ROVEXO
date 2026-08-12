@@ -9,7 +9,29 @@ import {
   mustUseDemoShipping,
   mustUseDemoShippingForActors,
 } from "@/lib/full-demo/security";
+import type { ShippingLabelProviderFailure } from "@/lib/shipping/pricing/provider";
+import { shippingLabelProviderFailure } from "@/lib/shipping/pricing/label-provider-failure-v1";
 import type { ShippingAddress } from "@/lib/shipping/types";
+
+export type GenerateShippingLabelForOrderFailure = {
+  ok: false;
+  error: string;
+  providerFailure: ShippingLabelProviderFailure;
+};
+
+function rovexoValidationFailure(error: string): GenerateShippingLabelForOrderFailure {
+  return {
+    ok: false,
+    error,
+    providerFailure: shippingLabelProviderFailure({
+      kind: "rovexo_validation",
+      message: error,
+      statusCode: null,
+      providerId: "rovexo",
+      providerRequestAttempted: false,
+    }),
+  };
+}
 
 /**
  * Canonical label generation — provider-agnostic entry point.
@@ -28,17 +50,15 @@ export async function generateShippingLabelForOrder(
     .maybeSingle();
 
   if (!order || order.seller_id !== sellerId) {
-    return { ok: false as const, error: "Order not found or access denied." };
+    return rovexoValidationFailure("Order not found or access denied.");
   }
 
   if (order.status === "cancelled" || order.status === "awaiting_payment") {
-    return {
-      ok: false as const,
-      error:
-        order.status === "awaiting_payment"
-          ? "Shipping starts after payment success."
-          : "Cancelled orders cannot generate labels.",
-    };
+    return rovexoValidationFailure(
+      order.status === "awaiting_payment"
+        ? "Shipping starts after payment success."
+        : "Cancelled orders cannot generate labels.",
+    );
   }
 
   const partyIds = [order.seller_id, order.buyer_id].filter(Boolean) as string[];
@@ -103,7 +123,7 @@ export async function generateShippingLabelForOrder(
   }
 
   if (!quoteId) {
-    return { ok: false as const, error: "No shipping quote available for this order." };
+    return rovexoValidationFailure("No shipping quote available for this order.");
   }
 
   const selectedQuote =
@@ -119,11 +139,9 @@ export async function generateShippingLabelForOrder(
     selectedQuote?.providerId === "sendcloud" &&
     !selectedQuote.shippingOptionCode
   ) {
-    return {
-      ok: false as const,
-      error:
-        "Sendcloud V3 shipping_option_code is required for label generation. This order’s quote has no confirmed V3 counterpart (legacy sendcloud:N alone cannot create labels).",
-    };
+    return rovexoValidationFailure(
+      "Sendcloud V3 shipping_option_code is required for label generation. This order’s quote has no confirmed V3 counterpart (legacy sendcloud:N alone cannot create labels).",
+    );
   }
 
   let parcel = parcelId ? await getShipmentParcelById(parcelId) : null;
@@ -166,14 +184,16 @@ export async function generateShippingLabelForOrder(
         } satisfies ShippingAddress)
       : null);
   if (!collectionAddress || !deliveryAddress) {
-    return { ok: false as const, error: "Shipping addresses are incomplete for label generation." };
+    return rovexoValidationFailure(
+      "Shipping addresses are incomplete for label generation.",
+    );
   }
 
   if (!parcel) {
     parcel = await createShipmentParcel({ orderId, productItemIds: [] });
   }
   if (!parcel) {
-    return { ok: false as const, error: "Unable to prepare shipment parcel." };
+    return rovexoValidationFailure("Unable to prepare shipment parcel.");
   }
 
   const sellerSettings = await getSellerShippingSettings(sellerId);
@@ -186,7 +206,7 @@ export async function generateShippingLabelForOrder(
     existingProviderParcelId = await getProviderParcelIdForShipmentParcel(parcel.id);
   }
 
-  const labelRecord = await generateOrderShippingLabel(orderId, {
+  const { record: labelRecord, providerFailure } = await generateOrderShippingLabel(orderId, {
     quoteId,
     orderId,
     orderNumber: order.order_number,
@@ -209,9 +229,20 @@ export async function generateShippingLabelForOrder(
     updatedParcel?.trackingNumber ?? labelRecord?.trackingNumber ?? null;
 
   if (!trackingNumber) {
+    const failure =
+      providerFailure ??
+      shippingLabelProviderFailure({
+        kind: "provider_empty_result",
+        message: "Label generation completed without a tracking number.",
+        statusCode: null,
+        providerId: "sendcloud",
+        providerRequestAttempted: true,
+        code: "label_failed",
+      });
     return {
       ok: false as const,
-      error: "Label generation completed without a tracking number.",
+      error: failure.message,
+      providerFailure: failure,
     };
   }
 
@@ -227,9 +258,20 @@ export async function generateShippingLabelForOrder(
       labelUrl.length > 0);
 
   if (!hasUsableLabelUrl) {
+    const failure =
+      providerFailure ??
+      shippingLabelProviderFailure({
+        kind: "provider_empty_result",
+        message: "Label generation completed without a usable label URL.",
+        statusCode: null,
+        providerId: "sendcloud",
+        providerRequestAttempted: true,
+        code: "label_failed",
+      });
     return {
       ok: false as const,
-      error: "Label generation completed without a usable label URL.",
+      error: failure.message,
+      providerFailure: failure,
     };
   }
 
