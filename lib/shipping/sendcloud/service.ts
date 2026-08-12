@@ -20,7 +20,7 @@ import {
 import { SendcloudError, toSendcloudError } from "@/lib/shipping/sendcloud/errors";
 import { mapSendcloudCarrier, mapSendcloudTrackingStatus } from "@/lib/shipping/sendcloud/status-mapper";
 import { isConfirmedSendcloudV3ShippingOptionCode } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
-import { resolveSendcloudV3MetadataForMethods } from "@/lib/shipping/sendcloud/v3-catalog-v1";
+import { resolveSendcloudV3MetadataForMethods, gateSendcloudV3MetadataByRouteAvailability } from "@/lib/shipping/sendcloud/v3-catalog-v1";
 import type {
   SendcloudHealthResult,
   SendcloudLabelResult,
@@ -98,14 +98,37 @@ export const SendcloudService = {
       return true;
     });
 
-    // V3 discovery via official compat mapping — attach confirmed codes only.
-    // Failures must not break V2 pricing; quotes remain label-blocked until a code exists.
+    // V3 discovery: compat identity first, then route-aware /shipping-options gate.
+    // Compat alone is NOT announce-ready — unavailable codes are stripped (no carrier substitute).
+    // Failures must not break V2 pricing; quotes remain label-blocked until a route-proven code exists.
     let v3ByMethod = new Map<
       number,
       { shippingOptionCode?: string; contractId?: string; v2MethodId?: number }
     >();
     try {
-      v3ByMethod = await resolveSendcloudV3MetadataForMethods(filtered.map((m) => m.id));
+      const compatMeta = await resolveSendcloudV3MetadataForMethods(filtered.map((m) => m.id));
+      const gated = await gateSendcloudV3MetadataByRouteAvailability(compatMeta, {
+        fromCountryCode: normalizeCountryCode(input.collectionAddress.country),
+        toCountryCode: normalizeCountryCode(input.deliveryAddress.country),
+        fromPostalCode: input.collectionAddress.postcode,
+        toPostalCode: input.deliveryAddress.postcode,
+        parcelTier: input.parcelTier,
+        weightKg: spec.weightKg,
+        lengthCm: spec.lengthCm,
+        widthCm: spec.widthCm,
+        heightCm: spec.heightCm,
+        calculateQuotes: true,
+      });
+      v3ByMethod = gated.metadata;
+      for (const [methodId, selection] of gated.selections) {
+        if (selection.status === "COMPAT_IDENTITY_FOUND_BUT_ROUTE_UNAVAILABLE") {
+          console.info("[shipping/sendcloud] V3 compat identity unavailable for route/parcel", {
+            v2MethodId: methodId,
+            compatShippingOptionCode: selection.compatShippingOptionCode,
+            status: selection.status,
+          });
+        }
+      }
     } catch (error) {
       console.warn("[shipping/sendcloud] V3 metadata enrichment skipped", {
         message: error instanceof Error ? error.message : String(error),

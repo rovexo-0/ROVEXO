@@ -8,7 +8,12 @@ import type {
   ShippingQuoteApiVersion,
   ShippingQuotePayload,
 } from "@/lib/shipping/types";
-import type { SendcloudV3MethodMapping } from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
+import type {
+  SendcloudV3MethodMapping,
+  SendcloudV3RouteAwareOptionIdentity,
+  SendcloudV3RouteAwareSelection,
+} from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
+import type { SendcloudV3QuoteMetadata } from "@/lib/shipping/sendcloud/types";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === "object" && !Array.isArray(v)
@@ -225,4 +230,132 @@ export function parseSendcloudV3AnnounceShipmentResult(
     serviceName: str(props?.shipping_option_code) ?? str(data?.shipping_option_code),
     reusedExisting: Boolean(options?.reusedExisting),
   };
+}
+
+/**
+ * Extract shipping_option_code (+ optional contract.id) from POST /shipping-options.
+ * Never invents codes. Never picks substitutes.
+ */
+export function extractSendcloudV3RouteAwareOptionIdentities(
+  body: unknown,
+): SendcloudV3RouteAwareOptionIdentity[] {
+  const root = asRecord(body);
+  const data = Array.isArray(root?.data)
+    ? (root!.data as unknown[])
+    : Array.isArray(body)
+      ? body
+      : [];
+
+  const out: SendcloudV3RouteAwareOptionIdentity[] = [];
+  const seen = new Set<string>();
+
+  for (const item of data) {
+    const o = asRecord(item);
+    if (!o) continue;
+    const code = str(o.code);
+    if (!code || !isConfirmedSendcloudV3ShippingOptionCode(code)) continue;
+    if (seen.has(code)) continue;
+    seen.add(code);
+    const contract = asRecord(o.contract);
+    out.push({
+      shippingOptionCode: code,
+      contractId: str(contract?.id),
+    });
+  }
+
+  return out;
+}
+
+/**
+ * Gate one V2→compat identity against route-aware available options.
+ * Exact code match only — never substitutes EVRi/DPD/Royal Mail/etc.
+ */
+export function selectRouteAwareV3OptionForCompatMapping(input: {
+  v2MethodId: number;
+  compatShippingOptionCode: string | null | undefined;
+  availableOptions: SendcloudV3RouteAwareOptionIdentity[];
+  /** When true, catalog could not be loaded — strip all V3 codes (fail closed). */
+  catalogUnavailable?: boolean;
+}): SendcloudV3RouteAwareSelection {
+  const compat = isConfirmedSendcloudV3ShippingOptionCode(
+    input.compatShippingOptionCode,
+    input.v2MethodId,
+  )
+    ? input.compatShippingOptionCode!.trim()
+    : null;
+
+  if (input.catalogUnavailable) {
+    return {
+      v2MethodId: input.v2MethodId,
+      compatShippingOptionCode: compat,
+      shippingOptionCode: null,
+      contractId: null,
+      status: "ROUTE_CATALOG_UNAVAILABLE",
+    };
+  }
+
+  if (!compat) {
+    return {
+      v2MethodId: input.v2MethodId,
+      compatShippingOptionCode: null,
+      shippingOptionCode: null,
+      contractId: null,
+      status: "NO_V3_COUNTERPART",
+    };
+  }
+
+  const hit = input.availableOptions.find(
+    (opt) => opt.shippingOptionCode === compat,
+  );
+
+  if (!hit) {
+    return {
+      v2MethodId: input.v2MethodId,
+      compatShippingOptionCode: compat,
+      shippingOptionCode: null,
+      contractId: null,
+      status: "COMPAT_IDENTITY_FOUND_BUT_ROUTE_UNAVAILABLE",
+    };
+  }
+
+  return {
+    v2MethodId: input.v2MethodId,
+    compatShippingOptionCode: compat,
+    shippingOptionCode: hit.shippingOptionCode,
+    contractId: hit.contractId,
+    status: "ROUTE_AWARE_SELECTED",
+  };
+}
+
+/**
+ * Apply route-aware selections onto quote metadata used by mapSendcloudMethodToQuote.
+ * Unavailable compat codes are stripped — quotes remain V2-priced / label-blocked.
+ */
+export function applyRouteAwareSelectionsToQuoteMetadata(
+  metadata: Map<number, SendcloudV3QuoteMetadata>,
+  selections: Map<number, SendcloudV3RouteAwareSelection>,
+): Map<number, SendcloudV3QuoteMetadata> {
+  const out = new Map<number, SendcloudV3QuoteMetadata>();
+
+  for (const [methodId] of metadata) {
+    const selection = selections.get(methodId);
+    if (!selection) {
+      out.set(methodId, { v2MethodId: methodId });
+      continue;
+    }
+
+    const next: SendcloudV3QuoteMetadata = { v2MethodId: methodId };
+    if (
+      selection.status === "ROUTE_AWARE_SELECTED" &&
+      isConfirmedSendcloudV3ShippingOptionCode(selection.shippingOptionCode, methodId)
+    ) {
+      next.shippingOptionCode = selection.shippingOptionCode;
+      if (selection.contractId) {
+        next.contractId = selection.contractId;
+      }
+    }
+    out.set(methodId, next);
+  }
+
+  return out;
 }

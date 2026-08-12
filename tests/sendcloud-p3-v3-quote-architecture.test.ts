@@ -325,6 +325,7 @@ describe("P3 catalog module singularity", () => {
     expect(catalog).toContain("fetchSendcloudV3CompatMappingsForMethodIds");
     expect(catalog).toContain("fetchSendcloudV3ShippingOptionsCatalog");
     expect(catalog).toContain("resolveSendcloudV3MetadataForMethods");
+    expect(catalog).toContain("gateSendcloudV3MetadataByRouteAvailability");
     expect(catalog).not.toMatch(/\bRVXC75CA5BB\b/);
     expect(catalog).not.toContain("super-admin");
   });

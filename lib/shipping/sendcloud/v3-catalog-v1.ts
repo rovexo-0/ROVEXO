@@ -14,11 +14,16 @@ import {
 import {
   isConfirmedSendcloudV3ShippingOptionCode,
   parseSendcloudV3CompatMappings,
+  extractSendcloudV3RouteAwareOptionIdentities,
+  selectRouteAwareV3OptionForCompatMapping,
+  applyRouteAwareSelectionsToQuoteMetadata,
 } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import {
   SENDCLOUD_V3_COMPAT_PATH,
   SENDCLOUD_V3_SHIPPING_OPTIONS_PATH,
   type SendcloudV3MethodMapping,
+  type SendcloudV3RouteAwareOptionIdentity,
+  type SendcloudV3RouteAwareSelection,
   type SendcloudV3ShippingOptionsRequest,
 } from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
 import type { SendcloudV3QuoteMetadata } from "@/lib/shipping/sendcloud/types";
@@ -126,6 +131,8 @@ export async function fetchSendcloudV3CompatMappingsForMethodIds(
  * Enrich V2 methods with confirmed V3 metadata only.
  * Never derives shippingOptionCode from method.id.
  * Never selects closest/partial Royal Mail substitutes.
+ * Compat identity alone is NOT route-aware — callers MUST gate via
+ * gateSendcloudV3MetadataByRouteAvailability before attaching codes for quotes.
  */
 export async function resolveSendcloudV3MetadataForMethods(
   methodIds: number[],
@@ -147,6 +154,52 @@ export async function resolveSendcloudV3MetadataForMethods(
   }
 
   return out;
+}
+
+/**
+ * P7.4 — Gate compat V3 codes against POST /shipping-options for this from/to/parcel.
+ * Exact match only. Never substitutes another carrier/service.
+ * On catalog failure: strip all V3 codes (fail closed — no blind announce-ready identity).
+ */
+export async function gateSendcloudV3MetadataByRouteAvailability(
+  metadata: Map<number, SendcloudV3QuoteMetadata>,
+  route: SendcloudV3ShippingOptionsRequest,
+): Promise<{
+  metadata: Map<number, SendcloudV3QuoteMetadata>;
+  selections: Map<number, SendcloudV3RouteAwareSelection>;
+}> {
+  const selections = new Map<number, SendcloudV3RouteAwareSelection>();
+
+  let available: SendcloudV3RouteAwareOptionIdentity[] = [];
+  let catalogUnavailable = false;
+  try {
+    const raw = await fetchSendcloudV3ShippingOptionsCatalog({
+      ...route,
+      calculateQuotes: route.calculateQuotes ?? true,
+    });
+    available = extractSendcloudV3RouteAwareOptionIdentities(raw);
+  } catch (error) {
+    catalogUnavailable = true;
+    available = [];
+    console.warn("[shipping/sendcloud] V3 route-aware catalog gate failed; stripping V3 codes", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  for (const [methodId, meta] of metadata) {
+    const selection = selectRouteAwareV3OptionForCompatMapping({
+      v2MethodId: methodId,
+      compatShippingOptionCode: meta.shippingOptionCode ?? null,
+      availableOptions: available,
+      catalogUnavailable,
+    });
+    selections.set(methodId, selection);
+  }
+
+  return {
+    metadata: applyRouteAwareSelectionsToQuoteMetadata(metadata, selections),
+    selections,
+  };
 }
 
 /** Convenience for resolveLiveDeliveryPrice / quote paths sharing catalog cache. */

@@ -48,6 +48,31 @@ export type SendcloudV3MethodMapping = {
   result: "MAPPING_CONFIRMED" | "NO_V3_COUNTERPART";
 };
 
+/** Route-aware identity from POST /shipping-options (never invents codes). */
+export type SendcloudV3RouteAwareOptionIdentity = {
+  shippingOptionCode: string;
+  contractId: string | null;
+};
+
+/**
+ * Compat identity is NOT announce-ready until route-aware availability confirms it.
+ * Never silently substitute another carrier/service from availableOptions.
+ */
+export type SendcloudV3RouteAwareSelectionStatus =
+  | "ROUTE_AWARE_SELECTED"
+  | "COMPAT_IDENTITY_FOUND_BUT_ROUTE_UNAVAILABLE"
+  | "NO_V3_COUNTERPART"
+  | "ROUTE_CATALOG_UNAVAILABLE";
+
+export type SendcloudV3RouteAwareSelection = {
+  v2MethodId: number;
+  /** Compat mapping only — may differ from selected when unavailable for route/parcel. */
+  compatShippingOptionCode: string | null;
+  shippingOptionCode: string | null;
+  contractId: string | null;
+  status: SendcloudV3RouteAwareSelectionStatus;
+};
+
 export type SendcloudV3AnnounceAddress = {
   name: string;
   company_name?: string;
