@@ -372,6 +372,7 @@ describe("P7.26 shipping label storage materialization", () => {
     const viewer = read("features/shipping/components/ShippingLabelViewer.tsx");
     expect(viewer).toContain("pdfUrl");
     expect(viewer).toContain("fetch(absolute");
+    expect(viewer).toContain("resolveShippingLabelFetchCredentials");
     expect(viewer).not.toContain("SENDCLOUD_SECRET");
     expect(viewer).not.toContain("panel.sendcloud.sc");
   });

@@ -44,6 +44,26 @@ function resolveAbsoluteUrl(url: string): string {
   return url;
 }
 
+/**
+ * P7.26 — Signed Supabase Storage PDFs use Access-Control-Allow-Origin: "*".
+ * Browsers reject credentials:"include" against that header. Same-origin demo /
+ * ROVEXO paths may still send cookies; cross-origin signed PDFs must omit them.
+ * Never send ROVEXO session cookies to Supabase Storage.
+ */
+export function resolveShippingLabelFetchCredentials(
+  absoluteUrl: string,
+  origin: string | null | undefined = typeof window !== "undefined" ? window.location.origin : null,
+): RequestCredentials {
+  try {
+    const parsed = new URL(absoluteUrl, origin || undefined);
+    if (parsed.protocol === "blob:") return "omit";
+    if (origin && parsed.origin === origin) return "include";
+    return "omit";
+  } catch {
+    return "omit";
+  }
+}
+
 export function ShippingLabelViewer({
   open,
   onClose,
@@ -86,7 +106,7 @@ export function ShippingLabelViewer({
     try {
       const response = await fetch(absolute, {
         method: "GET",
-        credentials: "include",
+        credentials: resolveShippingLabelFetchCredentials(absolute),
         cache: absolute.includes("demo-label") ? "no-store" : "force-cache",
       });
       if (!response.ok) throw new Error("label_fetch_failed");
@@ -158,9 +178,10 @@ export function ShippingLabelViewer({
       if (embedUrl?.startsWith("blob:")) {
         blob = await fetch(embedUrl).then((response) => response.blob());
       } else if (sourceUrl) {
-        const response = await fetch(resolveAbsoluteUrl(sourceUrl), {
+        const absoluteDownload = resolveAbsoluteUrl(sourceUrl);
+        const response = await fetch(absoluteDownload, {
           method: "GET",
-          credentials: "include",
+          credentials: resolveShippingLabelFetchCredentials(absoluteDownload),
           cache: "no-store",
         });
         if (!response.ok) throw new Error("download_failed");
