@@ -5,7 +5,10 @@ import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { assertOrderShippingSeller } from "@/lib/shipping/assert-order-shipping-access.server";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
-import { getShippingLabelSignedUrl } from "@/lib/shipping/label-storage.server";
+import {
+  isSendcloudPanelDocumentUrl,
+  resolveBrowserShippingLabelPdfUrl,
+} from "@/lib/shipping/label-storage.server";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import {
   buildDemoShippingLabelPresentationUrl,
@@ -59,7 +62,9 @@ export async function GET(request: Request) {
 
   let labelQuery = admin
     .from("shipping_labels_v1")
-    .select("label_storage_path, label_url, tracking_number, carrier, provider, shipment_parcel_id")
+    .select(
+      "id, label_storage_path, label_url, tracking_number, carrier, provider, shipment_parcel_id, parcel_number",
+    )
     .eq("shipping_record_id", recordId)
     .order("updated_at", { ascending: false })
     .limit(1);
@@ -70,11 +75,14 @@ export async function GET(request: Request) {
 
   const { data: labelRows } = await labelQuery;
   const label = (Array.isArray(labelRows) ? labelRows[0] : labelRows) as {
+    id?: string;
     label_storage_path?: string | null;
     label_url?: string | null;
     tracking_number?: string | null;
     carrier?: string | null;
     provider?: string | null;
+    shipment_parcel_id?: string | null;
+    parcel_number?: number | null;
   } | null;
 
   // Demo / virtual labels may only persist a tracking number (relative demo PDF URL).
@@ -97,18 +105,37 @@ export async function GET(request: Request) {
     });
   }
 
-  const storagePath = label.label_storage_path?.trim() || null;
-  const isHttpStoragePath = Boolean(storagePath && /^https?:\/\//i.test(storagePath));
-  const isAppRelativePath = Boolean(storagePath?.startsWith("/"));
-  const signedUrl = storagePath && !isHttpStoragePath && !isAppRelativePath
-    ? await getShippingLabelSignedUrl(storagePath)
-    : storagePath && (isHttpStoragePath || isAppRelativePath)
-      ? storagePath
-      : label.label_url;
+  // P7.26: browser-facing pdfUrl must be ROVEXO-controlled (signed storage / same-origin).
+  // Never return authenticated Sendcloud panel document URLs.
+  const resolved = await resolveBrowserShippingLabelPdfUrl({
+    orderId: access.orderId,
+    labelRowId: label.id ?? null,
+    parcelNumber: label.parcel_number ?? 1,
+    trackingNumber: label.tracking_number,
+    labelStoragePath: label.label_storage_path,
+    labelUrl: label.label_url,
+  });
+
+  if (!resolved?.pdfUrl) {
+    return NextResponse.json(
+      {
+        error:
+          "Shipping label document is temporarily unavailable. Please try again shortly.",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (isSendcloudPanelDocumentUrl(resolved.pdfUrl)) {
+    return NextResponse.json(
+      { error: "Shipping label document is temporarily unavailable." },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({
     ok: true,
-    pdfUrl: signedUrl,
+    pdfUrl: resolved.pdfUrl,
     trackingNumber: label.tracking_number,
     carrier: label.carrier,
     provider: label.provider ?? "sendcloud",
