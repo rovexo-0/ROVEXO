@@ -93,6 +93,18 @@ describe("Transaction Status Card — state content certification", () => {
       label: "CREATE SHIPPING LABEL",
     });
 
+    const paidBuyer = resolveTransactionStatusCard({
+      viewerRole: "buyer",
+      order: { ...baseOrder, status: "awaiting_shipment", paidAt: baseOrder.createdAt },
+      hasAcceptedOffer: true,
+      hasShippingLabel: false,
+      tracking: null,
+    });
+    expect(paidBuyer?.status).toBe("PAYMENT_COMPLETED");
+    expect(paidBuyer?.title).toBe("Payment Successful");
+    expect(paidBuyer?.primaryAction).toEqual({ id: "view_order", label: "VIEW ORDER" });
+    expect(paidBuyer?.secondaryAction).toBeNull();
+
     const labelSeller = resolveTransactionStatusCard({
       viewerRole: "seller",
       order: { ...baseOrder, status: "awaiting_shipment", paidAt: baseOrder.createdAt },

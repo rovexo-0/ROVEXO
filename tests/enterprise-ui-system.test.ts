@@ -128,7 +128,7 @@ describe("Enterprise UI system — header", () => {
     expect(header).not.toContain("MessageSquare");
     expect(header).not.toContain("BellLineIcon");
     expect(header).not.toContain("HeaderProfileLink");
-    expect(header).not.toContain("HomepageHeaderShareButton");
+    expect(header).toContain("HomepageHeaderShareButton");
     expect(header).toContain('data-header-search-first="true"');
   });
 

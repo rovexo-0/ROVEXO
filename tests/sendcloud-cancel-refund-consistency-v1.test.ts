@@ -12,6 +12,8 @@ const getShippingRecord = vi.fn();
 const listShipmentParcelsForOrder = vi.fn();
 const releaseShippingReserveForOrder = vi.fn();
 const releaseProductInventory = vi.fn();
+const restoreInventoryAfterOrderCancellation = vi.fn();
+const healInventoryAfterCancelledOrder = vi.fn();
 const refundSeller = vi.fn();
 const notifyOrderCancelled = vi.fn();
 const notifySellerOrderCancelledByBuyer = vi.fn();
@@ -80,6 +82,8 @@ vi.mock("@/lib/commerce-engine/shipping-reserve", () => ({
 
 vi.mock("@/lib/inventory/service", () => ({
   releaseProductInventory,
+  restoreInventoryAfterOrderCancellation,
+  healInventoryAfterCancelledOrder,
 }));
 
 vi.mock("@/lib/commerce-engine", () => ({
@@ -145,6 +149,14 @@ describe("cancelBuyerOrder — refund before Sendcloud cancel", () => {
     markOrderCancellationRequested.mockResolvedValue(undefined);
     releaseShippingReserveForOrder.mockResolvedValue(undefined);
     releaseProductInventory.mockResolvedValue(undefined);
+    restoreInventoryAfterOrderCancellation.mockResolvedValue({
+      restored: true,
+      reason: "restored_claim",
+    });
+    healInventoryAfterCancelledOrder.mockResolvedValue({
+      restored: false,
+      reason: "already_available",
+    });
     refundSeller.mockResolvedValue(undefined);
     notifyOrderCancelled.mockResolvedValue(undefined);
     notifySellerOrderCancelledByBuyer.mockResolvedValue(undefined);

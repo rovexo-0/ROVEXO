@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
+import { HomepageHeaderShareButton } from "@/components/header/HomepageHeaderShareButton";
 import { HomepageRegisteredUserCounter } from "@/components/header/HomepageRegisteredUserCounter";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
@@ -110,8 +111,13 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
         </div>
       ) : null}
 
-      {/* Owner COD SÂNGE — Registered User Counter (right of Search, same row) */}
-      {showSearch && !isAccountLayout ? <HomepageRegisteredUserCounter /> : null}
+      {/* Owner COD SÂNGE — Members counter + Share Nodes (ICON ②), same row */}
+      {showSearch && !isAccountLayout ? (
+        <div className="rx-h2__actions rx-h2__actions--homepage">
+          <HomepageRegisteredUserCounter />
+          <HomepageHeaderShareButton />
+        </div>
+      ) : null}
     </HeaderScrollShell>
   );
 }

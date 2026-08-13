@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserRole, isPlatformAdminRole, requireApiAuth } from "@/lib/auth/session";
 import { applyOrderAction, getOrderById } from "@/lib/orders/store";
 import { canPerformOrderAction } from "@/lib/orders/role";
-import type { AddTrackingInput, OrderAction } from "@/lib/orders/types";
+import type { OrderAction } from "@/lib/orders/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -38,6 +38,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const body = (await request.json()) as {
       action?: OrderAction;
       trackingNumber?: string;
+      cancellationReasonId?: string;
     };
 
     if (!body.action) {
@@ -58,9 +59,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const payload: AddTrackingInput | undefined = body.trackingNumber
-      ? { trackingNumber: body.trackingNumber }
-      : undefined;
+    const payload =
+      body.action === "cancel"
+        ? { cancellationReasonId: body.cancellationReasonId }
+        : body.trackingNumber
+          ? { trackingNumber: body.trackingNumber }
+          : undefined;
 
     const order = await applyOrderAction(id, body.action, payload);
     return NextResponse.json({ order });

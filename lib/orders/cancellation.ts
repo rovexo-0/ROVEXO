@@ -1,8 +1,30 @@
 import type { OrderStatus } from "@/lib/orders/types";
 import type { ShippingStatus } from "@/lib/shipping/types";
 
-/** Canonical cancellation reason stored on the order record. */
+/** Canonical cancellation reason stored on the order record (fallback / legacy). */
 export const BUYER_CANCELLATION_REASON = "Buyer Cancelled";
+
+/**
+ * Canonical buyer cancellation reasons (UI + API).
+ * Stored value = label. Do not invent a parallel reason system.
+ */
+export const BUYER_CANCELLATION_REASON_OPTIONS = [
+  { id: "changed_mind", label: "I changed my mind" },
+  { id: "ordered_by_mistake", label: "Ordered by mistake" },
+  { id: "found_another_item", label: "Found another item" },
+  { id: "seller_too_long", label: "Seller is taking too long to ship" },
+  { id: "other", label: "Other reason" },
+] as const;
+
+export type BuyerCancellationReasonId =
+  (typeof BUYER_CANCELLATION_REASON_OPTIONS)[number]["id"];
+
+export function resolveBuyerCancellationReason(
+  reasonId: string | null | undefined,
+): string {
+  const match = BUYER_CANCELLATION_REASON_OPTIONS.find((option) => option.id === reasonId);
+  return match?.label ?? BUYER_CANCELLATION_REASON;
+}
 
 const NON_CANCELLABLE_ORDER_STATUSES = new Set<OrderStatus>([
   "shipped",

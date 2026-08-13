@@ -169,6 +169,114 @@ export async function restoreProductInventoryClaim(
   return { success: true };
 }
 
+export type RestoreAfterCancellationResult = {
+  restored: boolean;
+  reason:
+    | "restored_claim"
+    | "released_reserve"
+    | "already_available"
+    | "deleted"
+    | "inactive"
+    | "not_found"
+    | "restore_failed"
+    | "not_applicable";
+};
+
+/**
+ * Buyer cancellation inventory restore (canonical Inventory Engine).
+ * Fail-closed: never republish deleted/paused/draft; never invent stock.
+ * - reserved → releaseProductInventory
+ * - sold (one-off claim) → restoreProductInventoryClaim
+ * - published (multi-qty remaining after claim) → restoreProductInventoryClaim (qty only)
+ */
+export async function restoreInventoryAfterOrderCancellation(
+  productId: string,
+  quantity = 1,
+): Promise<RestoreAfterCancellationResult> {
+  const admin = createAdminClient();
+  const { data: product, error: readError } = await admin
+    .from("products")
+    .select("id, status, reserved")
+    .eq("id", productId)
+    .maybeSingle();
+
+  if (readError || !product) {
+    return { restored: false, reason: "not_found" };
+  }
+
+  if (product.status === "deleted") {
+    return { restored: false, reason: "deleted" };
+  }
+
+  if (product.status === "paused" || product.status === "draft") {
+    return { restored: false, reason: "inactive" };
+  }
+
+  if (product.status === "reserved" || product.reserved === true) {
+    const released = await releaseProductInventory(productId, quantity);
+    if (released.released || released.reason === "already_published") {
+      return {
+        restored: released.released,
+        reason: released.released ? "released_reserve" : "already_available",
+      };
+    }
+    return { restored: false, reason: "not_applicable" };
+  }
+
+  if (product.status === "sold" || product.status === "published") {
+    const restored = await restoreProductInventoryClaim(productId, quantity);
+    if (!restored.success) {
+      return { restored: false, reason: "restore_failed" };
+    }
+    return { restored: true, reason: "restored_claim" };
+  }
+
+  return { restored: false, reason: "not_applicable" };
+}
+
+/**
+ * Heal path for already-cancelled orders: restore only when still sold/reserved.
+ * Published → no-op (avoids double stock on retry after a successful restore).
+ */
+export async function healInventoryAfterCancelledOrder(
+  productId: string,
+  quantity = 1,
+): Promise<RestoreAfterCancellationResult> {
+  const admin = createAdminClient();
+  const { data: product, error: readError } = await admin
+    .from("products")
+    .select("id, status, reserved")
+    .eq("id", productId)
+    .maybeSingle();
+
+  if (readError || !product) {
+    return { restored: false, reason: "not_found" };
+  }
+
+  if (product.status === "deleted" || product.status === "paused" || product.status === "draft") {
+    return {
+      restored: false,
+      reason: product.status === "deleted" ? "deleted" : "inactive",
+    };
+  }
+
+  if (product.status === "sold") {
+    const restored = await restoreProductInventoryClaim(productId, quantity);
+    return restored.success
+      ? { restored: true, reason: "restored_claim" }
+      : { restored: false, reason: "restore_failed" };
+  }
+
+  if (product.status === "reserved" || product.reserved === true) {
+    const released = await releaseProductInventory(productId, quantity);
+    return released.released
+      ? { restored: true, reason: "released_reserve" }
+      : { restored: false, reason: "not_applicable" };
+  }
+
+  return { restored: false, reason: "already_available" };
+}
+
 /** Claim every line before order insert. On any fail → restore successes → ITEM_JUST_SOLD. */
 export async function claimProductsForPaidSale(
   lines: Array<{ productId: string; quantity: number }>,

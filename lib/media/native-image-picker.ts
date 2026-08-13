@@ -2,15 +2,17 @@
  * Native mobile image picker — Samsung Android, Chrome Android, iOS Safari, WebView, PWA.
  *
  * ROVEXO Native Photo Picker (v1.0) — Sell Add Photos:
- *   ONE tap → OS native Photo Picker (no ROVEXO Camera/Gallery sheet).
- *   <input type="file" accept="image/*" multiple /> with NO capture.
+ *   Gallery path: <input type="file" accept="image/*" multiple /> with NO capture.
+ *   Camera path:  <input type="file" accept="image/*" capture="environment" /> (single).
+ *   Both reuse SellPhotoFileInput → SellProvider.addPhotos (one pipeline).
  *
  * Why image/* (not an explicit MIME list)?
  * Explicit MIME lists push many Samsung/Chrome builds into the legacy Files /
  * Documents chooser and hide Gallery / Google Photos / system Photo Picker.
  *
  * Rules:
- * - Never set capture on Sell Add Photos / gallery paths.
+ * - Never set capture on gallery intent.
+ * - Camera intent sets capture="environment" (rear) via resolveNativeImageCapture.
  * - Prefer nesting the input inside <label> with overlay placement (Samsung).
  * - Do not set aria-hidden or tabIndex={-1} on the input.
  * - Never show a ROVEXO Action Sheet before the native picker.
@@ -51,8 +53,8 @@ export function resolveNativeImageAccept(_intent: NativeImagePickerIntent = "any
 export function resolveNativeImageCapture(
   intent: NativeImagePickerIntent,
 ): "environment" | undefined {
-  // Sell Add Photos / gallery must never force camera.
-  // Dedicated non-Sell camera flows may still request environment capture.
+  // Gallery / any must never force camera (Samsung Photo Picker).
+  // Camera intent requests the rear/environment camera via the browser capture attribute.
   return intent === "camera" ? "environment" : undefined;
 }
 

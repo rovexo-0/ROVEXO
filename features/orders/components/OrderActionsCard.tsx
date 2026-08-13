@@ -1,48 +1,86 @@
 "use client";
 
-import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
+import { CanonicalMenuRow } from "@/src/components/canonical";
+import { ChatLineIcon, TruckLineIcon } from "@/components/icons/RvxLineIcons";
 import { getMessageHref, getOrderHubTrackHref, getTrackingUrl } from "@/lib/orders/status";
 import type { Order, OrderViewRole } from "@/lib/orders/types";
+import "@/styles/rovexo/order-detail-action-cards-v1.css";
 
 type OrderActionsCardProps = {
   order: Order;
   view: OrderViewRole;
   onTrack?: () => void;
+  /** When Order Details is already open over the Conversation Hub, close the sheet. */
+  onOpenMessages?: () => void;
 };
 
 /**
- * Reduced Order Details actions (DEFECT #002 / #003).
- * Messages Hub = SSOT. Order Details deep-links into the Hub.
+ * Order Details action cards (IMAGE 2).
+ * Primary: compact Open Messages Hub card. Optional track rows when applicable.
  */
-export function OrderActionsCard({ order, view, onTrack }: OrderActionsCardProps) {
+export function OrderActionsCard({ order, view, onTrack, onOpenMessages }: OrderActionsCardProps) {
   const canTrack =
     Boolean(order.trackingNumber) &&
     (order.status === "shipped" || order.status === "delivered" || order.status === "completed");
 
+  const messagesHref = getMessageHref(order.id, view, order.conversationId);
+
   return (
-    <CanonicalCard variant="list" className="w-full">
-      <CanonicalMenuRow title="Open Messages Hub" href={getMessageHref(order.id, view)} />
-      {canTrack && order.trackingNumber ? (
+    <>
+      <div
+        className="order-detail-action-card order-detail-action-card--messages"
+        data-order-detail-action="messages"
+      >
         <CanonicalMenuRow
-          title="Track in Messages Hub"
-          href={getOrderHubTrackHref(order.id)}
-          onClick={() => {
-            onTrack?.();
-          }}
+          title="Open Messages Hub"
+          description="Continue the conversation with the seller."
+          icon={<ChatLineIcon />}
+          href={onOpenMessages ? undefined : messagesHref}
+          onClick={
+            onOpenMessages
+              ? () => {
+                  onOpenMessages();
+                }
+              : undefined
+          }
         />
-      ) : null}
+      </div>
+
       {canTrack && order.trackingNumber ? (
-        <CanonicalMenuRow
-          title="Carrier tracking (external)"
-          onClick={() => {
-            window.open(
-              getTrackingUrl(order.deliveryCarrier, order.trackingNumber!),
-              "_blank",
-              "noopener,noreferrer",
-            );
-          }}
-        />
+        <div
+          className="order-detail-action-card order-detail-action-card--track"
+          data-order-detail-action="track-hub"
+        >
+          <CanonicalMenuRow
+            title="Track in Messages Hub"
+            icon={<TruckLineIcon />}
+            href={getOrderHubTrackHref(order.id, order.conversationId)}
+            onClick={() => {
+              onTrack?.();
+            }}
+          />
+        </div>
       ) : null}
-    </CanonicalCard>
+
+      {canTrack && order.trackingNumber ? (
+        <div
+          className="order-detail-action-card order-detail-action-card--track"
+          data-order-detail-action="track-carrier"
+        >
+          <CanonicalMenuRow
+            title="Carrier tracking (external)"
+            icon={<TruckLineIcon />}
+            onClick={() => {
+              window.open(
+                getTrackingUrl(order.deliveryCarrier, order.trackingNumber!),
+                "_blank",
+                "noopener,noreferrer",
+              );
+              onTrack?.();
+            }}
+          />
+        </div>
+      ) : null}
+    </>
   );
 }

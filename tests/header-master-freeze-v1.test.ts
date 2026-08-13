@@ -63,10 +63,10 @@ describe("Header Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(header).toContain("HomepageSearchField");
     expect(header).toContain('data-header-search-first="true"');
     expect(header).toContain("ROVEXO");
+    expect(header).toContain("HomepageHeaderShareButton");
     expect(header).not.toContain("BellLineIcon");
     expect(header).not.toContain("HeaderProfileLink");
     expect(header).not.toContain("useHeaderBadges");
-    expect(header).not.toContain("HomepageHeaderShareButton");
     expect(header).not.toContain('fetch("/api/profile"');
   });
 

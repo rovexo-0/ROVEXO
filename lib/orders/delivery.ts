@@ -1,17 +1,27 @@
 import type { DeliveryStage, Order, OrderStatus } from "@/lib/orders/types";
 
+const STAGE_IDS: DeliveryStage["id"][] = ["placed", "shipped", "in_transit", "delivered"];
+
 function stageIndex(id: DeliveryStage["id"]): number {
-  return ["placed", "shipped", "delivered"].indexOf(id);
+  return STAGE_IDS.indexOf(id);
 }
 
-function statusProgress(status: OrderStatus): number {
+/**
+ * Progress from order + tracking fields only (no invented shipping states).
+ * In Transit becomes current once the order is shipped and a tracking number exists.
+ */
+function statusProgress(order: Order): number {
+  const status: OrderStatus = order.status;
   switch (status) {
     case "awaiting_payment":
+    case "cancelled":
       return -1;
     case "awaiting_shipment":
       return stageIndex("placed");
     case "shipped":
-      return stageIndex("shipped");
+      return order.trackingNumber?.trim()
+        ? stageIndex("in_transit")
+        : stageIndex("shipped");
     case "delivered":
     case "issue_open":
     case "completed":
@@ -22,28 +32,34 @@ function statusProgress(status: OrderStatus): number {
 }
 
 export function getDeliveryStages(order: Order): DeliveryStage[] {
-  const progress = statusProgress(order.status);
+  const progress = statusProgress(order);
 
   if (progress < 0) {
     return [];
   }
 
-  const stages: DeliveryStage["id"][] = ["placed", "shipped", "delivered"];
   const timestamps: Partial<Record<DeliveryStage["id"], string | undefined>> = {
     placed: order.paidAt ?? order.createdAt,
     shipped: order.shippedAt,
+    in_transit: order.shippedAt,
     delivered: order.deliveredAt ?? order.completedAt,
   };
 
   const labels: Record<DeliveryStage["id"], string> = {
     placed: "Awaiting Shipment",
     shipped: "Shipped",
+    in_transit: "In Transit",
     delivered: "Delivered",
   };
 
-  return stages.map((id, index) => ({
+  const descriptions: Partial<Record<DeliveryStage["id"], string>> = {
+    placed: "Seller is preparing your item.",
+  };
+
+  return STAGE_IDS.map((id, index) => ({
     id,
     label: labels[id],
+    description: descriptions[id],
     timestamp: timestamps[id],
     done: index <= progress,
     current: index === progress,

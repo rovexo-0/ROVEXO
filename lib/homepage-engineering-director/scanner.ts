@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
-import path from "node:path";
 import { isHomepageIntegrityPass, runHomepageCategoryIntegrityScan } from "@/lib/homepage-category-integrity-engine";
 import { isGlobalUiIntegrityPass, runGlobalUiIntegrityScan } from "@/lib/omega-global-ui-integrity-engine";
 import {
@@ -287,9 +286,10 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     header.includes('href="/account"') ||
     profileLink.includes('href="/account"');
   const hasHomepageShare =
-    header.includes("HomepageHeaderShareButton") === false ||
-    (header.includes("replaceAccountWithShare") &&
-      homepageShare.includes('aria-label="Share"'));
+    header.includes("HomepageHeaderShareButton") &&
+    homepageShare.includes('aria-label="Share ROVEXO"') &&
+    homepageShare.includes("ShareNodesLineIcon") &&
+    homepageShare.includes("navigator.share");
 
   // Inbox Hub lock: notifications live at /inbox (not required in minimalist header).
   const hasNotificationsEntry =

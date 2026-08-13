@@ -3,11 +3,15 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CommerceEngine } from "@/lib/commerce-engine";
 import { releaseShippingReserveForOrder } from "@/lib/commerce-engine/shipping-reserve";
-import { releaseProductInventory } from "@/lib/inventory/service";
+import {
+  healInventoryAfterCancelledOrder,
+  restoreInventoryAfterOrderCancellation,
+} from "@/lib/inventory/service";
 import { cancelPendingOrder } from "@/lib/orders/checkout";
 import {
   BUYER_CANCELLATION_REASON,
   evaluateBuyerCancellationEligibility,
+  resolveBuyerCancellationReason,
 } from "@/lib/orders/cancellation";
 import {
   notifyOrderCancelled,
@@ -208,6 +212,7 @@ async function markCarrierCancellationFailed(orderId: string, detail: string): P
 
 async function markOrderCancelled(input: {
   orderId: string;
+  reason: string;
 }): Promise<void> {
   const admin = createAdminClient();
   const now = new Date().toISOString();
@@ -217,7 +222,7 @@ async function markOrderCancelled(input: {
     .update({
       status: "cancelled",
       cancelled_at: now,
-      cancellation_reason: BUYER_CANCELLATION_REASON,
+      cancellation_reason: input.reason,
     })
     .eq("id", input.orderId);
 }
@@ -229,13 +234,20 @@ async function markOrderCancelled(input: {
 export async function cancelBuyerOrder(input: {
   orderId: string;
   buyerId: string;
+  /** Canonical reason option id from BUYER_CANCELLATION_REASON_OPTIONS. */
+  cancellationReasonId?: string;
 }): Promise<{ success: boolean; error?: string }> {
+  const cancellationReason = resolveBuyerCancellationReason(input.cancellationReasonId);
   const context = await loadCancellationContext(input.orderId);
   if (!context || context.buyerId !== input.buyerId) {
     return { success: false, error: "Order not found." };
   }
 
   if (context.status === "cancelled") {
+    /* Heal sold/reserved inventory without double-incrementing published stock. */
+    if (context.productId) {
+      await healInventoryAfterCancelledOrder(context.productId, context.productQuantity);
+    }
     return { success: true };
   }
 
@@ -251,14 +263,14 @@ export async function cancelBuyerOrder(input: {
   }
 
   if (context.status === "awaiting_payment") {
-    await cancelPendingOrder(input.orderId, BUYER_CANCELLATION_REASON, { initiatedBy: "buyer" });
+    await cancelPendingOrder(input.orderId, cancellationReason, { initiatedBy: "buyer" });
 
     const admin = createAdminClient();
     await admin
       .from("orders")
       .update({
         cancelled_at: new Date().toISOString(),
-        cancellation_reason: BUYER_CANCELLATION_REASON,
+        cancellation_reason: cancellationReason,
       })
       .eq("id", input.orderId);
 
@@ -272,7 +284,7 @@ export async function cancelBuyerOrder(input: {
       buyerEmail: buyerProfile?.email ?? "",
       orderId: input.orderId,
       orderNumber: context.orderNumber,
-      reason: BUYER_CANCELLATION_REASON,
+      reason: cancellationReason,
     });
     await notifySellerOrderCancelledByBuyer({
       sellerId: context.sellerId,
@@ -310,8 +322,14 @@ export async function cancelBuyerOrder(input: {
 
   await releaseShippingReserveForOrder({ orderId: input.orderId });
 
+  /*
+   * Mark cancelled before inventory restore so retries hit the idempotent cancelled
+   * branch (heal sold/reserved only — never double-increment published stock).
+   */
+  await markOrderCancelled({ orderId: input.orderId, reason: cancellationReason });
+
   if (context.productId) {
-    await releaseProductInventory(context.productId, context.productQuantity);
+    await restoreInventoryAfterOrderCancellation(context.productId, context.productQuantity);
   }
 
   let carrierCancelOk = true;
@@ -332,7 +350,6 @@ export async function cancelBuyerOrder(input: {
   if (carrierCancelOk) {
     await voidLocalShippingArtifacts(input.orderId);
   }
-  await markOrderCancelled({ orderId: input.orderId });
 
   const admin = createAdminClient();
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
@@ -345,7 +362,7 @@ export async function cancelBuyerOrder(input: {
     buyerEmail: buyerProfile?.email ?? "",
     orderId: input.orderId,
     orderNumber: context.orderNumber,
-    reason: BUYER_CANCELLATION_REASON,
+    reason: cancellationReason,
   });
   await notifySellerOrderCancelledByBuyer({
     sellerId: context.sellerId,

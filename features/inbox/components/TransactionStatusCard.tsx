@@ -70,7 +70,12 @@ export function TransactionStatusCard({
           {secondaryAction ? (
             <button
               type="button"
-              className="conv-hub__tx-status-action conv-hub__tx-status-action--secondary"
+              className={cn(
+                "conv-hub__tx-status-action",
+                secondaryAction.id === "cancel_order"
+                  ? "conv-hub__tx-status-action--cancel"
+                  : "conv-hub__tx-status-action--secondary",
+              )}
               disabled={busy}
               onClick={() => onAction(secondaryAction.id)}
             >

@@ -1,13 +1,17 @@
 /**
  * ROVEXO Native Photo Picker Contract v1.0
  *
- * STATUS: OWNER AUTHORIZED · COD SÂNGE · ONE TAP
+ * STATUS: OWNER AUTHORIZED · COD SÂNGE
  *
- * Absolute: ROVEXO SHALL NOT display a custom Camera / Gallery popup.
- * Add Photos → native OS Photo Picker opens immediately (one tap).
+ * Sell photo acquisition (dual native inputs, one pipeline):
+ *   Take Photo           → capture="environment" (rear camera)
+ *   Choose from Gallery  → accept="image/*" multiple, NO capture
  *
- * Android → system Photo Picker / Gallery (OS-chosen)
- * iPhone  → native iOS Photo Library Picker
+ * Absolute: ROVEXO SHALL NOT display a custom Camera / Gallery Action Sheet.
+ * Each tile opens the OS/browser picker immediately (one tap per intent).
+ *
+ * Android → system camera OR Photo Picker / Gallery (by intent)
+ * iPhone  → camera OR Photos library (by intent)
  *
  * Forbidden:
  *   ROVEXO Action Sheet · Camera Photo popup · Photo Gallery popup ·
@@ -27,8 +31,9 @@ export const NATIVE_PHOTO_PICKER_V1 = {
   oneTapToNativePicker: true,
   customActionSheetForbidden: true,
   accept: "image/*" as const,
-  /** Never set capture on Add Photos — lets the OS open Photos / Gallery. */
+  /** Gallery path never sets capture. Camera path uses capture="environment". */
   capture: undefined,
+  cameraCapture: "environment" as const,
   multiple: true,
   listingMax: 8,
   autoUploadAfterSelection: true,
@@ -45,7 +50,7 @@ export const NATIVE_PHOTO_PICKER_V1 = {
 /** @deprecated Use NATIVE_PHOTO_PICKER_V1 — alias kept for import stability. */
 export const UNIVERSAL_PHOTO_PICKER_V1 = NATIVE_PHOTO_PICKER_V1;
 
-export type NativePhotoPickerIntent = "gallery";
+export type NativePhotoPickerIntent = "gallery" | "camera";
 
 export function isNativePhotoPickerOneTap(): boolean {
   return NATIVE_PHOTO_PICKER_V1.oneTapToNativePicker === true;

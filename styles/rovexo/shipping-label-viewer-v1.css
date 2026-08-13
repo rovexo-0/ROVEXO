@@ -1,7 +1,8 @@
 /**
- * ROVEXO v1.0 — Shipping Label Viewer (CANONICAL · FROZEN)
+ * ROVEXO v1.0 — Shipping Label Viewer (CANONICAL)
  * Embeds official carrier / demo label. Never redraws labels.
  * No decorative side rails, handles, or markers.
+ * P7.26 UI: compact shell — no giant blank white preview stage.
  */
 
 .slv-v1__panel {
@@ -49,13 +50,30 @@
   flex-direction: column;
   width: 100%;
   flex: 1 1 auto;
-  min-height: min(84dvh, 780px);
-  height: min(92dvh, 900px);
+  min-height: 0;
+  height: auto;
   max-height: min(92dvh, 900px);
   background: #ffffff;
   color: #111111;
   border: none;
   outline: none;
+}
+
+/* Real preview — height follows label aspect, not a forced empty viewport. */
+.slv-v1__shell[data-slv-mode="preview"] {
+  max-height: min(92dvh, 900px);
+}
+
+.slv-v1__shell[data-slv-mode="document"] {
+  min-height: min(62dvh, 640px);
+  height: min(78dvh, 760px);
+  max-height: min(92dvh, 900px);
+}
+
+.slv-v1__shell[data-slv-mode="compact"] {
+  min-height: 0;
+  height: auto;
+  max-height: min(70dvh, 520px);
 }
 
 .slv-v1__header {
@@ -143,6 +161,28 @@
   -ms-overflow-style: none;
 }
 
+.slv-v1__stage[data-slv-stage="preview"] {
+  flex: 0 1 auto;
+  max-height: min(68dvh, 720px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  align-items: flex-start;
+}
+
+.slv-v1__stage[data-slv-stage="compact"] {
+  flex: 0 0 auto;
+  min-height: 0;
+  height: auto;
+  padding: 8px 0 4px;
+  overflow: visible;
+}
+
+.slv-v1__stage[data-slv-stage="document"] {
+  flex: 1 1 auto;
+  min-height: 220px;
+}
+
 .slv-v1__stage::-webkit-scrollbar {
   display: none;
   width: 0;
@@ -166,24 +206,26 @@
 .slv-v1__scroll {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: auto;
+  max-height: min(68dvh, 720px);
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   background: #ffffff;
-  padding: 4px 0;
+  padding: 8px 0 12px;
   border: none;
   outline: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  touch-action: pan-y pinch-zoom;
 }
 
 .slv-v1__scroll::-webkit-scrollbar {
-  display: none;
-  width: 0;
+  width: 4px;
   height: 0;
 }
 
@@ -192,9 +234,10 @@
   width: 96%;
   max-width: 96%;
   height: auto;
-  max-height: 100%;
+  max-height: none;
   object-fit: contain;
-  object-position: center;
+  object-position: center top;
+  aspect-ratio: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   background: #ffffff;
   border: none;
@@ -202,14 +245,16 @@
 }
 
 .slv-v1__loading {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
+  min-height: 160px;
+  width: 100%;
+  padding: 24px;
   background: #ffffff;
 }
 
@@ -244,14 +289,15 @@
 }
 
 .slv-v1__error {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 160px;
+  width: 100%;
   padding: 24px;
   text-align: center;
   background: #ffffff;
@@ -305,10 +351,10 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px 16px;
+  width: 100%;
+  padding: 16px;
   text-align: center;
   background: #ffffff;
-  border-top: 1px solid rgb(15 23 42 / 0.06);
 }
 
 .slv-v1__pdf-fallback-copy {
@@ -375,6 +421,18 @@
   text-align: center;
 }
 
+.slv-v1__secondary {
+  width: 100%;
+  height: 44px;
+  border: 1px solid rgb(109 40 217 / 0.28);
+  border-radius: 14px;
+  background: #ffffff;
+  color: #9333ea;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .slv-v1__primary {
   width: 100%;
   height: 48px;
@@ -399,10 +457,28 @@
     border-radius: 16px 16px 0 0 !important;
   }
 
-  .slv-v1__shell {
-    min-height: 78dvh;
-    height: min(96dvh, 980px);
-    max-height: 96dvh;
+  .slv-v1__shell[data-slv-mode="document"] {
+    min-height: min(58dvh, 560px);
+    height: min(82dvh, 760px);
+    max-height: 92dvh;
+  }
+
+  .slv-v1__shell[data-slv-mode="preview"] {
+    max-height: 92dvh;
+  }
+
+  .slv-v1__shell[data-slv-mode="compact"] {
+    min-height: 0;
+    height: auto;
+    max-height: min(62dvh, 420px);
+  }
+
+  .slv-v1__stage[data-slv-stage="preview"] {
+    max-height: min(62dvh, 640px);
+  }
+
+  .slv-v1__scroll {
+    max-height: min(62dvh, 640px);
   }
 
   .slv-v1__frame,

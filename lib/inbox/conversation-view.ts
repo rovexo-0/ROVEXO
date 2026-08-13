@@ -557,17 +557,17 @@ function buildDynamicActions(
       return [];
     }
     if (order.status === "awaiting_shipment" || order.status === "shipped") {
+      /*
+       * Awaiting dispatch (no tracking): VIEW ORDER + CANCEL live on Transaction Status Card.
+       * Never paint a large sticky "Order Details" above the composer.
+       */
+      if (order.status === "awaiting_shipment" && !order.trackingNumber) {
+        return [];
+      }
       if (order.trackingNumber || order.status === "shipped") {
         actions.push({
           id: "track_parcel",
           label: "View Tracking",
-          role: "buyer",
-          primary: true,
-        });
-      } else {
-        actions.push({
-          id: "view_order",
-          label: "Order Details",
           role: "buyer",
           primary: true,
         });

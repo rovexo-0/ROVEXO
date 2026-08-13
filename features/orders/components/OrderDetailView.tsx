@@ -40,6 +40,9 @@ type OrderDetailViewProps = {
   sellerShipment?: SellerShipmentView;
   buyerCanCancel?: boolean;
   buyerCancelReason?: string;
+  onOrderUpdated?: (order: Order) => void;
+  /** Close Order Details when already inside Conversation Hub. */
+  onOpenMessages?: () => void;
 };
 
 export function OrderDetailView({
@@ -50,10 +53,20 @@ export function OrderDetailView({
   sellerShipment,
   buyerCanCancel = false,
   buyerCancelReason,
+  onOrderUpdated,
+  onOpenMessages,
 }: OrderDetailViewProps) {
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const view = resolveOrderViewRole(order, userId);
+
+  const updateOrder = useCallback(
+    (next: Order) => {
+      setOrder(next);
+      onOrderUpdated?.(next);
+    },
+    [onOrderUpdated],
+  );
 
   const handleBuyerAction = useCallback(async (action: "confirm_ok" | "report_issue") => {
     setIsSubmitting(true);
@@ -70,11 +83,11 @@ export function OrderDetailView({
       }
 
       const payload = (await response.json()) as { order: Order };
-      setOrder(payload.order);
+      updateOrder(payload.order);
     } finally {
       setIsSubmitting(false);
     }
-  }, [order.id]);
+  }, [order.id, updateOrder]);
 
   if (!view) return null;
 
@@ -102,7 +115,7 @@ export function OrderDetailView({
             ) : null}
           </CanonicalInfoBlock>
         </section>
-        <OrderActionsCard order={order} view={view} />
+        <OrderActionsCard order={order} view={view} onOpenMessages={onOpenMessages} />
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
     );
@@ -115,7 +128,7 @@ export function OrderDetailView({
           order={order}
           userId={userId}
           shipment={sellerShipment}
-          onOrderUpdated={setOrder}
+          onOrderUpdated={updateOrder}
         />
       ) : (
         <OrderProductCard order={order} userId={userId} />
@@ -143,16 +156,17 @@ export function OrderDetailView({
         <ResolutionStatusCard resolution={resolutionSummary} view={view} />
       ) : null}
 
-      <OrderActionsCard order={order} view={view} />
-
-      {view === "buyer" ? (
-        <BuyerCancelOrderCard
-          order={order}
-          canCancel={buyerCanCancel}
-          disabledReason={buyerCancelReason}
-          onCancelled={setOrder}
-        />
-      ) : null}
+      <div className="order-detail-action-stack" data-order-detail-actions="v1.0">
+        <OrderActionsCard order={order} view={view} onOpenMessages={onOpenMessages} />
+        {view === "buyer" ? (
+          <BuyerCancelOrderCard
+            order={order}
+            canCancel={buyerCanCancel}
+            disabledReason={buyerCancelReason}
+            onCancelled={updateOrder}
+          />
+        ) : null}
+      </div>
 
       {view === "buyer" ? <RefundStatusCard order={order} /> : null}
 

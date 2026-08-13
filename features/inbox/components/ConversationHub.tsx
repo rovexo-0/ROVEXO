@@ -28,15 +28,18 @@ import { TransactionStatusCard } from "@/features/inbox/components/TransactionSt
 import { PlatformFeeSheet } from "@/features/inbox/components/PlatformFeeSheet";
 import { OfferBundleDetailsSheet } from "@/features/inbox/components/OfferBundleDetailsSheet";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
+import { OrderDetailView } from "@/features/orders/components/OrderDetailView";
 import {
   ShippingLabelViewer,
   cacheShippingLabelUrl,
 } from "@/features/shipping/components/ShippingLabelViewer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useToast } from "@/components/ui/Toast";
 import { ProductFullscreenImageViewer } from "@/features/product-detail/ProductFullscreenImageViewer";
 import { cn } from "@/lib/cn";
+import { isBuyerCancellableOrderStatus } from "@/lib/orders/cancellation";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
 import {
@@ -414,6 +417,8 @@ export function ConversationHub({
   }, [pushToast]);
 
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
+  /** VIEW ORDER — canonical OrderDetailView sheet (not same-page hub redirect). */
+  const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
   const [bundleDetailsOffer, setBundleDetailsOffer] = useState<{
     offer: ConversationOfferView;
     isCounter: boolean;
@@ -1480,7 +1485,39 @@ export function ConversationHub({
 
   const runOrderAction = async (actionId: string) => {
     if (actionId === "view_order") {
-      router.push(view.orderDetailsHref);
+      /*
+       * orderDetailsHref points at this Conversation Hub (?order=).
+       * router.push same URL produces no visible transition — open canonical OrderDetailView.
+       */
+      if (!order) {
+        pushToast({ title: "Order details will appear once purchased.", variant: "info" });
+        return;
+      }
+      if (!profile?.id) {
+        pushToast({ title: "Sign in again to view order details.", variant: "error" });
+        return;
+      }
+      setOrderDetailsOpen(true);
+      return;
+    }
+    if (actionId === "cancel_order") {
+      /*
+       * Cancel is compact inside Order Details (BuyerCancelOrderCard).
+       * Legacy status-card cancel_order opens the same canonical surface.
+       */
+      if (view.viewerRole !== "buyer") {
+        pushToast({ title: "Only the buyer can cancel this order.", variant: "info" });
+        return;
+      }
+      if (!order) {
+        pushToast({ title: "Order details will appear once purchased.", variant: "info" });
+        return;
+      }
+      if (!profile?.id) {
+        pushToast({ title: "Sign in again to view order details.", variant: "error" });
+        return;
+      }
+      setOrderDetailsOpen(true);
       return;
     }
     if (actionId === "withdraw") {
@@ -2434,6 +2471,65 @@ export function ConversationHub({
           orderId={labelViewer?.orderId ?? null}
           carrierName={labelViewer?.carrierName ?? null}
         />
+        <ModalContainer
+          open={orderDetailsOpen && Boolean(order) && Boolean(profile?.id)}
+          onClose={() => {
+            setOrderDetailsOpen(false);
+            void reloadRelated();
+          }}
+          variant="sheet"
+          zIndex={130}
+          ariaLabel="Order Details"
+          panelClassName="conv-hub__order-details-panel"
+        >
+          <div className="conv-hub__order-details-sheet" data-order-details-sheet="v1.0">
+            <header className="conv-hub__order-details-header">
+              <h2 className="conv-hub__order-details-title">Order Details</h2>
+              <button
+                type="button"
+                className="conv-hub__order-details-close"
+                aria-label="Close order details"
+                onClick={() => {
+                  setOrderDetailsOpen(false);
+                  void reloadRelated();
+                }}
+              >
+                ✕
+              </button>
+            </header>
+            {order && profile?.id ? (
+              <div className="conv-hub__order-details-body">
+                <OrderDetailView
+                  key={order.id}
+                  initialOrder={order}
+                  userId={profile.id}
+                  buyerCanCancel={
+                    view.viewerRole === "buyer" &&
+                    isBuyerCancellableOrderStatus(order.status) &&
+                    !hasShippingLabel
+                  }
+                  buyerCancelReason={
+                    view.viewerRole === "buyer" &&
+                    isBuyerCancellableOrderStatus(order.status) &&
+                    hasShippingLabel
+                      ? "A shipping label has already been generated for this order."
+                      : undefined
+                  }
+                  onOpenMessages={() => {
+                    setOrderDetailsOpen(false);
+                    void reloadRelated();
+                  }}
+                  onOrderUpdated={(next) => {
+                    void reloadRelated();
+                    if (next.status === "cancelled") {
+                      pushToast({ title: "Order cancelled.", variant: "success" });
+                    }
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
+        </ModalContainer>
       </div>
     </AccountCanonicalShell>
   );

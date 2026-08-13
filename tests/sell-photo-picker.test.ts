@@ -251,27 +251,63 @@ describe("sell photo picker (Android / Samsung / iOS)", () => {
     expect(picker).toMatch(/mode === "multiple" \? \([\s\S]*Apply[\s\S]*\) : null/);
   });
 
-  it("sell Add Photos is one-tap native file input (no ROVEXO sheet)", () => {
+  it("sell Add Photos exposes Take Photo + Choose from Gallery (no ROVEXO sheet)", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
     expect(rail).toContain("SellPhotoFileInput");
     expect(rail).toContain("CameraLineIcon");
-    expect(rail).toContain("Add Photos");
+    expect(rail).toContain("GalleryLineIcon");
+    expect(rail).toContain("Take Photo");
+    expect(rail).toContain("Choose from Gallery");
+    expect(rail).toContain('intent="camera"');
     expect(rail).toContain('data-native-photo-picker-host="v1.0"');
-    expect(rail).toContain('data-native-photo-picker-trigger="1"');
+    expect(rail).toContain('data-native-photo-picker-trigger="camera"');
+    expect(rail).toContain('data-native-photo-picker-trigger="gallery"');
     expect(rail).not.toContain("UniversalPhotoPickerSheet");
     expect(rail).not.toContain("ComposeLineIcon");
     expect(rail).not.toContain("NativeImageFileInput");
-    expect(rail).not.toContain("Camera Photo");
-    expect(rail).not.toContain("Photo Gallery");
+    expect(rail).not.toContain("ActionSheet");
+    expect(rail).not.toContain("BottomSheet");
 
     expect(input).toContain('type="file"');
     expect(input).toContain("resolveNativeImageAccept");
-    expect(input).toContain('data-universal-photo-intent="gallery"');
+    expect(input).toContain("resolveNativeImageCapture");
+    expect(input).toContain('data-universal-photo-intent={intent}');
     expect(input).toContain("data-native-photo-picker");
-    expect(input).not.toContain("capture");
-    expect(input).not.toContain("resolveNativeImageCapture");
+    expect(input).toContain("...(capture ? { capture } : {})");
+    expect(input).toContain('intent === "camera" ? false : multiple');
+  });
+
+  it("camera capture action uses environment; gallery omits capture", () => {
+    const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
+    expect(input).toContain("resolveNativeImageCapture(intent)");
+    expect(resolveNativeImageCapture("camera")).toBe("environment");
+    expect(resolveNativeImageCapture("gallery")).toBeUndefined();
+  });
+
+  it("camera and gallery share SELL_PHOTO_MAX=8 via addPhotos", () => {
+    const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
+    const provider = readSource("features/sell/context/SellProvider.tsx");
+    expect(rail).toContain("handleFilesSelected");
+    expect(rail).toContain("void addPhotos(files)");
+    expect(rail).toContain("intent=\"camera\"");
+    expect(provider).toContain("SELL_PHOTO_MAX - draftRef.current.photos.length");
+    expect(provider).toContain(".slice(0, SELL_PHOTO_MAX)");
+    expect(SELL_PHOTO_MAX).toBe(8);
+  });
+
+  it("reuses single SellPhotoFileInput — no duplicate uploader", () => {
+    const sellRoot = path.join(process.cwd(), "features/sell");
+    const files = walkTsFiles(sellRoot);
+    const fileInputOwners = files.filter((file) => {
+      const source = readFileSync(file, "utf8");
+      return /type=["']file["']/.test(source);
+    });
+    const relative = fileInputOwners.map((file) =>
+      path.relative(process.cwd(), file).replace(/\\/g, "/"),
+    );
+    expect(relative).toEqual(["features/sell/ui/SellPhotoFileInput.tsx"]);
   });
 
   it("shared NativeImageFileInput omits capture unless camera intent", () => {

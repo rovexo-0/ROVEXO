@@ -12,6 +12,7 @@ import { createProtectionCase } from "@/lib/protection/service";
 import { onOrderCompleted, onOrderRefunded, onShipmentDelivered } from "@/lib/trust/events";
 import type {
   AddTrackingInput,
+  CancelOrderInput,
   CreateOrderInput,
   Order,
   OrderAction,
@@ -153,7 +154,7 @@ export async function createOrder(
 export async function applyOrderAction(
   id: string,
   action: OrderAction,
-  payload?: AddTrackingInput,
+  payload?: AddTrackingInput | CancelOrderInput,
 ): Promise<Order | null> {
   const existing = await getOrderById(id);
   if (!existing) {
@@ -161,7 +162,8 @@ export async function applyOrderAction(
   }
 
   if (action === "add_tracking") {
-    const trackingNumber = payload?.trackingNumber?.trim();
+    const trackingNumber =
+      payload && "trackingNumber" in payload ? payload.trackingNumber?.trim() : undefined;
     if (!trackingNumber || existing.status !== "awaiting_shipment") {
       return existing;
     }
@@ -247,9 +249,11 @@ export async function applyOrderAction(
   }
 
   if (action === "cancel") {
+    const cancelPayload = payload as CancelOrderInput | undefined;
     const result = await cancelBuyerOrder({
       orderId: id,
       buyerId: existing.buyer.id,
+      cancellationReasonId: cancelPayload?.cancellationReasonId,
     });
     if (!result.success) {
       throw new Error(result.error ?? "Unable to cancel order.");

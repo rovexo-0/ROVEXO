@@ -1,16 +1,22 @@
 "use client";
 
 /**
- * ROVEXO v1.0 — Shipping Label Viewer (CANONICAL · FROZEN)
+ * ROVEXO v1.0 — Shipping Label Viewer (CANONICAL)
  * Single presentation component for official carrier PDFs and demo labels.
  * Never recreates, redraws, or regenerates labels. No duplicate viewers.
  *
  * Fetches the existing label URL into a same-origin blob so the document
  * is visible even when carriers / storage block cross-origin iframes.
+ * P7.26 UI: rasterize PDF pages for mobile preview (iframe PDF is blank on iOS).
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ModalContainer } from "@/components/ui/ModalContainer";
+import {
+  canUseNativePdfIframePreview,
+  rasterizeShippingLabelPdfBlob,
+  revokePreviewObjectUrls,
+} from "@/features/shipping/components/shipping-label-pdf-preview-v1";
 import "@/styles/rovexo/shipping-label-viewer-v1.css";
 
 const labelUrlCache = new Map<string, string>();
@@ -71,14 +77,17 @@ export function ShippingLabelViewer({
   orderId = null,
 }: ShippingLabelViewerProps) {
   const objectUrlRef = useRef<string | null>(null);
+  const previewUrlsRef = useRef<string[]>([]);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [mimeType, setMimeType] = useState("application/pdf");
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [previewMode, setPreviewMode] = useState<"image" | "iframe" | "compact">("compact");
   const [page, setPage] = useState(1);
-  const pageCount = 1;
   const loadGeneration = useRef(0);
 
   const sourceUrl = pdfUrl?.trim() || null;
+  const pageCount = previewUrls.length > 0 ? previewUrls.length : 1;
 
   const revokeObjectUrl = useCallback(() => {
     if (objectUrlRef.current) {
@@ -87,10 +96,18 @@ export function ShippingLabelViewer({
     }
   }, []);
 
+  const clearPreviewUrls = useCallback(() => {
+    revokePreviewObjectUrls(previewUrlsRef.current);
+    previewUrlsRef.current = [];
+    setPreviewUrls([]);
+  }, []);
+
   const loadLabel = useCallback(async () => {
     const generation = ++loadGeneration.current;
     revokeObjectUrl();
+    clearPreviewUrls();
     setEmbedUrl(null);
+    setPreviewMode("compact");
     setPage(1);
 
     if (!sourceUrl) {
@@ -131,6 +148,35 @@ export function ShippingLabelViewer({
       objectUrlRef.current = objectUrl;
       setMimeType(type);
       setEmbedUrl(objectUrl);
+
+      if (type.startsWith("image/") || type.includes("html")) {
+        setPreviewMode(type.startsWith("image/") ? "image" : "iframe");
+        setLoadState("ready");
+        return;
+      }
+
+      // PDF — prefer rasterized pages so mobile Safari shows the real label (not a blank iframe).
+      const raster = await rasterizeShippingLabelPdfBlob(typedBlob);
+      if (generation !== loadGeneration.current) {
+        revokePreviewObjectUrls(raster);
+        return;
+      }
+      if (raster && raster.length > 0) {
+        previewUrlsRef.current = raster;
+        setPreviewUrls(raster);
+        setPreviewMode("image");
+        setLoadState("ready");
+        return;
+      }
+
+      if (canUseNativePdfIframePreview()) {
+        setPreviewMode("iframe");
+        setLoadState("ready");
+        return;
+      }
+
+      // Compact fallback — keep Open/Download/Print usable, no giant blank stage.
+      setPreviewMode("compact");
       setLoadState("ready");
     } catch {
       if (generation !== loadGeneration.current) return;
@@ -140,17 +186,18 @@ export function ShippingLabelViewer({
        */
       setLoadState("error");
     }
-  }, [sourceUrl, orderId, revokeObjectUrl]);
+  }, [sourceUrl, orderId, revokeObjectUrl, clearPreviewUrls]);
 
   useEffect(() => {
     if (!open) {
       loadGeneration.current += 1;
       revokeObjectUrl();
-      // Reset display via derived values when closed — avoid sync setState in this effect.
+      // Revoke only — avoid sync setState in this effect (React cascading-render rule).
+      revokePreviewObjectUrls(previewUrlsRef.current);
+      previewUrlsRef.current = [];
       return;
     }
     let cancelled = false;
-    // Defer loadLabel: its first statements call setState — must not run sync in the effect body.
     void Promise.resolve().then(() => {
       if (!cancelled) void loadLabel();
     });
@@ -164,11 +211,23 @@ export function ShippingLabelViewer({
   const viewEmbedUrl = open ? embedUrl : null;
   const viewPage = open ? page : 1;
 
-  useEffect(() => () => revokeObjectUrl(), [revokeObjectUrl]);
+  useEffect(
+    () => () => {
+      revokeObjectUrl();
+      clearPreviewUrls();
+    },
+    [revokeObjectUrl, clearPreviewUrls],
+  );
 
   const handleRetry = useCallback(() => {
     void loadLabel();
   }, [loadLabel]);
+
+  const handleOpenLabel = useCallback(() => {
+    const href = embedUrl || sourceUrl;
+    if (!href) return;
+    window.open(resolveAbsoluteUrl(href), "_blank");
+  }, [embedUrl, sourceUrl]);
 
   const handleDownload = useCallback(async () => {
     try {
@@ -281,17 +340,28 @@ export function ShippingLabelViewer({
 
   const pdfSrc =
     viewEmbedUrl && mimeType.includes("pdf")
-      ? `${viewEmbedUrl}#toolbar=0&navpanes=0&scrollbar=1&view=Fit`
+      ? `${viewEmbedUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
       : viewEmbedUrl;
 
   const isImage = mimeType.startsWith("image/");
   const isHtml = mimeType.includes("html");
   const showDocument = viewLoadState === "ready" && Boolean(viewEmbedUrl);
+  const showRasterPreview = showDocument && previewMode === "image" && previewUrls.length > 0;
+  const showNativeImage = showDocument && isImage && previewUrls.length === 0;
+  const showHtmlFrame = showDocument && isHtml;
+  const showPdfIframe = showDocument && previewMode === "iframe" && !isImage && !isHtml;
+  const showCompactFallback = showDocument && previewMode === "compact" && !isImage && !isHtml;
   const showError =
     viewLoadState === "error" || (open && !sourceUrl && viewLoadState !== "loading");
   const showLoading =
     open && (viewLoadState === "loading" || viewLoadState === "idle") && !showError;
   const isSinglePage = pageCount <= 1;
+  const shellMode =
+    showCompactFallback || showError
+      ? "compact"
+      : showRasterPreview || showNativeImage
+        ? "preview"
+        : "document";
 
   return (
     <ModalContainer
@@ -304,7 +374,11 @@ export function ShippingLabelViewer({
       className="slv-v1"
       scrollPanel={false}
     >
-      <div className="slv-v1__shell" data-shipping-label-viewer="v1.0">
+      <div
+        className="slv-v1__shell"
+        data-shipping-label-viewer="v1.0"
+        data-slv-mode={shellMode}
+      >
         <header className="slv-v1__header">
           <button type="button" className="slv-v1__icon-btn" aria-label="Close" onClick={onClose}>
             ✕
@@ -328,7 +402,7 @@ export function ShippingLabelViewer({
           </p>
         ) : null}
 
-        <div className="slv-v1__stage">
+        <div className="slv-v1__stage" data-slv-stage={shellMode}>
           {showLoading ? (
             <div className="slv-v1__loading" role="status" aria-live="polite">
               <span className="slv-v1__spinner" aria-hidden />
@@ -346,7 +420,7 @@ export function ShippingLabelViewer({
             </div>
           ) : null}
 
-          {showDocument && isImage ? (
+          {showNativeImage ? (
             <div className="slv-v1__scroll">
               {/* eslint-disable-next-line @next/next/no-img-element -- official label bytes, not UI branding */}
               <img
@@ -358,7 +432,22 @@ export function ShippingLabelViewer({
             </div>
           ) : null}
 
-          {showDocument && isHtml ? (
+          {showRasterPreview ? (
+            <div className="slv-v1__scroll" data-slv-preview="raster">
+              {previewUrls.map((url, index) => (
+                // eslint-disable-next-line @next/next/no-img-element -- official label page raster, not UI branding
+                <img
+                  key={url}
+                  className="slv-v1__image"
+                  src={url}
+                  alt={`Official shipping label page ${index + 1}`}
+                  hidden={previewUrls.length > 1 && index + 1 !== viewPage}
+                />
+              ))}
+            </div>
+          ) : null}
+
+          {showHtmlFrame ? (
             <iframe
               className="slv-v1__frame"
               title="Official Carrier Label"
@@ -367,30 +456,25 @@ export function ShippingLabelViewer({
             />
           ) : null}
 
-          {showDocument && !isImage && !isHtml ? (
+          {showPdfIframe ? (
             <div className="slv-v1__pdf-wrap">
               <iframe
                 className="slv-v1__frame"
                 title="Official Carrier PDF"
                 src={pdfSrc!}
-                onError={() => setLoadState("error")}
+                onError={() => setPreviewMode("compact")}
               />
-              <div className="slv-v1__pdf-fallback">
-                <p className="slv-v1__pdf-fallback-copy">
-                  If the label preview is blank, open it in your browser to view or print.
-                </p>
-                <button
-                  type="button"
-                  className="slv-v1__retry"
-                  onClick={() => {
-                    const href = embedUrl || sourceUrl;
-                    if (!href) return;
-                    window.open(resolveAbsoluteUrl(href), "_blank");
-                  }}
-                >
-                  Open label
-                </button>
-              </div>
+            </div>
+          ) : null}
+
+          {showCompactFallback ? (
+            <div className="slv-v1__pdf-fallback" role="status">
+              <p className="slv-v1__pdf-fallback-copy">
+                Preview is unavailable in this browser. Open the label to view or print.
+              </p>
+              <button type="button" className="slv-v1__retry" onClick={handleOpenLabel}>
+                Open label
+              </button>
             </div>
           ) : null}
         </div>
@@ -418,6 +502,11 @@ export function ShippingLabelViewer({
                 Next →
               </button>
             </div>
+          ) : null}
+          {!showCompactFallback && (viewEmbedUrl || sourceUrl) ? (
+            <button type="button" className="slv-v1__secondary" onClick={handleOpenLabel}>
+              Open label
+            </button>
           ) : null}
           <button
             type="button"

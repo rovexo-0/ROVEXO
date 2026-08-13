@@ -6,11 +6,15 @@ import {
   nativeImageFileInputClassName,
   nativeImageFileInputOverlayClassName,
   resolveNativeImageAccept,
+  resolveNativeImageCapture,
+  type NativeImagePickerIntent,
   type NativeImagePickerPlacement,
 } from "@/lib/media/native-image-picker";
 import { NATIVE_PHOTO_PICKER_V1 } from "@/lib/media/universal-photo-picker-v1";
 
 type SellPhotoFileInputProps = {
+  /** `gallery` = Photos / system picker (no capture). `camera` = rear camera capture. */
+  intent?: Extract<NativeImagePickerIntent, "gallery" | "camera">;
   multiple?: boolean;
   disabled?: boolean;
   className?: string;
@@ -20,19 +24,16 @@ type SellPhotoFileInputProps = {
 };
 
 /**
- * Sell Add Photos — one-tap native OS Photo Picker.
+ * Sell Add Photos — canonical native file input (one implementation).
  *
- * Exactly:
- *   <input type="file" accept="image/*" multiple />
- * OS Photos / Gallery only — never forces the device camera.
+ * Gallery: `<input type="file" accept="image/*" multiple />` — no capture.
+ * Camera:  `<input type="file" accept="image/*" capture="environment" />` — rear camera.
  *
- * Android → system Photo Picker / Gallery
- * iPhone  → Photos library
- *
- * Product Integration Phase III: gallery entry is owned by Product Integration
- * (files flow through intakeSellPhotoFromCanonicalEntry via SellProvider).
+ * Both intents feed the same Product Integration → upload pipeline via SellProvider.addPhotos.
+ * Never invent a second uploader.
  */
 export function SellPhotoFileInput({
+  intent = "gallery",
   multiple = true,
   disabled = false,
   className,
@@ -48,17 +49,21 @@ export function SellPhotoFileInput({
     event.target.value = "";
   };
 
+  const capture = resolveNativeImageCapture(intent);
+  const allowMultiple = intent === "camera" ? false : multiple;
+
   return (
     <input
       ref={inputRef}
       type="file"
-      accept={resolveNativeImageAccept("gallery")}
-      multiple={multiple}
+      accept={resolveNativeImageAccept(intent)}
+      multiple={allowMultiple}
       disabled={disabled}
+      {...(capture ? { capture } : {})}
       onChange={handleChange}
       data-native-photo-picker={NATIVE_PHOTO_PICKER_V1.version}
-      data-universal-photo-intent="gallery"
-      data-product-integration-entry="gallery_picker"
+      data-universal-photo-intent={intent}
+      data-product-integration-entry={intent === "camera" ? "camera_capture" : "gallery_picker"}
       className={cn(
         placement === "overlay"
           ? nativeImageFileInputOverlayClassName

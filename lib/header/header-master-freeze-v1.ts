@@ -75,6 +75,7 @@ export const HEADER_MASTER_FREEZE_V1 = {
     "Clear Search (X)",
     "Voice Search (future optional)",
     "Registered User Counter",
+    "Share ROVEXO (Share Nodes)",
   ] as const,
   keep: [
     "Search Icon",

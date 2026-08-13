@@ -35,8 +35,10 @@ export type OrderProduct = {
 };
 
 export type DeliveryStage = {
-  id: "placed" | "shipped" | "delivered";
+  id: "placed" | "shipped" | "in_transit" | "delivered";
   label: string;
+  /** Compact supporting line from canonical delivery copy (optional). */
+  description?: string;
   timestamp?: string;
   done: boolean;
   current: boolean;
@@ -90,4 +92,8 @@ export type OrderAction =
 
 export type AddTrackingInput = {
   trackingNumber: string;
+};
+
+export type CancelOrderInput = {
+  cancellationReasonId?: string;
 };

@@ -389,3 +389,26 @@ export function LocationLineIcon(props: IconProps) {
     </svg>
   );
 }
+
+/** Destructive / prohibited — Cancel order action rows. */
+export function BanLineIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M7.5 7.5 16.5 16.5" />
+    </svg>
+  );
+}
+
+/** Owner-approved Share Nodes (ICON ②) — Homepage Share. */
+export function ShareNodesLineIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.5 10.8 15.5 6.7" />
+      <path d="M8.5 13.2 15.5 17.3" />
+    </svg>
+  );
+}

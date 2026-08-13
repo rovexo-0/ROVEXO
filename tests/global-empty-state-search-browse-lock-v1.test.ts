@@ -44,4 +44,23 @@ describe("Owner UI Lock — Global Empty State (Search & Browse)", () => {
     expect(emptyBranch).not.toContain("srch-results__count");
     expect(emptyBranch).not.toContain("Browse categories");
   });
+
+  it("empty Browse/Search chrome matches canonical landing breakout geometry", () => {
+    const landing = readSource("styles/rovexo/search-landing-v1.css");
+    const results = readSource("styles/rovexo/search-results-v1.css");
+    const category = readSource("features/categories/components/CategoryPageView.tsx");
+    const programmatic = readSource("features/seo/components/ProgrammaticPageView.tsx");
+
+    expect(landing).toContain("--srch-land-breakout");
+    expect(landing).toContain("width: calc(100% + (2 * var(--srch-land-breakout)))");
+    expect(results).toContain("--srch-empty-breakout");
+    expect(results).toContain("width: calc(100% + (2 * var(--srch-empty-breakout)))");
+    expect(results).toContain("margin-left: calc(-1 * var(--srch-empty-breakout))");
+    expect(results).toContain("overflow-x: clip");
+    expect(results).not.toMatch(/\.srch-results__empty-bar\s*\{[^}]*max-width:\s*\d/);
+    expect(category).toContain("srch-results__empty-chrome");
+    expect(category).toContain("srch-results__empty-bar");
+    expect(programmatic).toContain("srch-results__empty-chrome");
+    expect(programmatic).toContain("srch-results__empty-bar");
+  });
 });

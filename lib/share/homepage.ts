@@ -1,8 +1,11 @@
-/** Canonical Homepage share payload — Web Share API + fallback channels. */
+import { PRODUCTION_ORIGIN } from "@/lib/preview/owner-preview-ssot";
+
+/** Canonical Homepage share payload — Web Share API + compact fallback channels. */
 export const HOMEPAGE_SHARE = {
-  title: "ROVEXO – Buy & Sell with Confidence",
-  text: "Discover thousands of products from trusted sellers across the UK.",
-  url: "https://www.rovexo.co.uk",
+  title: "ROVEXO",
+  text: "Buy • Sell • Grow",
+  /** Production homepage only — never localhost / session / query params. */
+  url: `${PRODUCTION_ORIGIN}/`,
 } as const;
 
 export function getHomepageFacebookShareUrl(url: string = HOMEPAGE_SHARE.url): string {
@@ -16,17 +19,6 @@ export function getHomepageWhatsAppShareUrl(
   return `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
 }
 
-export function getHomepageMessengerShareUrl(url: string = HOMEPAGE_SHARE.url): string {
-  return `https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&redirect_uri=${encodeURIComponent(url)}`;
-}
-
-export function getHomepageTelegramShareUrl(
-  url: string = HOMEPAGE_SHARE.url,
-  text: string = HOMEPAGE_SHARE.title,
-): string {
-  return `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-}
-
 export function getHomepageXShareUrl(
   url: string = HOMEPAGE_SHARE.url,
   text: string = HOMEPAGE_SHARE.title,
@@ -34,10 +26,38 @@ export function getHomepageXShareUrl(
   return `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
 }
 
+/** @deprecated Prefer getHomepageXShareUrl — retained for older imports. */
+export function getHomepageMessengerShareUrl(url: string = HOMEPAGE_SHARE.url): string {
+  return `https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&redirect_uri=${encodeURIComponent(url)}`;
+}
+
+/** @deprecated Compact menu no longer includes Telegram. */
+export function getHomepageTelegramShareUrl(
+  url: string = HOMEPAGE_SHARE.url,
+  text: string = HOMEPAGE_SHARE.title,
+): string {
+  return `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+}
+
+/** @deprecated Compact menu no longer includes Email. */
 export function getHomepageEmailShareUrl(
   url: string = HOMEPAGE_SHARE.url,
   title: string = HOMEPAGE_SHARE.title,
   text: string = HOMEPAGE_SHARE.text,
 ): string {
   return `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
+}
+
+export function isCanonicalHomepageShareUrl(url: string): boolean {
+  if (!url || url.includes("localhost") || url.includes("127.0.0.1")) return false;
+  if (url.includes("?") || url.includes("#")) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.origin === PRODUCTION_ORIGIN || parsed.origin === "https://rovexo.co.uk") &&
+      (parsed.pathname === "/" || parsed.pathname === "")
+    );
+  } catch {
+    return false;
+  }
 }

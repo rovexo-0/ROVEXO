@@ -30,6 +30,8 @@ describe("official header design", () => {
     expect(source).toContain('data-header-version="rovexo-v2"');
     expect(source).toContain('data-header-search-first="true"');
     expect(source).toContain("ROVEXO");
+    expect(source).toContain("HomepageHeaderShareButton");
+    expect(source).toContain("HomepageRegisteredUserCounter");
     expect(source).not.toContain("/account/settings");
     expect(source).not.toContain("RovexoIcons.settings");
     expect(source).not.toContain("lucide-react");
@@ -37,7 +39,6 @@ describe("official header design", () => {
     expect(source).not.toContain('href="/messages"');
     expect(source).not.toContain("BellLineIcon");
     expect(source).not.toContain("HeaderProfileLink");
-    expect(source).not.toContain("HomepageHeaderShareButton");
     expect(source).not.toContain("useHeaderBadges");
   });
 
@@ -77,22 +78,27 @@ describe("official header design", () => {
   });
 
   it("defines homepage share payload for Web Share and fallback channels", () => {
-    expect(HOMEPAGE_SHARE.title).toBe("ROVEXO – Buy & Sell with Confidence");
-    expect(HOMEPAGE_SHARE.text).toContain("trusted sellers");
-    expect(HOMEPAGE_SHARE.url).toBe("https://www.rovexo.co.uk");
+    expect(HOMEPAGE_SHARE.title).toBe("ROVEXO");
+    expect(HOMEPAGE_SHARE.text).toBe("Buy • Sell • Grow");
+    expect(HOMEPAGE_SHARE.url).toBe("https://www.rovexo.co.uk/");
+    expect(HOMEPAGE_SHARE.url).not.toContain("localhost");
+    expect(HOMEPAGE_SHARE.url).not.toContain("?");
 
     const button = readFileSync(
       path.join(process.cwd(), "components/header/HomepageHeaderShareButton.tsx"),
       "utf8",
     );
-    expect(button).toContain('aria-label="Share"');
+    expect(button).toContain('aria-label="Share ROVEXO"');
+    expect(button).toContain("ShareNodesLineIcon");
     expect(button).toContain("navigator.share");
     expect(button).toContain("Link copied");
     expect(button).toContain("WhatsApp");
     expect(button).toContain("Facebook");
-    expect(button).toContain("Messenger");
-    expect(button).toContain("Telegram");
-    expect(button).toContain("Email");
-    expect(button).toContain("More Apps");
+    expect(button).toContain("getHomepageXShareUrl");
+    expect(button).toContain("Copy link");
+    expect(button).not.toContain("Messenger");
+    expect(button).not.toContain("Telegram");
+    expect(button).not.toContain("More Apps");
+    expect(button).not.toContain("MegaphoneLineIcon");
   });
 });

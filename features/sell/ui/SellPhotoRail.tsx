@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CameraLineIcon } from "@/components/icons/RvxLineIcons";
+import { CameraLineIcon, GalleryLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { SellPhotoFileInput } from "@/features/sell/ui/SellPhotoFileInput";
@@ -77,8 +77,12 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       const id = el.dataset.photoId;
       if (id) map.set(id, el.getBoundingClientRect());
     });
-    const add = rail.querySelector<HTMLElement>("[data-native-photo-picker-trigger]");
-    if (add) map.set("__add__", add.getBoundingClientRect());
+    rail.querySelectorAll<HTMLElement>("[data-native-photo-picker-trigger]").forEach((el) => {
+      const key = el.dataset.nativePhotoPickerTrigger
+        ? `__add_${el.dataset.nativePhotoPickerTrigger}__`
+        : "__add__";
+      map.set(key, el.getBoundingClientRect());
+    });
     flipRectsRef.current = map;
   }, []);
 
@@ -117,8 +121,12 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       if (!id) return;
       animateEl(el, first.get(id));
     });
-    const add = rail.querySelector<HTMLElement>("[data-native-photo-picker-trigger]");
-    if (add) animateEl(add, first.get("__add__"));
+    rail.querySelectorAll<HTMLElement>("[data-native-photo-picker-trigger]").forEach((el) => {
+      const key = el.dataset.nativePhotoPickerTrigger
+        ? `__add_${el.dataset.nativePhotoPickerTrigger}__`
+        : "__add__";
+      animateEl(el, first.get(key));
+    });
 
     flipRectsRef.current = new Map();
   }, []);
@@ -199,22 +207,46 @@ export const SellPhotoRail = memo(function SellPhotoRail({
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
 
-  /** One tap → native OS Photo Picker (label + overlay file input). */
+  /**
+   * Dual native acquisition (same upload pipeline):
+   * Take Photo → capture="environment" · Choose from Gallery → system picker (no capture).
+   * No ROVEXO Action Sheet · no second uploader.
+   */
   const addPhotosControl = (
-    <label
-      aria-label="Add Photos"
-      className={cn(
-        PHOTO_TILE,
-        "sell-photo-tile--add gap-1",
-        photoError && "cds-menu-row--error",
-        focusRing,
-      )}
-      data-native-photo-picker-trigger="1"
-    >
-      <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-      <CameraLineIcon className="h-7 w-7 text-primary" aria-hidden />
-      <span className="sell-photo-tile__add-label">Add Photos</span>
-    </label>
+    <>
+      <label
+        aria-label="Take Photo"
+        className={cn(
+          PHOTO_TILE,
+          "sell-photo-tile--add gap-1",
+          photoError && "cds-menu-row--error",
+          focusRing,
+        )}
+        data-native-photo-picker-trigger="camera"
+      >
+        <SellPhotoFileInput
+          intent="camera"
+          multiple={false}
+          onFilesSelected={handleFilesSelected}
+        />
+        <CameraLineIcon className="h-7 w-7 text-primary" aria-hidden />
+        <span className="sell-photo-tile__add-label">Take Photo</span>
+      </label>
+      <label
+        aria-label="Choose from Gallery"
+        className={cn(
+          PHOTO_TILE,
+          "sell-photo-tile--add gap-1",
+          photoError && "cds-menu-row--error",
+          focusRing,
+        )}
+        data-native-photo-picker-trigger="gallery"
+      >
+        <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
+        <GalleryLineIcon className="h-7 w-7 text-primary" aria-hidden />
+        <span className="sell-photo-tile__add-label">Choose from Gallery</span>
+      </label>
+    </>
   );
 
   return (

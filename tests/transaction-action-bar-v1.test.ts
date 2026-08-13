@@ -110,6 +110,54 @@ describe("Dynamic Transaction Action Bar MES v1.1", () => {
     expect(statusCard).toContain("I Have an Issue");
   });
 
+  it("buyer Payment Successful — no sticky Order Details; VIEW ORDER opens details; cancel inside Order Details", () => {
+    const sellerCounterparty = {
+      ...buyerCounterparty,
+      participant: { ...buyerCounterparty.participant, role: "seller" as const, name: "Seller" },
+    };
+    const view = buildConversationHubView({
+      conversation: sellerCounterparty,
+      order: order("awaiting_shipment"),
+      hasShippingLabel: false,
+    });
+    expect(view.viewerRole).toBe("buyer");
+    expect(view.dynamicActions).toEqual([]);
+    expect(view.dynamicActions.some((a) => a.label === "Order Details")).toBe(false);
+
+    const statusCard = readSource("lib/inbox/transaction-status-card-v1.ts");
+    expect(statusCard).toContain('label: "VIEW ORDER"');
+    expect(statusCard).not.toContain('label: "CANCEL ORDER"');
+
+    const hub = readSource("features/inbox/components/ConversationHub.tsx");
+    expect(hub).toContain('actionId === "view_order"');
+    expect(hub).toContain("setOrderDetailsOpen(true)");
+    expect(hub).toContain("OrderDetailView");
+    expect(hub).toContain('data-order-details-sheet="v1.0"');
+    expect(hub).not.toContain("router.push(view.orderDetailsHref)");
+    expect(hub).not.toMatch(/\bwindow\.confirm\s*\(/);
+
+    const actions = readSource("features/orders/components/OrderActionsCard.tsx");
+    expect(actions).toContain('data-order-detail-action="messages"');
+    expect(actions).toContain("Open Messages Hub");
+    expect(actions).toContain("Continue the conversation with the seller.");
+    expect(actions).toContain("ChatLineIcon");
+
+    const cancelCard = readSource("features/orders/components/BuyerCancelOrderCard.tsx");
+    expect(cancelCard).toContain('data-order-detail-action="cancel"');
+    expect(cancelCard).toContain("Cancel your purchase before the seller ships the item.");
+    expect(cancelCard).toContain("BanLineIcon");
+    expect(cancelCard).toContain("BUYER_CANCELLATION_REASON_OPTIONS");
+    expect(cancelCard).toContain("cancellationReasonId");
+    expect(cancelCard).toContain("formatCurrency");
+    expect(cancelCard).not.toMatch(/\bwindow\.confirm\s*\(/);
+    expect(cancelCard).toContain('data-buyer-cancel-flow="v1.0"');
+
+    const detail = readSource("features/orders/components/OrderDetailView.tsx");
+    expect(detail).toContain('data-order-detail-actions="v1.0"');
+    expect(detail).toContain("OrderActionsCard");
+    expect(detail).toContain("BuyerCancelOrderCard");
+  });
+
   it("never exceeds two sticky buttons", () => {
     const sellerCounterparty = {
       ...buyerCounterparty,

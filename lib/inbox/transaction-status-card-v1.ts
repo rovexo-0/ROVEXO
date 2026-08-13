@@ -48,6 +48,7 @@ export type TransactionStatusCardActionId =
   | "leave_review"
   | "report_issue"
   | "confirm_received"
+  | "cancel_order"
   /** @deprecated Messages Master Rewrite — never emit in Messages UI (Wallet only). */
   | "withdraw";
 
@@ -201,6 +202,8 @@ export function resolveTransactionStatusCard(
         title: "Payment Successful",
         description: "Your payment has been confirmed.",
         primaryAction: { id: "view_order", label: "VIEW ORDER" },
+        /* Cancel lives compactly inside Order Details (BuyerCancelOrderCard) — not on this card. */
+        secondaryAction: null,
       });
     }
     return model({

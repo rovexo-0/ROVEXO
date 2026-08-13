@@ -230,7 +230,10 @@ describe("Photo System Product Integration — Phase III Camera & Gallery", () =
     expect(provider).not.toContain("validateClientImage");
 
     const fileInput = readSource("features/sell/ui/SellPhotoFileInput.tsx");
-    expect(fileInput).toContain('data-product-integration-entry="gallery_picker"');
+    expect(fileInput).toContain("gallery_picker");
+    expect(fileInput).toContain("camera_capture");
+    expect(fileInput).toContain("data-product-integration-entry");
+    expect(fileInput).toContain("resolveNativeImageCapture");
 
     const cameraPage = readSource("app/(platform)/sell/camera/page.tsx");
     expect(cameraPage).toContain('redirect("/sell")');

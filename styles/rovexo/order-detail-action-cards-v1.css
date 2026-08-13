@@ -1,0 +1,108 @@
+/**
+ * Order Details — compact action cards (IMAGE 2).
+ * Open Messages Hub + Cancel order: same dimensions, full-row tap, chevron.
+ */
+.order-detail-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.order-detail-action-card {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #e8e8ea;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.order-detail-action-card .cds-menu-row {
+  min-height: 64px;
+  padding: 12px 14px;
+  border-bottom: none;
+  gap: 12px;
+  background: transparent;
+}
+
+.order-detail-action-card .cds-menu-row:active:not(:disabled) {
+  background: rgb(15 23 42 / 0.03);
+}
+
+.order-detail-action-card .cds-menu-row__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #9333ea;
+  background: rgb(147 51 234 / 0.1);
+}
+
+.order-detail-action-card .cds-menu-row__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.order-detail-action-card .cds-menu-row__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.order-detail-action-card .cds-menu-row__subtitle {
+  font-size: 13px;
+  line-height: 1.35;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.order-detail-action-card .cds-menu-row__chevron {
+  color: #9ca3af;
+}
+
+/* CARD 1 — Messages (neutral) */
+.order-detail-action-card--messages {
+  border-color: #e8e8ea;
+  background: #ffffff;
+}
+
+.order-detail-action-card--messages .cds-menu-row__icon {
+  color: #9333ea;
+  background: rgb(147 51 234 / 0.12);
+}
+
+/* CARD 2 — Cancel (destructive, compact — not a giant CTA) */
+.order-detail-action-card--cancel {
+  border-color: rgb(220 38 38 / 0.28);
+  background: rgb(220 38 38 / 0.06);
+}
+
+.order-detail-action-card--cancel .cds-menu-row__icon {
+  color: #dc2626;
+  background: rgb(220 38 38 / 0.12);
+}
+
+.order-detail-action-card--cancel .cds-menu-row__title {
+  color: #b91c1c;
+}
+
+.order-detail-action-card--cancel .cds-menu-row:active:not(:disabled) {
+  background: rgb(220 38 38 / 0.1);
+}
+
+.order-detail-action-card--cancel .cds-menu-row__chevron {
+  color: #f87171;
+}
+
+.order-detail-action-card--track {
+  border-color: #e8e8ea;
+  background: #ffffff;
+}
+
+.order-detail-action-blocked {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #6b7280;
+}

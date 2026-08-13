@@ -129,14 +129,28 @@
 .srch-results--empty {
   min-height: calc(100dvh - 120px);
   gap: 0;
+  /* Prevent breakout chrome from causing horizontal page scroll */
+  overflow-x: clip;
 }
 
+/**
+ * ROOT CAUSE FIX — Browse Search Full-Width Consistency
+ * Canonical Browse landing (`.srch-land`) cancels parent inset via breakout,
+ * then re-applies `--srch-land-pad`. Empty chrome previously only padded
+ * inward → Search ROVEXO bar became narrower on category/0-item states.
+ * Match landing horizontal geometry (no hardcoded widths).
+ */
 .srch-results__empty-chrome {
+  --srch-empty-breakout: var(--cds-space-page-x, 16px);
   display: flex;
   align-items: center;
   gap: 8px;
+  box-sizing: border-box;
+  width: calc(100% + (2 * var(--srch-empty-breakout)));
+  max-width: none;
+  margin-left: calc(-1 * var(--srch-empty-breakout));
+  margin-right: calc(-1 * var(--srch-empty-breakout));
   padding: 8px var(--srch-results-pad-x) 0;
-  width: 100%;
 }
 
 .srch-results__empty-back {
@@ -178,9 +192,9 @@
   min-height: var(--cds-input-height, 44px);
   padding: 0 8px 0 12px;
   gap: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--rvx-border, var(--cds-color-border, #e5e7eb));
   border-radius: var(--cds-radius-pill, 999px);
-  background: #f9fafb;
+  background: var(--cds-color-surface-muted, #f9fafb);
   transition:
     border-color var(--cds-duration-fast, 150ms) var(--cds-ease, ease),
     background-color var(--cds-duration-fast, 150ms) var(--cds-ease, ease),

@@ -23,7 +23,9 @@ export function DeliveryStatusCard({ stages, carrier }: DeliveryStatusCardProps)
     <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3">
       <div>
         <h2 className="text-base font-semibold text-text-primary">Delivery Status</h2>
-        <p className="mt-ds-1 text-sm text-text-secondary">Carrier: {carrier}</p>
+        {carrier ? (
+          <p className="mt-ds-1 text-sm text-text-secondary">Carrier: {carrier}</p>
+        ) : null}
       </div>
 
       <ol className="flex flex-col gap-ds-3">
@@ -64,6 +66,9 @@ export function DeliveryStatusCard({ stages, carrier }: DeliveryStatusCardProps)
                 >
                   {stage.label}
                 </p>
+                {stage.description && stage.current ? (
+                  <p className="mt-ds-1 text-xs text-text-secondary">{stage.description}</p>
+                ) : null}
                 {timestamp && <p className="mt-ds-1 text-xs text-text-secondary">{timestamp}</p>}
               </div>
             </li>
