@@ -67,10 +67,13 @@ describe("P7.25 resolveShipmentParcelForLabel", () => {
     expect(src).toContain("resolveShipmentParcelForLabel");
     expect(src).toContain('status === "create"');
     // Must not blindly create before resolving existing parcels.
-    const createIdx = src.indexOf("createShipmentParcel({ orderId, productItemIds: [] })");
+    const createIdx = src.indexOf("createShipmentParcel({");
     const resolveIdx = src.indexOf("resolveShipmentParcelForLabel");
     expect(resolveIdx).toBeGreaterThan(-1);
     expect(createIdx).toBeGreaterThan(resolveIdx);
+    // Auto-create seeds from parcel_tier SSOT when measurements would otherwise be null.
+    expect(src).toContain("parcelTierToDimensions");
+    expect(src).toContain("resolveLabelParcelMeasurements");
   });
 
   it("T3: no existing parcels → create", () => {

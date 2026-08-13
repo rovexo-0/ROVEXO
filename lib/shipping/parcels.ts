@@ -275,6 +275,39 @@ export function resolveCompleteParcelMeasurements(input: {
   };
 }
 
+/**
+ * Label-path measurement resolution (canonical data flow).
+ *
+ * 1. Prefer persisted shipment_parcels measurements (seller/order truth).
+ * 2. Else hydrate from the order's parcel_tier SSOT via parcelTierToDimensions —
+ *    the same contract Sell → checkout quotes already use (no free-form invent).
+ * 3. Else null → fail closed (P7.21).
+ *
+ * Adapter/Sendcloud layers still require complete measurements; this only closes
+ * the gap when post-payment created a parcel row without copying parcel_tier.
+ */
+export function resolveLabelParcelMeasurements(input: {
+  weightKg?: number | null;
+  dimensions?: {
+    lengthCm?: number | null;
+    widthCm?: number | null;
+    heightCm?: number | null;
+  } | null;
+  parcelTier?: ParcelTier | string | null;
+}): ParcelDimensions | null {
+  const fromParcel = resolveCompleteParcelMeasurements({
+    weightKg: input.weightKg,
+    dimensions: input.dimensions,
+  });
+  if (fromParcel) return fromParcel;
+
+  const tierRaw = typeof input.parcelTier === "string" ? input.parcelTier.trim() : "";
+  if (!tierRaw) return null;
+
+  const tier = normalizeTier(tierRaw);
+  return parcelTierToDimensions(tier);
+}
+
 export function isParcelTier(value: string): value is ParcelTier {
   return (
     value === "letter" ||

@@ -8,10 +8,13 @@ import {
   getShipmentParcelById,
   createShipmentParcel,
   listShipmentParcelsForOrder,
+  updateShipmentParcel,
 } from "@/lib/shipping/parcels-repository";
 import {
   PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
+  parcelTierToDimensions,
   resolveCompleteParcelMeasurements,
+  resolveLabelParcelMeasurements,
 } from "@/lib/shipping/parcels";
 import { resolveShipmentParcelForLabel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
 import { resolveSelectedShippingQuoteForLabel } from "@/lib/shipping/selected-shipping-quote-contract-v1";
@@ -213,7 +216,22 @@ export async function generateShippingLabelForOrder(
     parcelResolution.status === "use" ? parcelResolution.parcel : null;
 
   if (parcelResolution.status === "create") {
-    parcel = await createShipmentParcel({ orderId, productItemIds: [] });
+    // Seed from order parcel_tier SSOT — Sell never collects free-form kg/cm.
+    const tierSeed = record.parcelTier
+      ? parcelTierToDimensions(record.parcelTier)
+      : null;
+    parcel = await createShipmentParcel({
+      orderId,
+      productItemIds: [],
+      ...(tierSeed
+        ? {
+            weightKg: tierSeed.weightKg,
+            lengthCm: tierSeed.lengthCm,
+            widthCm: tierSeed.widthCm,
+            heightCm: tierSeed.heightCm,
+          }
+        : {}),
+    });
   }
 
   if (!parcel) {
@@ -276,15 +294,37 @@ export async function generateShippingLabelForOrder(
     email: deliveryAddress.email?.trim() || buyerContact.email || undefined,
   };
 
-  // P7.21: production Sendcloud announce requires real shipment_parcels measurements.
-  // Never silently substitute parcel-tier maximum envelopes (e.g. medium → 5kg / 61×46×46).
-  // Missing measurements → fail closed on this parcel (do not create another).
+  // P7.21: announce requires complete measurements on the parcel path.
+  // Prefer shipment_parcels row; if null, hydrate once from shipping_records.parcel_tier
+  // via parcelTierToDimensions (canonical Sell → checkout SSOT), persist, then announce.
+  // Never invent free-form kg/cm. Adapter still refuses incomplete request fields.
   // Full Demo may omit measurements (demo adapter never calls Sendcloud).
   const allowDemoWithoutMeasurements = forceDemoShipping || mustUseDemoShipping();
-  const parcelMeasurements = resolveCompleteParcelMeasurements({
+  let parcelMeasurements = resolveLabelParcelMeasurements({
+    weightKg: parcel.weightKg,
+    dimensions: parcel.dimensions,
+    parcelTier: record?.parcelTier,
+  });
+  const fromParcelRow = resolveCompleteParcelMeasurements({
     weightKg: parcel.weightKg,
     dimensions: parcel.dimensions,
   });
+  if (!fromParcelRow && parcelMeasurements && parcel.id) {
+    const hydrated = parcelMeasurements;
+    const updated = await updateShipmentParcel(parcel.id, {
+      weightKg: hydrated.weightKg,
+      lengthCm: hydrated.lengthCm,
+      widthCm: hydrated.widthCm,
+      heightCm: hydrated.heightCm,
+    });
+    if (updated) {
+      parcel = updated;
+      parcelMeasurements = resolveCompleteParcelMeasurements({
+        weightKg: updated.weightKg,
+        dimensions: updated.dimensions,
+      });
+    }
+  }
   if (!allowDemoWithoutMeasurements && !parcelMeasurements) {
     return rovexoValidationFailure(PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL);
   }

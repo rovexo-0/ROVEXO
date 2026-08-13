@@ -30,7 +30,7 @@ import {
   isShippingSetupReady,
   type ShippingSetupStatus,
 } from "@/lib/shipping/shipping-setup-status-v1";
-import { resolveListingParcelTier } from "@/lib/shipping/parcels";
+import { parcelTierToDimensions, resolveListingParcelTier } from "@/lib/shipping/parcels";
 import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
 
 const PAID_ORDER_STATUSES = new Set([
@@ -441,14 +441,22 @@ async function runEnsureOrderShippingPersistence(
   }
 
   // Internal shipment parcel row only — never a Sendcloud parcel.
+  // Seed measurements from parcel_tier SSOT (Sell has no free-form weight/dims).
   const parcels = await listShipmentParcelsForOrder(order.id);
   if (parcels.length === 0) {
+    const tierForParcel =
+      (await getShippingRecord(order.id))?.parcelTier ?? parcelTier;
+    const tierDims = parcelTierToDimensions(tierForParcel);
     const parcel = await createShipmentParcel({
       orderId: order.id,
       carrier: order.delivery_carrier,
       productItemIds: order.order_items
         .map((item) => item.product_id)
         .filter((id): id is string => Boolean(id)),
+      weightKg: tierDims.weightKg,
+      lengthCm: tierDims.lengthCm,
+      widthCm: tierDims.widthCm,
+      heightCm: tierDims.heightCm,
     });
     if (!parcel) {
       throw new Error(`Failed to create shipment parcel for order ${order.id}.`);
