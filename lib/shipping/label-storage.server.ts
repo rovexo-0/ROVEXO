@@ -98,6 +98,61 @@ function looksLikeLabelBinary(buffer: Buffer, contentType: string): boolean {
   return false;
 }
 
+const SENSITIVE_ERROR_KEY = /token|secret|key|authorization|bearer|password|cookie/i;
+
+/** Sanitize provider JSON for ops logs — never emit credentials/tokens. */
+function sanitizeProviderErrorPayload(value: unknown, depth = 0): unknown {
+  if (depth > 6) return "<truncated>";
+  if (value == null) return value;
+  if (typeof value === "string") {
+    if (value.length > 240) return `${value.slice(0, 240)}…`;
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") return value;
+  if (Array.isArray(value)) {
+    return value.slice(0, 20).map((entry) => sanitizeProviderErrorPayload(entry, depth + 1));
+  }
+  if (typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      if (SENSITIVE_ERROR_KEY.test(key)) {
+        out[key] = "<redacted>";
+        continue;
+      }
+      out[key] = sanitizeProviderErrorPayload(entry, depth + 1);
+    }
+    return out;
+  }
+  return "<unsupported>";
+}
+
+async function logShippingLabelDownloadHttpError(
+  response: Response,
+): Promise<void> {
+  const status = response.status;
+  const contentType = response.headers.get("content-type") ?? "";
+  let providerErrors: unknown = null;
+  try {
+    const text = await response.text();
+    if (text.trim()) {
+      try {
+        providerErrors = sanitizeProviderErrorPayload(JSON.parse(text));
+      } catch {
+        const safe = text.replace(/[^\x20-\x7E]/g, ".").slice(0, 240);
+        providerErrors = { nonJsonBodyPrefix: safe };
+      }
+    }
+  } catch {
+    providerErrors = { bodyRead: "unavailable" };
+  }
+
+  console.error("RVX-SHIPPING-LABEL-DOWNLOAD-HTTP-ERROR", {
+    status,
+    contentType,
+    providerErrors,
+  });
+}
+
 /**
  * Server-side document download. Uses Sendcloud Basic auth for panel document URLs.
  * Never runs in the browser. Never returns credentials.
@@ -108,8 +163,10 @@ export async function downloadShippingLabelDocumentBytes(
   try {
     assertSafeOutboundUrlSync(labelUrl, { allowedHostSuffixes: LABEL_URL_ALLOWLIST });
 
+    // Sendcloud V3 document endpoints validate Accept strictly:
+    // must be exactly application/pdf | application/zpl | image/png (not a multi-value list).
     const headers: Record<string, string> = {
-      Accept: "application/pdf,application/octet-stream,image/png,image/jpeg,*/*",
+      Accept: "application/pdf",
     };
 
     if (isSendcloudPanelDocumentUrl(labelUrl)) {
@@ -121,7 +178,10 @@ export async function downloadShippingLabelDocumentBytes(
         signal: AbortSignal.timeout(20_000),
         headers,
       });
-      if (!response.ok) return null;
+      if (!response.ok) {
+        await logShippingLabelDownloadHttpError(response);
+        return null;
+      }
       const contentType = response.headers.get("content-type") ?? "application/pdf";
       const buffer = Buffer.from(await response.arrayBuffer());
       if (!looksLikeLabelBinary(buffer, contentType)) return null;
@@ -134,7 +194,10 @@ export async function downloadShippingLabelDocumentBytes(
       ssrf: { allowedHostSuffixes: LABEL_URL_ALLOWLIST },
       headers,
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      await logShippingLabelDownloadHttpError(response);
+      return null;
+    }
     const contentType = response.headers.get("content-type") ?? "application/pdf";
     const buffer = Buffer.from(await response.arrayBuffer());
     if (!looksLikeLabelBinary(buffer, contentType)) return null;
