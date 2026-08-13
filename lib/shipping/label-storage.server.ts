@@ -153,6 +153,21 @@ export function buildCanonicalShippingLabelStoragePath(input: {
   return `${input.orderId}/parcel-${input.parcelNumber ?? 1}-label.${input.extension ?? "pdf"}`;
 }
 
+/** True only for a confirmed object-already-exists Storage condition (idempotent reuse). */
+function isShippingLabelObjectAlreadyExistsError(error: {
+  message?: string;
+  statusCode?: string | number;
+}): boolean {
+  const status = String(error.statusCode ?? "").trim();
+  if (status === "409" || status === "Duplicate") return true;
+  const message = (error.message ?? "").toLowerCase();
+  return (
+    message.includes("already exists") ||
+    message.includes("resource already exists") ||
+    message.includes("the resource already exists")
+  );
+}
+
 async function uploadLabelBytes(input: {
   storagePath: string;
   buffer: Buffer;
@@ -164,10 +179,12 @@ async function uploadLabelBytes(input: {
     contentType: input.mimeType,
     cacheControl: "3600",
   });
-  if (error && !/exist/i.test(error.message)) {
-    return false;
-  }
-  return true;
+  if (!error) return true;
+  if (isShippingLabelObjectAlreadyExistsError(error)) return true;
+  console.error(
+    `RVX-SHIPPING-LABEL-UPLOAD: failed for ${LABEL_BUCKET}/${input.storagePath}: ${error.message}`,
+  );
+  return false;
 }
 
 export async function persistShippingLabelPdf(input: {
@@ -208,10 +225,26 @@ export async function persistShippingLabelPdf(input: {
 export async function getShippingLabelSignedUrl(storagePath: string): Promise<string | null> {
   if (!isCanonicalShippingLabelStorageKey(storagePath)) return null;
   const admin = createAdminClient();
-  const { data } = await admin.storage
+  const { data, error } = await admin.storage
     .from(LABEL_BUCKET)
     .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS);
-  return data?.signedUrl ?? null;
+
+  if (error) {
+    // Fail closed — never invent a URL. Surface Storage error for ops (was previously discarded).
+    console.error(
+      `RVX-SHIPPING-LABEL-SIGNED-URL: createSignedUrl failed for ${LABEL_BUCKET}/${storagePath}: ${error.message}`,
+    );
+    return null;
+  }
+
+  if (!data?.signedUrl) {
+    console.error(
+      `RVX-SHIPPING-LABEL-SIGNED-URL: missing signedUrl for ${LABEL_BUCKET}/${storagePath}`,
+    );
+    return null;
+  }
+
+  return data.signedUrl;
 }
 
 async function shippingLabelObjectExists(storagePath: string): Promise<boolean> {
