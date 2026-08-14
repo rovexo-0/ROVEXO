@@ -1,7 +1,7 @@
 /**
  * SENDCLOUD-FUNCTIONAL-HARDENING-V1 — Phase 3 parcel correctness + local idempotency.
  */
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { buildSendcloudParcelPayload } from "@/lib/shipping/pricing/sendcloud-mappers";
 import type { ShippingAddress } from "@/lib/shipping/types";
 
@@ -61,56 +61,10 @@ describe("Sendcloud parcel payload correctness", () => {
     expect(client).toContain("external_reference");
     expect(client).not.toMatch(/["']Idempotency-Key["']/i);
   });
-});
 
-describe("createSendcloudParcel concurrency lock", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.resetModules();
-  });
-
-  it("concurrent creates with same external_reference share one in-flight POST", async () => {
-    process.env.SENDCLOUD_PUBLIC_KEY = "pub";
-    process.env.SENDCLOUD_SECRET_KEY = "sec";
-
-    let resolveFetch!: (value: Response) => void;
-    const fetchGate = new Promise<Response>((resolve) => {
-      resolveFetch = resolve;
-    });
-    let fetchCalls = 0;
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => {
-        fetchCalls += 1;
-        return fetchGate;
-      }),
-    );
-
-    const { createSendcloudParcel } = await import("@/lib/shipping/sendcloud/client");
-
-    const payload = buildSendcloudParcelPayload({
-      methodId: 1,
-      parcelTier: "small_parcel",
-      deliveryAddress: delivery,
-      collectionAddress: collection,
-      orderNumber: "RVX-C",
-      externalReference: "lock-key-shared",
-    });
-
-    const p1 = createSendcloudParcel(payload);
-    const p2 = createSendcloudParcel(payload);
-
-    resolveFetch(
-      new Response(JSON.stringify({ parcel: { id: 7, tracking_number: "T1" } }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
-
-    const [a, b] = await Promise.all([p1, p2]);
-    expect(a.id).toBe(7);
-    expect(b.id).toBe(7);
-    expect(fetchCalls).toBe(1);
+  it("legacy createSendcloudParcel V2 path is removed from client", async () => {
+    const { readFileSync } = await import("node:fs");
+    const client = readFileSync("lib/shipping/sendcloud/client.ts", "utf8");
+    expect(client).not.toMatch(/export async function createSendcloudParcel\b/);
   });
 });

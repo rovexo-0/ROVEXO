@@ -27,6 +27,10 @@ import { SendcloudError, toSendcloudError } from "@/lib/shipping/sendcloud/error
 import { mapSendcloudCarrier, mapSendcloudTrackingStatus } from "@/lib/shipping/sendcloud/status-mapper";
 import { isConfirmedSendcloudV3ShippingOptionCode } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import { resolveSendcloudV3MetadataForMethods, gateSendcloudV3MetadataByRouteAvailability } from "@/lib/shipping/sendcloud/v3-catalog-v1";
+import { isEvriSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/evri-label-engine-certification-v1";
+import { isRoyalMailSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/royal-mail-label-engine-certification-v1";
+import { isDpdSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/dpd-label-engine-certification-v1";
+import { isInpostSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/inpost-label-engine-certification-v1";
 import type {
   SendcloudHealthResult,
   SendcloudLabelResult,
@@ -263,7 +267,7 @@ export const SendcloudService = {
     // Sendcloud InPost UK: recipient UK mobile is mandatory for announcement.
     // Catalog requirements.fields may be empty; carrier announcement fails (1002) without phone.
     if (
-      shippingOptionCode.toLowerCase().startsWith("inpost_gb:") &&
+      isInpostSendcloudShippingOptionCode(shippingOptionCode) &&
       !to.telephone.trim()
     ) {
       throw new SendcloudError(
@@ -285,11 +289,15 @@ export const SendcloudService = {
         ? Number.parseInt(contractRaw, 10)
         : contractRaw || undefined;
 
-    // Broker options (e.g. contract 40353) must transmit contract_id when known.
-    if (
-      shippingOptionCode.toLowerCase().startsWith("inpost_gb:") &&
-      contractId == null
-    ) {
+    const isInPostGb = isInpostSendcloudShippingOptionCode(shippingOptionCode);
+    const isEvri = isEvriSendcloudShippingOptionCode(shippingOptionCode);
+    const isRoyalMail = isRoyalMailSendcloudShippingOptionCode(shippingOptionCode);
+    const isDpd = isDpdSendcloudShippingOptionCode(shippingOptionCode);
+
+    // Broker options must transmit route-proven contract_id
+    // (InPost 40353 · EVRi 38704 · Royal Mail 116816 · DPD 19001).
+    // Omitting lets Sendcloud fall back to a different default contract.
+    if (isInPostGb && contractId == null) {
       throw new SendcloudError(
         "label_failed",
         "InPost GB V3 announce requires the catalog contract_id for this shipping option.",
@@ -301,10 +309,46 @@ export const SendcloudService = {
         },
       );
     }
+    if (isEvri && contractId == null) {
+      throw new SendcloudError(
+        "label_failed",
+        "EVRi (hermes_c2c_gb) V3 announce requires the catalog contract_id for this shipping option.",
+        {
+          details: {
+            reason: "EVRI_CONTRACT_ID_REQUIRED",
+            shippingOptionCode,
+          },
+        },
+      );
+    }
+    if (isRoyalMail && contractId == null) {
+      throw new SendcloudError(
+        "label_failed",
+        "Royal Mail (royal_mailv2) V3 announce requires the catalog contract_id for this shipping option.",
+        {
+          details: {
+            reason: "ROYAL_MAIL_CONTRACT_ID_REQUIRED",
+            shippingOptionCode,
+          },
+        },
+      );
+    }
+    if (isDpd && contractId == null) {
+      throw new SendcloudError(
+        "label_failed",
+        "DPD (dpd_gb) V3 announce requires the catalog contract_id for this shipping option.",
+        {
+          details: {
+            reason: "DPD_CONTRACT_ID_REQUIRED",
+            shippingOptionCode,
+          },
+        },
+      );
+    }
 
-    const isInPostGb = shippingOptionCode.toLowerCase().startsWith("inpost_gb:");
     // InPost GB: recipient phone required; sender phone not required and must be omitted
     // (Sendcloud returns a field-agnostic invalid-phone error when optional from phone is sent).
+    // EVRi catalog requirements.fields are empty — keep generic phone passthrough.
     const toPhone = isInPostGb
       ? normalizeInPostGbPhoneForSendcloudAnnounce(to.telephone)
       : to.telephone;

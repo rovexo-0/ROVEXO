@@ -19,8 +19,8 @@ const COMPAT_INPOST = "inpost_gb:lockertoaddress/dropoff";
 const METHOD_27227 = 27227;
 
 const EVRI = {
-  shippingOptionCode: "evri:standard",
-  contractId: "11",
+  shippingOptionCode: "hermes_c2c_gb:a2a/pickup",
+  contractId: "38704",
 };
 const DPD = {
   shippingOptionCode: "dpd:standard",
@@ -220,7 +220,7 @@ describe("P7.4 extractSendcloudV3RouteAwareOptionIdentities", () => {
           contract: { id: 77 },
         },
         {
-          code: "evri:standard",
+          code: "hermes_c2c_gb:a2a/pickup",
           contract: null,
         },
         {
@@ -230,7 +230,7 @@ describe("P7.4 extractSendcloudV3RouteAwareOptionIdentities", () => {
     });
     expect(ids).toEqual([
       { shippingOptionCode: COMPAT_INPOST, contractId: "77" },
-      { shippingOptionCode: "evri:standard", contractId: null },
+      { shippingOptionCode: "hermes_c2c_gb:a2a/pickup", contractId: null },
     ]);
   });
 });

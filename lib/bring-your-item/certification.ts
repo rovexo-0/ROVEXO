@@ -189,7 +189,7 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
     ]),
     step("sendcloud", "Sendcloud Integration", [
       { id: "health-check", label: "Sendcloud health check API", pass: sendcloudService.includes("checkHealth") && sendcloudClient.includes("checkSendcloudApiHealth") },
-      { id: "rates-labels", label: "Rates and label purchase", pass: sendcloudClient.includes("listSendcloudShippingMethods") || sendcloudClient.includes("createSendcloudParcel") },
+      { id: "rates-labels", label: "Rates and label purchase", pass: sendcloudClient.includes("listSendcloudShippingMethods") || sendcloudClient.includes("announceSendcloudShipmentV3") },
       { id: "tracking", label: "Tracking support", pass: sendcloudClient.includes("getSendcloudTracking") || sendcloudService.includes("getTracking") },
       { id: "webhooks", label: "Webhook handler", pass: sendcloudWebhooks.includes("sendcloud-signature") || sendcloudWebhooks.includes("webhook") },
       { id: "env-token", label: "Sendcloud env documented", pass: envExample.includes("SENDCLOUD") },

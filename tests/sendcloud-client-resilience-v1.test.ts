@@ -116,13 +116,14 @@ describe("sendcloudRequest resilience", () => {
     });
   });
 
-  it("POST /parcels must not enable retrySafeGet", async () => {
+  it("legacy createSendcloudParcel is removed; cancel POST must not enable retrySafeGet", async () => {
     const { readFileSync } = await import("node:fs");
     const src = readFileSync("lib/shipping/sendcloud/client.ts", "utf8");
-    const start = src.indexOf("export async function createSendcloudParcel");
-    const end = src.indexOf("export async function getSendcloudParcel");
-    const parcelsBlock = src.slice(start, end);
-    expect(parcelsBlock).toContain('method: "POST"');
-    expect(parcelsBlock).not.toMatch(/retrySafeGet:\s*true/);
+    expect(src).not.toMatch(/export async function createSendcloudParcel\b/);
+    const start = src.indexOf("export async function cancelSendcloudParcel");
+    const end = src.indexOf("const v3AnnounceInflight");
+    const cancelBlock = src.slice(start, end > start ? end : undefined);
+    expect(cancelBlock).toContain('method: "POST"');
+    expect(cancelBlock).not.toMatch(/retrySafeGet:\s*true/);
   });
 });

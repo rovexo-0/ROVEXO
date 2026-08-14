@@ -532,56 +532,6 @@ export type SendcloudParcelCreatePayload = {
   sender_address?: number;
 };
 
-/** In-process lock: one ROVEXO idempotency key → one in-flight Sendcloud POST /parcels. */
-const parcelCreateInflight = new Map<string, Promise<SendcloudParcelResponse>>();
-
-export async function createSendcloudParcel(
-  parcel: SendcloudParcelCreatePayload,
-): Promise<SendcloudParcelResponse> {
-  const lockKey = parcel.external_reference?.trim() || null;
-
-  const run = async (): Promise<SendcloudParcelResponse> => {
-    // POST /parcels — no automatic retry (duplicate parcel risk).
-    const response = await sendcloudRequest<{
-      parcel?: SendcloudParcelResponse;
-      failed_parcels?: Array<{ parcel?: SendcloudParcelResponse; errors?: unknown }>;
-    }>("/parcels", {
-      method: "POST",
-      body: JSON.stringify({ parcel }),
-    });
-
-    if (response.failed_parcels?.length) {
-      const firstError = response.failed_parcels[0]?.errors;
-      throw new SendcloudError(
-        "label_failed",
-        typeof firstError === "string" ? firstError : "Sendcloud failed to create parcel",
-        { details: response.failed_parcels },
-      );
-    }
-
-    if (!response.parcel) {
-      throw new SendcloudError("label_failed", "Sendcloud returned no parcel in response");
-    }
-
-    return response.parcel;
-  };
-
-  if (!lockKey) {
-    return run();
-  }
-
-  const existing = parcelCreateInflight.get(lockKey);
-  if (existing) {
-    return existing;
-  }
-
-  const promise = run().finally(() => {
-    parcelCreateInflight.delete(lockKey);
-  });
-  parcelCreateInflight.set(lockKey, promise);
-  return promise;
-}
-
 export async function getSendcloudParcel(parcelId: number): Promise<SendcloudParcelResponse> {
   const response = await sendcloudRequest<{ parcel: SendcloudParcelResponse }>(`/parcels/${parcelId}`, {
     method: "GET",
