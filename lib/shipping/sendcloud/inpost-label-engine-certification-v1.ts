@@ -2,7 +2,7 @@
  * ROVEXO — InPost GB (Sendcloud inpost_gb) label engine certification lock V1.
  *
  * Audited against live Sendcloud V2 methods + V3 compat + route-aware
- * POST /shipping-options for GB→GB small_parcel 2kg / 45×10×10 (2026-08-14).
+ * POST /shipping-options for GB→GB Small Parcel band (Sendcloud-derived envelope) (2026-08-14).
  *
  * Reuses the canonical Sendcloud V3 Shipping Engine (EVRi / RM / DPD baseline).
  * Do NOT create a second InPost engine / client / label / tracking system.
@@ -95,8 +95,8 @@ export const INPOST_LABEL_ENGINE_CERTIFICATION_V1 = {
   ] as const,
   /**
    * Compat maps V2 27221 → inpost_gb:l2l/size=s, but that option was NOT
-   * returned on the certification route for 2kg / 45×10×10 — do not invent
-   * it as route-proven for this parcel band.
+   * returned on the certification route for the Small Parcel probe band —
+   * do not invent it as route-proven for this parcel band.
    */
   l2lSmallCompatOnlyNotRouteProvenOnCertParcel: {
     v2MethodId: 27221,

@@ -125,22 +125,22 @@ describe("Final Preview Certification v1.0 — Financial Pre-Audit", () => {
 });
 
 describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
-  it("sell UI exposes only Small Medium Large Extra Large", () => {
-    expect([...PARCEL_SIZES]).toEqual(["small", "medium", "large", "xl"]);
+  it("sell UI exposes only SMALL MEDIUM LARGE", () => {
+    expect([...PARCEL_SIZES]).toEqual(["small", "medium", "large"]);
     expect(PARCEL_SIZE_OPTIONS.map((o) => o.label)).toEqual([
       "SMALL",
       "MEDIUM",
       "LARGE",
-      "EXTRA LARGE",
     ]);
-    expect(PARCEL_SIZE_OPTIONS.some((o) => /custom/i.test(o.label))).toBe(false);
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe(
-      "Shoes, handbags and\neveryday products.",
+    expect(PARCEL_SIZE_OPTIONS.some((o) => /custom|EXTRA/i.test(o.label))).toBe(false);
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Medium parcel");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe(
+      "Envelope or small parcel",
     );
     expect(PARCEL_SIZE_OPTIONS.every((o) => !o.recommended)).toBe(true);
   });
 
-  it("shipping tiers match Absolute Final labels and remap custom → XL", () => {
+  it("shipping tiers match Absolute Final labels · Extra Large historical only", () => {
     expect(PARCEL_TIER_OPTIONS.map((o) => o.label)).toEqual([
       "Small Parcel",
       "Medium Parcel",

@@ -1,12 +1,14 @@
-import { allCarrierNames, type UkCarrier } from "@/lib/shipping/carriers";
+import type { UkCarrier } from "@/lib/shipping/carriers";
 import type {
   CheckoutCarrierQuote,
   CheckoutShippingQuoteReason,
   CheckoutShippingQuotesResult,
 } from "@/lib/checkout/types";
 import { shareInflightRequest } from "@/lib/performance/fetch";
+import { V1_0_ACTIVE_CARRIERS } from "@/lib/shipping/v1-0-carrier-whitelist-v1";
 
 export type DeliveryOptionId = string;
+
 
 export const UNAVAILABLE_SHIPPING_PRICE_LABEL = "Unable to retrieve shipping price.";
 export const SHIPPING_INCLUDED_LABEL = "Shipping included";
@@ -29,7 +31,8 @@ export function resolveCheckoutShippingMessage(
   return SHIPPING_PROVIDER_UNAVAILABLE_LABEL;
 }
 
-export const CHECKOUT_CARRIERS = allCarrierNames();
+/** v1.0 customer-facing whitelist only — InPost deferred to v1.1 (fail-closed). */
+export const CHECKOUT_CARRIERS: UkCarrier[] = [...V1_0_ACTIVE_CARRIERS];
 
 export async function resolveLiveDeliveryQuotes(input: {
   productSlug: string;
@@ -77,13 +80,13 @@ export function getDeliveryPrice(
   if (options?.listingOffersFreeDelivery) {
     return 0;
   }
-  // Absolute Total Price Law v1.0 — listing shipping is the payable shipping SSOT.
-  // Live quotes may identify carrier only; they must not change the locked payable total.
-  if (options?.listingShippingPrice != null && options.listingShippingPrice >= 0) {
-    return options.listingShippingPrice;
-  }
+  // Live selected quote buyer price (provider pence + 10) is SSOT when present —
+  // checkout display · totals · order persistence must match.
   if (options?.selectedQuote) {
     return options.selectedQuote.price;
+  }
+  if (options?.listingShippingPrice != null && options.listingShippingPrice >= 0) {
+    return options.listingShippingPrice;
   }
   return null;
 }
@@ -106,7 +109,37 @@ export function shouldShowUnavailableShippingPrice(options: {
   return Boolean(options.liveQuotesAttempted);
 }
 
-export function pickDefaultShippingQuote(options: CheckoutCarrierQuote[]): CheckoutCarrierQuote | null {
-  if (options.length === 0) return null;
-  return [...options].sort((a, b) => a.price - b.price)[0] ?? null;
+/**
+ * Resolve which shipping quote id should be selected in Checkout.
+ *
+ * Rules (v1.0 carrier selection):
+ * - Preserve previous selection when it remains in the eligible set.
+ * - Exactly one eligible option → auto-select it.
+ * - Two or more with no valid previous → leave empty so the buyer chooses
+ *   (never force Royal Mail or any other carrier by brand).
+ * - Empty set → clear selection (safe empty / unavailable path).
+ */
+export function resolveCheckoutDeliveryOptionId(
+  options: CheckoutCarrierQuote[],
+  previousId: string | null | undefined,
+): string {
+  if (options.length === 0) return "";
+  const previous = previousId?.trim() ?? "";
+  if (previous && options.some((option) => option.id === previous)) {
+    return previous;
+  }
+  if (options.length === 1) {
+    return options[0]!.id;
+  }
+  return "";
+}
+
+/** Single-option / preserved selection helper — never brand-forces Royal Mail. */
+export function pickDefaultShippingQuote(
+  options: CheckoutCarrierQuote[],
+  previousId?: string | null,
+): CheckoutCarrierQuote | null {
+  const id = resolveCheckoutDeliveryOptionId(options, previousId);
+  if (!id) return null;
+  return options.find((option) => option.id === id) ?? null;
 }

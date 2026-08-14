@@ -57,11 +57,11 @@ describe("shipping quote mapping", () => {
     ).toBeNull();
   });
 
-  it("resolves real listing parcel tiers (legacy + canonical)", () => {
+  it("resolves real listing parcel tiers (legacy + canonical) and fail-closes missing", () => {
     expect(resolveListingParcelTier("large")).toBe("large_parcel");
     expect(resolveListingParcelTier("medium_parcel")).toBe("medium_parcel");
-    expect(resolveListingParcelTier(null)).toBe("small_parcel");
-    expect(resolveListingParcelTier("unknown-size")).toBe("small_parcel");
+    expect(resolveListingParcelTier(null)).toBeNull();
+    expect(resolveListingParcelTier("unknown-size")).toBeNull();
   });
 
   it("checkout quotes no longer hardcode parcelTier = small_parcel only", () => {

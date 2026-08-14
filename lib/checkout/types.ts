@@ -4,8 +4,15 @@ import type { ShippingQuoteApiVersion } from "@/lib/shipping/types";
 export type CheckoutCarrierQuote = {
   id: string;
   carrier: UkCarrier | string;
+  /** UI display name (e.g. EVRi). Optional for backward-compatible fixtures. */
+  carrierDisplayName?: string;
   serviceName: string;
+  /** Buyer-facing GBP major units (provider pence + 10). */
   price: number;
+  /** Raw provider quote in integer pence (Sendcloud). */
+  providerPricePence?: number;
+  /** Canonical buyer shipping in integer pence. */
+  buyerPricePence?: number;
   eta: string;
   /** Optional V3 metadata for persistence bridges — not shown in checkout UX. */
   shippingOptionCode?: string;

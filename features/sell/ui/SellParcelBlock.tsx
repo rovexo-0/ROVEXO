@@ -18,7 +18,7 @@ import {
 const SELECT_ANIM_MS = 200;
 
 function ParcelBoxIllustration({ size }: { size: ParcelSize }) {
-  const scale = size === "small" ? 0.72 : size === "medium" ? 0.86 : size === "large" ? 1 : 1.12;
+  const scale = size === "small" ? 0.72 : size === "medium" ? 0.86 : 1;
   return (
     <span className="sell-parcel-option__art" aria-hidden style={{ ["--sell-parcel-scale" as string]: scale }}>
       <svg viewBox="0 0 64 64" className="sell-parcel-option__box" fill="none">
@@ -39,9 +39,9 @@ function ParcelBoxIllustration({ size }: { size: ParcelSize }) {
 }
 
 /**
- * Parcel Size Absolute Authority L6 — SMALL / MEDIUM / LARGE / EXTRA LARGE.
- * One tap → 0.2s → auto-save → auto-return. L6: no recommendation badge.
- * Presentation: premium shipping cards (canonical freeze). V1.1 — no search.
+ * Sell Parcel Size UX — select one size only.
+ * Labels / subtitles / max dimensions come from canonical SSOT.
+ * No weight/dimension inputs · no shipping-provider UI · no freeform measurements.
  */
 function ParcelPicker({
   value,
@@ -73,9 +73,14 @@ function ParcelPicker({
       lockScroll={false}
     >
       <div className={cn(sellPanel, "sell-compact-picker flex min-h-0 flex-1 flex-col")}>
-        <SellFlowHeader title="Parcel Size" onBack={onClose} />
+        <SellFlowHeader title="Parcel size" onBack={onClose} />
 
-        <div className={cn(RX_MODAL_BODY, "sell-option-picker__body min-h-0 flex-1 overflow-y-auto overscroll-contain pt-ds-2")}>
+        <div
+          className={cn(
+            RX_MODAL_BODY,
+            "sell-option-picker__body min-h-0 flex-1 overflow-y-auto overscroll-contain pt-ds-2",
+          )}
+        >
           <ul className="sell-parcel-picker flex flex-col" role="radiogroup" aria-label="Parcel size">
             {PARCEL_SIZE_OPTIONS.map((option) => {
               const active = (pendingId ?? value) === option.id;
@@ -86,7 +91,7 @@ function ParcelPicker({
                     type="button"
                     role="radio"
                     aria-checked={active}
-                    aria-label={`${card.title}. ${option.description.replace(/\n/g, " ")}. ${card.weight}`}
+                    aria-label={`${card.title}. ${card.subtitle}. ${card.maxDimensions}`}
                     onClick={() => choose(option.id)}
                     className={cn(
                       "sell-parcel-option flex w-full items-center text-left",
@@ -105,8 +110,8 @@ function ParcelPicker({
                           </span>
                         ) : null}
                       </span>
-                      <span className="sell-parcel-option__desc">{option.description}</span>
-                      <span className="sell-parcel-option__weight">{card.weight}</span>
+                      <span className="sell-parcel-option__desc">{card.subtitle}</span>
+                      <span className="sell-parcel-option__weight">{card.maxDimensions}</span>
                     </span>
                     <span
                       className={cn(

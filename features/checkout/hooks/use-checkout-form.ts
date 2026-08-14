@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getDeliveryPrice,
-  pickDefaultShippingQuote,
+  resolveCheckoutDeliveryOptionId,
   resolveLiveDeliveryQuotes,
 } from "@/lib/checkout/delivery";
 import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
@@ -162,11 +162,18 @@ export function useCheckoutForm(
         setLivePricingAvailable(result.live);
         setShippingQuotes(result.options);
         setShippingQuoteReason(result.reason ?? null);
-        const defaultQuote = pickDefaultShippingQuote(result.options);
-        setDraft((current) => ({
-          ...current,
-          deliveryOption: defaultQuote?.id ?? current.deliveryOption,
-        }));
+        setDraft((current) => {
+          const nextDeliveryOption = resolveCheckoutDeliveryOptionId(
+            result.options,
+            current.deliveryOption,
+          );
+          if (nextDeliveryOption === current.deliveryOption) {
+            return current;
+          }
+          const next = { ...current, deliveryOption: nextDeliveryOption };
+          onDraftChange?.(next);
+          return next;
+        });
       })
       .finally(() => {
         if (!cancelled) setShippingQuotesLoading(false);
@@ -184,6 +191,7 @@ export function useCheckoutForm(
     draft.country,
     draft.postcode,
     draft.recipientName,
+    onDraftChange,
     product.slug,
     quotesRefreshKey,
     shouldFetchLiveQuotes,

@@ -28,6 +28,7 @@ describe("i18n — English (UK) only", () => {
 
   it("lists UK shipping carriers", () => {
     expect(UK_SHIPPING_CARRIERS.map((c) => c.name)).toContain("Royal Mail");
+    expect(UK_SHIPPING_CARRIERS.map((c) => c.name)).toContain("EVRi");
   });
 
   it("passes English-only production gate", () => {

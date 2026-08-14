@@ -60,7 +60,8 @@ function ownerParcel(): ShipmentParcel {
     parcelNumber: 1,
     totalParcels: 1,
     weightKg: 2,
-    dimensions: { lengthCm: 45, widthCm: 10, heightCm: 10 },
+    /** Sendcloud-derived Small envelope (size=s): 45×35×16 — never 45×10×10. */
+    dimensions: { lengthCm: 45, widthCm: 35, heightCm: 16 },
     carrier: null,
     shippingService: null,
     trackingNumber: null,
@@ -159,7 +160,7 @@ describe("P8.5 production label path", () => {
     expect(hydrateOrder1Quote(coerced).contractId).toBe(CONTRACT_ID);
   });
 
-  it("E — canonical parcel 2kg / 45x10x10 survives resolveCompleteParcelMeasurements", () => {
+  it("E — canonical Sendcloud Small envelope survives resolveCompleteParcelMeasurements", () => {
     const parcel = ownerParcel();
     const resolved = resolveCompleteParcelMeasurements({
       weightKg: parcel.weightKg,
@@ -168,8 +169,8 @@ describe("P8.5 production label path", () => {
     expect(resolved).toEqual({
       weightKg: 2,
       lengthCm: 45,
-      widthCm: 10,
-      heightCm: 10,
+      widthCm: 35,
+      heightCm: 16,
     });
     const use = resolveShipmentParcelForLabel({
       shippingRecordId: parcel.shippingRecordId,
@@ -235,8 +236,8 @@ describe("P8.5 production label path", () => {
       parcelTier: "small_parcel",
       weightKg: 2,
       lengthCm: 45,
-      widthCm: 10,
-      heightCm: 10,
+      widthCm: 35,
+      heightCm: 16,
       deliveryAddress: {
         role: "delivery",
         fullName: "Buyer",
@@ -287,8 +288,8 @@ describe("P8.5 production label path", () => {
     expect(payload.parcels[0]?.weight).toEqual({ value: "2.000", unit: "kg" });
     expect(payload.parcels[0]?.dimensions).toEqual({
       length: "45",
-      width: "10",
-      height: "10",
+      width: "35",
+      height: "16",
       unit: "cm",
     });
 

@@ -523,7 +523,7 @@ function buildDynamicActions(
   options?: { hasShippingLabel?: boolean },
 ): ConversationDynamicAction[] {
   void productStatus;
-  const hasShippingLabel = Boolean(options?.hasShippingLabel);
+  void options?.hasShippingLabel;
   if (!order) {
     /* Pre-purchase CTAs come from TransactionHubBottomActions via TransactionActionBar. */
     return [];
@@ -582,16 +582,11 @@ function buildDynamicActions(
 
   const actions: ConversationDynamicAction[] = [];
   if (order.status === "awaiting_shipment") {
-    if (!hasShippingLabel) {
-      actions.push({
-        id: "print_label",
-        label: "Get Shipping Label",
-        role: "seller",
-        primary: true,
-      });
-      return actions.slice(0, 2);
-    }
-    /* Label generated — drop-off automation panel only (no Mark as Sent). */
+    /*
+     * COD SÂNGE — bottom sticky "Get Shipping Label" removed.
+     * Sole UI entry: Transaction Status Card "CREATE SHIPPING LABEL" (print_label).
+     * Label already generated → drop-off automation panel only (no Mark as Sent).
+     */
     return [];
   }
   if (order.status === "shipped") {

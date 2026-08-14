@@ -2,6 +2,7 @@ import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import type { SellListingMode } from "@/lib/profile/account";
 import type { ShippingMethod } from "@/lib/shipping/carriers";
+import { CANONICAL_PARCEL_SIZES_V1 } from "@/lib/shipping/canonical-parcel-size-v1";
 import { createEmptyUserModified, type UserModifiedFields } from "@/lib/sell/suggestion-field-lock";
 import { isSellListingPublishable } from "@/lib/sell/sell-validation";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
@@ -38,9 +39,9 @@ export function capSellPhotoSelection<T>(existingCount: number, incoming: readon
   return incoming.slice(0, remaining) as T[];
 }
 
-/** Parcel size — Absolute Final Freeze: ONLY four options. */
-export const PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;
-export type ParcelSize = (typeof PARCEL_SIZES)[number];
+/** Parcel size — V1.0 customer-facing: SMALL · MEDIUM · LARGE (EXTRA LARGE removed). */
+export const PARCEL_SIZES = ["small", "medium", "large"] as const;
+export type ParcelSize = (typeof PARCEL_SIZES)[number] | "xl";
 
 export type ParcelSizeOption = {
   id: ParcelSize;
@@ -49,28 +50,17 @@ export type ParcelSizeOption = {
   recommended?: boolean;
 };
 
-export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = [
-  {
-    id: "small",
-    label: "SMALL",
-    description: "Jewellery, accessories and\nsmall lightweight items.",
-  },
-  {
-    id: "medium",
-    label: "MEDIUM",
-    description: "Shoes, handbags and\neveryday products.",
-  },
-  {
-    id: "large",
-    label: "LARGE",
-    description: "Electronics, jackets and\nlarger products.",
-  },
-  {
-    id: "xl",
-    label: "EXTRA LARGE",
-    description: "Bulky, oversized and\nlarge outdoor products.",
-  },
-];
+/**
+ * Sell Parcel Size options — customer-facing Sendcloud-derived catalogue.
+ * Exactly SMALL · MEDIUM · LARGE. No EXTRA LARGE.
+ */
+export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = CANONICAL_PARCEL_SIZES_V1.filter(
+  (def) => def.customerFacing,
+).map((def) => ({
+  id: def.id,
+  label: def.sellLabel,
+  description: def.sellSubtitle,
+}));
 
 export type SellListingDraft = {
   photos: SellPhoto[];

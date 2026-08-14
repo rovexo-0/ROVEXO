@@ -49,8 +49,9 @@ describe("sell-picker-presentation-v1", () => {
   it("exposes colour popular ids and parcel card presentation", () => {
     expect(COLOUR_POPULAR_IDS).toContain("Red");
     expect(COLOUR_POPULAR_IDS).toContain("Other");
-    expect(PARCEL_CARD_PRESENTATION.medium.weight).toMatch(/2/);
-    expect(PARCEL_CARD_PRESENTATION.xl.title).toBe("Extra Large");
+    expect(PARCEL_CARD_PRESENTATION.medium.maxDimensions).toMatch(/Max dimensions:/);
+    expect(PARCEL_CARD_PRESENTATION.large.title).toBe("LARGE");
+    expect(PARCEL_CARD_PRESENTATION.xl).toBeUndefined();
   });
 
   it("maps Owner-requested brand logo domains", () => {

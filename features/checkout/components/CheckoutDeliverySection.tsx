@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
+import { CarrierIcon } from "@/components/shipping/CarrierIcon";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import {
@@ -10,6 +11,7 @@ import {
   SHIPPING_INCLUDED_LABEL,
   UNAVAILABLE_SHIPPING_PRICE_LABEL,
 } from "@/lib/checkout/delivery";
+import { formatV1_0CarrierDisplayName } from "@/lib/shipping/v1-0-carrier-whitelist-v1";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 
 type CheckoutDeliverySectionProps = {
@@ -82,17 +84,30 @@ export function CheckoutDeliverySection({
                     onChange={() => updateDraft({ deliveryOption: option.id })}
                     className="mt-1 h-4 w-4 shrink-0 border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
                   />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-start justify-between gap-ds-3">
-                      <span className="text-sm font-semibold text-text-primary">{option.carrier}</span>
-                      <Price
-                        amount={option.price}
-                        size="sm"
-                        className="shrink-0 [&_span]:font-semibold [&_span]:text-text-primary"
-                      />
-                    </span>
-                    <span className="mt-0.5 block text-xs text-text-secondary">
-                      {option.serviceName} · {option.eta}
+                  <span className="flex min-w-0 flex-1 items-start gap-ds-3">
+                    <CarrierIcon carrier={String(option.carrier)} size={32} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-start justify-between gap-ds-3">
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold text-text-primary">
+                            {option.carrierDisplayName ||
+                              formatV1_0CarrierDisplayName(String(option.carrier))}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-text-secondary">
+                            {option.serviceName}
+                          </span>
+                          {option.eta ? (
+                            <span className="mt-0.5 block text-xs text-text-secondary">
+                              {option.eta}
+                            </span>
+                          ) : null}
+                        </span>
+                        <Price
+                          amount={option.price}
+                          size="sm"
+                          className="shrink-0 [&_span]:font-semibold [&_span]:text-text-primary"
+                        />
+                      </span>
                     </span>
                   </span>
                 </label>

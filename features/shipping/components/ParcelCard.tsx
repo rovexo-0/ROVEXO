@@ -32,7 +32,8 @@ function initialTier(parcel: ShipmentParcel): ParcelTier {
 }
 
 /**
- * Absolute Final Parcel Freeze — ONLY Small / Medium / Large / Extra Large.
+ * Absolute Final Parcel Freeze — V1.0 Sell: Small / Medium / Large.
+ * Extra Large retained for historical order resolve only.
  * No weight · no dimensions · no free text · no custom size.
  */
 export const ParcelCard = memo(function ParcelCard({

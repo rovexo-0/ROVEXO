@@ -127,8 +127,8 @@ describe("Conversation Hub Sprint 3", () => {
       order: { ...shippedOrder, status: "awaiting_shipment", trackingNumber: undefined },
       hasShippingLabel: false,
     });
-    expect(awaiting.dynamicActions.some((action) => action.id === "print_label")).toBe(true);
-    expect(awaiting.dynamicActions[0]?.label).toBe("Get Shipping Label");
+    expect(awaiting.dynamicActions.some((action) => action.id === "print_label")).toBe(false);
+    expect(awaiting.dynamicActions).toEqual([]);
 
     const awaitingLabeled = buildConversationHubView({
       conversation: sampleConversation,

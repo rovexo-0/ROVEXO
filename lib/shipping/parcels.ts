@@ -1,8 +1,18 @@
 /**
- * ROVEXO v1.0 — PARCEL SYSTEM FREEZE (Absolute Final).
- * ONLY four options: Small · Medium · Large · Extra Large.
+ * ROVEXO v1.0 — PARCEL SYSTEM.
+ * Canonical measurements SSOT: `lib/shipping/canonical-parcel-size-v1.ts`
+ * Customer-facing V1.0: Small · Medium · Large (Sendcloud-derived UX tiers).
+ * Extra Large: historical resolve only — not Sell-selectable.
  * No custom · no weight input · no dimensions input · no free text.
+ * Missing / invalid Parcel Size → fail closed (never invent medium_parcel).
  */
+import {
+  CANONICAL_PARCEL_SIZES_V1,
+  canonicalParcelMeasurements,
+  getCanonicalParcelSizeById,
+  getCanonicalParcelSizeByTier,
+  resolveCanonicalParcelSize,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 import {
   type LegacyParcelSize,
   type ParcelDetectionInput,
@@ -11,44 +21,37 @@ import {
   type ParcelTier,
 } from "@/lib/shipping/types";
 
+/** Engine tier table — customer-facing + historical xl for quote/label continuity. */
+const ENGINE_PARCEL_DEFS = [
+  ...CANONICAL_PARCEL_SIZES_V1,
+  getCanonicalParcelSizeById("xl")!,
+].filter(Boolean);
+
+/** Derived from canonical Parcel Size SSOT — do not edit measurements here. */
 export const PARCEL_TIER_OPTIONS: {
   id: ParcelTier;
   label: string;
   description: string;
   maxWeightKg: number;
   maxDimensionsCm: { length: number; width: number; height: number };
-}[] = [
-  {
-    id: "small_parcel",
-    label: "Small Parcel",
-    description: "Fits a large letterbox.",
-    maxWeightKg: 2,
-    maxDimensionsCm: { length: 45, width: 35, height: 16 },
-  },
-  {
-    id: "medium_parcel",
-    label: "Medium Parcel",
-    description: "Shoebox size.",
-    maxWeightKg: 10,
-    maxDimensionsCm: { length: 61, width: 46, height: 46 },
-  },
-  {
-    id: "large_parcel",
-    label: "Large Parcel",
-    description: "Cabin-bag size.",
-    maxWeightKg: 20,
-    maxDimensionsCm: { length: 120, width: 60, height: 60 },
-  },
-  {
-    id: "xl_parcel",
-    label: "Extra Large Parcel",
-    description: "Bulky items.",
-    maxWeightKg: 30,
-    maxDimensionsCm: { length: 150, width: 100, height: 100 },
-  },
-];
+  /** Exact shippable weight (kg) from canonical SSOT. */
+  weightKg: number;
+  lengthCm: number;
+  widthCm: number;
+  heightCm: number;
+}[] = ENGINE_PARCEL_DEFS.map((def) => ({
+  id: def.tierId,
+  label: `${def.displayName} Parcel`,
+  description: def.sellSubtitle,
+  maxWeightKg: def.maxWeightKg,
+  maxDimensionsCm: { ...def.maxDimensionsCm },
+  weightKg: def.weightKg,
+  lengthCm: def.lengthCm,
+  widthCm: def.widthCm,
+  heightCm: def.heightCm,
+}));
 
-/** Display labels locked for v1.0 — Small / Medium / Large / Extra Large. */
+/** Display labels — historical Extra Large retained for old records only. */
 export const PARCEL_DISPLAY: Record<string, string> = {
   letter: "Small Parcel",
   small: "Small Parcel",
@@ -74,22 +77,23 @@ const CATEGORY_TIER_HINTS: Record<string, ParcelTier> = {
   jewellery: "small_parcel",
   phones: "small_parcel",
   electronics: "medium_parcel",
-  "home-garden": "large_parcel",
-  furniture: "xl_parcel",
-  vehicles: "xl_parcel",
+  "home-garden": "medium_parcel",
+  furniture: "medium_parcel",
+  vehicles: "medium_parcel",
 };
 
-function normalizeTier(tier: ParcelTier | string): ParcelTier {
+function normalizeTier(tier: ParcelTier | string): ParcelTier | null {
   if (tier === "letter") return "small_parcel";
-  if (
-    tier === "small_parcel" ||
-    tier === "medium_parcel" ||
-    tier === "large_parcel" ||
-    tier === "xl_parcel"
-  ) {
-    return tier;
+  const def = getCanonicalParcelSizeByTier(tier);
+  return def?.tierId ?? null;
+}
+
+function requireNormalizedTier(tier: ParcelTier | string): ParcelTier {
+  const normalized = normalizeTier(tier);
+  if (!normalized) {
+    throw new Error(`Unknown parcel tier: ${String(tier)}`);
   }
-  return "medium_parcel";
+  return normalized;
 }
 
 function tierFromDimensions(dimensions: ParcelDimensions): ParcelTier {
@@ -123,7 +127,9 @@ function tierFromCategory(categorySlug?: string | null): ParcelTier | null {
 
 /** Recommendation from category / legacy size only — no user weight/dim UI. */
 export function recommendParcelTier(input: ParcelDetectionInput): ParcelTier {
-  if (input.manualTier) return normalizeTier(input.manualTier);
+  if (input.manualTier) {
+    return requireNormalizedTier(input.manualTier);
+  }
 
   if (
     input.dimensions?.weightKg != null &&
@@ -144,12 +150,13 @@ export function recommendParcelTier(input: ParcelDetectionInput): ParcelTier {
 
   if (input.legacyParcelSize) return LEGACY_TO_TIER[input.legacyParcelSize];
 
+  // Recommendation helper only — never used as shipping measurement SSOT.
   return "medium_parcel";
 }
 
 export function detectParcelTier(input: ParcelDetectionInput): ParcelDetectionResult {
   if (input.manualTier) {
-    const applied = normalizeTier(input.manualTier);
+    const applied = requireNormalizedTier(input.manualTier);
     return {
       recommendedTier: recommendParcelTier({ ...input, manualTier: undefined }),
       appliedTier: applied,
@@ -204,29 +211,23 @@ export function mapTierToLegacySize(tier: ParcelTier): LegacyParcelSize {
     large_parcel: "large",
     xl_parcel: "xl",
   };
-  return map[normalizeTier(tier)] ?? "medium";
+  return map[requireNormalizedTier(tier)] ?? "medium";
 }
 
 export function parcelTierLabel(tier: ParcelTier | string): string {
-  return PARCEL_DISPLAY[tier] ?? PARCEL_TIER_OPTIONS.find((o) => o.id === tier)?.label ?? "Medium Parcel";
+  return PARCEL_DISPLAY[tier] ?? PARCEL_TIER_OPTIONS.find((o) => o.id === tier)?.label ?? "Parcel";
 }
 
 /**
- * Internal shippable dimensions for Sendcloud — never shown as user inputs.
- * Used for quote/pricing classification only. Label announce must NOT silently
- * substitute these when shipment_parcels measurements are missing (P7.21).
+ * Exact canonical shippable dimensions for a Parcel Size / tier.
+ * NEVER fabricates half-max weights or substitutes another size.
  */
 export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
-  const normalized = normalizeTier(tier);
-  const option =
-    PARCEL_TIER_OPTIONS.find((entry) => entry.id === normalized) ?? PARCEL_TIER_OPTIONS[1]!;
-  const { maxDimensionsCm, maxWeightKg } = option;
-  return {
-    weightKg: Math.max(0.1, Math.round(maxWeightKg * 0.5 * 100) / 100),
-    lengthCm: maxDimensionsCm.length,
-    widthCm: maxDimensionsCm.width,
-    heightCm: maxDimensionsCm.height,
-  };
+  const def = getCanonicalParcelSizeByTier(tier);
+  if (!def) {
+    throw new Error(`Unknown parcel tier for measurements: ${String(tier)}`);
+  }
+  return canonicalParcelMeasurements(def);
 }
 
 /** Canonical fail-closed copy when label generation lacks real parcel measurements (P7.21). */
@@ -279,12 +280,8 @@ export function resolveCompleteParcelMeasurements(input: {
  * Label-path measurement resolution (canonical data flow).
  *
  * 1. Prefer persisted shipment_parcels measurements (seller/order truth).
- * 2. Else hydrate from the order's parcel_tier SSOT via parcelTierToDimensions —
- *    the same contract Sell → checkout quotes already use (no free-form invent).
- * 3. Else null → fail closed (P7.21).
- *
- * Adapter/Sendcloud layers still require complete measurements; this only closes
- * the gap when post-payment created a parcel row without copying parcel_tier.
+ * 2. Else hydrate from the order's parcel_tier via canonical Parcel Size SSOT.
+ * 3. Else null → fail closed (P7.21). Never invent medium_parcel measurements.
  */
 export function resolveLabelParcelMeasurements(input: {
   weightKg?: number | null;
@@ -304,8 +301,9 @@ export function resolveLabelParcelMeasurements(input: {
   const tierRaw = typeof input.parcelTier === "string" ? input.parcelTier.trim() : "";
   if (!tierRaw) return null;
 
-  const tier = normalizeTier(tierRaw);
-  return parcelTierToDimensions(tier);
+  const def = resolveCanonicalParcelSize(tierRaw);
+  if (!def) return null;
+  return canonicalParcelMeasurements(def);
 }
 
 export function isParcelTier(value: string): value is ParcelTier {
@@ -324,16 +322,13 @@ export function isLegacyParcelSize(value: string): value is LegacyParcelSize {
 
 /**
  * Resolve listing `parcel_size` (legacy or canonical) to a ParcelTier.
- * Missing / unknown → existing safe fallback `small_parcel` (checkout historical default).
+ * Missing / unknown → null (FAIL CLOSED). Never invent small/medium fallbacks.
  */
 export function resolveListingParcelTier(
   parcelSize: string | null | undefined,
-  fallback: ParcelTier = "small_parcel",
-): ParcelTier {
-  if (!parcelSize?.trim()) return normalizeTier(fallback);
-  const trimmed = parcelSize.trim();
-  if (isParcelTier(trimmed)) return normalizeTier(trimmed);
-  if (isLegacyParcelSize(trimmed)) return mapLegacyParcelSize(trimmed);
-  return normalizeTier(fallback);
+  _fallback?: ParcelTier,
+): ParcelTier | null {
+  void _fallback;
+  const def = resolveCanonicalParcelSize(parcelSize);
+  return def?.tierId ?? null;
 }
-

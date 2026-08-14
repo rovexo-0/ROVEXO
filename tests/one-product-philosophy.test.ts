@@ -121,13 +121,15 @@ describe("One Product Philosophy Freeze", () => {
     expect(wizard).not.toContain("CheckoutPaymentStepV1");
   });
 
-  it("Parcel freeze — four options only", () => {
+  it("Parcel freeze — three Sell options (SMALL · MEDIUM · LARGE)", () => {
     const sell = readSource("features/sell/types.ts");
     const parcels = readSource("lib/shipping/parcels.ts");
     const ops = readSource("features/commerce-ui/components/ParcelOperations.tsx");
     const store = readSource("features/store/components/ProStorePage.tsx");
-    expect(sell).toContain('label: "SMALL"');
-    expect(sell).toContain('label: "EXTRA LARGE"');
+    expect(sell).toContain("CANONICAL_PARCEL_SIZES_V1");
+    expect(sell).toContain("sellLabel");
+    expect(sell).toContain('["small", "medium", "large"]');
+    expect(sell).not.toContain('["small", "medium", "large", "xl"]');
     expect(sell).not.toContain('"custom"');
     expect(parcels).toContain("Extra Large Parcel");
     expect(parcels).not.toContain('label: "Letter"');

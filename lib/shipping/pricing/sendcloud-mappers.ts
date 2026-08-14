@@ -81,9 +81,9 @@ export function encodeSendcloudQuoteId(methodId: number): string {
 }
 
 /**
- * Derive a package spec from a ROVEXO parcel tier for **quote/pricing** only.
- * Label announce (P7.21) must pass real shipment_parcels measurements — never call
- * this with `weightKg` omitted to fabricate a Sendcloud announce package.
+ * Derive a package spec from a ROVEXO parcel tier for **quote/pricing**.
+ * Uses canonical Parcel Size exact measurements (SSOT) — never half-max fabrication.
+ * Label announce (P7.21) must pass real shipment_parcels measurements when present.
  */
 export function parcelSpecFromTier(tier: ParcelTier, weightKg?: number) {
   const option = PARCEL_TIER_OPTIONS.find((item) => item.id === tier);
@@ -91,14 +91,16 @@ export function parcelSpecFromTier(tier: ParcelTier, weightKg?: number) {
     throw new Error(`Unknown parcel tier: ${tier}`);
   }
 
-  const { maxDimensionsCm, maxWeightKg } = option;
-  const weight = weightKg ?? Math.min(maxWeightKg, Math.max(0.1, maxWeightKg * 0.5));
+  const weight =
+    weightKg != null && Number.isFinite(weightKg) && weightKg > 0
+      ? weightKg
+      : option.weightKg;
 
   return {
-    weightKg: Number(weight.toFixed(3)),
-    lengthCm: maxDimensionsCm.length,
-    widthCm: maxDimensionsCm.width,
-    heightCm: maxDimensionsCm.height,
+    weightKg: Number(Number(weight).toFixed(3)),
+    lengthCm: option.lengthCm,
+    widthCm: option.widthCm,
+    heightCm: option.heightCm,
   };
 }
 
@@ -149,9 +151,11 @@ function leadTimeDays(method: SendcloudShippingMethod): { min: number; max: numb
 
 /**
  * Map Sendcloud shipping method → ROVEXO quote.
- * Sendcloud country `price` is used as returned (pence). Official method schema does not
- * expose a separate VAT amount on /shipping_methods — do not fabricate VAT lines.
+ * Sendcloud country `price` is GBP major units as returned by /shipping_methods
+ * (e.g. 3.49 → 349 pence). Official method schema does not expose a separate VAT
+ * amount — do not fabricate VAT lines.
  * UK-first: ShippingQuote.currency is typed GBP (canonical production currency).
+ * Buyer margin is applied later in checkout mapping — keep raw provider here.
  *
  * V3 label identity is OPTIONAL and MUST come from confirmed discovery metadata only.
  * NEVER: shippingOptionCode = String(method.id) / parseSendcloudQuoteId / serviceName guess.
@@ -179,6 +183,14 @@ export function mapSendcloudMethodToQuote(
       ? v3.contractId.trim()
       : undefined;
 
+  const minWeightKg = Number.parseFloat(method.min_weight);
+  const maxWeightKg = Number.parseFloat(method.max_weight);
+  const hasWeightEnvelope =
+    Number.isFinite(minWeightKg) &&
+    Number.isFinite(maxWeightKg) &&
+    minWeightKg >= 0 &&
+    maxWeightKg >= minWeightKg;
+
   return {
     id: encodeSendcloudQuoteId(method.id),
     providerId: "sendcloud",
@@ -191,6 +203,7 @@ export function mapSendcloudMethodToQuote(
     ...(shippingOptionCode ? { shippingOptionCode } : {}),
     ...(contractId ? { contractId } : {}),
     quoteApiVersion: resolveShippingQuoteApiVersion({ shippingOptionCode, v2MethodId }),
+    ...(hasWeightEnvelope ? { minWeightKg, maxWeightKg } : {}),
   };
 }
 

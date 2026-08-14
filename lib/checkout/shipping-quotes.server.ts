@@ -2,19 +2,21 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CHECKOUT_CARRIERS } from "@/lib/checkout/delivery";
+import { mapProviderQuotesToCheckoutOptions } from "@/lib/checkout/map-provider-quotes-to-checkout-v1";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
 import { isSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { ShippingService } from "@/lib/shipping/engine";
+import {
+  resolveCanonicalParcelSize,
+  canonicalParcelMeasurements,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 import { resolveListingParcelTier } from "@/lib/shipping/parcels";
-import type { UkCarrier } from "@/lib/shipping/carriers";
-import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
+import type { ShippingAddress } from "@/lib/shipping/types";
 
 import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
-import { formatCheckoutDeliveryEta } from "@/lib/shipping/delivery-estimate";
 
-/** Existing safe fallback when listing has no parcel size (do not invent a new taxonomy). */
-const CHECKOUT_PARCEL_TIER_FALLBACK: ParcelTier = "small_parcel";
+export { mapProviderQuotesToCheckoutOptions } from "@/lib/checkout/map-provider-quotes-to-checkout-v1";
 
 function inferCity(addressLine: string, postcode: string): string {
   const segments = addressLine.split(",").map((part) => part.trim()).filter(Boolean);
@@ -72,50 +74,6 @@ async function resolveSellerCollectionAddress(
   };
 }
 
-function formatEta(quote: ShippingQuote): string {
-  const transitDays =
-    quote.estimatedDays.min > 0 && quote.estimatedDays.min === quote.estimatedDays.max
-      ? quote.estimatedDays.min
-      : quote.estimatedDays.min > 0
-        ? quote.estimatedDays.min
-        : null;
-
-  return formatCheckoutDeliveryEta({
-    estimatedDeliveryAt: quote.estimatedDeliveryAt,
-    transitDays,
-  });
-}
-
-function pickCheapestPerCarrier(quotes: ShippingQuote[]): CheckoutCarrierQuote[] {
-  const byCarrier = new Map<string, ShippingQuote>();
-
-  for (const quote of quotes) {
-    const carrierKey = String(quote.carrier);
-    if (!CHECKOUT_CARRIERS.includes(carrierKey as UkCarrier)) continue;
-
-    const existing = byCarrier.get(carrierKey);
-    if (!existing || quote.pricePence < existing.pricePence) {
-      byCarrier.set(carrierKey, quote);
-    }
-  }
-
-  return CHECKOUT_CARRIERS.filter((carrier) => byCarrier.has(carrier))
-    .map((carrier) => {
-      const quote = byCarrier.get(carrier)!;
-      return {
-        id: quote.id,
-        carrier: quote.carrier,
-        serviceName: quote.serviceName,
-        price: quote.pricePence / 100,
-        eta: formatEta(quote),
-        ...(quote.shippingOptionCode ? { shippingOptionCode: quote.shippingOptionCode } : {}),
-        ...(quote.contractId ? { contractId: quote.contractId } : {}),
-        ...(quote.v2MethodId != null ? { v2MethodId: quote.v2MethodId } : {}),
-        ...(quote.quoteApiVersion ? { quoteApiVersion: quote.quoteApiVersion } : {}),
-      };
-    });
-}
-
 export function findCheckoutCarrierQuote(
   options: CheckoutCarrierQuote[],
   quoteId: string,
@@ -168,19 +126,25 @@ export async function fetchCheckoutCarrierQuotes(input: {
     return { live: true, options: [], reason: "address_incomplete" };
   }
 
-  const parcelTier = resolveListingParcelTier(
-    (product as { parcel_size?: string | null }).parcel_size,
-    CHECKOUT_PARCEL_TIER_FALLBACK,
-  );
+  const parcelSizeRaw = (product as { parcel_size?: string | null }).parcel_size;
+  const parcelTier = resolveListingParcelTier(parcelSizeRaw);
+  const parcelDef = resolveCanonicalParcelSize(parcelSizeRaw);
+  if (!parcelTier || !parcelDef) {
+    // FAIL CLOSED — never invent medium_parcel / small_parcel measurements.
+    return { live: true, options: [], reason: "product_unavailable" };
+  }
+
+  const parcel = canonicalParcelMeasurements(parcelDef);
 
   const pricing = await fetchShippingQuotesServer({
     parcelTier,
+    weightKg: parcel.weightKg,
     collectionAddress: collectionValidated.normalized,
     deliveryAddress: deliveryValidated.normalized,
-    preferredCarriers: CHECKOUT_CARRIERS,
+    preferredCarriers: [...CHECKOUT_CARRIERS],
   });
 
-  const options = pickCheapestPerCarrier(pricing.quotes);
+  const options = mapProviderQuotesToCheckoutOptions(pricing.quotes, { parcel });
   let reason: CheckoutShippingQuoteReason | null = null;
   if (options.length === 0) {
     if (pricing.quotes.length > 0) {

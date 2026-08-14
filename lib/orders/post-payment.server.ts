@@ -274,7 +274,12 @@ async function runEnsureOrderShippingPersistence(
 ): Promise<{ recordId: string; selectedQuoteId: string | null }> {
   const { allowLiveQuoteEnrichment, preferredQuoteId } = options;
   const parcelSize = await resolveOrderParcelSize(order);
-  const parcelTier = resolveListingParcelTier(parcelSize, "small_parcel");
+  const parcelTier = resolveListingParcelTier(parcelSize);
+  if (!parcelTier) {
+    throw new Error(
+      `PARCEL_SIZE_REQUIRED: order ${order.id} is missing a valid Parcel Size (fail closed).`,
+    );
+  }
 
   // INSERT failures throw from ensureShippingRecord (never silent null).
   const record = await ensureShippingRecord({

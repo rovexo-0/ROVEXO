@@ -58,6 +58,8 @@ export function buildDemoShippingLabelPresentationUrl(input: {
 
 function buildDemoQuotes(): ShippingQuote[] {
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  /** Provider weight envelope for demo methods — covers all canonical parcel sizes. */
+  const weightEnvelope = { minWeightKg: 0, maxWeightKg: 30 } as const;
   return [
     {
       id: randomUUID(),
@@ -69,6 +71,7 @@ function buildDemoQuotes(): ShippingQuote[] {
       estimatedDays: { min: 1, max: 2 },
       recommended: "fastest",
       expiresAt,
+      ...weightEnvelope,
     },
     {
       id: randomUUID(),
@@ -80,6 +83,7 @@ function buildDemoQuotes(): ShippingQuote[] {
       estimatedDays: { min: 2, max: 3 },
       recommended: "cheapest",
       expiresAt,
+      ...weightEnvelope,
     },
     {
       id: randomUUID(),
@@ -90,6 +94,18 @@ function buildDemoQuotes(): ShippingQuote[] {
       currency: "GBP",
       estimatedDays: { min: 2, max: 4 },
       expiresAt,
+      ...weightEnvelope,
+    },
+    {
+      id: randomUUID(),
+      providerId: "sendcloud",
+      carrier: "DPD",
+      serviceName: "Demo Classic",
+      pricePence: 499,
+      currency: "GBP",
+      estimatedDays: { min: 1, max: 2 },
+      expiresAt,
+      ...weightEnvelope,
     },
   ];
 }

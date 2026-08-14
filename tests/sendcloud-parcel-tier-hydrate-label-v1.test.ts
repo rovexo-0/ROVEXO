@@ -37,12 +37,10 @@ describe("parcel_tier hydrate → label measurements", () => {
     const tier = parcelTierToDimensions("small_parcel");
     const quoteSpec = parcelSpecFromTier("small_parcel");
     expect(hydrated).toEqual(tier);
-    // Same weight/dims contract as checkout quotes (Evri 0–1kg band uses 1.0kg).
     expect(hydrated?.weightKg).toBe(quoteSpec.weightKg);
-    expect(hydrated?.weightKg).toBe(1);
-    expect(hydrated?.weightKg).toBeLessThanOrEqual(1.001);
+    // Sendcloud-derived Small envelope (size=s) — never 45×10×10.
     expect(hydrated).toEqual({
-      weightKg: 1,
+      weightKg: 2,
       lengthCm: 45,
       widthCm: 35,
       heightCm: 16,

@@ -63,7 +63,10 @@ export function shippingQuoteFromCheckoutCarrierQuote(
     providerId: isSendcloudQuoteId(quote.id) ? "sendcloud" : "checkout",
     carrier: quote.carrier,
     serviceName: quote.serviceName,
-    pricePence: Math.round(Math.max(0, Number(quote.price) || 0) * 100),
+    pricePence:
+      typeof quote.buyerPricePence === "number" && Number.isFinite(quote.buyerPricePence)
+        ? Math.max(0, Math.trunc(quote.buyerPricePence))
+        : Math.round(Math.max(0, Number(quote.price) || 0) * 100),
     currency: "GBP",
     estimatedDays: { min: 1, max: 5 },
     ...(v2MethodId != null ? { v2MethodId } : {}),

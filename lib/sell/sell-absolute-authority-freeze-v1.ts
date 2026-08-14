@@ -27,7 +27,7 @@ export const SELL_ABSOLUTE_AUTHORITY_FREEZE_V1 = {
   } as const,
   category: ["Manual Category", "Search categories"] as const,
   categoryEngine: "category-engine-v1-manual-only" as const,
-  parcel: ["SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"] as const,
+  parcel: ["SMALL", "MEDIUM", "LARGE"] as const,
   parcelRecommended: false,
   colourInput: "select-single",
   singleSelect: "tap → save → return (no Apply)",

@@ -8,6 +8,7 @@ import {
   TruckLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
+import { CarrierIcon } from "@/components/shipping/CarrierIcon";
 import "@/styles/rovexo/checkout-v1.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -18,6 +19,11 @@ import { CheckoutPriceSummary } from "@/features/checkout/components/CheckoutPri
 import { CheckoutProductSummary } from "@/features/checkout/components/CheckoutProductSummary";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import { isCheckoutCollectionPointEnabled } from "@/lib/checkout/delivery-capabilities-v1";
+import {
+  resolveCheckoutShippingMessage,
+  UNAVAILABLE_SHIPPING_PRICE_LABEL,
+} from "@/lib/checkout/delivery";
+import { formatV1_0CarrierDisplayName } from "@/lib/shipping/v1-0-carrier-whitelist-v1";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 import type { CheckoutStep } from "@/features/checkout/types";
 import type { ProductDetail } from "@/lib/products/types";
@@ -85,6 +91,7 @@ export function CheckoutWizardV1({
     isResolvingAddress,
     resolveDeliveryAddress,
     placeOrder,
+    shippingQuotes,
     shippingQuotesLoading,
     liveQuotesAttempted,
     selectedQuote,
@@ -156,16 +163,14 @@ export function CheckoutWizardV1({
   const shippingPrice = product.freeDelivery ? 0 : totals.delivery;
   const shippingMethodLabel = product.freeDelivery
     ? "Free delivery"
-    : selectedQuote?.serviceName || selectedQuote?.carrier || "Royal Mail 48";
-  const etaLabel = selectedQuote?.eta || "2-4 Business Days";
-  const carrierBrand = (
-    selectedQuote?.carrier ||
-    shippingMethodLabel ||
-    "RM"
-  )
-    .replace(/[^A-Za-z]/g, "")
-    .slice(0, 2)
-    .toUpperCase() || "RM";
+    : selectedQuote
+      ? `${formatV1_0CarrierDisplayName(String(selectedQuote.carrier))} · ${selectedQuote.serviceName}`
+      : "Select a shipping option";
+  const etaLabel = selectedQuote?.eta || (shippingQuotes.length > 0 ? "Choose a carrier" : "—");
+  const shippingUnavailableMessage =
+    resolveCheckoutShippingMessage(shippingQuoteReason) ?? UNAVAILABLE_SHIPPING_PRICE_LABEL;
+  const showLiveCarrierOptions =
+    !product.freeDelivery && !shippingQuotesLoading && shippingQuotes.length > 0;
 
   const paymentMethod: PaymentMethodId =
     draft.paymentMethod === "rovexo_balance" ? "rovexo_balance" : "card";
@@ -312,9 +317,16 @@ export function CheckoutWizardV1({
                     From{" "}
                     {product.freeDelivery
                       ? "Included"
-                      : totals.deliveryPending
+                      : shippingQuotesLoading || totals.deliveryPending
                         ? "…"
-                        : formatListingPrice(shippingPrice > 0 ? shippingPrice : 0)}
+                        : formatListingPrice(
+                            selectedQuote?.price ??
+                              (shippingQuotes.length > 0
+                                ? Math.min(...shippingQuotes.map((quote) => quote.price))
+                                : shippingPrice > 0
+                                  ? shippingPrice
+                                  : 0),
+                          )}
                   </span>
                 </span>
                 <span className="ckt-v1__option-radio" aria-hidden />
@@ -327,28 +339,71 @@ export function CheckoutWizardV1({
               <h2 id="ckt-delivery-details-title" className="ckt-v1__section-title">
                 Delivery details
               </h2>
-              <div className="ckt-v1__card ckt-v1__card--pad ckt-v1__card--editable ckt-v1__card--edit-top">
-                <Link
-                  href={addressesHref}
-                  className="ckt-v1__edit-link"
-                  aria-label="Edit delivery details"
-                >
-                  <EditLineIcon aria-hidden />
-                </Link>
-                {shippingQuotesLoading ? (
+              {shippingQuotesLoading ? (
+                <div className="ckt-v1__card ckt-v1__card--pad">
                   <p className="ckt-v1__review-subvalue">Loading delivery…</p>
-                ) : (
-                  <div className="ckt-v1__delivery-details">
-                    <div className="ckt-v1__delivery-details-top">
-                      <span className="ckt-v1__shipping-brand" aria-hidden>
-                        {carrierBrand}
-                      </span>
-                      <p className="ckt-v1__review-value">{shippingMethodLabel}</p>
-                    </div>
+                </div>
+              ) : product.freeDelivery ? (
+                <div className="ckt-v1__card ckt-v1__card--pad">
+                  <p className="ckt-v1__review-value">Free delivery</p>
+                  <p className="ckt-v1__delivery-meta">Included</p>
+                </div>
+              ) : showLiveCarrierOptions ? (
+                <div
+                  className="ckt-v1__card ckt-v1__shipping-options"
+                  role="radiogroup"
+                  aria-label="Shipping carrier"
+                >
+                  {shippingQuotes.map((option) => {
+                    const selected = draft.deliveryOption === option.id;
+                    const carrierName =
+                      option.carrierDisplayName ||
+                      formatV1_0CarrierDisplayName(String(option.carrier));
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        className={
+                          selected
+                            ? "ckt-v1__shipping-option ckt-v1__shipping-option--selected"
+                            : "ckt-v1__shipping-option"
+                        }
+                        onClick={() => updateDraft({ deliveryOption: option.id })}
+                      >
+                        <span className="ckt-v1__shipping-option-icon" aria-hidden>
+                          <CarrierIcon carrier={String(option.carrier)} size={32} />
+                        </span>
+                        <span className="ckt-v1__shipping-copy">
+                          <span className="ckt-v1__shipping-title">{carrierName}</span>
+                          <span className="ckt-v1__shipping-subtitle">{option.serviceName}</span>
+                          {option.eta ? (
+                            <span className="ckt-v1__shipping-subtitle">{option.eta}</span>
+                          ) : null}
+                        </span>
+                        <span className="ckt-v1__shipping-price">
+                          {formatListingPrice(option.price)}
+                        </span>
+                        <span className="ckt-v1__option-radio" aria-hidden />
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="ckt-v1__card ckt-v1__card--pad">
+                  <p className="ckt-v1__review-subvalue">
+                    {liveQuotesAttempted || hasListingShippingPrice
+                      ? hasListingShippingPrice && shippingQuotes.length === 0
+                        ? shippingMethodLabel
+                        : shippingUnavailableMessage
+                      : "Add a delivery address to see shipping options."}
+                  </p>
+                  {hasListingShippingPrice && shippingQuotes.length === 0 && !shippingQuotesLoading ? (
                     <p className="ckt-v1__delivery-meta">{deliveryMetaLabel}</p>
-                  </div>
-                )}
-              </div>
+                  ) : null}
+                </div>
+              )}
             </section>
           ) : null}
 

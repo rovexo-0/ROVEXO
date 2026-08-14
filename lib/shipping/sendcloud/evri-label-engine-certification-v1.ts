@@ -2,7 +2,7 @@
  * ROVEXO — EVRi (Sendcloud hermes_c2c_gb) label engine certification lock.
  *
  * Audited against live Sendcloud V2 methods + V3 compat + route-aware
- * POST /shipping-options for GB→GB small_parcel 2kg / 45×10×10.
+ * POST /shipping-options for GB→GB Small Parcel band (Sendcloud-derived envelope).
  *
  * EVRi is the first certified carrier baseline. Do not force InPost/Royal Mail
  * through these codes — carrier-specific rules stay carrier-scoped.

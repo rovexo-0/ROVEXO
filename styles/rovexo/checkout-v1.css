@@ -671,18 +671,30 @@
 
 .ckt-v1__shipping-option {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 10px;
   align-items: center;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--ds-color-border);
   border-radius: 10px;
+  background: #fff;
+  text-align: left;
   cursor: pointer;
 }
 
 .ckt-v1__shipping-option--selected {
   border-color: var(--ds-color-primary);
   background: rgb(111 63 245 / 0.06);
+}
+
+.ckt-v1__shipping-option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .ckt-v1__shipping-copy {
@@ -693,6 +705,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 700;
+  color: var(--ckt-text);
 }
 
 .ckt-v1__shipping-subtitle {
@@ -700,6 +713,10 @@
   margin-top: 2px;
   font-size: 0.75rem;
   color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__shipping-option .ckt-v1__option-radio {
+  margin-left: 0;
 }
 
 .ckt-v1__notes {

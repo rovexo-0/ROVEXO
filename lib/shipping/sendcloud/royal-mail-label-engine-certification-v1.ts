@@ -2,7 +2,7 @@
  * ROVEXO — Royal Mail UK (Sendcloud royal_mailv2) label engine certification lock V1.
  *
  * Audited against live Sendcloud V2 methods + V3 compat + route-aware
- * POST /shipping-options for GB→GB small_parcel 2kg / 45×10×10 (2026-08-14).
+ * POST /shipping-options for GB→GB Small Parcel band (Sendcloud size=s envelope).
  *
  * Reuses the canonical Sendcloud V3 Shipping Engine (EVRi baseline).
  * Do NOT create a second Royal Mail engine / client / label / tracking system.

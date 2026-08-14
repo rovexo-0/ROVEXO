@@ -44,7 +44,22 @@ export {
   parcelTierLabel,
   isParcelTier,
   isLegacyParcelSize,
+  parcelTierToDimensions,
+  resolveCompleteParcelMeasurements,
+  resolveLabelParcelMeasurements,
+  resolveListingParcelTier,
+  PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
 } from "@/lib/shipping/parcels";
+
+export {
+  CANONICAL_PARCEL_SIZES_V1,
+  PARCEL_SIZE_CANONICAL_V1,
+  resolveCanonicalParcelSize,
+  canonicalParcelMeasurements,
+  formatCanonicalParcelSummary,
+  formatCanonicalMaxDimensionsLine,
+  getV1_0ParcelShippingDetailsBlocks,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 
 export {
   SHIPPING_STATUS_LABELS,
@@ -70,5 +85,32 @@ export {
   type ShippingMethod,
   type ShipmentStatus,
 } from "@/lib/shipping/carriers";
+
+export {
+  V1_0_ACTIVE_CARRIERS,
+  V1_0_HIDDEN_CARRIERS,
+  V1_0_CARRIER_WHITELIST_V1,
+  V1_0_CARRIER_GROUP_CODE,
+  isV1_0ActiveCarrier,
+  isV1_0HiddenCarrier,
+  resolveV1_0ActiveCarrier,
+  resolveV1_0CarrierGroupCode,
+  filterV1_0CustomerFacingQuotes,
+  formatV1_0CarrierDisplayName,
+} from "@/lib/shipping/v1-0-carrier-whitelist-v1";
+
+export {
+  BUYER_SHIPPING_MARGIN_PENCE,
+  BUYER_SHIPPING_PRICE_V1,
+  toBuyerShippingPricePence,
+  penceToGbpMajor,
+  gbpMajorToPence,
+  toBuyerShippingGbpFromProviderPence,
+} from "@/lib/shipping/pricing/buyer-shipping-price-v1";
+
+export {
+  CARRIER_ICON_REGISTRY_V1,
+  resolveCarrierIconSrc,
+} from "@/lib/shipping/carrier-icons-v1";
 
 export { getOrderShipment, createOrderShipment, updateShipmentStatus } from "@/lib/shipping/service";

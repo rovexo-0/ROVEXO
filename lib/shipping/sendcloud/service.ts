@@ -151,14 +151,11 @@ export const SendcloudService = {
       )
       .filter((quote): quote is ShippingQuote => quote != null);
 
+    // Fail-closed: preferred carrier list must never fall back to a broader catalog
+    // (e.g. InPost must not reappear when v1.0 whitelist is EVRi/RM).
     if (input.preferredCarriers?.length) {
       const preferred = new Set(input.preferredCarriers.map((carrier) => carrier.toLowerCase()));
-      const preferredQuotes = quotes.filter((quote) =>
-        preferred.has(String(quote.carrier).toLowerCase()),
-      );
-      if (preferredQuotes.length > 0) {
-        quotes = preferredQuotes;
-      }
+      quotes = quotes.filter((quote) => preferred.has(String(quote.carrier).toLowerCase()));
     }
 
     return {

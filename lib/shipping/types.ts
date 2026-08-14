@@ -106,6 +106,12 @@ export type ShippingQuote = {
   v2MethodId?: number;
   /** Which API surfaces contributed to this quote identity. */
   quoteApiVersion?: ShippingQuoteApiVersion;
+  /**
+   * Sendcloud method weight envelope (kg) when provided by provider.
+   * Used for checkout eligibility vs canonical parcel weight — never invent from serviceName.
+   */
+  minWeightKg?: number;
+  maxWeightKg?: number;
 };
 
 /** Persisted jsonb payload on shipping_quotes — preserves V3 metadata without a migration. */

@@ -2,7 +2,7 @@
  * ROVEXO — DPD UK (Sendcloud dpd_gb) label engine certification lock V1.
  *
  * Audited against live Sendcloud V2 methods + V3 compat + route-aware
- * POST /shipping-options for GB→GB small_parcel 2kg / 45×10×10 (2026-08-14).
+ * POST /shipping-options for GB→GB Small Parcel band (Sendcloud-derived envelope) (2026-08-14).
  *
  * Reuses the canonical Sendcloud V3 Shipping Engine (EVRi / Royal Mail baseline).
  * Do NOT create a second DPD engine / client / label / tracking system.

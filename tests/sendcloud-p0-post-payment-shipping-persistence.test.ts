@@ -509,7 +509,8 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
   it("G: label endpoint still resolves quote from shipping record selectedQuoteId", () => {
     const labels = readFileSync("lib/shipping/label-generation.server.ts", "utf8");
     expect(labels).toContain("record?.pricing?.selectedQuoteId");
-    expect(labels).toContain("No shipping quote available for this order.");
+    // P8.5: selected identity required — never quotes[0] / "available" wording.
+    expect(labels).toContain("No shipping quote selected for this order.");
   });
 
   it("H: repair / durable persistence does not call Sendcloud parcel create", async () => {

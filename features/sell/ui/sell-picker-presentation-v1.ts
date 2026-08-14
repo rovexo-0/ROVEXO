@@ -4,6 +4,10 @@
  */
 import type { SelectionOption } from "@/lib/sell/attribute-options";
 import { SELL_QUICK_CONDITIONS } from "@/lib/sell/sell-condition-options";
+import {
+  CANONICAL_PARCEL_SIZES_V1,
+  formatCanonicalMaxDimensionsLine,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 
 export const SELL_PICKER_PRESENTATION_V1 = {
   version: "1.1",
@@ -26,19 +30,26 @@ export const COLOUR_POPULAR_IDS = [
   "Other",
 ] as const;
 
-/** Parcel card presentation — ids/labels in types.ts unchanged. */
-export const PARCEL_CARD_PRESENTATION: Record<
-  "small" | "medium" | "large" | "xl",
-  { title: string; weight: string }
-> = {
-  small: { title: "Small", weight: "Up to 2 kg" },
-  medium: { title: "Medium", weight: "2 – 5 kg" },
-  large: { title: "Large", weight: "5 – 10 kg" },
-  xl: { title: "Extra Large", weight: "10 – 20 kg" },
-};
+/** Parcel card presentation — max dimensions from canonical Parcel Size SSOT only. */
+function buildParcelCardPresentation(): Record<
+  string,
+  { title: string; subtitle: string; maxDimensions: string }
+> {
+  const out: Record<string, { title: string; subtitle: string; maxDimensions: string }> = {};
+  for (const def of CANONICAL_PARCEL_SIZES_V1.filter((row) => row.customerFacing)) {
+    out[def.id] = {
+      title: def.sellLabel,
+      subtitle: def.sellSubtitle,
+      maxDimensions: formatCanonicalMaxDimensionsLine(def),
+    };
+  }
+  return out;
+}
+
+export const PARCEL_CARD_PRESENTATION = buildParcelCardPresentation();
 
 export const PARCEL_PACKAGING_GUIDE =
-  "Choose the smallest box that fits your item safely. Accurate size helps buyers get fair shipping." as const;
+  "Choose the smallest size that fits your item safely. Accurate size keeps shipping fair for buyers." as const;
 
 /** Official-looking marks via favicon domain (fallback = monogram). */
 const BRAND_LOGO_DOMAIN: Record<string, string> = {

@@ -40,12 +40,11 @@ describe("WOW Philosophy Freeze v1.0", () => {
     expect(freeze).toMatch(/16px|100%/);
   });
 
-  it("parcel freeze has exactly four standard sizes", () => {
+  it("parcel freeze has exactly three standard sizes", () => {
     expect(PARCEL_SIZE_OPTIONS.map((o) => o.label)).toEqual([
       "SMALL",
       "MEDIUM",
       "LARGE",
-      "EXTRA LARGE",
     ]);
   });
 

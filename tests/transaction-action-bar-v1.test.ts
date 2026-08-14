@@ -71,15 +71,15 @@ describe("Dynamic Transaction Action Bar MES v1.1", () => {
     expect(bar).toContain("TransactionHubBottomActions");
   });
 
-  it("seller awaiting shipment — Get Shipping Label only; labeled → drop-off panel", () => {
+  it("seller awaiting shipment — no bottom Get Shipping Label; labeled → drop-off panel", () => {
     const needLabel = buildConversationHubView({
       conversation: buyerCounterparty,
       order: order("awaiting_shipment"),
       hasShippingLabel: false,
     });
     expect(needLabel.viewerRole).toBe("seller");
-    expect(needLabel.dynamicActions).toHaveLength(1);
-    expect(needLabel.dynamicActions[0]?.label).toBe("Get Shipping Label");
+    expect(needLabel.dynamicActions).toEqual([]);
+    expect(needLabel.dynamicActions.some((a) => /Get Shipping Label/i.test(a.label))).toBe(false);
     expect(needLabel.actionBarPanel).toBeNull();
 
     const labeled = buildConversationHubView({
