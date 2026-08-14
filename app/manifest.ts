@@ -3,6 +3,9 @@ import { getAppUrl } from "@/lib/supabase/env";
 import {
   CANONICAL_RX_PWA_SIZES,
   CANONICAL_RX_APP_ICON,
+  ROVEXO_PWA_BACKGROUND_COLOR,
+  ROVEXO_PWA_DISPLAY,
+  ROVEXO_PWA_THEME_COLOR,
   withWhitePearlFaviconCacheBust,
 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 import { ROVEXO_APP_VERSION, ROVEXO_RELEASE_CODE } from "@/lib/app/version";
@@ -55,9 +58,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "ROVEXO",
     description: `Buy and sell on the modern UK marketplace with purchase protection. (${ROVEXO_RELEASE_CODE} ${ROVEXO_APP_VERSION})`,
     start_url: "/",
-    display: "standalone",
-    background_color: "#050508",
-    theme_color: "#050508",
+    display: ROVEXO_PWA_DISPLAY,
+    background_color: ROVEXO_PWA_BACKGROUND_COLOR,
+    theme_color: ROVEXO_PWA_THEME_COLOR,
     orientation: "portrait-primary",
     lang: "en-GB",
     dir: "ltr",

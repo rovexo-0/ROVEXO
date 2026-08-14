@@ -92,13 +92,23 @@ export const CANONICAL_RX_APP_ICON = "/brand/canonical-rx/app-icon-v1.png" as co
 /**
  * Favicon / PWA icon cache bust — White Pearl unification.
  * Appended to metadata + manifest icon URLs so browsers drop stale immutable icons.
+ * Bumped for Android PWA white/pearl splash parity (Premium Background V1).
  */
-export const ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST = "wp-20260806" as const;
+export const ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST = "wp-20260813-pwa-bg-v1" as const;
 
 export function withWhitePearlFaviconCacheBust(path: string): string {
   const sep = path.includes("?") ? "&" : "?";
   return `${path}${sep}v=${ROVEXO_WHITE_PEARL_FAVICON_CACHE_BUST}`;
 }
+
+/**
+ * Canonical PWA install / splash colours — Android + iOS parity (White Pearl).
+ * ONE manifest SSOT: `app/manifest.ts` → `/manifest.webmanifest`
+ */
+export const ROVEXO_PWA_BACKGROUND_COLOR = "#FFFFFF" as const;
+/** Existing ROVEXO purple (design system / mask-icon) — not a new brand colour. */
+export const ROVEXO_PWA_THEME_COLOR = "#9333ea" as const;
+export const ROVEXO_PWA_DISPLAY = "standalone" as const;
 
 /**
  * Compact RX mark for application chrome (Level III App Icon).

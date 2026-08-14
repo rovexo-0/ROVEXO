@@ -15,7 +15,8 @@
  * - Camera intent sets capture="environment" (rear) via resolveNativeImageCapture.
  * - Prefer nesting the input inside <label> with overlay placement (Samsung).
  * - Do not set aria-hidden or tabIndex={-1} on the input.
- * - Never show a ROVEXO Action Sheet before the native picker.
+ * - Sell Add Photo may show a compact Camera / Gallery choice first (not a giant Action Sheet),
+ *   then each path opens its native picker via SellPhotoFileInput.
  */
 
 /** Documented supported image MIME types (client validation / docs). */

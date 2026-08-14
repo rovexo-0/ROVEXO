@@ -50,7 +50,8 @@ export function SellPhotoFileInput({
   };
 
   const capture = resolveNativeImageCapture(intent);
-  const allowMultiple = intent === "camera" ? false : multiple;
+  // Gallery / replace: honour `multiple`. Camera: always single capture.
+  const allowMultiple = intent === "camera" ? false : Boolean(multiple);
 
   return (
     <input
@@ -64,6 +65,7 @@ export function SellPhotoFileInput({
       data-native-photo-picker={NATIVE_PHOTO_PICKER_V1.version}
       data-universal-photo-intent={intent}
       data-product-integration-entry={intent === "camera" ? "camera_capture" : "gallery_picker"}
+      data-sell-photo-multiple={allowMultiple ? "true" : "false"}
       className={cn(
         placement === "overlay"
           ? nativeImageFileInputOverlayClassName

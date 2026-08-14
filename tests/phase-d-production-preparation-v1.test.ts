@@ -36,12 +36,15 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
     const manifest = readSource("app/manifest.ts");
     expect(manifest).toContain('name: "ROVEXO"');
     expect(manifest).toContain('short_name: "ROVEXO"');
-    expect(manifest).toContain('display: "standalone"');
+    expect(manifest).toContain("ROVEXO_PWA_DISPLAY");
+    expect(manifest).toContain("ROVEXO_PWA_BACKGROUND_COLOR");
+    expect(manifest).toContain("ROVEXO_PWA_THEME_COLOR");
     expect(manifest).toContain('start_url: "/"');
     expect(manifest).toContain('scope: "/"');
     expect(manifest).toContain("icon-maskable-512.png");
     expect(manifest).toContain('url: "/inbox"');
     expect(manifest).not.toContain('url: "/messages"');
+    expect(manifest).not.toContain("#050508");
 
     for (const size of CANONICAL_RX_PWA_SIZES) {
       expect(exists(`public/icons/icon-${size}.png`)).toBe(true);

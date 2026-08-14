@@ -72,7 +72,7 @@ async function maskablePng(size, outPath, source) {
       width: size,
       height: size,
       channels: 4,
-      background: { r: 11, g: 18, b: 36, alpha: 1 },
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
     },
   })
     .composite([{ input: icon, top: pad, left: pad }])
@@ -94,7 +94,7 @@ async function adaptiveForeground(size, outPath, source) {
 async function adaptiveBackground(size, outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
   await sharp({
-    create: { width: size, height: size, channels: 3, background: { r: 11, g: 18, b: 36 } },
+    create: { width: size, height: size, channels: 3, background: { r: 255, g: 255, b: 255 } },
   })
     .png()
     .toFile(outPath);

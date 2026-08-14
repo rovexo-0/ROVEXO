@@ -3,19 +3,13 @@
  *
  * STATUS: OWNER AUTHORIZED · COD SÂNGE
  *
- * Sell photo acquisition (dual native inputs, one pipeline):
- *   Take Photo           → capture="environment" (rear camera)
- *   Choose from Gallery  → accept="image/*" multiple, NO capture
+ * Sell photo acquisition (one visible card):
+ *   Add Photo → compact Camera / Gallery choice
+ *     Camera  → accept="image/*" capture="environment" (single)
+ *     Gallery → accept="image/*" multiple · NO capture
  *
- * Absolute: ROVEXO SHALL NOT display a custom Camera / Gallery Action Sheet.
- * Each tile opens the OS/browser picker immediately (one tap per intent).
- *
- * Android → system camera OR Photo Picker / Gallery (by intent)
- * iPhone  → camera OR Photos library (by intent)
- *
- * Forbidden:
- *   ROVEXO Action Sheet · Camera Photo popup · Photo Gallery popup ·
- *   Cancel dialog · extra confirmation · second click before picker
+ * Absolute: no permanent Take Photos tile · no in-app camera session ·
+ * no second uploader · one pipeline → SellProvider.addPhotos.
  *
  * After selection: validate → compress → thumbnail → upload → progress.
  * Retry ONLY on genuine upload failure.
@@ -23,6 +17,8 @@
  * CERTIFICATION: localhost alone is forbidden.
  * See `native-photo-picker-production-device-certification-v1.ts`.
  */
+
+import { SELL_PHOTO_MAX } from "@/features/sell/types";
 
 export const NATIVE_PHOTO_PICKER_V1 = {
   version: "1.0",
@@ -35,7 +31,7 @@ export const NATIVE_PHOTO_PICKER_V1 = {
   capture: undefined,
   cameraCapture: "environment" as const,
   multiple: true,
-  listingMax: 8,
+  listingMax: SELL_PHOTO_MAX,
   autoUploadAfterSelection: true,
   retryOnlyOnGenuineFailure: true,
   forbiddenUi: [

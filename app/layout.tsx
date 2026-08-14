@@ -142,7 +142,7 @@ export const metadata: Metadata = {
   },
   other: {
     "mobile-web-app-capable": "yes",
-    "msapplication-TileColor": "#050508",
+    "msapplication-TileColor": "#FFFFFF",
     "msapplication-config": faviconV("/browserconfig.xml"),
   },
   ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),

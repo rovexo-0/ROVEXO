@@ -8,6 +8,24 @@ export const HOMEPAGE_SHARE = {
   url: `${PRODUCTION_ORIGIN}/`,
 } as const;
 
+/**
+ * Homepage Rich Social Preview v2 — Owner 1:1 reference asset + OG/Twitter metadata.
+ * SSOT for `/` openGraph / twitter cards. Does not alter Share Nodes UI.
+ */
+export const HOMEPAGE_SOCIAL_PREVIEW_V2 = {
+  version: "2.0",
+  title: "ROVEXO — Buy • Sell • Grow",
+  description: "Buy, sell and discover great products on ROVEXO.",
+  type: "website" as const,
+  url: `${PRODUCTION_ORIGIN}/`,
+  imagePath: "/og/rovexo-homepage-social-v2.jpg",
+  imageAbsoluteUrl: `${PRODUCTION_ORIGIN}/og/rovexo-homepage-social-v2.jpg`,
+  imageWidth: 1200,
+  imageHeight: 630,
+  imageAlt: "ROVEXO — Buy • Sell • Grow",
+  twitterCard: "summary_large_image" as const,
+} as const;
+
 export function getHomepageFacebookShareUrl(url: string = HOMEPAGE_SHARE.url): string {
   return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
 }

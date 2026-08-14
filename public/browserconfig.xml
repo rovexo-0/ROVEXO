@@ -6,7 +6,7 @@
       <square150x150logo src="/icons/mstile-150x150.png?v=wp-20260805"/>
       <wide310x150logo src="/icons/mstile-310x150.png?v=wp-20260805"/>
       <square310x310logo src="/icons/mstile-310x310.png?v=wp-20260805"/>
-      <TileColor>#050508</TileColor>
+      <TileColor>#FFFFFF</TileColor>
     </tile>
   </msapplication>
 </browserconfig>

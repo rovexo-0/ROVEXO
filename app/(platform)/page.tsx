@@ -10,6 +10,7 @@ import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import { canonicalForHomepage } from "@/lib/seo/engine/canonical";
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
 import { loadHomepageDocumentData } from "@/lib/homepage/load-homepage-document";
+import { HOMEPAGE_SOCIAL_PREVIEW_V2 } from "@/lib/share/homepage";
 
 /**
  * Wave 0 SSOT — absolute root with trailing slash (`https://www.rovexo.co.uk/`).
@@ -26,14 +27,13 @@ const rootCanonical = canonicalForHomepage().canonicalUrl;
  */
 export const revalidate = 60;
 
-const HOMEPAGE_OG_TITLE = "ROVEXO – Buy & Sell with Confidence";
-const HOMEPAGE_OG_DESCRIPTION =
-  "Discover thousands of products from trusted sellers across the UK.";
+const HOMEPAGE_OG_TITLE = HOMEPAGE_SOCIAL_PREVIEW_V2.title;
+const HOMEPAGE_OG_DESCRIPTION = HOMEPAGE_SOCIAL_PREVIEW_V2.description;
 const HOMEPAGE_OG_IMAGE = {
-  url: "/brand/og-image.png",
-  width: 1200,
-  height: 630,
-  alt: "ROVEXO marketplace",
+  url: HOMEPAGE_SOCIAL_PREVIEW_V2.imageAbsoluteUrl,
+  width: HOMEPAGE_SOCIAL_PREVIEW_V2.imageWidth,
+  height: HOMEPAGE_SOCIAL_PREVIEW_V2.imageHeight,
+  alt: HOMEPAGE_SOCIAL_PREVIEW_V2.imageAlt,
 } as const;
 
 export const metadata: Metadata = {
@@ -43,13 +43,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: HOMEPAGE_OG_TITLE,
     description: HOMEPAGE_OG_DESCRIPTION,
-    type: "website",
-    url: rootCanonical,
+    type: HOMEPAGE_SOCIAL_PREVIEW_V2.type,
+    url: HOMEPAGE_SOCIAL_PREVIEW_V2.url,
     siteName: "ROVEXO",
     images: [HOMEPAGE_OG_IMAGE],
   },
   twitter: {
-    card: "summary_large_image",
+    card: HOMEPAGE_SOCIAL_PREVIEW_V2.twitterCard,
     title: HOMEPAGE_OG_TITLE,
     description: HOMEPAGE_OG_DESCRIPTION,
     images: [HOMEPAGE_OG_IMAGE.url],

@@ -154,18 +154,22 @@ describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
 });
 
 describe("Final Preview Certification v1.0 — Sell Native Photo Picker", () => {
-  it("one-tap native picker: image/* · no capture · no ROVEXO Camera/Gallery sheet", () => {
+  it("one-tap native picker: gallery multi · camera capture · no ROVEXO sheet", () => {
     expect(NATIVE_IMAGE_GALLERY_ACCEPT).toBe("image/*");
     expect(resolveNativeImageAccept("gallery")).toBe("image/*");
     expect(resolveNativeImageCapture("gallery")).toBeUndefined();
-    expect(SELL_PHOTO_MAX).toBe(8);
+    expect(resolveNativeImageCapture("camera")).toBe("environment");
+    expect(SELL_PHOTO_MAX).toBe(10);
 
     const sellInput = readSource("features/sell/ui/SellPhotoFileInput.tsx");
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     expect(sellInput).toContain("resolveNativeImageAccept");
-    expect(sellInput).toContain('data-universal-photo-intent="gallery"');
-    expect(sellInput).not.toContain("capture");
+    expect(sellInput).toContain("data-universal-photo-intent={intent}");
+    expect(sellInput).toContain("...(capture ? { capture } : {})");
+    expect(sellInput).toContain('intent === "camera" ? false : Boolean(multiple)');
     expect(rail).toContain("SellPhotoFileInput");
+    expect(rail).toContain('intent="gallery"');
+    expect(rail).toContain('Add Photo');
     expect(rail).not.toContain("UniversalPhotoPickerSheet");
     expect(existsSync(join(process.cwd(), "features/sell/ui/UniversalPhotoPickerSheet.tsx"))).toBe(
       false,

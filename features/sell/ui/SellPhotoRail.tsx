@@ -47,6 +47,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [activeTouch, setActiveTouch] = useState<number | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [sourceChoiceOpen, setSourceChoiceOpen] = useState(false);
 
   const canAdd = photos.length < SELL_PHOTO_MAX;
   const onPhotosAddedRef = useRef(onPhotosAdded);
@@ -133,6 +134,8 @@ export const SellPhotoRail = memo(function SellPhotoRail({
 
   const handleFilesSelected = useCallback(
     (files: FileList) => {
+      setSourceChoiceOpen(false);
+      if (!files.length) return;
       void addPhotos(files);
     },
     [addPhotos],
@@ -208,45 +211,27 @@ export const SellPhotoRail = memo(function SellPhotoRail({
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
 
   /**
-   * Dual native acquisition (same upload pipeline):
-   * Take Photo → capture="environment" · Choose from Gallery → system picker (no capture).
-   * No ROVEXO Action Sheet · no second uploader.
+   * ONE visible Add Photo card → compact Camera / Gallery choice →
+   * SellPhotoFileInput (camera|gallery) → SellProvider.addPhotos.
+   * No permanent camera-session tile · no second uploader · no getUserMedia session.
    */
   const addPhotosControl = (
-    <>
-      <label
-        aria-label="Take Photo"
-        className={cn(
-          PHOTO_TILE,
-          "sell-photo-tile--add gap-1",
-          photoError && "cds-menu-row--error",
-          focusRing,
-        )}
-        data-native-photo-picker-trigger="camera"
-      >
-        <SellPhotoFileInput
-          intent="camera"
-          multiple={false}
-          onFilesSelected={handleFilesSelected}
-        />
-        <CameraLineIcon className="h-7 w-7 text-primary" aria-hidden />
-        <span className="sell-photo-tile__add-label">Take Photo</span>
-      </label>
-      <label
-        aria-label="Choose from Gallery"
-        className={cn(
-          PHOTO_TILE,
-          "sell-photo-tile--add gap-1",
-          photoError && "cds-menu-row--error",
-          focusRing,
-        )}
-        data-native-photo-picker-trigger="gallery"
-      >
-        <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-        <GalleryLineIcon className="h-7 w-7 text-primary" aria-hidden />
-        <span className="sell-photo-tile__add-label">Choose from Gallery</span>
-      </label>
-    </>
+    <button
+      type="button"
+      aria-label="Add Photo"
+      className={cn(
+        PHOTO_TILE,
+        "sell-photo-tile--add gap-1",
+        photoError && "cds-menu-row--error",
+        focusRing,
+      )}
+      data-native-photo-picker-trigger="add"
+      data-sell-add-photo="v1"
+      onClick={() => setSourceChoiceOpen(true)}
+    >
+      <GalleryLineIcon className="h-7 w-7 text-primary" aria-hidden />
+      <span className="sell-photo-tile__add-label">Add Photo</span>
+    </button>
   );
 
   return (
@@ -352,6 +337,53 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       </div>
 
       <ModalContainer
+        open={sourceChoiceOpen}
+        onClose={() => setSourceChoiceOpen(false)}
+        variant="sheet"
+        zIndex={220}
+        ariaLabel="Add photo"
+        panelClassName="sell-photo-source-choice"
+      >
+        <div
+          className="sell-photo-source-choice__panel"
+          data-sell-photo-source-choice="v1"
+        >
+          <p className="sell-photo-source-choice__title">Add Photo</p>
+          <label
+            className={cn("sell-photo-source-choice__row", focusRing)}
+            data-native-photo-picker-trigger="camera"
+          >
+            <SellPhotoFileInput
+              intent="camera"
+              multiple={false}
+              onFilesSelected={handleFilesSelected}
+            />
+            <CameraLineIcon className="h-6 w-6 text-primary" aria-hidden />
+            <span className="sell-photo-source-choice__label">Take Photo</span>
+          </label>
+          <label
+            className={cn("sell-photo-source-choice__row", focusRing)}
+            data-native-photo-picker-trigger="gallery"
+          >
+            <SellPhotoFileInput
+              intent="gallery"
+              multiple
+              onFilesSelected={handleFilesSelected}
+            />
+            <GalleryLineIcon className="h-6 w-6 text-primary" aria-hidden />
+            <span className="sell-photo-source-choice__label">Choose from Gallery</span>
+          </label>
+          <button
+            type="button"
+            className={cn("sell-photo-source-choice__cancel", focusRing)}
+            onClick={() => setSourceChoiceOpen(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </ModalContainer>
+
+      <ModalContainer
         open={Boolean(previewPhoto)}
         onClose={() => setPreviewId(null)}
         variant="lightbox"
@@ -394,6 +426,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
               )}
             >
               <SellPhotoFileInput
+                intent="gallery"
                 multiple={false}
                 onFilesSelected={(files) => handleReplaceSelected(previewPhoto.id, files)}
               />

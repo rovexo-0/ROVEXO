@@ -50,7 +50,7 @@ describe("Native Photo Picker Contract v1.0", () => {
     expect(NATIVE_PHOTO_PICKER_V1.accept).toBe("image/*");
     expect(NATIVE_PHOTO_PICKER_V1.capture).toBeUndefined();
     expect(NATIVE_PHOTO_PICKER_V1.multiple).toBe(true);
-    expect(NATIVE_PHOTO_PICKER_V1.listingMax).toBe(8);
+    expect(NATIVE_PHOTO_PICKER_V1.listingMax).toBe(10);
     expect(NATIVE_PHOTO_PICKER_V1.autoUploadAfterSelection).toBe(true);
     expect(NATIVE_PHOTO_PICKER_V1.retryOnlyOnGenuineFailure).toBe(true);
     expect(isNativePhotoPickerOneTap()).toBe(true);
@@ -251,19 +251,26 @@ describe("sell photo picker (Android / Samsung / iOS)", () => {
     expect(picker).toMatch(/mode === "multiple" \? \([\s\S]*Apply[\s\S]*\) : null/);
   });
 
-  it("sell Add Photos exposes Take Photo + Choose from Gallery (no ROVEXO sheet)", () => {
+  it("sell Add Photos: one Add Photo card → compact Camera/Gallery choice → native inputs", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
     expect(rail).toContain("SellPhotoFileInput");
-    expect(rail).toContain("CameraLineIcon");
     expect(rail).toContain("GalleryLineIcon");
+    expect(rail).toContain("CameraLineIcon");
+    expect(rail).toContain("Add Photo");
+    expect(rail).toContain('data-sell-add-photo="v1"');
+    expect(rail).toContain('data-sell-photo-source-choice="v1"');
+    expect(rail).toContain('intent="gallery"');
+    expect(rail).toContain('intent="camera"');
     expect(rail).toContain("Take Photo");
     expect(rail).toContain("Choose from Gallery");
-    expect(rail).toContain('intent="camera"');
     expect(rail).toContain('data-native-photo-picker-host="v1.0"');
+    expect(rail).toContain('data-native-photo-picker-trigger="add"');
     expect(rail).toContain('data-native-photo-picker-trigger="camera"');
     expect(rail).toContain('data-native-photo-picker-trigger="gallery"');
+    expect(rail).not.toMatch(/\bTake Photos\b/);
+    expect(rail).not.toContain("SellCameraMultiPhotoSession");
     expect(rail).not.toContain("UniversalPhotoPickerSheet");
     expect(rail).not.toContain("ComposeLineIcon");
     expect(rail).not.toContain("NativeImageFileInput");
@@ -273,28 +280,31 @@ describe("sell photo picker (Android / Samsung / iOS)", () => {
     expect(input).toContain('type="file"');
     expect(input).toContain("resolveNativeImageAccept");
     expect(input).toContain("resolveNativeImageCapture");
-    expect(input).toContain('data-universal-photo-intent={intent}');
+    expect(input).toContain("data-universal-photo-intent={intent}");
     expect(input).toContain("data-native-photo-picker");
+    expect(input).toContain("data-sell-photo-multiple");
     expect(input).toContain("...(capture ? { capture } : {})");
-    expect(input).toContain('intent === "camera" ? false : multiple');
+    expect(input).toContain('intent === "camera" ? false : Boolean(multiple)');
   });
 
-  it("camera capture action uses environment; gallery omits capture", () => {
+  it("camera capture=environment · gallery omits capture (Android + iOS contract)", () => {
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
     expect(input).toContain("resolveNativeImageCapture(intent)");
-    expect(resolveNativeImageCapture("camera")).toBe("environment");
     expect(resolveNativeImageCapture("gallery")).toBeUndefined();
+    expect(resolveNativeImageCapture("camera")).toBe("environment");
+    expect(NATIVE_PHOTO_PICKER_V1.cameraCapture).toBe("environment");
   });
 
-  it("camera and gallery share SELL_PHOTO_MAX=8 via addPhotos", () => {
+  it("Add Photo shares SELL_PHOTO_MAX=10 via addPhotos", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const provider = readSource("features/sell/context/SellProvider.tsx");
     expect(rail).toContain("handleFilesSelected");
     expect(rail).toContain("void addPhotos(files)");
-    expect(rail).toContain("intent=\"camera\"");
-    expect(provider).toContain("SELL_PHOTO_MAX - draftRef.current.photos.length");
+    expect(rail).toContain('intent="gallery"');
+    expect(rail).toContain('intent="camera"');
+    expect(provider).toContain("capSellPhotoSelection");
     expect(provider).toContain(".slice(0, SELL_PHOTO_MAX)");
-    expect(SELL_PHOTO_MAX).toBe(8);
+    expect(SELL_PHOTO_MAX).toBe(10);
   });
 
   it("reuses single SellPhotoFileInput — no duplicate uploader", () => {
@@ -336,7 +346,7 @@ describe("sell photo picker (Android / Samsung / iOS)", () => {
   });
 
   it("enforces maximum listing photos", () => {
-    expect(SELL_PHOTO_MAX).toBe(8);
+    expect(SELL_PHOTO_MAX).toBe(10);
   });
 });
 
@@ -348,7 +358,7 @@ describe("sell photo upload state", () => {
 
   it("caps added photos at SELL_PHOTO_MAX in provider", () => {
     const source = readSource("features/sell/context/SellProvider.tsx");
-    expect(source).toContain("SELL_PHOTO_MAX - draftRef.current.photos.length");
+    expect(source).toContain("capSellPhotoSelection");
     expect(source).toContain(".slice(0, SELL_PHOTO_MAX)");
   });
 

@@ -26,7 +26,17 @@ export type SellPhoto = {
 export type ListingType = "fixed" | "auction" | "live";
 
 /** Maximum photos per listing (also enforced server-side in the API schema). */
-export const SELL_PHOTO_MAX = 8;
+export const SELL_PHOTO_MAX = 10;
+
+/**
+ * Cap a gallery/camera selection against the remaining listing photo slots.
+ * Total listing max = SELL_PHOTO_MAX (not per-selection).
+ */
+export function capSellPhotoSelection<T>(existingCount: number, incoming: readonly T[]): T[] {
+  const remaining = Math.max(0, SELL_PHOTO_MAX - existingCount);
+  if (remaining === 0 || incoming.length === 0) return [];
+  return incoming.slice(0, remaining) as T[];
+}
 
 /** Parcel size — Absolute Final Freeze: ONLY four options. */
 export const PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;

@@ -3,48 +3,161 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Confirm your email address</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Welcome to ROVEXO — Confirm your email</title>
+    <!--
+      ROVEXO Auth Confirmation Email — Premium V1
+      Canonical: supabase/templates/confirmation.html
+      Dynamic verify link: SiteURL + TokenHash → /verify-email (never vendor hosted UI)
+    -->
   </head>
-  <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;padding:32px 16px;">
+  <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;-webkit-text-size-adjust:100%;">
+    <!-- Preheader (hidden) -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">
+      Your ROVEXO account is almost ready — confirm your email to get started.
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f4f6;width:100%;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:480px;background:#ffffff;border-radius:16px;">
+        <td align="center" style="padding:24px 12px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
+
+            <!-- Brand header -->
             <tr>
-              <td align="center" style="padding:24px 24px 8px;">
+              <td align="center" style="padding:28px 24px 12px;background:#ffffff;">
                 <img
-                  src="{{ .SiteURL }}/brand/canonical-rx/primary-emblem-auth-v4.png"
+                  src="{{ .SiteURL }}/og/rovexo-email-logo.jpg"
                   alt="ROVEXO"
-                  width="180"
-                  style="display:block;width:180px;max-width:70%;height:auto;border:0;"
+                  width="160"
+                  style="display:block;width:160px;max-width:56%;height:auto;border:0;outline:none;text-decoration:none;"
                 />
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:16px 24px 8px;text-align:left;">
-                <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;font-weight:700;color:#111827;">
-                  Welcome to ROVEXO
-                </h1>
-                <p style="margin:0;font-size:16px;line-height:1.55;color:#4b5563;">
-                  Please confirm your email address to activate your account.
+                <p style="margin:12px 0 0;font-size:13px;line-height:1.4;font-weight:600;letter-spacing:0.04em;color:#7c3aed;">
+                  Buy • Sell • Grow
                 </p>
               </td>
             </tr>
+
+            <!-- Marketplace hero (production HTTPS via SiteURL) -->
             <tr>
-              <td align="center" style="padding:28px 24px;">
-                <!-- Direct ROVEXO route — never supabase.co hosted verify UI -->
-                <a
-                  href="{{ .SiteURL }}/verify-email?token_hash={{ .TokenHash }}&amp;type=signup"
-                  style="display:inline-block;width:100%;max-width:432px;box-sizing:border-box;padding:16px 24px;background:linear-gradient(135deg,#a855f7,#9333ea,#7c3aed);color:#ffffff;text-decoration:none;font-size:17px;font-weight:600;border-radius:16px;text-align:center;"
-                >
-                  Confirm Email
-                </a>
+              <td align="center" style="padding:8px 16px 4px;background:#ffffff;">
+                <img
+                  src="{{ .SiteURL }}/og/rovexo-homepage-social-v2.jpg"
+                  alt="ROVEXO marketplace"
+                  width="528"
+                  style="display:block;width:100%;max-width:528px;height:auto;border:0;border-radius:12px;outline:none;text-decoration:none;"
+                />
               </td>
             </tr>
+
+            <!-- Main verification block -->
             <tr>
-              <td style="padding:8px 24px 32px;text-align:center;">
-                <p style="margin:0;font-size:13px;line-height:1.5;color:#9ca3af;">
-                  © ROVEXO Marketplace
+              <td style="padding:24px 24px 8px;background:#ffffff;">
+                <h1 style="margin:0 0 10px;font-size:22px;line-height:1.3;font-weight:700;color:#0f172a;">
+                  Your ROVEXO account is almost ready!
+                </h1>
+                <p style="margin:0;font-size:15px;line-height:1.55;color:#475569;">
+                  Confirm your email address to activate your account and start buying, selling and discovering on ROVEXO.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Account email -->
+            <tr>
+              <td style="padding:16px 24px 4px;background:#ffffff;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+                  <tr>
+                    <td style="padding:14px 16px;">
+                      <p style="margin:0 0 4px;font-size:12px;line-height:1.4;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;color:#64748b;">
+                        Your ROVEXO account
+                      </p>
+                      <p style="margin:0;font-size:15px;line-height:1.4;font-weight:600;color:#0f172a;word-break:break-all;">
+                        {{ .Email }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Primary CTA — dynamic Supabase TokenHash → ROVEXO /verify-email -->
+            <tr>
+              <td align="center" style="padding:24px 24px 8px;background:#ffffff;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td align="center" bgcolor="#9333ea" style="border-radius:14px;background:#9333ea;">
+                      <a
+                        href="{{ .SiteURL }}/verify-email?token_hash={{ .TokenHash }}&amp;type=signup"
+                        style="display:block;width:100%;box-sizing:border-box;padding:16px 24px;background:#9333ea;color:#ffffff;text-decoration:none;font-size:16px;line-height:1.25;font-weight:700;letter-spacing:0.02em;border-radius:14px;text-align:center;min-height:24px;"
+                      >
+                        CONFIRM MY EMAIL
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:14px 0 0;font-size:13px;line-height:1.45;color:#64748b;text-align:center;">
+                  This link is secure and will expire after a limited time.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Compact trust row -->
+            <tr>
+              <td style="padding:16px 24px 8px;background:#ffffff;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td width="50%" valign="top" style="padding:0 6px 0 0;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#faf5ff;border-radius:12px;">
+                        <tr>
+                          <td style="padding:12px 12px;">
+                            <p style="margin:0 0 4px;font-size:13px;line-height:1.35;font-weight:700;color:#6b21a8;">
+                              Secure account verification
+                            </p>
+                            <p style="margin:0;font-size:12px;line-height:1.4;color:#64748b;">
+                              Your security is our priority.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="50%" valign="top" style="padding:0 0 0 6px;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#faf5ff;border-radius:12px;">
+                        <tr>
+                          <td style="padding:12px 12px;">
+                            <p style="margin:0 0 4px;font-size:13px;line-height:1.35;font-weight:700;color:#6b21a8;">
+                              One click to activate
+                            </p>
+                            <p style="margin:0;font-size:12px;line-height:1.4;color:#64748b;">
+                              Get started in seconds.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Brand footer -->
+            <tr>
+              <td align="center" style="padding:28px 24px 12px;background:#ffffff;border-top:1px solid #f1f5f9;">
+                <p style="margin:0 0 8px;font-size:14px;line-height:1.4;font-weight:600;color:#0f172a;">
+                  Discover. Sell. Grow.
+                </p>
+                <p style="margin:0 0 4px;font-size:13px;line-height:1.4;font-weight:700;color:#7c3aed;">
+                  ROVEXO — Buy • Sell • Grow
+                </p>
+                <p style="margin:0;font-size:13px;line-height:1.4;">
+                  <a href="{{ .SiteURL }}/" style="color:#64748b;text-decoration:none;">rovexo.co.uk</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Safety fallback -->
+            <tr>
+              <td align="center" style="padding:8px 24px 28px;background:#ffffff;">
+                <p style="margin:0;font-size:12px;line-height:1.45;color:#94a3b8;">
+                  If you didn’t create a ROVEXO account, you can safely ignore this email.
                 </p>
               </td>
             </tr>

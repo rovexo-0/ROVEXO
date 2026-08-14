@@ -231,7 +231,7 @@ async function main() {
         width: size,
         height: size,
         channels: 4,
-        background: { r: 11, g: 18, b: 36, alpha: 1 },
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
       },
     })
       .composite([{ input: icon, top: pad, left: pad }])

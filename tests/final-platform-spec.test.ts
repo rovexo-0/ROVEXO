@@ -79,7 +79,7 @@ describe("final platform spec surfaces", () => {
   });
 
   it("caps sell flow photos at eight", () => {
-    expect(SELL_PHOTO_MAX).toBe(8);
+    expect(SELL_PHOTO_MAX).toBe(10);
   });
 
   it("aligns listing API schema with sell photo cap", async () => {

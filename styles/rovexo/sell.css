@@ -552,6 +552,11 @@
   background: var(--cds-color-surface-muted, #f5f5f7);
   border: 1px solid #ececec;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: center;
+  color: inherit;
 }
 
 [data-sell-shell] .sell-photo-tile--add > svg,
@@ -1227,4 +1232,64 @@
   .sell-parcel-option--pending .sell-parcel-option__radio {
     animation: none;
   }
+}
+
+/* ── Sell Add Photo — compact Camera / Gallery choice v1 ───────── */
+.sell-photo-source-choice {
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+.sell-photo-source-choice__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 16px 8px;
+}
+
+.sell-photo-source-choice__title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cds-color-text-primary, #111);
+  text-align: center;
+}
+
+.sell-photo-source-choice__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  width: 100%;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid #ececec;
+  background: #fff;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sell-photo-source-choice__row:active {
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 6%, #fff);
+}
+
+.sell-photo-source-choice__label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cds-color-text-primary, #111);
+}
+
+.sell-photo-source-choice__cancel {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  min-height: 48px;
+  width: 100%;
+  margin-top: 4px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cds-color-text-secondary, #64748b);
+  cursor: pointer;
 }

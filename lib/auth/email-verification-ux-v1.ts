@@ -3,6 +3,7 @@
  *
  * Canonical branded verification flow — Supabase backend only (never hosted UI).
  * Route SSOT: `/verify-email`
+ * Email HTML SSOT: `supabase/templates/confirmation.html`
  */
 
 export const EMAIL_VERIFICATION_UX_V1 = {
@@ -39,21 +40,41 @@ export const EMAIL_VERIFICATION_UX_V1 = {
     },
   },
   emailTemplate: {
-    subject: "Confirm your email address",
-    greeting: "Welcome to ROVEXO",
-    body: "Please confirm your email address to activate your account.",
-    cta: "Confirm Email",
-    footer: "© ROVEXO Marketplace",
-    /** Direct app link — never ConfirmationURL (avoids supabase.co hosted UI). */
+    subject: "Welcome to ROVEXO — Confirm your email",
+    heroTagline: "Buy • Sell • Grow",
+    headline: "Your ROVEXO account is almost ready!",
+    body: "Confirm your email address to activate your account and start buying, selling and discovering on ROVEXO.",
+    accountLabel: "Your ROVEXO account",
+    cta: "CONFIRM MY EMAIL",
+    /** Neutral — do not claim a fixed TTL unless configured in Auth. */
+    secureLinkNote: "This link is secure and will expire after a limited time.",
+    trustSecureTitle: "Secure account verification",
+    trustSecureBody: "Your security is our priority.",
+    trustFastTitle: "One click to activate",
+    trustFastBody: "Get started in seconds.",
+    footerTagline: "Discover. Sell. Grow.",
+    footerBrand: "ROVEXO — Buy • Sell • Grow",
+    footerDomain: "rovexo.co.uk",
+    ignoreNote: "If you didn’t create a ROVEXO account, you can safely ignore this email.",
+    emblemPath: "/og/rovexo-email-logo.jpg",
+    heroImagePath: "/og/rovexo-homepage-social-v2.jpg",
+    /** Direct app link — never ConfirmationURL (avoids vendor hosted verify UI). */
     confirmPath: "/verify-email",
     contentPath: "supabase/templates/confirmation.html",
+    /** Dynamic placeholders required in the HTML template. */
+    requiredPlaceholders: ["{{ .SiteURL }}", "{{ .TokenHash }}", "{{ .Email }}"] as const,
   },
   forbidden: [
     "Powered by Supabase",
+    "Supabase Auth",
     "supabase.co hosted verify UI",
+    "Sendcloud",
+    "SendCloud",
     "raw exceptions",
     "stack traces",
     "duplicate verification routes",
+    "localhost",
+    "127.0.0.1",
   ] as const,
 } as const;
 
@@ -72,4 +93,9 @@ export function isEmailConfirmationOtpType(type: string | null | undefined): boo
     type === "invite" ||
     type === "email_change"
   );
+}
+
+/** Build the branded confirmation href pattern used in the email HTML (TokenHash dynamic). */
+export function buildEmailConfirmationHrefPattern(): string {
+  return `${EMAIL_VERIFICATION_UX_V1.emailTemplate.confirmPath}?token_hash={{ .TokenHash }}&type=signup`;
 }

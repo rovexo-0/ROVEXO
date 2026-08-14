@@ -62,6 +62,7 @@ import {
 import { assertSellCategoryPublishGate } from "@/lib/sell/category-engine-v1";
 import {
   createEmptyDraft,
+  capSellPhotoSelection,
   SELL_PHOTO_MAX,
   type SellListingDraft,
   type SellPhoto,
@@ -569,8 +570,10 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   );
 
   const addPhotos = useCallback(async (files: FileList | File[]) => {
-    const remaining = SELL_PHOTO_MAX - draftRef.current.photos.length;
-    const selected = Array.from(files).slice(0, remaining);
+    const selected = capSellPhotoSelection(
+      draftRef.current.photos.length,
+      Array.from(files),
+    );
     if (selected.length === 0) return;
 
     const failures: string[] = [];
