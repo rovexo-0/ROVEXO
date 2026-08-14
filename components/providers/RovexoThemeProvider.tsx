@@ -3,6 +3,7 @@
 import {
   createContext,
   useCallback,
+  useEffect,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
@@ -11,6 +12,7 @@ import {
   applyRovexoThemeToDocument,
   normalizeRovexoTheme,
   persistRovexoTheme,
+  readStoredRovexoTheme,
   type RovexoThemeMode,
   ROVEXO_THEME_DEFAULT,
 } from "@/lib/theme/rovexo-theme-v1";
@@ -82,9 +84,20 @@ function useDocumentThemeController(): RovexoThemeContextValue {
 /**
  * Single application theme owner (desktop + mobile + tablet).
  * Persistence: localStorage `rovexo-theme`. Document `data-theme` is SSOT.
+ *
+ * Hydration contract: SSR + first client render keep `data-theme="light"`.
+ * Stored preference is applied only after mount (no beforeInteractive DOM mutation).
  */
 export function RovexoThemeProvider({ children }: { children: ReactNode }) {
   const value = useDocumentThemeController();
+
+  useEffect(() => {
+    const stored = readStoredRovexoTheme();
+    if (stored === readDocumentTheme()) return;
+    applyRovexoThemeToDocument(stored);
+    emitThemeChange();
+  }, []);
+
   return <RovexoThemeContext.Provider value={value}>{children}</RovexoThemeContext.Provider>;
 }
 

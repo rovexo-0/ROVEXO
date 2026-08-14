@@ -22,9 +22,11 @@ describe("Theme architecture — single Profile Theme Switch (v1.0)", () => {
 
   it("owns theme via RovexoThemeProvider + rovexo-theme localStorage", () => {
     const layout = readSource("app/layout.tsx");
+    const provider = readSource("components/providers/RovexoThemeProvider.tsx");
     expect(layout).toContain("RovexoThemeProvider");
-    expect(layout).toContain("THEME_INIT_SCRIPT");
-    expect(layout).toContain("rovexo-theme");
+    expect(layout).not.toContain("THEME_INIT_SCRIPT");
+    expect(layout).not.toContain("rovexo-theme-init");
+    expect(provider).toContain("readStoredRovexoTheme");
     expect(existsSync(path.join(process.cwd(), "components/providers/RovexoThemeProvider.tsx"))).toBe(
       true,
     );

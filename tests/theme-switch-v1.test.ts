@@ -66,8 +66,9 @@ describe("ROVEXO Theme Switch v1.0", () => {
     const ssot = readSource("lib/theme/rovexo-theme-v1.ts");
 
     expect(layout).toContain("RovexoThemeProvider");
-    expect(layout).toContain("THEME_INIT_SCRIPT");
-    expect(layout).toContain("rovexo-theme-init");
+    expect(layout).not.toContain("THEME_INIT_SCRIPT");
+    expect(layout).not.toContain("rovexo-theme-init");
+    expect(provider).toContain("readStoredRovexoTheme");
     expect(provider).toContain("persistRovexoTheme");
     expect(provider).toContain("useSyncExternalStore");
     expect(ssot).toContain('ROVEXO_THEME_STORAGE_KEY = "rovexo-theme"');

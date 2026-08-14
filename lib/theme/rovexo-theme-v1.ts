@@ -82,8 +82,10 @@ export function toggleRovexoTheme(current: RovexoThemeMode): RovexoThemeMode {
 }
 
 /**
- * beforeInteractive bootstrap — same persistence pattern as locale (localStorage).
- * Fail-closed: anything other than "dark" → light.
+ * Legacy pre-paint bootstrap string — kept for reference / tests that assert the
+ * historical pattern. MUST NOT be injected beforeInteractive: mutating
+ * `data-theme` before React hydrates causes React #418 (hydration mismatch).
+ * Runtime apply path: RovexoThemeProvider post-mount `readStoredRovexoTheme()`.
  */
 export const ROVEXO_THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(ROVEXO_THEME_STORAGE_KEY)});document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");}catch(e){try{document.documentElement.setAttribute("data-theme","light");}catch(_){}}})();`;
 

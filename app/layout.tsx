@@ -26,7 +26,6 @@ import { CHUNK_LOAD_BOOTSTRAP_SCRIPT } from "@/components/runtime/chunk-load-boo
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { withWhitePearlFaviconCacheBust } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 import { RovexoThemeProvider } from "@/components/providers/RovexoThemeProvider";
-import { ROVEXO_THEME_INIT_SCRIPT } from "@/lib/theme/rovexo-theme-v1";
 
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
 const faviconV = withWhitePearlFaviconCacheBust;
@@ -62,12 +61,11 @@ const geistMono = Geist_Mono({
   adjustFontFallback: true,
 });
 
-// Pre-paint locale sync: applies the stored locale to <html lang/dir> before
-// hydration so language and text direction (incl. RTL) never flash on first paint.
-const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
-
-/** Pre-paint theme sync — localStorage `rovexo-theme` (Theme Switch v1.0). Default light. */
-const THEME_INIT_SCRIPT = ROVEXO_THEME_INIT_SCRIPT;
+/**
+ * COD SÂNGE hydration (#418): do NOT mutate <html lang/dir/data-theme> before
+ * React hydrates. SSR + first client render stay deterministic (en-GB / ltr / light).
+ * LocaleProvider + RovexoThemeProvider apply stored preferences after mount.
+ */
 
 /** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
 export const viewport: Viewport = {
@@ -160,7 +158,6 @@ export default function RootLayout({
       data-theme="light"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
-      suppressHydrationWarning
     >
       <head>
         {/* P9 — early connection setup for marketplace media (delivery only). */}
@@ -169,13 +166,7 @@ export default function RootLayout({
         {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
       </head>
       <body className="min-h-full flex flex-col bg-background text-text-primary">
-        {/* beforeInteractive — root layout only; replaces raw <script> (React 19). */}
-        <Script id="rovexo-locale-init" strategy="beforeInteractive">
-          {LOCALE_INIT_SCRIPT}
-        </Script>
-        <Script id="rovexo-theme-init" strategy="beforeInteractive">
-          {THEME_INIT_SCRIPT}
-        </Script>
+        {/* Chunk recovery only — never mutate <html> attributes before hydration. */}
         <Script id="rovexo-chunk-load-bootstrap" strategy="beforeInteractive">
           {CHUNK_LOAD_BOOTSTRAP_SCRIPT}
         </Script>
