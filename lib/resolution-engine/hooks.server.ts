@@ -20,6 +20,20 @@ export async function onProtectionCaseOpened(input: {
     protectionCaseId: input.protectionCaseId,
   });
 
+  if (caseType === "dispute") {
+    if (row) {
+      const { notifyResolutionUpdate } = await import("@/lib/resolution-engine/notifications");
+      await notifyResolutionUpdate({
+        orderId: input.orderId,
+        buyerId: row.buyer_id,
+        sellerId: row.seller_id,
+        status: "OPEN",
+        message: "Resolution is in progress.",
+      });
+    }
+    return;
+  }
+
   if (row) {
     await processResolutionCase(row.id);
   }

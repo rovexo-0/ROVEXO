@@ -152,7 +152,9 @@ describe("Inbox Hub Master Implementation — UI LOCK", () => {
     expect(readSource("lib/inbox/transaction-status-card-v1.ts")).toContain(
       'label: "CREATE SHIPPING LABEL"',
     );
-    expect(viewSource).toContain("View Tracking");
+    expect(readSource("lib/inbox/transaction-status-card-v1.ts")).toContain(
+      'label: "TRACK PARCEL"',
+    );
     expect(viewSource).toContain("Waiting for parcel drop-off");
     expect(viewSource).toContain("resume_payment");
     expect(hub).not.toContain('router.push(`${view.orderDetailsHref}?review=1`)');

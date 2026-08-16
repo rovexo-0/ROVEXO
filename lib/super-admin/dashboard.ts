@@ -4,6 +4,10 @@ import { getProductionOperationsSnapshot } from "@/lib/ops/production-status";
 import { getAdminStats } from "@/lib/admin/queries";
 import { getAdminPromotionStats } from "@/lib/promotions/admin";
 import { getMonetizationOverview } from "@/lib/monetization/service";
+import {
+  sumOrderRevenueSince,
+  sumWalletBalances,
+} from "@/lib/super-admin/command-center-v1/queries";
 
 export type SuperAdminDashboardMetrics = {
   totalUsers: number;
@@ -41,23 +45,6 @@ function startOfTodayIso(): string {
 function startOfMonthIso(): string {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-}
-
-async function sumOrderRevenueSince(since: string): Promise<number> {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("orders")
-    .select("total")
-    .gte("created_at", since)
-    .in("status", ["completed", "awaiting_shipment", "shipped", "delivered"]);
-
-  return (data ?? []).reduce((sum, row) => sum + Number(row.total), 0);
-}
-
-async function sumWalletBalances(): Promise<number> {
-  const admin = createAdminClient();
-  const { data } = await admin.from("wallets").select("available_balance");
-  return (data ?? []).reduce((sum, row) => sum + Number(row.available_balance), 0);
 }
 
 export async function getSuperAdminDashboardData(): Promise<SuperAdminDashboardData> {

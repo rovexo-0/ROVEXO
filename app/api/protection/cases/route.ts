@@ -4,6 +4,7 @@ import {
   createProtectionCase,
   getProtectionCaseByOrderId,
   listProtectionCasesForUser,
+  parseSellerResolutionNotes,
 } from "@/lib/protection/service";
 
 export async function GET(request: Request) {
@@ -23,7 +24,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    return NextResponse.json({ case: caseRecord });
+    return NextResponse.json({
+      case: {
+        ...caseRecord,
+        sellerResolution: parseSellerResolutionNotes(caseRecord.adminNotes),
+      },
+    });
   }
 
   const role = searchParams.get("role") === "seller" ? "seller" : "buyer";

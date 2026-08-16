@@ -39,6 +39,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       action?: OrderAction;
       trackingNumber?: string;
       cancellationReasonId?: string;
+      reasonId?: string;
+      description?: string;
     };
 
     if (!body.action) {
@@ -62,6 +64,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     const payload =
       body.action === "cancel"
         ? { cancellationReasonId: body.cancellationReasonId }
+        : body.action === "report_issue"
+          ? { reasonId: body.reasonId, description: body.description }
         : body.trackingNumber
           ? { trackingNumber: body.trackingNumber }
           : undefined;

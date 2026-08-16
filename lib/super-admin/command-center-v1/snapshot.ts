@@ -11,8 +11,6 @@ import {
 import { buildNocCriticalAlerts, buildNocHealthScores } from "@/lib/super-admin/noc-v1";
 import { buildCommandCenterV2Extensions } from "@/lib/super-admin/command-center-v2/build-v2-extensions";
 import { fetchCategoryPerformance, countReviews } from "@/lib/super-admin/command-center-v1/queries";
-import { SendcloudService } from "@/lib/shipping/sendcloud/service";
-import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { getAuthContext } from "@/lib/auth/session";
 import type { CommandCenterAdminIdentity } from "@/lib/super-admin/command-center-v1/types";
 
@@ -166,18 +164,19 @@ function buildNotifications(input: {
 }
 
 export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snapshot> {
-  const dashboard = await getSuperAdminDashboardData();
-
-  const [auditLogs, liveAnalytics, productionData, charts, categories, , reviewCount, admin] =
+  const [dashboard, auditLogs, liveAnalytics, categories, reviewCount, admin] =
     await Promise.all([
-    listAuditTimeline(20),
-    getLiveAnalyticsCenterSnapshot().catch(() => null),
+      getSuperAdminDashboardData(),
+      listAuditTimeline(20),
+      getLiveAnalyticsCenterSnapshot().catch(() => null),
+      fetchCategoryPerformance(8),
+      countReviews(),
+      resolveAdminIdentity(),
+    ]);
+
+  const [productionData, charts] = await Promise.all([
     fetchCommandCenterProductionSections(dashboard),
     fetchCommandCenterProductionCharts(dashboard),
-    fetchCategoryPerformance(8),
-    isSendcloudConfigured() ? SendcloudService.checkHealth().catch(() => null) : Promise.resolve(null),
-    countReviews(),
-    resolveAdminIdentity(),
   ]);
   const sections = buildCommandCenterSections(productionData.sections);
   const generatedAt = new Date().toISOString();

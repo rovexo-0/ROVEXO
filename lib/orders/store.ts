@@ -16,6 +16,7 @@ import type {
   CreateOrderInput,
   Order,
   OrderAction,
+  ReportIssueInput,
 } from "@/lib/orders/types";
 import type { Tables } from "@/lib/supabase/types/database";
 
@@ -154,7 +155,7 @@ export async function createOrder(
 export async function applyOrderAction(
   id: string,
   action: OrderAction,
-  payload?: AddTrackingInput | CancelOrderInput,
+  payload?: AddTrackingInput | CancelOrderInput | ReportIssueInput,
 ): Promise<Order | null> {
   const existing = await getOrderById(id);
   if (!existing) {
@@ -381,12 +382,17 @@ export async function applyOrderAction(
 
     await createAdminClient().from("orders").update({ status: "issue_open" }).eq("id", id);
 
+    const issuePayload = payload && "reasonId" in payload ? payload : undefined;
+    const reasonId = issuePayload?.reasonId?.trim();
+    const issueDescription = issuePayload?.description?.trim();
     await createProtectionCase({
       orderId: id,
       buyerId: existing.buyer.id,
       caseType: "dispute",
-      reason: "buyer_reported_issue",
-      description: `Buyer reported an issue on order ${existing.orderNumber}.`,
+      reason: reasonId || "buyer_reported_issue",
+      description:
+        issueDescription ||
+        `Buyer reported an issue on order ${existing.orderNumber}.`,
     });
 
     return getOrderById(id);

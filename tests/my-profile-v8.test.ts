@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
 }
 
 describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
-  it("removes Share completely from View Profile", () => {
+  it("keeps Share Profile removed and mounts canonical Share Store", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
     expect(page).toContain('MY_PROFILE_VERSION = "v8.0"');
     expect(page).not.toContain("ShareIcon");
@@ -15,8 +15,97 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
     expect(page).not.toContain("navigator.share");
     expect(page).not.toContain("Share profile");
     expect(page).not.toContain('aria-label="Share profile"');
+    expect(page).toContain("StoreShareSheet");
+    expect(page).toContain("STORE_SHARE_COPY.cta");
     expect(page).toContain('title={isOwnProfile ? "My Profile"');
-    expect(page).toContain('aria-label="More"');
+    expect(page).toContain('aria-label="Profile menu"');
+  });
+
+  it("PROFILE_MENU_EXISTS=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain('aria-label="Profile menu"');
+    expect(page).toContain("vp-v1__menu-btn");
+    expect(page).toContain("setMenuOpen");
+  });
+
+  it("PROFILE_MENU_SINGLE_INSTANCE=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page.split('aria-label="Profile menu"').length - 1).toBe(1);
+    expect(page.split("vp-v1__menu-btn").length - 1).toBe(1);
+  });
+
+  it("PROFILE_MENU_ICON=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain('from "lucide-react"');
+    expect(page).toContain("<Menu ");
+  });
+
+  it("PROFILE_MENU_NOT_VERTICAL_DOTS=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).not.toContain("MoreVertical");
+    expect(page).not.toContain("MoreHorizontal");
+    expect(page).not.toContain("MoreLineIcon");
+  });
+
+  it("PROFILE_MENU_NOT_TEXT_DOTS=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).not.toContain("···");
+    expect(page).not.toContain(">...<");
+    expect(page).not.toContain(">···<");
+    expect(page).not.toContain('aria-label="More"\n                aria-expanded');
+  });
+
+  it("PROFILE_MENU_POSITION_TOP_RIGHT=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    const heroTop = page.indexOf('className="vp-v1__hero-top"');
+    const headerActions = page.indexOf('className="vp-v1__header-actions"');
+    const menuBtn = page.indexOf('aria-label="Profile menu"');
+    const actions = page.indexOf('className={cn("vp-v1__actions"');
+    expect(heroTop).toBeGreaterThan(0);
+    expect(headerActions).toBeGreaterThan(heroTop);
+    expect(menuBtn).toBeGreaterThan(headerActions);
+    expect(actions).toBeGreaterThan(menuBtn);
+  });
+
+  it("OLD_MENU_POSITION_REMOVED=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    const actionsStart = page.indexOf('className={cn("vp-v1__actions"');
+    const actionsEnd = page.indexOf("ProfileCommandCentreButton", actionsStart);
+    const actionsBlock = page.slice(actionsStart, actionsEnd);
+    expect(actionsBlock).not.toContain("vp-v1__menu-btn");
+    expect(actionsBlock).not.toContain('aria-label="Profile menu"');
+    expect(actionsBlock).not.toContain("···");
+  });
+
+  it("NO_MENU_UNDER_SHARE_STORE=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    const shareIdx = page.indexOf("STORE_SHARE_COPY.cta");
+    const afterShare = page.slice(shareIdx, shareIdx + 400);
+    expect(afterShare).not.toContain("vp-v1__menu-btn");
+    expect(afterShare).not.toContain("···");
+  });
+
+  it("EXISTING_MENU_ACTIONS_UNCHANGED=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain("Copy Profile Link");
+    expect(page).toContain("Add / Edit Bio");
+    expect(page).toContain("/settings");
+    expect(page).toContain("Block User");
+    expect(page).toContain("Report User");
+    expect(page).toContain("Cancel");
+  });
+
+  it("SHARE_STORE_REGRESSION=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain("StoreShareSheet");
+    expect(page).toContain("STORE_SHARE_COPY.cta");
+    expect(page).toContain("vp-v1__action-btn--share");
+  });
+
+  it("SUPER_ADMIN_REGRESSION=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain("ProfileCommandCentreButton");
+    expect(page).toContain("isOwnProfile && commandCentre");
   });
 
   it("ships own More menu routes + Copy Profile Link", () => {

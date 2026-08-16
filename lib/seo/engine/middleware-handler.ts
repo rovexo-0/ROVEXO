@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSeoRedirect } from "@/lib/seo/engine/redirects";
 import { resolveLocationFirstRewrite, shouldRewriteToDiscover } from "@/lib/seo/engine/routing";
+import { resolveStoreHandleRewrite } from "@/lib/store-sharing/store-share-v1";
 
 const RESERVED_ROOT_SEGMENTS = new Set([
   "account",
@@ -61,6 +62,13 @@ const RESERVED_ROOT_SEGMENTS = new Set([
  */
 export async function applySeoRouting(request: NextRequest): Promise<NextResponse | null> {
   const pathname = request.nextUrl.pathname;
+  const storeHandleRewrite = resolveStoreHandleRewrite(pathname);
+  if (storeHandleRewrite) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = storeHandleRewrite;
+    return NextResponse.rewrite(rewriteUrl);
+  }
+
   const firstSegment = pathname.split("/").filter(Boolean)[0] ?? "";
 
   // App-owned first segments never use SEO slug discovery — skip the redirect

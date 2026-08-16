@@ -5,6 +5,7 @@ import { isIndexableInventory } from "@/lib/seo/engine/config";
 import type { BrandPage, OrganicLandingPage } from "@/lib/seo/engine/types";
 import type { ProgrammaticPage } from "@/lib/seo/programmatic/resolver";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
+import { buildStoreShareMetadata, toStoreShareData } from "@/lib/store-sharing/store-share-v1";
 
 export function discoveryPageMetadata(page: OrganicLandingPage, listingCount: number): Metadata {  const base = buildPageMetadata({
     title: page.title,
@@ -59,17 +60,48 @@ export function storePageMetadata(input: {
 
 export function sellerPageMetadata(input: {
   username: string;
-  listingCount: number;
+  listingCount?: number | null;
   avatarUrl?: string | null;
+  displayName?: string | null;
+  verified?: boolean;
+  rating?: number | null;
+  reviewCount?: number;
+  followersCount?: number;
 }): Metadata {
-  const label = input.username.trim() || "Member";
-  return buildPageMetadata({
-    title: `@${label} | ROVEXO`,
-    description: `Shop listings from @${label} on ROVEXO. ${input.listingCount} active listings.`,
-    path: `/user/${input.username}`,
-    imageUrl: input.avatarUrl ?? undefined,
-    noIndex: input.listingCount <= 0,
+  const listingsKnown = input.listingCount != null;
+  const share = toStoreShareData({
+    username: input.username,
+    displayName: input.displayName,
+    avatarUrl: input.avatarUrl,
+    verified: input.verified,
+    rating: input.rating,
+    reviewCount: input.reviewCount,
+    activeListingsCount: input.listingCount ?? 0,
+    followersCount: input.followersCount,
   });
+  const meta = buildStoreShareMetadata(share, { listingsKnown });
+  const noIndex = input.listingCount == null || input.listingCount <= 0;
+  return {
+    title: { absolute: meta.title },
+    description: meta.description,
+    alternates: { canonical: meta.canonicalUrl },
+    robots: noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      url: meta.canonicalUrl,
+      siteName: "ROVEXO",
+      locale: "en_GB",
+      type: "website",
+      images: [{ url: meta.ogImageUrl, width: 1200, height: 630, alt: meta.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+      images: [meta.ogImageUrl],
+    },
+  };
 }
 
 export function productPageMetadata(input: {

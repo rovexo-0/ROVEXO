@@ -65,13 +65,9 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   // that mounted the infinite-scroll sentinel inside the CSS grid as a blank slot
   // whenever the last page had any items (e.g. 5 cards → empty 6th cell).
   const [hasMore, setHasMore] = useState(Boolean(initialPage.hasMore));
-  // When SSR seeded zero items we intend to fetch page 1 immediately, so the
-  // very first render must show the loading skeleton — never the empty state.
-  const [loading, setLoading] = useState(seedItems.length === 0);
+  // SSR page 1 is canonical — do not refetch it. Empty seed is authoritative.
+  const [loading, setLoading] = useState(false);
   const fetchingRef = useRef(false);
-  // The page-1 reconciliation fetch runs exactly once per mount. Guards against
-  // re-fetch loops and repeated reconciliation on unrelated re-renders.
-  const initialFetchDoneRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const columnCount = useMarketplaceFeedColumns();
 
@@ -158,23 +154,17 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   }, [hasMore, loadPage, page]);
 
   /**
-   * ROOT-CAUSE FIX: the SSR seed can be stale (ISR `revalidate`) — empty when
-   * the DB was cleared, or a partial page from before a publish. So on mount the
-   * client ALWAYS fetches page 1 and REPLACES the seed with the authoritative
-   * API result. This guarantees the grid matches `/api/homepage/feed` exactly
-   * and never shows a stale set (or "No Listings Yet") while the API has data.
-   * Runs exactly once.
+   * Page 1 is already loaded by SSR (`loadHomepageDocumentData`).
+   * Do not fetch `/api/homepage/feed?page=1` again on hydrate.
+   * Infinite scroll still loads page 2+.
    */
   useEffect(() => {
-    if (initialFetchDoneRef.current) return;
-    initialFetchDoneRef.current = true;
-    feedDebugLog("initial-reconcile", {
+    feedDebugLog("ssr-seed", {
       initialItems: initialPage.items.length,
       seedItems: seedItems.length,
       initialHasMore: initialPage.hasMore,
     });
-    void loadPage(1, "replace");
-  }, [initialPage.items.length, initialPage.hasMore, seedItems.length, loadPage]);
+  }, [initialPage.items.length, initialPage.hasMore, seedItems.length]);
 
   useEffect(() => {
     const node = sentinelRef.current;

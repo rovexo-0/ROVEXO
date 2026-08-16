@@ -21,6 +21,13 @@ export async function executeAutomaticRefund(input: {
   amount?: number;
   reason?: string;
 }): Promise<{ success: boolean; refundId?: string; error?: string }> {
+  const { isLostAutoRefundRule } = await import(
+    "@/lib/resolution-engine/lost-parcel-resolution-v1"
+  );
+  if (isLostAutoRefundRule({ ruleId: input.ruleId, reason: input.reason })) {
+    return { success: false, error: "CARRIER_CONFIRMED_LOST_REQUIRED" };
+  }
+
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")

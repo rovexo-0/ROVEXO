@@ -14,6 +14,7 @@ const PUBLIC_ROUTE_PREFIXES = [
   "/l/",
   "/store/",
   "/user/",
+  "/@",
   "/search",
   "/categories",
   "/help/",

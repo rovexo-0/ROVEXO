@@ -10,7 +10,6 @@ import {
   updateResolutionCaseStatus,
 } from "@/lib/resolution-engine/cases";
 import {
-  approveCarrierClaim,
   createCarrierReturn,
   loadOrderClaimContext,
   markReturnReceived,
@@ -56,7 +55,19 @@ async function autoResolveProtectionCase(input: {
 }
 
 async function processLostOrDamagedCase(caseRow: ResolutionCaseRow): Promise<boolean> {
-  await updateResolutionCaseStatus({ caseId: caseRow.id, status: "PROCESSING" });
+  const { LOST_PARCEL_RESOLUTION_V1 } = await import(
+    "@/lib/resolution-engine/lost-parcel-resolution-v1"
+  );
+
+  await updateResolutionCaseStatus({
+    caseId: caseRow.id,
+    status: "PROCESSING",
+    metadata: {
+      ...caseRow.metadata,
+      lossState: "POSSIBLY_LOST",
+      carrierConfirmationSignal: LOST_PARCEL_RESOLUTION_V1.carrierConfirmationSignal,
+    },
+  });
   const ctx = await loadOrderClaimContext(caseRow.order_id);
 
   const claim = await submitCarrierClaim({
@@ -71,43 +82,39 @@ async function processLostOrDamagedCase(caseRow: ResolutionCaseRow): Promise<boo
 
   if (!claim) return false;
 
-  await updateResolutionCaseStatus({ caseId: caseRow.id, status: "WAITING_CARRIER" });
-  await approveCarrierClaim(claim.id, ctx.amountClaimed);
-  await updateResolutionCaseStatus({ caseId: caseRow.id, status: "APPROVED", decision: "carrier_auto_approved" });
-
-  const refund = await executeAutomaticRefund({
-    orderId: caseRow.order_id,
+  await updateResolutionCaseStatus({
     caseId: caseRow.id,
-    ruleId: caseRow.rule_id ?? "lost_auto_refund",
-    refundType: "full",
-    amount: ctx.amountClaimed,
-    reason: `automatic_${caseRow.case_type}`,
+    status: "WAITING_CARRIER",
+    decision: "seller_carrier_claim_pending",
+    metadata: {
+      ...caseRow.metadata,
+      lossState: "WAITING_FOR_CARRIER",
+      carrierConfirmationSignal: LOST_PARCEL_RESOLUTION_V1.carrierConfirmationSignal,
+      carrierClaimApi: LOST_PARCEL_RESOLUTION_V1.carrierClaimApi,
+      internalLedgerOnly: true,
+      notCarrierIssued: true,
+    },
   });
-
-  if (!refund.success) return false;
-
-  if (caseRow.protection_case_id) {
-    await autoResolveProtectionCase({
-      protectionCaseId: caseRow.protection_case_id,
-      orderId: caseRow.order_id,
-      outcome: "refund_full",
-      notes: "Automatically resolved — carrier claim approved.",
-      refundAmount: ctx.amountClaimed,
-    });
-  }
 
   await notifyResolutionUpdate({
     orderId: caseRow.order_id,
     buyerId: caseRow.buyer_id,
     sellerId: caseRow.seller_id,
-    status: "REFUNDED",
-    message: "Your refund has been processed automatically.",
+    status: "WAITING_CARRIER",
+    message: LOST_PARCEL_RESOLUTION_V1.buyerWaitingCopy,
   });
-
   return true;
 }
 
 async function processReturnCase(caseRow: ResolutionCaseRow): Promise<boolean> {
+  const row = caseRow;
+  if (row.case_type !== "dispute") {
+    return processAuthorizedReturnCase(row);
+  }
+  return parkDisputeAwaitingResolution(row);
+}
+
+async function processAuthorizedReturnCase(caseRow: ResolutionCaseRow): Promise<boolean> {
   await updateResolutionCaseStatus({ caseId: caseRow.id, status: "PROCESSING" });
   const returnId = await createCarrierReturn({
     orderId: caseRow.order_id,
@@ -171,6 +178,15 @@ async function processDeliveryCloseCase(caseRow: ResolutionCaseRow): Promise<boo
   return true;
 }
 
+async function parkDisputeAwaitingResolution(caseRow: ResolutionCaseRow): Promise<boolean> {
+  await updateResolutionCaseStatus({
+    caseId: caseRow.id,
+    status: "OPEN",
+    decision: "dispute_awaiting_resolution",
+  });
+  return true;
+}
+
 /** Process a single resolution case through the automated state machine. */
 export async function processResolutionCase(caseId: string): Promise<boolean> {
   const caseRow = await getResolutionCase(caseId);
@@ -185,8 +201,9 @@ export async function processResolutionCase(caseId: string): Promise<boolean> {
     case "carrier_exception":
       return processLostOrDamagedCase(caseRow);
     case "return":
-    case "dispute":
       return processReturnCase(caseRow);
+    case "dispute":
+      return parkDisputeAwaitingResolution(caseRow);
     case "delivery":
     case "buyer_confirm":
     case "buyer_timeout":

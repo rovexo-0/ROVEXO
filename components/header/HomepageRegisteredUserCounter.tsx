@@ -42,18 +42,34 @@ export function HomepageRegisteredUserCounter() {
       }
     };
 
-    void load().then(() => {
-      if (cancelled) return;
-      channel = subscribeRegisteredUserCount({
-        onInsert: () => setCount((prev) => (prev == null ? prev : prev + 1)),
-        onSoftDelete: () =>
-          setCount((prev) => (prev == null ? prev : Math.max(0, prev - 1))),
-        onRestore: () => setCount((prev) => (prev == null ? prev : prev + 1)),
+    const start = () => {
+      void load().then(() => {
+        if (cancelled) return;
+        channel = subscribeRegisteredUserCount({
+          onInsert: () => setCount((prev) => (prev == null ? prev : prev + 1)),
+          onSoftDelete: () =>
+            setCount((prev) => (prev == null ? prev : Math.max(0, prev - 1))),
+          onRestore: () => setCount((prev) => (prev == null ? prev : prev + 1)),
+        });
       });
-    });
+    };
+
+    let idleId: number | null = null;
+    let timeoutId: number | null = null;
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(start, { timeout: 1500 });
+    } else {
+      timeoutId = window.setTimeout(start, 0);
+    }
 
     return () => {
       cancelled = true;
+      if (idleId != null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) {
+        window.clearTimeout(timeoutId);
+      }
       unsubscribeRegisteredUserCount(channel);
     };
   }, []);

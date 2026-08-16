@@ -62,6 +62,12 @@ function commandExists(command) {
  * Falls back to npm when pnpm/yarn are not on PATH (common on Windows).
  */
 export function resolvePackageManager(cwd = process.cwd()) {
+  // This repo is npm-canonical. A leftover pnpm-lock.yaml must not force
+  // `pnpm install --frozen-lockfile` during Playwright setup.
+  if (fs.existsSync(path.join(cwd, "package-lock.json"))) {
+    return "npm";
+  }
+
   if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) {
     if (commandExists("pnpm")) return "pnpm";
     // npm runs the same package.json scripts and works on Windows without pnpm on PATH.

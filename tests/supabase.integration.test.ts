@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { loadDotEnvFiles } from "../scripts/playwright-env.mjs";
+
+// Vitest mode is `test`, so Vite does not load `.env.local`.
+// Reuse the canonical Playwright/local loader (never overwrites set keys).
+loadDotEnvFiles();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

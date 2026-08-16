@@ -110,13 +110,13 @@ describe("BLOOD IV — Shipping / Order lifecycle SSOT", () => {
   it("Hub dynamic actions never expose Mark as shipped sticky; Messages never Withdraw", () => {
     const view = read("lib/inbox/conversation-view.ts");
     const card = read("lib/inbox/transaction-status-card-v1.ts");
-    expect(view).toContain('label: "Get Shipping Label"');
+    expect(view).toContain('bottom sticky "Get Shipping Label" removed');
     expect(view).toContain("no Mark as Sent");
     expect(view).not.toMatch(/label:\s*"Mark as shipped"/);
     expect(view).not.toMatch(/label:\s*"Withdraw"/);
     /* COD SÂNGE — Everything OK / Leave Review live on Dynamic Transaction Card */
     expect(card).toContain('label: "Everything OK"');
-    expect(card).toContain('label: "Leave Review"');
+    expect(card).toContain('label: "Leave Feedback"');
     expect(card).toContain('title: "Sale completed"');
     expect(card).not.toMatch(/label:\s*"WITHDRAW"/);
   });

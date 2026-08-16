@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserRole, isPlatformAdminRole, requireApiAuth } from "@/lib/auth/session";
 import {
   addProtectionEvidence,
+  applySellerResolutionAction,
   getProtectionCase,
   listProtectionCaseEvents,
   submitCaseAppeal,
@@ -44,6 +45,24 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   if (!caseRecord) {
     return NextResponse.json({ error: "Case not found." }, { status: 404 });
+  }
+
+  if (body.action === "seller_resolution" && typeof body.actionId === "string") {
+    if (caseRecord.sellerId !== auth.user.id) {
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    }
+    const updated = await applySellerResolutionAction({
+      caseId: id,
+      sellerId: auth.user.id,
+      actionId: body.actionId,
+      amount: typeof body.amount === "number" ? body.amount : null,
+      reasonId: typeof body.reasonId === "string" ? body.reasonId : null,
+      eligibleAmount: typeof body.eligibleAmount === "number" ? body.eligibleAmount : null,
+    });
+    if (!updated.ok) {
+      return NextResponse.json({ error: updated.code }, { status: 400 });
+    }
+    return NextResponse.json({ case: updated.case });
   }
 
   if (body.action === "appeal" && typeof body.reason === "string") {

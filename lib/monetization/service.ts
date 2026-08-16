@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminPromotionStats } from "@/lib/promotions/admin";
@@ -95,7 +96,7 @@ export async function subscribeToPlan(userId: string, planSlug: string): Promise
   }
 }
 
-export async function getMonetizationOverview(): Promise<{
+export const getMonetizationOverview = cache(async function getMonetizationOverview(): Promise<{
   plans: MonetizationPlan[];
   products: typeof MONETIZATION_PRODUCTS;
   promotionRevenueCents: number;
@@ -113,7 +114,7 @@ export async function getMonetizationOverview(): Promise<{
     promotionRevenueCents: promotionStats.monthRevenueCents,
     activeSubscriptions,
   };
-}
+});
 
 async function countActiveSubscriptions(): Promise<number> {
   try {

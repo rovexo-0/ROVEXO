@@ -64,7 +64,7 @@ describe("ROVEXO Master Stack — Buyer Conversation Hub v1.0", () => {
     expect(hub).toContain("conv-hub__header-centre--identity");
     expect(hub).toContain("conv-hub__product--compact");
     expect(hub).toContain("TransactionStatusCard");
-    expect(hub).toContain("resolveTransactionStatusCard");
+    expect(hub).toContain("resolveConversationHubTransactionCardView");
     expect(hub).toContain("conv-hub__offer--timeline");
     expect(hub).toContain("TransactionActionBar");
     expect(hub).toContain("showBottomNav={false}");

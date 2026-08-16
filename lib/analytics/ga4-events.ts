@@ -39,7 +39,17 @@ export type Ga4EventName =
   | "view_listing_hub"
   | "shipping_label"
   | "order_delivered"
-  | "wallet_released";
+  | "wallet_released"
+  | "store_store_visit"
+  | "store_share_opened"
+  | "store_share_copy_link"
+  | "store_share_native"
+  | "store_share_qr"
+  | "store_share_instagram"
+  | "store_share_whatsapp"
+  | "store_share_facebook"
+  | "store_share_messenger"
+  | "store_share_telegram";
 
 export type Ga4EventParams = Record<string, string | number | boolean | undefined>;
 

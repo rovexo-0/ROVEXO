@@ -11,6 +11,7 @@ import { getFollowCounts, isFollowing } from "@/lib/follow/marketplace-follow-st
 import { failClosedPublicTrustSummary, getPublicTrustSummary } from "@/lib/trust/service";
 import { getAuthContext } from "@/lib/auth/session";
 import { sellerPageMetadata, sellerProfilePageJsonLd } from "@/lib/seo/engine";
+import { isValidStoreUsername } from "@/lib/store-sharing/store-share-v1";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import {
   resolveStoreByRouteParam,
@@ -203,25 +204,37 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
   );
 }
 
+function storeShareFallbackMetadata(username: string): Metadata {
+  if (isValidStoreUsername(username)) {
+    return sellerPageMetadata({ username, listingCount: null });
+  }
+  return {
+    title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
+    robots: { index: false, follow: false },
+  };
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
   try {
     const profile = await resolvePublicProfile(username);
     if (!profile) {
-      return {
-        title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-        robots: { index: false, follow: false },
-      };
+      return storeShareFallbackMetadata(username);
     }
+
+    const followCounts = await getFollowCounts(profile.id).catch(() => null);
 
     return sellerPageMetadata({
       username: profile.username,
+      displayName: profile.username,
       listingCount: profile.listingCount,
+      avatarUrl: profile.avatarUrl,
+      verified: profile.emailVerified,
+      rating: profile.rating,
+      reviewCount: profile.reviewCount,
+      followersCount: followCounts?.followerCount ?? profile.followerCount,
     });
   } catch {
-    return {
-      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-      robots: { index: false, follow: false },
-    };
+    return storeShareFallbackMetadata(username);
   }
 }

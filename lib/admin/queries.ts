@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeAuditLog } from "@/lib/platform-analytics/events";
 import type { OrderStatus } from "@/lib/orders/types";
@@ -55,18 +56,22 @@ export async function adminUpdateOrderStatus(
   };
 }
 
-export async function getAdminStats(): Promise<AdminStats> {
+export const getAdminStats = cache(async function getAdminStats(): Promise<AdminStats> {
   const admin = createAdminClient();
-  const { data } = await admin.from("orders").select("status");
+  const [total, awaitingPayment, awaitingShipment, completed] = await Promise.all([
+    admin.from("orders").select("*", { count: "exact", head: true }),
+    admin.from("orders").select("*", { count: "exact", head: true }).eq("status", "awaiting_payment"),
+    admin.from("orders").select("*", { count: "exact", head: true }).eq("status", "awaiting_shipment"),
+    admin.from("orders").select("*", { count: "exact", head: true }).eq("status", "completed"),
+  ]);
 
-  const rows = data ?? [];
   return {
-    totalOrders: rows.length,
-    awaitingPayment: rows.filter((row) => row.status === "awaiting_payment").length,
-    awaitingShipment: rows.filter((row) => row.status === "awaiting_shipment").length,
-    completed: rows.filter((row) => row.status === "completed").length,
+    totalOrders: total.count ?? 0,
+    awaitingPayment: awaitingPayment.count ?? 0,
+    awaitingShipment: awaitingShipment.count ?? 0,
+    completed: completed.count ?? 0,
   };
-}
+});
 
 export async function listAdminOrders(limit = 50): Promise<AdminOrderRow[]> {
   const admin = createAdminClient();

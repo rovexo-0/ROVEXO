@@ -1,8 +1,11 @@
+import { cache } from "react";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { validateMutationOrigin } from "@/lib/api/csrf-guard";
 import type { UserRole } from "@/lib/supabase/types/database";
 import type { User } from "@supabase/supabase-js";
+import { readMiddlewareVerifiedUserState } from "@/lib/auth/middleware-verified-user-v1";
 import {
   isAdmin,
   isSeller,
@@ -25,14 +28,58 @@ export type AuthContext = {
   role: UserRole | null;
 };
 
-export async function getAuthContext(): Promise<AuthContext | null> {
-  const supabase = await createClient();
+function toStampedAuthUser(stamp: {
+  id: string;
+  email: string | null;
+  emailConfirmedAt: string | null;
+}): User {
+  return {
+    id: stamp.id,
+    aud: "authenticated",
+    role: "authenticated",
+    email: stamp.email ?? undefined,
+    email_confirmed_at: stamp.emailConfirmedAt ?? undefined,
+    phone: "",
+    app_metadata: {},
+    user_metadata: {},
+    identities: [],
+    created_at: "",
+    updated_at: "",
+    is_anonymous: false,
+  } as User;
+}
+
+async function resolveVerifiedUser(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<User | null> {
+  try {
+    const stamped = readMiddlewareVerifiedUserState(await headers());
+    if (stamped.kind === "anonymous") {
+      return null;
+    }
+    if (stamped.kind === "user") {
+      return toStampedAuthUser(stamped.user);
+    }
+  } catch {
+    /* headers() unavailable — fall through to remote getUser() */
+  }
+
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
 
   if (error || !user) {
+    return null;
+  }
+  return user;
+}
+
+export const getAuthContext = cache(async function getAuthContext(): Promise<AuthContext | null> {
+  const supabase = await createClient();
+  const user = await resolveVerifiedUser(supabase);
+
+  if (!user) {
     return null;
   }
 
@@ -53,7 +100,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   }
 
   return { supabase, user, role: (profile?.role as UserRole | null) ?? null };
-}
+});
 
 export async function requireAuthContext(): Promise<AuthContext> {
   const context = await getAuthContext();

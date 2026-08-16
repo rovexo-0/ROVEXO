@@ -97,3 +97,8 @@ export type AddTrackingInput = {
 export type CancelOrderInput = {
   cancellationReasonId?: string;
 };
+
+export type ReportIssueInput = {
+  reasonId?: string;
+  description?: string;
+};

@@ -26,13 +26,22 @@
   --pd-v1-divider: var(--rvx-divider, #e5e7eb);
   --pd-v1-chrome-fg: var(--rvx-text-primary, #111827);
   /*
-   * Sticky stack: pad-top + Buy/Offer row + gap + optional Bundle + pad-bottom + safe-area + safety.
-   * Must stay >= real fixed action bar height.
+   * Canonical bottom nav stack (same tokens as Bottom Navigation v2).
+   * Action bar sits above the nav; safe-area lives on the nav, not twice.
+   */
+  --pd-v1-canonical-bottom-nav-stack: calc(
+    var(--rx-bottom-nav-height, var(--bottom-nav-shell-height, 52px)) +
+      env(safe-area-inset-bottom, 0px)
+  );
+  /*
+   * Sticky stack: pad-top + Buy/Offer row + gap + optional Bundle + pad-bottom
+   * + safety + canonical bottom nav (height + safe-area).
+   * Must stay >= real fixed action bar height + nav.
    */
   --pd-v1-sticky-action-clearance: calc(
     var(--pd-v1-sticky-action-pad-y) * 2 + var(--pd-v1-sticky-action-btn-min-h) +
       var(--pd-v1-sticky-action-gap) + var(--pd-v1-sticky-add-to-bundle-h) +
-      env(safe-area-inset-bottom, 0px) + var(--pd-v1-sticky-action-safety)
+      var(--pd-v1-sticky-action-safety) + var(--pd-v1-canonical-bottom-nav-stack)
   );
   /* Sticky Bundle Bar height + gap — applied only when bar is mounted */
   --pd-v1-sticky-bundle-clearance: 0px;
@@ -1546,14 +1555,13 @@ a.pd-v1__action-btn {
   inset-inline: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--pd-v1-canonical-bottom-nav-stack);
   z-index: 130;
   display: grid;
   width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--pd-v1-action-gap);
-  padding-block: var(--pd-v1-sticky-action-pad-y)
-    calc(var(--pd-v1-sticky-action-pad-y) + env(safe-area-inset-bottom, 0px));
+  padding-block: var(--pd-v1-sticky-action-pad-y);
   padding-inline: max(var(--pd-v1-action-pad-inline), env(safe-area-inset-left, 0px))
     max(var(--pd-v1-action-pad-inline), env(safe-area-inset-right, 0px));
   border-top: 1px solid rgba(0 0 0 / 0.05);
@@ -1872,7 +1880,8 @@ a.pd-v1__action-btn {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 16px calc(88px + env(safe-area-inset-bottom));
+  padding: 0 16px
+    calc(88px + var(--pd-v1-canonical-bottom-nav-stack, 52px));
 }
 
 .pd-v1__cart-toast {

@@ -18,9 +18,33 @@
 
 .vp-v1__header-actions {
   display: inline-flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.vp-v1__menu-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-right: -4px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  color: #111111;
+  cursor: pointer;
+}
+
+.vp-v1__menu-btn svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 /* Public Profile: Follow + ··· need auto width (not 48px header track). */
@@ -466,6 +490,10 @@
   border: 1.5px solid #9333ea;
   background: #ffffff;
   color: #9333ea;
+}
+
+.vp-v1__action-btn--share {
+  grid-column: 1 / -1;
 }
 
 .vp-v1__action-btn:active {
@@ -1014,6 +1042,42 @@
   margin: 0;
   font-size: 13px;
   color: var(--vp-muted);
+}
+
+.vp-v1__feedback-split {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vp-v1__feedback-split-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--vp-text);
+}
+
+.vp-v1__feedback-split-row strong {
+  font-weight: 600;
+}
+
+.vp-v1__review--automatic {
+  border-left: 3px solid var(--vp-purple, #9333ea);
+  padding-left: 10px;
+}
+
+.vp-v1__automatic-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #7c3aed;
+  text-transform: uppercase;
 }
 
 .vp-v1__rating-dist {

@@ -60,24 +60,28 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
   };
 }
 
-async function hydrateSoldProduct(productId: string): Promise<SavedProductJoin | null> {
+const SOLD_PRODUCT_SELECT = `
+  *,
+  profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
+  product_images ( url, is_primary, sort_order ),
+  categories ( slug )
+`;
+
+async function hydrateSoldProducts(
+  productIds: string[],
+): Promise<Map<string, SavedProductJoin>> {
   const admin = tryCreateAdminClient();
-  if (!admin) return null;
+  const unique = [...new Set(productIds.filter(Boolean))];
+  if (!admin || unique.length === 0) return new Map();
+
   const { data, error } = await admin
     .from("products")
-    .select(
-      `
-      *,
-      profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
-      product_images ( url, is_primary, sort_order ),
-      categories ( slug )
-    `,
-    )
-    .eq("id", productId)
-    .eq("status", "sold")
-    .maybeSingle();
-  if (error || !data) return null;
-  return data as SavedProductJoin;
+    .select(SOLD_PRODUCT_SELECT)
+    .in("id", unique)
+    .eq("status", "sold");
+
+  if (error || !data) return new Map();
+  return new Map((data as SavedProductJoin[]).map((row) => [row.id, row]));
 }
 
 export async function listSavedItems(userId: string): Promise<SavedItem[]> {
@@ -101,12 +105,14 @@ export async function listSavedItems(userId: string): Promise<SavedItem[]> {
   const rows = (data as SavedRow[] | null) ?? [];
   const orphanProductIds: string[] = [];
   const live: SavedItem[] = [];
+  const missingIds = rows.filter((row) => !row.products).map((row) => row.product_id);
+  const soldMap = await hydrateSoldProducts(missingIds);
 
   for (const row of rows) {
     let product = row.products;
     // Keep sold Saved items visible even when RLS still hides sold from the join.
     if (!product) {
-      product = await hydrateSoldProduct(row.product_id);
+      product = soldMap.get(row.product_id) ?? null;
     }
     if (!product || product.status === "deleted") {
       orphanProductIds.push(row.product_id);

@@ -25,10 +25,13 @@ import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/TransactionHubPaymentSuccess";
 import { TransactionActionBar } from "@/features/inbox/components/TransactionActionBar";
 import { TransactionStatusCard } from "@/features/inbox/components/TransactionStatusCard";
+import { BuyerIssueReasonCard } from "@/features/inbox/components/BuyerIssueReasonCard";
 import { PlatformFeeSheet } from "@/features/inbox/components/PlatformFeeSheet";
 import { OfferBundleDetailsSheet } from "@/features/inbox/components/OfferBundleDetailsSheet";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { OrderDetailView } from "@/features/orders/components/OrderDetailView";
+import { ResolutionDetailsView } from "@/features/inbox/components/ResolutionDetailsView";
+import { resolveResolutionDetailsView } from "@/lib/inbox/resolution-details-v1";
 import {
   ShippingLabelViewer,
   cacheShippingLabelUrl,
@@ -61,12 +64,18 @@ import {
   buildConversationHubView,
   mapOfferDbStatus,
   resolveSprint1PaymentUi,
-  resolveTransactionStatusCard,
+  resolveConversationHubTransactionCardView,
   isTransactionStatusCardActive,
   subscribeConversationRealtime,
+  type ActiveShippingLabelView,
   type ConversationDisputeView,
   type ConversationOfferView,
 } from "@/lib/inbox";
+import {
+  parseProtectionCaseOutcome,
+  parseProtectionCaseStatus,
+  parseProtectionCaseType,
+} from "@/lib/inbox/seller-resolution-lifecycle-v1";
 import { shouldOmitOfferFromChatTimeline } from "@/lib/supreme-blood-code-viii-v1";
 import { Avatar } from "@/components/ui/Avatar";
 import { useProfile } from "@/features/auth/hooks/use-profile";
@@ -77,8 +86,17 @@ import {
   useBuyNowNavigation,
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
+import { getViewerRole } from "@/lib/messages/types";
 import { formatMessageTime } from "@/lib/messages/utils";
 import type { Order } from "@/lib/orders/types";
+import type { CanonicalResolutionActionId } from "@/lib/inbox/canonical-buyer-seller-resolution-v1";
+import { isUnauthorizedSellerResolutionAction } from "@/lib/inbox/canonical-buyer-seller-resolution-v1";
+import {
+  canSubmitBuyerIssue,
+  isBuyerIssueReasonFlowAvailable,
+  type BuyerIssueReasonId,
+} from "@/lib/inbox/buyer-issue-reason-v1";
+import { NON_DELIVERY_RESOLUTION_CASE_V1 } from "@/lib/inbox/non-delivery-resolution-case-v1";
 import { formatCurrency } from "@/lib/wallet/utils";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
@@ -87,6 +105,8 @@ import { invalidateShareInflight, shareInflightJson } from "@/lib/performance/fe
 import { bumpInboxConversationPreview } from "@/lib/inbox/inbox-list-cache";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
+
+const EVRI_PUBLIC_TRACK_PARCEL_URL = "https://www.evri.com/track-a-parcel";
 
 /**
  * Compact Offer/Counter product thumb(s) — horizontal, max 3 slots, no overlap stack.
@@ -379,7 +399,18 @@ export function ConversationHub({
 
   const [conversation, setConversation] = useState(initialConversation);
   const [order, setOrder] = useState<Order | null>(initialOrder);
+  const [buyerNonDeliveryUi, setBuyerNonDeliveryUi] = useState(false);
+  const [nonDeliveryInformationHint, setNonDeliveryInformationHint] = useState(false);
+  const [issueReasonOpen, setIssueReasonOpen] = useState(false);
+  const [issueReasonId, setIssueReasonId] = useState<BuyerIssueReasonId | null>(null);
+  const [issueReasonDescription, setIssueReasonDescription] = useState("");
+  const [issueReasonPhotos, setIssueReasonPhotos] = useState<
+    { previewUrl: string; file: File }[]
+  >([]);
   const [hasShippingLabel, setHasShippingLabel] = useState(initialHasShippingLabel);
+  const [activeShippingLabel, setActiveShippingLabel] = useState<ActiveShippingLabelView | null>(
+    null,
+  );
   /* Phase A1 — paint immediately from initialConversation; related hydrates in background. */
   const [relatedReady, setRelatedReady] = useState(true);
   const [offers, setOffers] = useState<ConversationOfferView[]>(initialOffers ?? []);
@@ -419,6 +450,7 @@ export function ConversationHub({
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
   /** VIEW ORDER — canonical OrderDetailView sheet (not same-page hub redirect). */
   const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
+  const [resolutionDetailsOpen, setResolutionDetailsOpen] = useState(false);
   const [bundleDetailsOffer, setBundleDetailsOffer] = useState<{
     offer: ConversationOfferView;
     isCounter: boolean;
@@ -550,7 +582,10 @@ export function ConversationHub({
               (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
             )[0] ?? null;
       setOrder(nextOrder);
-      if (!nextOrder) setHasShippingLabel(false);
+      if (!nextOrder) {
+        setHasShippingLabel(false);
+        setActiveShippingLabel(null);
+      }
 
       setOffers(
         (offersPayload.offers ?? []).map((offer) => ({
@@ -582,6 +617,9 @@ export function ConversationHub({
             ok?: boolean;
             pdfUrl?: string | null;
             trackingNumber?: string | null;
+            carrier?: string | null;
+            serviceName?: string | null;
+            shippingService?: string | null;
           }>(
             labelKey,
             `/api/shipping/labels?orderId=${encodeURIComponent(nextOrder.id)}`,
@@ -591,9 +629,15 @@ export function ConversationHub({
             case?: {
               id: string;
               status: string;
+              caseType?: string;
+              outcome?: string | null;
               reason: string;
               resolvedAt?: string | null;
               adminNotes?: string;
+              sellerResolution?: {
+                reasonId?: string | null;
+                offer?: ConversationDisputeView["sellerOffer"];
+              } | null;
             } | null;
           }>(
             caseKey,
@@ -614,6 +658,19 @@ export function ConversationHub({
                 nextOrder.status === "completed",
             ),
           );
+          const labelCarrier = labelPayload.carrier?.trim();
+          if (labelCarrier) {
+            setActiveShippingLabel({
+              carrier: labelCarrier,
+              serviceName:
+                labelPayload.serviceName?.trim() ||
+                labelPayload.shippingService?.trim() ||
+                null,
+              trackingNumber: labelPayload.trackingNumber?.trim() || null,
+            });
+          } else {
+            setActiveShippingLabel(null);
+          }
         } else {
           setHasShippingLabel(
             Boolean(
@@ -623,21 +680,22 @@ export function ConversationHub({
                 nextOrder.status === "completed",
             ),
           );
+          setActiveShippingLabel(null);
         }
 
         if (casePayload?.case) {
-          const status =
-            casePayload.case.status === "resolved" || casePayload.case.status === "closed"
-              ? "resolved"
-              : casePayload.case.status === "under_review"
-                ? "under_review"
-                : "open";
           setDispute({
             id: casePayload.case.id,
-            status,
+            status: parseProtectionCaseStatus(casePayload.case.status) ?? "open",
+            caseType: parseProtectionCaseType(casePayload.case.caseType) ?? undefined,
+            outcome: parseProtectionCaseOutcome(casePayload.case.outcome),
             title: casePayload.case.reason || "Transaction dispute",
             updatedAt: casePayload.case.resolvedAt ?? new Date().toISOString(),
-            decisionSummary: casePayload.case.adminNotes || null,
+            decisionSummary: casePayload.case.adminNotes?.startsWith("RVX_SR_V1:")
+              ? null
+              : casePayload.case.adminNotes || null,
+            reasonId: casePayload.case.sellerResolution?.reasonId ?? casePayload.case.reason ?? null,
+            sellerOffer: casePayload.case.sellerResolution?.offer ?? null,
           });
         } else if (casePayload) {
           setDispute(null);
@@ -877,16 +935,42 @@ export function ConversationHub({
     };
   }, [reloadRelated]);
 
+  const hubQa = useMemo(
+    () =>
+      resolveConversationHubTransactionCardView({
+        viewerRole: getViewerRole(conversation.participant),
+        order,
+        hasAcceptedOffer: offers.some((offer) => offer.state === "accepted"),
+        hasShippingLabel,
+        tracking: null,
+        checkoutResumeAvailable: resumeCheckoutOpen,
+        liveDispute: dispute,
+        buyerNonDeliveryUi,
+        reasonId: dispute?.reasonId ?? null,
+      }),
+    [
+      conversation.participant,
+      order,
+      offers,
+      hasShippingLabel,
+      resumeCheckoutOpen,
+      dispute,
+      buyerNonDeliveryUi,
+    ],
+  );
+  const uiOrder = hubQa.uiOrder;
+
   const view = useMemo(
     () =>
       buildConversationHubView({
         conversation,
-        order,
+        order: uiOrder,
         offers,
-        dispute,
+        dispute: hubQa.dispute,
         hasShippingLabel,
+        activeShippingLabel,
       }),
-    [conversation, order, offers, dispute, hasShippingLabel],
+    [conversation, uiOrder, offers, hubQa.dispute, hasShippingLabel, activeShippingLabel],
   );
 
   const buyerAvatar = useMemo(() => {
@@ -941,11 +1025,11 @@ export function ConversationHub({
     () =>
       resolveSprint1PaymentUi({
         viewerRole: view.viewerRole,
-        order,
+        order: uiOrder,
         listingPrice: view.product.price,
         acceptedOfferAmount: acceptedOffer?.amount ?? null,
       }),
-    [view.viewerRole, view.product.price, order, acceptedOffer],
+    [view.viewerRole, view.product.price, uiOrder, acceptedOffer],
   );
   const itemPrice = acceptedOffer?.amount ?? view.product.price;
   const buyerTotalIncl = paymentUi.buyerBreakdown?.total ?? calculateOrderTotals(itemPrice, 0).total;
@@ -962,14 +1046,17 @@ export function ConversationHub({
 
   const transactionStatusCard = useMemo(
     () =>
-      resolveTransactionStatusCard({
+      resolveConversationHubTransactionCardView({
         viewerRole: view.viewerRole,
         order,
         hasAcceptedOffer: Boolean(acceptedOffer),
         hasShippingLabel,
         tracking: view.tracking,
         checkoutResumeAvailable: resumeCheckoutOpen,
-      }),
+        liveDispute: dispute,
+        buyerNonDeliveryUi,
+        reasonId: dispute?.reasonId ?? null,
+      }).card,
     [
       view.viewerRole,
       view.tracking,
@@ -977,7 +1064,27 @@ export function ConversationHub({
       acceptedOffer,
       hasShippingLabel,
       resumeCheckoutOpen,
+      dispute,
+      buyerNonDeliveryUi,
     ],
+  );
+
+  const resolutionDetails = useMemo(
+    () =>
+      resolveResolutionDetailsView({
+        viewerRole: view.viewerRole,
+        order: uiOrder,
+        overlay: {
+          reasonId: dispute?.reasonId ?? null,
+          sellerOffer: dispute?.sellerOffer ?? null,
+          protectionStatus: dispute?.status ?? null,
+          protectionCaseType: dispute?.caseType ?? null,
+          protectionOutcome: dispute?.outcome ?? null,
+        },
+        dispute: hubQa.dispute,
+        tracking: view.tracking,
+      }),
+    [view.viewerRole, uiOrder, dispute, hubQa.dispute, view.tracking],
   );
 
   const timelineWindow = useMemo(() => {
@@ -1048,9 +1155,21 @@ export function ConversationHub({
     node.style.height = "";
   }, []);
 
+  const activateCanonicalComposer = useCallback(() => {
+    const node = textareaRef.current;
+    if (!node) return;
+    node.focus();
+    node.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, []);
+
   useEffect(() => {
     resizeComposer();
   }, [draft, resizeComposer]);
+
+  useLayoutEffect(() => {
+    if (!nonDeliveryInformationHint) return;
+    activateCanonicalComposer();
+  }, [nonDeliveryInformationHint, activateCanonicalComposer]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -1123,6 +1242,7 @@ export function ConversationHub({
           source: "message_sent",
         });
         setDraft("");
+        setNonDeliveryInformationHint(false);
         setWarning(payload.warning ?? null);
         void refreshBadges();
       } finally {
@@ -1147,6 +1267,16 @@ export function ConversationHub({
     setPendingPhoto((current) => {
       if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
       return null;
+    });
+  }, []);
+
+  const resetIssueReasonForm = useCallback(() => {
+    setIssueReasonOpen(false);
+    setIssueReasonId(null);
+    setIssueReasonDescription("");
+    setIssueReasonPhotos((current) => {
+      for (const photo of current) URL.revokeObjectURL(photo.previewUrl);
+      return [];
     });
   }, []);
 
@@ -1310,6 +1440,7 @@ export function ConversationHub({
         source: "photo_sent",
       });
       setWarning(payload.warning ?? null);
+      setNonDeliveryInformationHint(false);
       void refreshBadges();
     } finally {
       photoUploadLockRef.current = false;
@@ -1483,6 +1614,36 @@ export function ConversationHub({
     }
   };
 
+  const runResolutionAction = (actionId: CanonicalResolutionActionId, amount?: number) => {
+    if (isUnauthorizedSellerResolutionAction(actionId)) {
+      pushToast({ title: "This action is not available.", variant: "info" });
+      return;
+    }
+    if (!dispute?.id || !order?.id) {
+      pushToast({ title: "Resolution details are not available yet.", variant: "info" });
+      return;
+    }
+    void (async () => {
+      const response = await fetch(`/api/protection/cases/${dispute.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "seller_resolution",
+          actionId,
+          amount,
+          reasonId: dispute.reasonId ?? null,
+          eligibleAmount: order.totals.itemPrice ?? order.product.price,
+        }),
+      });
+      if (!response.ok) {
+        pushToast({ title: "Unable to update resolution.", variant: "error" });
+        return;
+      }
+      pushToast({ title: "Resolution updated.", variant: "success" });
+      void reloadRelated();
+    })();
+  };
+
   const runOrderAction = async (actionId: string) => {
     if (actionId === "view_order") {
       /*
@@ -1526,13 +1687,50 @@ export function ConversationHub({
       router.push(WALLET_ROUTES.hub);
       return;
     }
-    if (actionId === "track_parcel") {
-      const url = view.tracking?.carrierUrl;
-      if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
+    if (actionId === "report_issue") {
+      if (view.viewerRole !== "buyer") {
         return;
       }
-      pushToast({ title: "Tracking will appear once the carrier scans your parcel.", variant: "info" });
+      if (uiOrder?.status === "shipped" || !isBuyerIssueReasonFlowAvailable(uiOrder?.status)) {
+        pushToast({
+          title: "This issue type is available after delivery.",
+          variant: "info",
+        });
+        return;
+      }
+      setIssueReasonOpen(true);
+      return;
+    }
+    if (actionId === "add_information") {
+      if (view.viewerRole !== "buyer") {
+        return;
+      }
+      setNonDeliveryInformationHint(true);
+      activateCanonicalComposer();
+      return;
+    }
+    if (actionId === "contact_seller") {
+      setNonDeliveryInformationHint(false);
+      setDraft("");
+      clearPendingPhoto();
+      activateCanonicalComposer();
+      return;
+    }
+    if (actionId === "track_parcel") {
+      const trackingNumber = (
+        activeShippingLabel?.trackingNumber ||
+        view.tracking?.trackingNumber ||
+        order?.trackingNumber ||
+        ""
+      ).trim();
+      if (!trackingNumber) {
+        pushToast({
+          title: "Tracking will appear once the carrier scans your parcel.",
+          variant: "info",
+        });
+      }
+      /* Evri public track-a-parcel has no supported URL prefill. Keep AWB in canonical data only. */
+      window.location.assign(EVRI_PUBLIC_TRACK_PARCEL_URL);
       return;
     }
     if (actionId === "buy_now" || actionId === "resume_payment") {
@@ -1555,11 +1753,7 @@ export function ConversationHub({
       return;
     }
     if (actionId === "view_dispute") {
-      if (dispute?.id) {
-        router.push(`/protection/${encodeURIComponent(dispute.id)}`);
-        return;
-      }
-      pushToast({ title: "Dispute details will appear here shortly.", variant: "info" });
+      setResolutionDetailsOpen(true);
       return;
     }
 
@@ -1645,8 +1839,18 @@ export function ConversationHub({
         const payload = (await response.json()) as {
           pdfUrl?: string | null;
           labelUrl?: string | null;
-          label?: { pdfUrl?: string | null; labelUrl?: string | null } | null;
+          label?: {
+            pdfUrl?: string | null;
+            labelUrl?: string | null;
+            carrier?: string | null;
+            trackingNumber?: string | null;
+          } | null;
           carrier?: string | null;
+          trackingNumber?: string | null;
+          serviceName?: string | null;
+          shippingService?: string | null;
+          parcel?: { shippingService?: string | null; carrier?: string | null } | null;
+          record?: { pricing?: { quotes?: Array<{ serviceName?: string }> } | null } | null;
         };
         setHasShippingLabel(true);
         const url =
@@ -1655,12 +1859,31 @@ export function ConversationHub({
           payload.label?.pdfUrl ||
           payload.label?.labelUrl ||
           null;
+        const createdCarrier =
+          payload.carrier?.trim() ||
+          payload.label?.carrier?.trim() ||
+          payload.parcel?.carrier?.trim() ||
+          null;
+        if (createdCarrier) {
+          setActiveShippingLabel({
+            carrier: createdCarrier,
+            serviceName:
+              payload.serviceName?.trim() ||
+              payload.shippingService?.trim() ||
+              payload.parcel?.shippingService?.trim() ||
+              null,
+            trackingNumber:
+              payload.trackingNumber?.trim() ||
+              payload.label?.trackingNumber?.trim() ||
+              null,
+          });
+        }
         if (url) {
           cacheShippingLabelUrl(order.id, url);
           setLabelViewer({
             pdfUrl: url,
             orderId: order.id,
-            carrierName: payload.carrier ?? order.deliveryCarrier ?? null,
+            carrierName: createdCarrier ?? order.deliveryCarrier ?? null,
           });
         }
         pushToast({ title: "Shipping label ready.", variant: "success" });
@@ -1708,17 +1931,37 @@ export function ConversationHub({
         void reloadRelated();
         return;
       }
-      if (actionId === "report_issue") {
+      if (actionId === "report_not_arrived") {
+        setBuyerNonDeliveryUi(true);
+        return;
+      }
+      if (actionId === "submit_issue") {
+        if (!issueReasonId || !isBuyerIssueReasonFlowAvailable(uiOrder?.status)) {
+          return;
+        }
+        if (
+          !canSubmitBuyerIssue({
+            reasonId: issueReasonId,
+            description: issueReasonDescription,
+            photoCount: issueReasonPhotos.length,
+          })
+        ) {
+          return;
+        }
         const response = await fetch(`/api/orders/${order.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "report_issue" }),
+          body: JSON.stringify({
+            action: "report_issue",
+            reasonId: issueReasonId,
+            description: issueReasonDescription.trim(),
+          }),
         });
         if (!response.ok) {
           pushToast({ title: "Unable to report issue.", variant: "error" });
           return;
         }
-        pushToast({ title: "Issue reported.", variant: "success" });
+        resetIssueReasonForm();
         void reloadRelated();
       }
     } finally {
@@ -1971,13 +2214,44 @@ export function ConversationHub({
               icon={transactionStatusCard.icon}
               primaryAction={transactionStatusCard.primaryAction}
               secondaryAction={transactionStatusCard.secondaryAction}
+              trackingDetail={transactionStatusCard.trackingDetail}
+              resolutionCase={transactionStatusCard.resolutionCase}
+              informationHint={nonDeliveryInformationHint}
               busy={Boolean(actionBusy)}
               onAction={(actionId) => void runOrderAction(actionId)}
             />
           ) : null}
 
+          {issueReasonOpen &&
+          view.viewerRole === "buyer" &&
+          isBuyerIssueReasonFlowAvailable(uiOrder?.status) ? (
+            <BuyerIssueReasonCard
+              reasonId={issueReasonId}
+              description={issueReasonDescription}
+              photoPreviews={issueReasonPhotos.map((photo) => photo.previewUrl)}
+              busy={Boolean(actionBusy)}
+              onReasonChange={setIssueReasonId}
+              onDescriptionChange={setIssueReasonDescription}
+              onPhotosSelected={(files) => {
+                const next = Array.from(files).map((file) => ({
+                  file,
+                  previewUrl: URL.createObjectURL(file),
+                }));
+                setIssueReasonPhotos((current) => [...current, ...next]);
+              }}
+              onRemovePhoto={(index) => {
+                setIssueReasonPhotos((current) => {
+                  const removed = current[index];
+                  if (removed) URL.revokeObjectURL(removed.previewUrl);
+                  return current.filter((_, photoIndex) => photoIndex !== index);
+                });
+              }}
+              onSubmit={() => void runOrderAction("submit_issue")}
+            />
+          ) : null}
+
           {reviewOpen && order ? (
-            <div className="conv-hub__inline-review" aria-label="Leave review">
+            <div className="conv-hub__inline-review" aria-label="Leave feedback">
               <OrderReviewCard
                 orderId={order.id}
                 sellerName={
@@ -2341,10 +2615,19 @@ export function ConversationHub({
             </div>
           )}
 
+          {nonDeliveryInformationHint ? (
+            <p
+              className="conv-hub__composer-hint"
+              data-add-information-hint="true"
+            >
+              {NON_DELIVERY_RESOLUTION_CASE_V1.addInformationHint}
+            </p>
+          ) : null}
           <form
             className="conv-hub__composer"
             data-composer-layout="single-row"
             data-master-stack-layer="MESSAGE_INPUT"
+            data-add-information-active={nonDeliveryInformationHint ? "true" : undefined}
             onSubmit={(event: FormEvent) => {
               event.preventDefault();
               handleSend();
@@ -2403,7 +2686,11 @@ export function ConversationHub({
                 ref={textareaRef}
                 className="conv-hub__composer-field"
                 rows={1}
-                placeholder="Write a message..."
+                placeholder={
+                  nonDeliveryInformationHint
+                    ? NON_DELIVERY_RESOLUTION_CASE_V1.addInformationHint
+                    : "Write a message..."
+                }
                 value={draft}
                 disabled={conversation.blocked || sending}
                 onChange={(event) => handleDraftChange(event.target.value)}
@@ -2471,6 +2758,38 @@ export function ConversationHub({
           orderId={labelViewer?.orderId ?? null}
           carrierName={labelViewer?.carrierName ?? null}
         />
+        <ModalContainer
+          open={resolutionDetailsOpen && Boolean(resolutionDetails)}
+          onClose={() => setResolutionDetailsOpen(false)}
+          variant="sheet"
+          zIndex={130}
+          ariaLabel="Resolution Details"
+          panelClassName="conv-hub__order-details-panel"
+        >
+          <div className="conv-hub__order-details-sheet" data-resolution-details-sheet="v1.0">
+            <header className="conv-hub__order-details-header">
+              <h2 className="conv-hub__order-details-title">Resolution Details</h2>
+              <button
+                type="button"
+                className="conv-hub__order-details-close"
+                aria-label="Close resolution details"
+                onClick={() => setResolutionDetailsOpen(false)}
+              >
+                ✕
+              </button>
+            </header>
+            <div className="conv-hub__order-details-body">
+              {resolutionDetails ? (
+                <ResolutionDetailsView
+                  model={resolutionDetails}
+                  onAction={(actionId, amount) => {
+                    void runResolutionAction(actionId, amount);
+                  }}
+                />
+              ) : null}
+            </div>
+          </div>
+        </ModalContainer>
         <ModalContainer
           open={orderDetailsOpen && Boolean(order) && Boolean(profile?.id)}
           onClose={() => {

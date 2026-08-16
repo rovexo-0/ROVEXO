@@ -479,7 +479,7 @@ test.describe.serial("listing lifecycle certification", () => {
     await expect(page.getByText(published.title).first()).toBeVisible({ timeout: 30_000 });
 
     await page.getByRole("button", { name: `Actions for ${published.title}` }).click();
-    await page.getByRole("menuitem", { name: /Delete Listing/i }).click();
+    await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
     // Scope to delete modal — cookie preferences also uses role=dialog.
     const dialog = page.getByRole("dialog", { name: /Delete Listing/i });
     await expect(dialog).toBeVisible();

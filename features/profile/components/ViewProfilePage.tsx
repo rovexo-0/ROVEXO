@@ -1,14 +1,14 @@
 /**
  * My Profile / View Profile v8.0 — Absolute Authority
- * Header: Back · My Profile / @username · More — Share removed.
- * UI redesign: premium hero · stats · actions · Listings/Reviews/About.
- * Functionality unchanged — live data only · fail-closed empty states.
+ * Header: Back · My Profile / @username · More.
+ * Share Store is the canonical store-sharing CTA.
+ * Live data only · fail-closed empty states.
  */
 
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
@@ -40,6 +40,10 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
+import { Menu } from "lucide-react";
+import { StoreShareSheet } from "@/features/store-sharing/StoreShareSheet";
+import { STORE_SHARE_COPY, toStoreShareData } from "@/lib/store-sharing/store-share-v1";
+import { trackStoreShare } from "@/lib/analytics/marketplace-events";
 import "@/styles/rovexo/view-profile-v1.css";
 
 export const MY_PROFILE_VERSION = "v8.0" as const;
@@ -145,6 +149,7 @@ export function ViewProfilePage({
   const [menuOpen, setMenuOpen] = useState(false);
   const [liveAvatarUrl, setLiveAvatarUrl] = useState(profile.avatarUrl);
   const avatarRef = useRef<CanonicalProfileAvatarHandle>(null);
+  const [shareOpen, setShareOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("Scam or fraud");
   const [reportMessage, setReportMessage] = useState("");
@@ -213,6 +218,35 @@ export function ViewProfilePage({
     }
     return reviews;
   }, [reviews, reviewFilter]);
+
+  useEffect(() => {
+    trackStoreShare("store_store_visit", { username: profile.username });
+  }, [profile.username]);
+
+  const storeShareData = useMemo(
+    () =>
+      toStoreShareData({
+        username: profile.username,
+        displayName: profile.username,
+        avatarUrl: liveAvatarUrl,
+        verified: showVerifiedBadge,
+        rating: profile.rating,
+        reviewCount: profile.reviewCount,
+        followersCount: followerCount,
+        followingCount: followingCount,
+        activeListingsCount: profile.listingCount,
+      }),
+    [
+      followerCount,
+      followingCount,
+      liveAvatarUrl,
+      profile.listingCount,
+      profile.rating,
+      profile.reviewCount,
+      profile.username,
+      showVerifiedBadge,
+    ],
+  );
 
   const reviewCount = Math.max(0, profile.reviewCount, reviews.length);
   const averageRating =
@@ -501,6 +535,18 @@ export function ViewProfilePage({
                   </span>
                 </div>
               </div>
+
+              <div className="vp-v1__header-actions">
+                <button
+                  type="button"
+                  className={cn("vp-v1__menu-btn", focusRing)}
+                  aria-label="Profile menu"
+                  aria-expanded={menuOpen}
+                  onClick={() => setMenuOpen((open) => !open)}
+                >
+                  <Menu aria-hidden="true" strokeWidth={1.9} />
+                </button>
+              </div>
             </div>
 
             <div className="vp-v1__stats" aria-label="Profile stats">
@@ -571,12 +617,17 @@ export function ViewProfilePage({
               ) : null}
               <button
                 type="button"
-                className={cn("vp-v1__menu-btn", focusRing)}
-                aria-label="More"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((open) => !open)}
+                className={cn(
+                  "vp-v1__action-btn",
+                  "vp-v1__action-btn--secondary",
+                  "vp-v1__action-btn--share",
+                  focusRing,
+                )}
+                aria-label={STORE_SHARE_COPY.cta}
+                onClick={() => setShareOpen(true)}
               >
-                ···
+                <span aria-hidden="true">↗</span>
+                {STORE_SHARE_COPY.cta}
               </button>
             </div>
 
@@ -908,6 +959,12 @@ export function ViewProfilePage({
             </div>
           </div>
         ) : null}
+
+        <StoreShareSheet
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          data={storeShareData}
+        />
       </div>
     </BetaAppShell>
   );

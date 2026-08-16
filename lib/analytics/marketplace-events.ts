@@ -1,4 +1,5 @@
-import { trackGaEvent, type Ga4EventParams } from "@/lib/analytics/ga4-events";
+import { trackGaEvent, type Ga4EventName, type Ga4EventParams } from "@/lib/analytics/ga4-events";
+import { buildStoreUrl } from "@/lib/store-sharing/store-share-v1";
 
 type ListingEventParams = {
   itemId: string;
@@ -41,6 +42,28 @@ export function trackShareListing(params: ListingEventParams & { method?: string
   trackGaEvent("share_listing", {
     ...listingParams(params),
     method: params.method ?? "native",
+  });
+}
+
+export function trackStoreShare(
+  event:
+    | "store_store_visit"
+    | "store_share_opened"
+    | "store_share_copy_link"
+    | "store_share_native"
+    | "store_share_qr"
+    | "store_share_instagram"
+    | "store_share_whatsapp"
+    | "store_share_facebook"
+    | "store_share_messenger"
+    | "store_share_telegram",
+  params: { username: string; method?: string },
+): void {
+  const name: Ga4EventName = event;
+  trackGaEvent(name, {
+    username: params.username,
+    method: params.method ?? "native",
+    store_url: buildStoreUrl(params.username),
   });
 }
 

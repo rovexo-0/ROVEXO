@@ -112,15 +112,55 @@ export async function countOrdersSince(
   });
 }
 
+function readAggregateSum(data: unknown): number | null {
+  if (!data || typeof data !== "object") return null;
+  const row = data as Record<string, unknown>;
+  const value = row.sum ?? row.total ?? row.available_balance;
+  if (value == null) return 0;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 export async function sumOrderRevenueSince(since: string): Promise<number> {
   try {
     const admin = createAdminClient();
-    const { data } = await admin
+    const { data, error } = await admin
       .from("orders")
-      .select("total, created_at")
+      .select("total.sum()")
+      .gte("created_at", since)
+      .in("status", ["completed", "awaiting_shipment", "shipped", "delivered"])
+      .maybeSingle();
+
+    const aggregated = error ? null : readAggregateSum(data);
+    if (aggregated != null) return aggregated;
+
+    const fallback = await admin
+      .from("orders")
+      .select("total")
       .gte("created_at", since)
       .in("status", ["completed", "awaiting_shipment", "shipped", "delivered"]);
-    return (data ?? []).reduce((sum, row) => sum + Number(row.total), 0);
+    return (fallback.data ?? []).reduce((sum, row) => sum + Number(row.total), 0);
+  } catch {
+    return 0;
+  }
+}
+
+export async function sumWalletBalances(): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("wallets")
+      .select("available_balance.sum()")
+      .maybeSingle();
+
+    const aggregated = error ? null : readAggregateSum(data);
+    if (aggregated != null) return aggregated;
+
+    const fallback = await admin.from("wallets").select("available_balance");
+    return (fallback.data ?? []).reduce(
+      (sum, row) => sum + Number(row.available_balance),
+      0,
+    );
   } catch {
     return 0;
   }

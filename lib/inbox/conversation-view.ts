@@ -15,6 +15,15 @@ import type { Order, OrderStatus } from "@/lib/orders/types";
 import { buildOrderConversationHref } from "@/lib/orders/order-conversation-href";
 import { getOrderStatusLabel, getTrackingUrl } from "@/lib/orders/status";
 import { shouldOmitOfferFromChatTimeline } from "@/lib/supreme-blood-code-viii-v1";
+function formatActiveCarrierServiceMeta(input: {
+  carrier?: string | null;
+  serviceName?: string | null;
+}): string | undefined {
+  const carrier = input.carrier?.trim();
+  if (!carrier) return undefined;
+  const service = input.serviceName?.trim();
+  return service ? `${carrier} · ${service}` : carrier;
+}
 
 export const CONVERSATION_HUB_VERSION = "v1.1-zoom-out" as const;
 
@@ -89,19 +98,48 @@ export type ConversationTrackingView = {
   courierName: string;
   courierLogoUrl?: string | null;
   trackingNumber: string;
+  /** Active service name when known (e.g. Tracked 48, EVRi Standard). */
+  serviceName?: string | null;
   statusLabel: string;
   latestScan?: string | null;
   estimatedDelivery?: string | null;
   carrierUrl?: string | null;
 };
 
+/** Active shipping label/shipment — preferred over checkout snapshot for carrier UI. */
+export type ActiveShippingLabelView = {
+  carrier: string;
+  serviceName?: string | null;
+  trackingNumber?: string | null;
+};
+
 export type ConversationDisputeView = {
   id: string;
-  status: "open" | "under_review" | "resolved";
+  status:
+    | "open"
+    | "awaiting_seller"
+    | "awaiting_buyer"
+    | "under_review"
+    | "resolved"
+    | "appealed"
+    | "closed";
+  caseType?: "refund" | "return" | "dispute" | "appeal";
+  outcome?:
+    | "pending"
+    | "refund_full"
+    | "refund_partial"
+    | "return_accepted"
+    | "return_rejected"
+    | "no_action"
+    | "seller_favour"
+    | "buyer_favour"
+    | null;
   title: string;
   updatedAt: string;
   decisionSummary?: string | null;
   evidenceCount?: number;
+  reasonId?: string | null;
+  sellerOffer?: import("@/lib/inbox/canonical-buyer-seller-resolution-v1").CanonicalSellerOffer | null;
 };
 
 export type ConversationTimelineItem =
@@ -455,32 +493,30 @@ function buildActionBarPanel(
   options?: {
     hasShippingLabel?: boolean;
     tracking?: ConversationTrackingView | null;
+    activeShippingLabel?: ActiveShippingLabelView | null;
   },
 ): ConversationActionBarPanel | null {
   if (!order) return null;
   const hasShippingLabel = Boolean(options?.hasShippingLabel);
   const tracking = options?.tracking ?? null;
-  const carrierMeta = tracking
-    ? [tracking.courierName, tracking.trackingNumber].filter(Boolean).join(" · ")
-    : undefined;
+  const activeLabel = options?.activeShippingLabel ?? null;
+  const dropOffMeta =
+    formatActiveCarrierServiceMeta({
+      carrier: activeLabel?.carrier || tracking?.courierName || order.deliveryCarrier,
+      serviceName: activeLabel?.serviceName || tracking?.serviceName,
+    }) ?? undefined;
 
   if (viewerRole === "seller") {
     if (order.status === "awaiting_shipment" && hasShippingLabel) {
       return {
         title: "Waiting for parcel drop-off",
-        meta: carrierMeta ?? "Royal Mail • Tracked 48",
+        meta: dropOffMeta,
         tone: "purple",
       };
     }
     if (order.status === "shipped") {
-      return {
-        title: tracking?.statusLabel?.toLowerCase().includes("out")
-          ? "Out for delivery"
-          : "Tracking Active",
-        subtitle: tracking?.latestScan ?? "Your parcel is with the carrier.",
-        meta: carrierMeta,
-        tone: "info",
-      };
+      /* Tracking copy lives on the Dynamic Transaction Status Card only. */
+      return null;
     }
     if (order.status === "delivered") {
       /* Dynamic Transaction Card owns “Waiting for buyer confirmation…” — no sticky duplicate. */
@@ -505,11 +541,8 @@ function buildActionBarPanel(
       return null;
     }
     if (order.status === "issue_open") {
-      return {
-        title: "Issue reported",
-        subtitle: "Resolution is in progress.",
-        tone: "purple",
-      };
+      /* Dynamic Transaction Card owns “Issue Open / Resolution is in progress.” */
+      return null;
     }
   }
 
@@ -549,8 +582,8 @@ function buildDynamicActions(
       return [];
     }
     if (order.status === "issue_open") {
-      actions.push({ id: "view_dispute", label: "View Details", role: "buyer" });
-      return actions.slice(0, 2);
+      /* View Details lives on the Dynamic Transaction Card only. */
+      return [];
     }
     if (order.status === "completed") {
       /* Leave Review lives on Dynamic Transaction Card — avoid sticky duplicate. */
@@ -558,24 +591,10 @@ function buildDynamicActions(
     }
     if (order.status === "awaiting_shipment" || order.status === "shipped") {
       /*
-       * Awaiting dispatch (no tracking): VIEW ORDER + CANCEL live on Transaction Status Card.
-       * Never paint a large sticky "Order Details" above the composer.
+       * VIEW ORDER / CANCEL / TRACK PARCEL live on the Transaction Status Card.
+       * I Have an Issue / Everything OK are delivered-only (status card).
        */
-      if (order.status === "awaiting_shipment" && !order.trackingNumber) {
-        return [];
-      }
-      if (order.trackingNumber || order.status === "shipped") {
-        actions.push({
-          id: "track_parcel",
-          label: "View Tracking",
-          role: "buyer",
-          primary: true,
-        });
-      }
-      if (order.status === "shipped") {
-        actions.push({ id: "report_issue", label: "I Have an Issue", role: "buyer" });
-      }
-      return actions.slice(0, 2);
+      return [];
     }
     return actions.slice(0, 2);
   }
@@ -605,16 +624,32 @@ function buildTracking(
   conversation: Conversation,
   order: Order | null | undefined,
   trackingOverride?: ConversationTrackingView | null,
+  activeShippingLabel?: ActiveShippingLabelView | null,
 ): ConversationTrackingView | null {
   if (trackingOverride !== undefined) return trackingOverride;
-  if (order?.trackingNumber) {
+
+  const activeCarrier = activeShippingLabel?.carrier?.trim();
+  const activeTracking = activeShippingLabel?.trackingNumber?.trim();
+  const activeService = activeShippingLabel?.serviceName?.trim() || null;
+  const orderTracking = order?.trackingNumber?.trim();
+  const trackingNumber = activeTracking || orderTracking || "";
+  const courierName =
+    activeCarrier || order?.deliveryCarrier || (trackingNumber ? "Carrier" : "");
+
+  if (trackingNumber || activeCarrier) {
     return {
-      courierName: order.deliveryCarrier || "Carrier",
-      trackingNumber: order.trackingNumber,
-      statusLabel: getOrderStatusLabel(order.status),
-      latestScan: order.shippedAt ? "Shipment handed to carrier" : undefined,
+      courierName: courierName || "Carrier",
+      trackingNumber: trackingNumber || "",
+      serviceName: activeService,
+      statusLabel: order ? getOrderStatusLabel(order.status) : "Label created",
+      latestScan: order?.shippedAt ? "Shipment handed to carrier" : undefined,
       estimatedDelivery: undefined,
-      carrierUrl: getTrackingUrl(order.deliveryCarrier, order.trackingNumber),
+      carrierUrl: trackingNumber
+        ? getTrackingUrl(
+            (activeCarrier || order?.deliveryCarrier || "Royal Mail") as Order["deliveryCarrier"],
+            trackingNumber,
+          )
+        : undefined,
     };
   }
   void conversation;
@@ -630,6 +665,8 @@ export type BuildConversationHubViewInput = {
   tracking?: ConversationTrackingView | null;
   /** True when a shipping label PDF is available for this order. */
   hasShippingLabel?: boolean;
+  /** Current active label/shipment — overrides stale checkout carrier snapshot. */
+  activeShippingLabel?: ActiveShippingLabelView | null;
 };
 
 export function buildConversationHubView(input: BuildConversationHubViewInput): ConversationHubView {
@@ -666,7 +703,7 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
       ? sprint1Status
       : fallbackStatus;
 
-  const tracking = buildTracking(conversation, order, input.tracking);
+  const tracking = buildTracking(conversation, order, input.tracking, input.activeShippingLabel);
   /* Label truth = API probe only. Tracking number / shipped status are separate. */
   const hasShippingLabel = Boolean(input.hasShippingLabel);
   const productCardStatus = (() => {
@@ -708,6 +745,7 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
     actionBarPanel: buildActionBarPanel(viewerRole, order, {
       hasShippingLabel,
       tracking,
+      activeShippingLabel: input.activeShippingLabel,
     }),
     productCardStatus,
     hasOrder,

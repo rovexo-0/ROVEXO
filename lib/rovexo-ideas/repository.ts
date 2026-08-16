@@ -85,6 +85,50 @@ function mapWithUser(row: IdeaWithProfileRow): RovexoIdeaWithUser {
   };
 }
 
+function formatIdeasQueryError(
+  prefix: string,
+  error: { code?: string; message?: string },
+): Error {
+  const code = error.code?.trim() || "QUERY_ERROR";
+  const message = error.message?.trim() || "Unknown database error";
+  return new Error(`${prefix} [${code}] ${message}`);
+}
+
+async function attachIdeaProfiles(
+  admin: ReturnType<typeof createAdminClient>,
+  rows: IdeaRow[],
+): Promise<IdeaWithProfileRow[]> {
+  const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
+  if (userIds.length === 0) {
+    return rows.map((row) => ({ ...row, profiles: null }));
+  }
+
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, email, full_name, avatar_url")
+    .in("id", userIds);
+
+  if (error) {
+    throw formatIdeasQueryError("Unable to load ROVEXO Ideas.", error);
+  }
+
+  const byId = new Map(
+    (data ?? []).map((profile) => [
+      profile.id,
+      {
+        email: profile.email,
+        full_name: profile.full_name,
+        avatar_url: profile.avatar_url,
+      },
+    ]),
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    profiles: byId.get(row.user_id) ?? null,
+  }));
+}
+
 export async function createRovexoIdea(input: {
   userId: string;
   subject: string;
@@ -471,9 +515,7 @@ export async function listRovexoIdeasForAdmin(input?: {
   const admin = createAdminClient();
   let query = admin
     .from("rovexo_ideas")
-    .select(
-      `${IDEA_SELECT}, profiles!rovexo_ideas_user_id_fkey ( email, full_name, avatar_url )`,
-    )
+    .select(IDEA_SELECT)
     .order("created_at", { ascending: false })
     .limit(input?.limit ?? 200);
 
@@ -483,10 +525,10 @@ export async function listRovexoIdeasForAdmin(input?: {
 
   const { data, error } = await query;
   if (error) {
-    throw new Error("Unable to load ROVEXO Ideas.");
+    throw formatIdeasQueryError("Unable to load ROVEXO Ideas.", error);
   }
 
-  const rows = (data ?? []) as IdeaWithProfileRow[];
+  const rows = await attachIdeaProfiles(admin, (data ?? []) as IdeaRow[]);
   const normalizedQuery = input?.query?.trim().toLowerCase();
 
   return rows

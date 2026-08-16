@@ -17,7 +17,7 @@ const RULE_BY_TYPE: Record<ResolutionCaseType, string> = {
   delivery: "delivery_auto_close",
   buyer_confirm: "buyer_confirm_auto_close",
   buyer_timeout: "delivery_auto_close",
-  dispute: "return_auto_refund",
+  dispute: "dispute_awaiting_resolution",
 };
 
 export async function getResolutionCase(caseId: string): Promise<ResolutionCaseRow | null> {

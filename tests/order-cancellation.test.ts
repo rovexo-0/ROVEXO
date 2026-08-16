@@ -193,7 +193,7 @@ describe("cancellation UI + inventory restore contracts", () => {
     );
     expect(css).toContain("order-detail-action-card--messages");
     expect(css).toContain("order-detail-action-card--cancel");
-    expect(hubView).toContain('Never paint a large sticky "Order Details"');
+    expect(hubView).toContain("no sticky duplicate");
   });
 
   it("cancelBuyerOrder restores inventory via canonical Inventory Engine helpers", () => {

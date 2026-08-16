@@ -219,6 +219,89 @@ export async function getProtectionCase(caseId: string): Promise<ProtectionCase 
   return data ? mapCase(data as CaseRow) : null;
 }
 
+const SELLER_RESOLUTION_NOTES_PREFIX = "RVX_SR_V1:";
+
+export type SellerResolutionNotes = {
+  reasonId?: string | null;
+  offer?: {
+    type: string;
+    status: string;
+    returnCost?: string;
+    resolutionType?: string;
+    amount?: number | null;
+  } | null;
+};
+
+export function parseSellerResolutionNotes(adminNotes: string | null | undefined): SellerResolutionNotes | null {
+  const raw = adminNotes?.trim() ?? "";
+  if (!raw.startsWith(SELLER_RESOLUTION_NOTES_PREFIX)) return null;
+  try {
+    return JSON.parse(raw.slice(SELLER_RESOLUTION_NOTES_PREFIX.length)) as SellerResolutionNotes;
+  } catch {
+    return null;
+  }
+}
+
+export async function applySellerResolutionAction(input: {
+  caseId: string;
+  sellerId: string;
+  actionId: string;
+  amount?: number | null;
+  reasonId?: string | null;
+  eligibleAmount?: number | null;
+}): Promise<{ ok: true; case: ProtectionCase } | { ok: false; code: string }> {
+  const existing = await getProtectionCase(input.caseId);
+  if (!existing) return { ok: false, code: "NOT_FOUND" };
+  if (existing.sellerId !== input.sellerId) return { ok: false, code: "FORBIDDEN" };
+
+  const { applyCanonicalResolutionAction } = await import(
+    "@/lib/inbox/canonical-buyer-seller-resolution-v1"
+  );
+  const notes = parseSellerResolutionNotes(existing.adminNotes);
+  const applied = applyCanonicalResolutionAction({
+    actionId: input.actionId as import("@/lib/inbox/canonical-buyer-seller-resolution-v1").CanonicalResolutionActionId,
+    viewerRole: "seller",
+    reasonId: input.reasonId ?? notes?.reasonId ?? existing.reason,
+    offer: (notes?.offer as never) ?? null,
+    protectionStatus: existing.status,
+    amount: input.amount,
+    eligibleAmount: input.eligibleAmount,
+  });
+  if (!applied.ok) return { ok: false, code: applied.code };
+
+  const nextNotes: SellerResolutionNotes = {
+    reasonId: input.reasonId ?? notes?.reasonId ?? existing.reason,
+    offer: applied.offer,
+  };
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("protection_cases")
+    .update({
+      status: applied.protectionStatus,
+      admin_notes: `${SELLER_RESOLUTION_NOTES_PREFIX}${JSON.stringify(nextNotes)}`,
+    })
+    .eq("id", input.caseId)
+    .select("*")
+    .single();
+
+  if (!data) return { ok: false, code: "UPDATE_FAILED" };
+
+  await addCaseEvent({
+    caseId: input.caseId,
+    actorId: input.sellerId,
+    eventType: "seller_resolution",
+    message: input.actionId,
+    metadata: {
+      actionId: input.actionId,
+      protectionStatus: applied.protectionStatus,
+      offer: applied.offer,
+    },
+  });
+
+  return { ok: true, case: mapCase(data as CaseRow) };
+}
+
 export async function getProtectionCaseByOrderId(orderId: string): Promise<ProtectionCase | null> {
   const admin = createAdminClient();
   const { data } = await admin

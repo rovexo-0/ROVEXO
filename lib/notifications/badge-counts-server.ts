@@ -17,8 +17,11 @@ function hrefCount(rows: Array<{ href: string }>, prefix: string): number {
   return rows.filter((row) => row.href === prefix || row.href.startsWith(`${prefix}/`)).length;
 }
 
-export async function getUnreadNotificationCount(userId: string): Promise<number> {
-  const supabase = await createClient();
+export async function getUnreadNotificationCount(
+  userId: string,
+  client?: Awaited<ReturnType<typeof createClient>>,
+): Promise<number> {
+  const supabase = client ?? (await createClient());
   const { count } = await supabase
     .from("notifications")
     .select("*", { count: "exact", head: true })

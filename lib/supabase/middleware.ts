@@ -10,6 +10,11 @@ import {
 } from "@/lib/auth/protected-routes";
 import { isInvalidOrExpiredRefreshError } from "@/lib/auth/invalid-refresh-session";
 import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
+import {
+  encodeMiddlewareVerifiedUser,
+  ROVEXO_VERIFIED_USER_HEADER,
+  shouldSkipMfaNetworkWork,
+} from "@/lib/auth/middleware-verified-user-v1";
 import { enforceApiPerimeterSecurity } from "@/lib/api/api-perimeter-security-v1";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 import { isMfaPendingAllowedPath, MFA_TOTP_V1 } from "@/lib/auth/mfa/ssot";
@@ -31,10 +36,11 @@ function applyPendingCookies(response: NextResponse, pendingCookies: PendingCook
   return response;
 }
 
-/** Passthrough that stamps the request pathname for root loading boundaries. */
-function nextWithPathname(request: NextRequest) {
+/** Passthrough that stamps pathname + same-request verified user (never client-spoofable). */
+function nextWithPathname(request: NextRequest, verifiedUser: User | null = null) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(ROVEXO_PATHNAME_HEADER, request.nextUrl.pathname);
+  requestHeaders.set(ROVEXO_VERIFIED_USER_HEADER, encodeMiddlewareVerifiedUser(verifiedUser));
   return NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -79,6 +85,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   try {
+    let user: User | null = null;
     const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
       cookies: {
         getAll() {
@@ -89,15 +96,13 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
           });
-          supabaseResponse = nextWithPathname(request);
+          supabaseResponse = nextWithPathname(request, user);
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
           });
         },
       },
     });
-
-    let user: User | null = null;
 
     try {
       // Anonymous fast-path: no Supabase auth cookie → skip getUser() network RTT.
@@ -189,11 +194,16 @@ export async function updateSession(request: NextRequest) {
       return applyPendingCookies(supabaseResponse, pendingCookies);
     }
 
+    // Re-stamp after getUser so route handlers can reuse this verified identity.
+    supabaseResponse = applyPendingCookies(nextWithPathname(request, user), pendingCookies);
+
     // MFA enforcement: AAL1 sessions with verified TOTP must complete challenge
-    // before entering the application. Refresh tokens alone cannot bypass this.
+    // before entering protected / private surfaces. Public GET catalogue and
+    // analytics beacons skip the extra MFA network RTT — they are not private.
     if (user) {
       const onMfaAllowlist = isMfaPendingAllowedPath(pathname);
-      if (!onMfaAllowlist) {
+      const skipPublicMfa = shouldSkipMfaNetworkWork(pathname, request.method);
+      if (!onMfaAllowlist && !skipPublicMfa) {
         try {
           const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
           if (aal?.currentLevel === "aal1" && aal?.nextLevel === "aal2") {

@@ -1,5 +1,6 @@
 "use client";
 
+import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 
 /**
@@ -14,8 +15,10 @@ export default function ListingError({
   reset: () => void;
 }) {
   return (
-    <div style={{ padding: 16 }} data-listing-error-ux="contextual">
-      <FailClosedPanel density="section" error={error} onRetry={() => reset()} />
-    </div>
+    <BetaAppShell bottomNavTab="search">
+      <div style={{ padding: 16 }} data-listing-error-ux="contextual">
+        <FailClosedPanel density="section" error={error} onRetry={() => reset()} />
+      </div>
+    </BetaAppShell>
   );
 }

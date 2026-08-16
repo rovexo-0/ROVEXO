@@ -184,6 +184,10 @@ const nextConfig: NextConfig = {
         source: "/sitemap.xml",
         destination: "/api/seo/sitemap-index",
       },
+      {
+        source: "/@:username",
+        destination: "/user/:username",
+      },
     ];
   },
   async redirects() {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { fetchProductBySlug } from "@/lib/products/queries";
@@ -48,7 +49,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
     if (isForbiddenMarketplaceSlug(slug)) {
       redirect("/");
     }
-    return <StoreUnavailablePage kind="listing" />;
+    return (
+      <BetaAppShell bottomNavTab="search">
+        <StoreUnavailablePage kind="listing" />
+      </BetaAppShell>
+    );
   }
 
   if (product.listingType === "auction") {
@@ -63,9 +68,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const structuredData = productJsonLd(product, breadcrumbs);
 
   return (
-    <>
+    <BetaAppShell bottomNavTab="search">
       <JsonLdScript id="jsonld-app-(platform)-listing-slug-page-tsx" data={structuredData} />
       <ProductDetailPage product={{ ...product, categoryBreadcrumbs: breadcrumbs }} />
-    </>
+    </BetaAppShell>
   );
 }

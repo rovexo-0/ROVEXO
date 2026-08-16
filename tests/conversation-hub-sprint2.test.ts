@@ -109,9 +109,9 @@ describe("Conversation Hub Sprint 3", () => {
     expect(buildOrderStatusSteps("published", "shipped").find((step) => step.state === "current")?.id).toBe(
       "shipped",
     );
-    /* MES v1.1 — after label/tracking, seller Action Bar is informational (carrier webhooks). */
+    /* Tracking Active copy lives on the Dynamic Transaction Status Card only. */
     expect(view.dynamicActions).toEqual([]);
-    expect(view.actionBarPanel?.title).toMatch(/Tracking Active|Out for delivery|transit/i);
+    expect(view.actionBarPanel).toBeNull();
     expect(view.dynamicActions.some((action) => action.id === "confirm_shipment")).toBe(false);
 
     const withLabel = buildConversationHubView({
@@ -120,7 +120,7 @@ describe("Conversation Hub Sprint 3", () => {
       hasShippingLabel: true,
     });
     expect(withLabel.dynamicActions).toEqual([]);
-    expect(withLabel.actionBarPanel).not.toBeNull();
+    expect(withLabel.actionBarPanel).toBeNull();
 
     const awaiting = buildConversationHubView({
       conversation: sampleConversation,
@@ -137,6 +137,20 @@ describe("Conversation Hub Sprint 3", () => {
     });
     expect(awaitingLabeled.dynamicActions).toEqual([]);
     expect(awaitingLabeled.actionBarPanel?.title).toBe("Waiting for parcel drop-off");
+
+    const buyerConversation = {
+      ...sampleConversation,
+      participant: { ...sampleConversation.participant, role: "seller" as const, name: "Alex Seller" },
+    };
+    const buyerShipped = buildConversationHubView({
+      conversation: buyerConversation,
+      order: shippedOrder,
+      hasShippingLabel: true,
+    });
+    expect(buyerShipped.viewerRole).toBe("buyer");
+    expect(buyerShipped.dynamicActions).toEqual([]);
+    expect(buyerShipped.actionBarPanel).toBeNull();
+    expect(buyerShipped.dynamicActions.some((action) => action.id === "report_issue")).toBe(false);
   });
 
   it("maps offer database statuses and wires offer action API", () => {

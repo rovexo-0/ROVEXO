@@ -86,11 +86,15 @@ describe("Dynamic Transaction Action Bar MES v1.1", () => {
       conversation: buyerCounterparty,
       order: order("awaiting_shipment"),
       hasShippingLabel: true,
+      activeShippingLabel: {
+        carrier: "Royal Mail",
+        serviceName: "Tracked 48",
+      },
     });
     expect(labeled.dynamicActions).toEqual([]);
     expect(labeled.actionBarPanel?.title).toBe("Waiting for parcel drop-off");
     expect(labeled.actionBarPanel?.subtitle).toBeUndefined();
-    expect(labeled.actionBarPanel?.meta).toMatch(/Royal Mail/);
+    expect(labeled.actionBarPanel?.meta).toBe("Royal Mail · Tracked 48");
     expect(labeled.productCardStatus).toBe("Sold");
   });
 

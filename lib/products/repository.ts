@@ -55,6 +55,43 @@ const PRODUCT_SELECT = `
   brands ( name )
 `;
 
+/** Homepage feed contract only — explicit columns used by mapProductRow + eligibility. */
+const HOMEPAGE_FEED_SELECT = `
+  id,
+  slug,
+  title,
+  price,
+  original_price,
+  condition,
+  color,
+  size,
+  seller_id,
+  location_city,
+  description,
+  listing_type,
+  accept_offers,
+  auction_ends_at,
+  auction_start_price,
+  rating,
+  review_count,
+  views,
+  likes,
+  sections,
+  featured_until,
+  bumped_until,
+  promotion_score,
+  created_at,
+  category_id,
+  moderation_status,
+  shipping_price,
+  stock,
+  status,
+  is_demo,
+  profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ),
+  product_images ( url, thumbnail_url, sort_order, is_primary ),
+  brands ( name )
+`;
+
 function primaryCardImages(row: ProductRow) {
   const sorted = [...(row.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
@@ -373,7 +410,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
     const scanTo = scanFrom + pageSize * 3 - 1;
     const { data, error } = await supabase
       .from("products")
-      .select(PRODUCT_SELECT)
+      .select(HOMEPAGE_FEED_SELECT)
       .eq("status", "published")
       .eq("is_demo", false)
       .gt("stock", 0)

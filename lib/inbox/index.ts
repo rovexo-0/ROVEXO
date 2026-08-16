@@ -1,5 +1,6 @@
 export * from "@/lib/inbox/transaction-action-bar-v1";
 export * from "@/lib/inbox/transaction-status-card-v1";
+export * from "@/lib/inbox/conversation-hub-transaction-card-v1";
 export * from "@/lib/inbox/buyer-conversation-hub-master-ui-freeze-v1";
 export * from "@/lib/inbox/master-stack-buyer-hub-v1";
 export * from "@/lib/inbox/canonical-routes";

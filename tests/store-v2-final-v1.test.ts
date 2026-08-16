@@ -121,7 +121,7 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(profile).not.toContain("StoreVisitPageV2");
     expect(profile).not.toContain("sv2__");
     expect(profile).toContain('MY_PROFILE_VERSION = "v8.0"');
-    expect(profile).toContain('aria-label="More"');
+    expect(profile).toContain('aria-label="Profile menu"');
     expect(profile).toContain("About");
   });
 

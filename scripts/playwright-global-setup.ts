@@ -33,6 +33,10 @@ function loadDotEnvFiles(cwd = process.cwd()) {
 }
 
 function resolvePackageManager(cwd = process.cwd()) {
+  // This repo is npm-canonical. A leftover pnpm-lock.yaml must not force pnpm.
+  if (fs.existsSync(path.join(cwd, "package-lock.json"))) {
+    return "npm";
+  }
   if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) {
     try {
       execSync(process.platform === "win32" ? "where pnpm" : "which pnpm", { stdio: "ignore" });
