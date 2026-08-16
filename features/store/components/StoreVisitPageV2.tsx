@@ -37,6 +37,7 @@ import {
 } from "@/lib/store/store-v2-final-v1";
 import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
 import { ShareIcon } from "@/features/product-detail/icons";
+import { copyText } from "@/lib/store-sharing/store-share-v1";
 import { StoreShopBundles } from "@/features/store/components/StoreShopBundles";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -194,32 +195,12 @@ export function StoreVisitPageV2({
 
   const copyStoreLinkFallback = useCallback(
     async (absoluteStoreUrl: string) => {
-      try {
-        if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(absoluteStoreUrl);
-          pushToast({ title: "Store link copied", variant: "success" });
-          return;
-        }
-        throw new Error("clipboard-unavailable");
-      } catch {
-        try {
-          const input = document.createElement("textarea");
-          input.value = absoluteStoreUrl;
-          input.setAttribute("readonly", "");
-          input.style.position = "fixed";
-          input.style.top = "0";
-          input.style.left = "-9999px";
-          document.body.appendChild(input);
-          input.focus();
-          input.select();
-          const ok = document.execCommand("copy");
-          document.body.removeChild(input);
-          if (!ok) throw new Error("execCommand-copy-failed");
-          pushToast({ title: "Store link copied", variant: "success" });
-        } catch {
-          window.prompt("Copy store link", absoluteStoreUrl);
-        }
+      const copied = await copyText(absoluteStoreUrl);
+      if (copied) {
+        pushToast({ title: "Store link copied", variant: "success" });
+        return;
       }
+      window.prompt("Copy store link", absoluteStoreUrl);
     },
     [pushToast],
   );

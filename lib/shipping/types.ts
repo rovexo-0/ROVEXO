@@ -198,6 +198,8 @@ export type ShipmentParcel = {
   operation: ParcelOperation | null;
   estimatedDeliveryAt: string | null;
   label: ShipmentParcelLabel | null;
+  /** Existing shipping_labels_v1.provider_parcel_id when present. */
+  providerParcelId?: number | null;
   createdAt: string;
   updatedAt: string;
 };

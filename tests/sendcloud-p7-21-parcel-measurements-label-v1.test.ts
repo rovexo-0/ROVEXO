@@ -200,11 +200,12 @@ describe("P7.21 parcel measurements → label generation", () => {
   it("pricing parcelSpecFromTier still available for quotes (tiers unchanged)", () => {
     const medium = parcelSpecFromTier("medium_parcel");
     expect(medium).toEqual({
-      weightKg: 5,
+      weightKg: 2,
       lengthCm: 61,
       widthCm: 46,
       heightCm: 46,
     });
-    expect(PARCEL_TIER_OPTIONS.find((o) => o.id === "medium_parcel")?.maxWeightKg).toBe(10);
+    expect(medium.weightKg).not.toBe(20);
+    expect(PARCEL_TIER_OPTIONS.find((o) => o.id === "medium_parcel")?.maxWeightKg).toBe(2);
   });
 });

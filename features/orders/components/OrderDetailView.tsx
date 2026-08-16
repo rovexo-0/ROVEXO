@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CanonicalButton,
   CanonicalCard,
@@ -31,6 +31,11 @@ import { resolveOrderViewRole } from "@/lib/orders/role";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { Order } from "@/lib/orders/types";
+import {
+  extractActiveOrderDisplayCarriers,
+  resolveOrderDisplayCarrier,
+} from "@/lib/orders/resolve-order-display-carrier-v1";
+import type { ShipmentParcel } from "@/lib/shipping/types";
 
 type OrderDetailViewProps = {
   initialOrder: Order;
@@ -38,6 +43,10 @@ type OrderDetailViewProps = {
   escrowState?: OrderEscrowState;
   resolutionSummary?: OrderResolutionSummary;
   sellerShipment?: SellerShipmentView;
+  /** Current active shipping label carrier when already loaded (Hub). */
+  activeLabelCarrier?: string | null;
+  /** Current active shipment parcel carrier when already loaded. */
+  activeParcelCarrier?: string | null;
   buyerCanCancel?: boolean;
   buyerCancelReason?: string;
   onOrderUpdated?: (order: Order) => void;
@@ -51,6 +60,8 @@ export function OrderDetailView({
   escrowState,
   resolutionSummary,
   sellerShipment,
+  activeLabelCarrier = null,
+  activeParcelCarrier = null,
   buyerCanCancel = false,
   buyerCancelReason,
   onOrderUpdated,
@@ -58,7 +69,39 @@ export function OrderDetailView({
 }: OrderDetailViewProps) {
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fetchedParcels, setFetchedParcels] = useState<ShipmentParcel[] | null>(null);
   const view = resolveOrderViewRole(order, userId);
+
+  const shipmentParcels = sellerShipment?.parcels ?? fetchedParcels;
+  const extracted = useMemo(
+    () => extractActiveOrderDisplayCarriers(shipmentParcels),
+    [shipmentParcels],
+  );
+
+  useEffect(() => {
+    if (activeLabelCarrier || activeParcelCarrier || sellerShipment || fetchedParcels) {
+      return;
+    }
+    let cancelled = false;
+    void fetch(`/api/orders/${order.id}/shipment`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { shipment?: { parcels?: ShipmentParcel[] } } | null) => {
+        if (cancelled) return;
+        setFetchedParcels(payload?.shipment?.parcels ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setFetchedParcels([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeLabelCarrier, activeParcelCarrier, fetchedParcels, order.id, sellerShipment]);
+
+  const displayCarrier = resolveOrderDisplayCarrier({
+    orderCarrier: order.deliveryCarrier,
+    activeLabelCarrier: activeLabelCarrier || extracted.activeLabelCarrier,
+    activeParcelCarrier: activeParcelCarrier || extracted.activeParcelCarrier,
+  });
 
   const updateOrder = useCallback(
     (next: Order) => {
@@ -135,7 +178,7 @@ export function OrderDetailView({
       )}
 
       {stages.length > 0 && view === "buyer" ? (
-        <DeliveryStatusCard stages={stages} carrier={order.deliveryCarrier} />
+        <DeliveryStatusCard stages={stages} carrier={displayCarrier} />
       ) : null}
 
       {order.status === "awaiting_payment" ? (

@@ -7,7 +7,7 @@ export type CheckoutCarrierQuote = {
   /** UI display name (e.g. EVRi). Optional for backward-compatible fixtures. */
   carrierDisplayName?: string;
   serviceName: string;
-  /** Buyer-facing GBP major units (provider pence + 10). */
+  /** Buyer-facing GBP major units (provider pence + 15). */
   price: number;
   /** Raw provider quote in integer pence (Sendcloud). */
   providerPricePence?: number;

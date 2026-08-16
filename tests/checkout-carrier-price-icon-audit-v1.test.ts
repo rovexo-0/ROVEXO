@@ -28,21 +28,21 @@ function quote(
 }
 
 describe("Checkout carrier price + icon audit v1.0", () => {
-  it("margin is exactly +10p · no double margin · fixture proofs", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
-    expect(toBuyerShippingPricePence(200)).toBe(210);
-    expect(penceToGbpMajor(210)).toBe(2.1);
-    expect(toBuyerShippingPricePence(304)).toBe(314);
-    expect(penceToGbpMajor(314)).toBe(3.14);
-    expect(toBuyerShippingPricePence(698)).toBe(708);
-    expect(penceToGbpMajor(708)).toBe(7.08);
-    expect(toBuyerShippingPricePence(388)).toBe(398);
-    expect(penceToGbpMajor(398)).toBe(3.98);
+  it("margin is exactly +15p · no double margin · fixture proofs", () => {
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
+    expect(toBuyerShippingPricePence(200)).toBe(215);
+    expect(penceToGbpMajor(215)).toBe(2.15);
+    expect(toBuyerShippingPricePence(304)).toBe(319);
+    expect(penceToGbpMajor(319)).toBe(3.19);
+    expect(toBuyerShippingPricePence(698)).toBe(713);
+    expect(penceToGbpMajor(713)).toBe(7.13);
+    expect(toBuyerShippingPricePence(388)).toBe(403);
+    expect(penceToGbpMajor(403)).toBe(4.03);
     // applying once only
-    expect(toBuyerShippingPricePence(toBuyerShippingPricePence(200) - 10)).toBe(210);
+    expect(toBuyerShippingPricePence(toBuyerShippingPricePence(200) - 15)).toBe(215);
   });
 
-  it("multi-quote → one card · cheapest provider · buyer = provider + 10 · DPD/InPost hidden", () => {
+  it("multi-quote → one card · cheapest provider · buyer = provider + 15 · DPD/InPost hidden", () => {
     const options = mapProviderQuotesToCheckoutOptions([
       quote({ id: "rm-a", carrier: "Royal Mail", serviceName: "Tracked 48", pricePence: 304 }),
       quote({ id: "rm-b", carrier: "Royal Mail", serviceName: "Tracked 24", pricePence: 448 }),
@@ -64,19 +64,19 @@ describe("Checkout carrier price + icon audit v1.0", () => {
     const evri = options.find((o) => o.carrier === "Evri")!;
 
     expect(rm.providerPricePence).toBe(304);
-    expect(rm.buyerPricePence).toBe(314);
-    expect(rm.price).toBe(3.14);
+    expect(rm.buyerPricePence).toBe(319);
+    expect(rm.price).toBe(3.19);
     expect(rm.serviceName).toBe("Tracked 48");
     expect(rm.id).toBe("rm-a");
 
     expect(evri.providerPricePence).toBe(441);
-    expect(evri.buyerPricePence).toBe(451);
-    expect(evri.price).toBe(4.51);
+    expect(evri.buyerPricePence).toBe(456);
+    expect(evri.price).toBe(4.56);
     expect(evri.serviceName).toBe("Standard");
 
-    expect(getDeliveryPrice({ selectedQuote: evri })).toBe(4.51);
-    expect(calculateOrderTotals(10, 4.51).delivery).toBe(4.51);
-    expect(calculateOrderTotals(10, 3.14).total).not.toBe(calculateOrderTotals(10, 4.51).total);
+    expect(getDeliveryPrice({ selectedQuote: evri })).toBe(4.56);
+    expect(calculateOrderTotals(10, 4.56).delivery).toBe(4.56);
+    expect(calculateOrderTotals(10, 3.19).total).not.toBe(calculateOrderTotals(10, 4.56).total);
   });
 
   it("canonical brand icon assets exist and are not placeholder/truck", () => {

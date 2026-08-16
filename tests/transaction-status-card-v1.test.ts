@@ -401,14 +401,14 @@ describe("Transaction Status Card — state content certification", () => {
     expect(css).toContain(".conv-hub__tx-status--tracking-compact");
     expect(css).toContain("grid-template-columns: 44px minmax(0, 1fr) auto");
     expect(css).not.toContain(".conv-hub__tx-status--tracking .conv-hub__tx-status-action {\n  width: 100%;");
-    expect(hub).toContain('const EVRI_PUBLIC_TRACK_PARCEL_URL = "https://www.evri.com/track-a-parcel"');
-    expect(hub).toContain("window.location.assign(EVRI_PUBLIC_TRACK_PARCEL_URL)");
+    expect(hub).not.toContain("EVRI_PUBLIC_TRACK_PARCEL_URL");
+    expect(hub).toContain("getTrackingUrl");
+    expect(hub).toContain("window.location.assign(trackingUrl)");
     expect(hub).toContain("activeShippingLabel?.trackingNumber");
     expect(hub).not.toContain("/orders/${encodeURIComponent(order.id)}/tracking");
     expect(hub).not.toContain("H01XTA0004974486");
-    expect(hub).not.toContain("getTrackingUrl");
     expect(hub).not.toContain("<iframe");
-    expect(hub).not.toContain("evri.com/track-a-parcel/");
+    expect(hub).not.toContain('https://www.evri.com/track-a-parcel"');
     expect(view).not.toContain('label: "I Have an Issue"');
     expect(view).toContain("Tracking copy lives on the Dynamic Transaction Status Card only.");
     expect(store).toContain("if (existing.status !== \"delivered\" || existing.disputesDisabled)");

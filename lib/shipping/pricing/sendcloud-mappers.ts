@@ -82,7 +82,7 @@ export function encodeSendcloudQuoteId(methodId: number): string {
 
 /**
  * Derive a package spec from a ROVEXO parcel tier for **quote/pricing**.
- * Uses canonical Parcel Size exact measurements (SSOT) — never half-max fabrication.
+ * Uses canonical in-band Parcel Size measurements (SSOT) — never catalog-max synthesis (2/20/15.001).
  * Label announce (P7.21) must pass real shipment_parcels measurements when present.
  */
 export function parcelSpecFromTier(tier: ParcelTier, weightKg?: number) {

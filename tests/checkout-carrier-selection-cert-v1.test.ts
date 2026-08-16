@@ -50,9 +50,9 @@ describe("Checkout Carrier Selection V1.0", () => {
     const evri = options.find((o) => o.carrier === "Evri")!;
     const rm = options.find((o) => o.carrier === "Royal Mail")!;
     expect(evri.providerPricePence).toBe(305);
-    expect(evri.buyerPricePence).toBe(315);
+    expect(evri.buyerPricePence).toBe(320);
     expect(rm.providerPricePence).toBe(304);
-    expect(rm.buyerPricePence).toBe(314);
+    expect(rm.buyerPricePence).toBe(319);
     expect(options.filter((o) => o.carrier === "DPD")).toHaveLength(0);
   });
 
@@ -108,14 +108,14 @@ describe("Checkout Carrier Selection V1.0", () => {
     expect(options.filter((o) => /inpost|dpd/i.test(String(o.carrier)))).toHaveLength(0);
   });
 
-  it("7. +10p exactly once", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
-    expect(toBuyerShippingPricePence(304)).toBe(314);
+  it("7. +15p exactly once", () => {
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
+    expect(toBuyerShippingPricePence(304)).toBe(319);
     const [rm] = mapProviderQuotesToCheckoutOptions([
       quote({ id: "x", carrier: "Royal Mail", serviceName: "Tracked 48", pricePence: 304 }),
     ]);
-    expect(rm!.buyerPricePence).toBe(314);
-    expect(getDeliveryPrice({ selectedQuote: rm! })).toBe(3.14);
+    expect(rm!.buyerPricePence).toBe(319);
+    expect(getDeliveryPrice({ selectedQuote: rm! })).toBe(3.19);
   });
 
   it("8–9. carrier change updates total", () => {

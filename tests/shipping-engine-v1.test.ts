@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { validateUkShippingAddress } from "@/lib/shipping/addresses";
-import { INTERNAL_LABEL_PLATFORM_FEE_PENCE, applyInternalLabelFee } from "@/lib/shipping/labels/fee";
+import { existsSync } from "node:fs";
 import { generateShippingLabel } from "@/lib/shipping/labels/service.server";
 import {
   PARCEL_TIER_OPTIONS,
@@ -103,9 +103,8 @@ describe("ROVEXO Shipping Engine v1.0", () => {
     expect(pricing.quotes).toHaveLength(0);
   });
 
-  it("never exposes the internal £0.15 label fee in label responses", async () => {
-    expect(INTERNAL_LABEL_PLATFORM_FEE_PENCE).toBe(15);
-    expect(applyInternalLabelFee(500).platformFeePence).toBe(15);
+  it("label generation succeeds without an internal platform fee stamp", async () => {
+    expect(existsSync("lib/shipping/labels/fee.ts")).toBe(false);
 
     const result = await generateShippingLabel({
       quoteId: "quote-test",

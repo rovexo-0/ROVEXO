@@ -1,9 +1,9 @@
 /**
- * Provider ShippingQuote → CheckoutCarrierQuote (buyer price = provider + 10p).
+ * Provider ShippingQuote → CheckoutCarrierQuote (buyer price = provider + 15p).
  * Client-safe — no server-only imports.
  *
  * V1.0 Checkout presentation: ONE card per canonical carrier.
- * Flow: whitelist → eligibility filter → group → cheapest eligible → +10p once.
+ * Flow: whitelist → eligibility filter → group → cheapest eligible → +15p once.
  */
 
 import type { CheckoutCarrierQuote } from "@/lib/checkout/types";
@@ -205,7 +205,7 @@ function toCheckoutCarrierQuote(quote: ShippingQuote): CheckoutCarrierQuote {
 
 /**
  * Map provider quotes → checkout options.
- * Buyer price = provider pence + 10 (canonical, once). Fail-closed v1.0 whitelist.
+ * Buyer price = provider pence + 15 (canonical, once). Fail-closed v1.0 whitelist.
  * ONE customer-facing option per carrier (cheapest eligible quote only).
  */
 export function mapProviderQuotesToCheckoutOptions(

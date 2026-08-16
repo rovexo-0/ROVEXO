@@ -471,7 +471,7 @@ async function finalizeCheckoutSessionPayment(
   const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
   // Absolute Total Price Law — session amounts lock at Buy Now; selected live
-  // carrier quote may refine shipping to canonical buyer price (provider + 10p).
+  // carrier quote may refine shipping to canonical buyer price (provider + 15p).
   const listingShippingRaw = product.shipping_price;
   const listingShippingKnown =
     listingShippingRaw != null && Number.isFinite(Number(listingShippingRaw));
@@ -509,7 +509,7 @@ async function finalizeCheckoutSessionPayment(
         Number.isFinite(selectedQuote.price) &&
         selectedQuote.price >= 0
       ) {
-        // Canonical buyer shipping (provider pence + 10) from live quote — must match checkout UI.
+        // Canonical buyer shipping (provider pence + 15) from live quote — must match checkout UI.
         lockedDelivery = roundMoney(selectedQuote.price);
         lockedTotal = roundMoney(lockedItemPrice + lockedPlatformFee + lockedDelivery);
         shippingRefinedFromQuote = true;

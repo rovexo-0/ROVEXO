@@ -1,4 +1,3 @@
-import { applyInternalLabelFee } from "@/lib/shipping/labels/fee";
 export { buildDraftLabel } from "@/lib/shipping/labels/draft";
 export type { LabelGenerationResult } from "@/lib/shipping/labels/service.server";
 
@@ -9,5 +8,3 @@ export async function generateShippingLabel(
   const { generateShippingLabel: generate } = await import("@/lib/shipping/labels/service.server");
   return generate(...args);
 }
-
-export { applyInternalLabelFee };

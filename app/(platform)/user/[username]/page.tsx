@@ -233,6 +233,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       rating: profile.rating,
       reviewCount: profile.reviewCount,
       followersCount: followCounts?.followerCount ?? profile.followerCount,
+      storeDescription: profile.bio,
     });
   } catch {
     return storeShareFallbackMetadata(username);

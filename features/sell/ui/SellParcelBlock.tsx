@@ -10,10 +10,7 @@ import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvid
 import { getListingValidationErrors, PARCEL_SIZE_OPTIONS, type ParcelSize } from "@/features/sell/types";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
-import {
-  PARCEL_CARD_PRESENTATION,
-  PARCEL_PACKAGING_GUIDE,
-} from "@/features/sell/ui/sell-picker-presentation-v1";
+import { PARCEL_CARD_PRESENTATION } from "@/features/sell/ui/sell-picker-presentation-v1";
 
 const SELECT_ANIM_MS = 200;
 
@@ -40,7 +37,7 @@ function ParcelBoxIllustration({ size }: { size: ParcelSize }) {
 
 /**
  * Sell Parcel Size UX — select one size only.
- * Labels / subtitles / max dimensions come from canonical SSOT.
+ * Labels / weight / max dimensions come from canonical SSOT.
  * No weight/dimension inputs · no shipping-provider UI · no freeform measurements.
  */
 function ParcelPicker({
@@ -91,7 +88,7 @@ function ParcelPicker({
                     type="button"
                     role="radio"
                     aria-checked={active}
-                    aria-label={`${card.title}. ${card.subtitle}. ${card.maxDimensions}`}
+                    aria-label={`${card.title}. ${card.weight}. ${card.maxDimensions}`}
                     onClick={() => choose(option.id)}
                     className={cn(
                       "sell-parcel-option flex w-full items-center text-left",
@@ -110,7 +107,7 @@ function ParcelPicker({
                           </span>
                         ) : null}
                       </span>
-                      <span className="sell-parcel-option__desc">{card.subtitle}</span>
+                      <span className="sell-parcel-option__desc">{card.weight}</span>
                       <span className="sell-parcel-option__weight">{card.maxDimensions}</span>
                     </span>
                     <span
@@ -125,19 +122,6 @@ function ParcelPicker({
               );
             })}
           </ul>
-
-          <div className="sell-parcel-guide" role="note">
-            <span className="sell-parcel-guide__ico" aria-hidden>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 10v6M12 7.5h.01" strokeLinecap="round" />
-              </svg>
-            </span>
-            <div className="sell-parcel-guide__copy">
-              <p className="sell-parcel-guide__title">Packaging guide</p>
-              <p className="sell-parcel-guide__text">{PARCEL_PACKAGING_GUIDE}</p>
-            </div>
-          </div>
         </div>
       </div>
     </ModalContainer>

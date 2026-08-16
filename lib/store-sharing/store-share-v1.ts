@@ -49,6 +49,8 @@ export type StoreShareData = {
   followersCount: number;
   followingCount: number;
   activeListingsCount: number;
+  /** Public store bio only. Never email / phone / address. */
+  storeDescription: string | null;
   storeUrl: string;
 };
 
@@ -60,6 +62,8 @@ export const STORE_SHARE_COPY = {
   supporting: "Discover unique items from independent sellers.",
   viewStore: "VIEW STORE",
   newSeller: "New seller",
+  newSellerOnRovexo: "New seller on ROVEXO",
+  sellerOnRovexo: "Seller on ROVEXO",
   copied: "Store link copied",
   instagramHint: "Store message copied — paste in Instagram",
   buy: "Discover unique products.",
@@ -184,6 +188,45 @@ export function buildStoreShareText(storeUrl: string): string {
   ].join("\n");
 }
 
+/**
+ * Canonical clipboard helper for Store Share + Visit Store.
+ * Prefers Clipboard API; falls back to execCommand. Never throws.
+ */
+export async function copyText(text: string): Promise<boolean> {
+  if (typeof text !== "string") return false;
+
+  if (typeof navigator !== "undefined" && typeof navigator.clipboard?.writeText === "function") {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      /* insecure context / permission — try fallback */
+    }
+  }
+
+  if (typeof document === "undefined" || !document.body) return false;
+
+  let input: HTMLTextAreaElement | null = null;
+  try {
+    input = document.createElement("textarea");
+    input.value = text;
+    input.setAttribute("readonly", "");
+    input.setAttribute("aria-hidden", "true");
+    input.style.position = "fixed";
+    input.style.top = "0";
+    input.style.left = "-9999px";
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+    input.setSelectionRange(0, text.length);
+    return Boolean(document.execCommand("copy"));
+  } catch {
+    return false;
+  } finally {
+    input?.remove();
+  }
+}
+
 export function buildStoreShareNativePayload(data: StoreShareData): {
   title: string;
   text: string;
@@ -203,6 +246,47 @@ export function formatStoreShareRatingLabel(data: Pick<StoreShareData, "rating" 
   }
   const rating = Number(data.rating.toFixed(1));
   return `⭐ ${rating} (${reviews} ${reviews === 1 ? "Review" : "Reviews"})`;
+}
+
+export function formatStoreShareStatusLabel(
+  data: Pick<StoreShareData, "rating" | "reviewCount">,
+): string {
+  const reviews = Math.max(0, data.reviewCount);
+  if (reviews <= 0 || data.rating == null || data.rating <= 0) {
+    return STORE_SHARE_COPY.newSellerOnRovexo;
+  }
+  return formatStoreShareRatingLabel(data);
+}
+
+export function truncateStoreShareCardText(value: string, maxChars: number): string {
+  const text = value.replace(/\s+/g, " ").trim();
+  if (text.length <= maxChars) return text;
+  if (maxChars <= 1) return "…";
+  return `${text.slice(0, maxChars - 1).trimEnd()}…`;
+}
+
+export function resolveStoreShareCardDescription(description: string | null | undefined): string {
+  const trimmed = typeof description === "string" ? description.replace(/\s+/g, " ").trim() : "";
+  if (!trimmed) return STORE_SHARE_COPY.supporting;
+  return truncateStoreShareCardText(trimmed, 72);
+}
+
+export function formatStoreSharePublicHost(username: string): string {
+  return `rovexo.co.uk/@${normalizeStoreUsername(username)}`;
+}
+
+export const STORE_SHARE_MOBILE_MAX_WIDTH_PX = 768 as const;
+
+export function isStoreShareMobileViewport(widthPx: number): boolean {
+  return Number.isFinite(widthPx) && widthPx <= STORE_SHARE_MOBILE_MAX_WIDTH_PX;
+}
+
+/** Mobile + Web Share API → native sheet. Desktop always uses sharer.php. */
+export function resolveStoreFacebookShareMode(input: {
+  hasNativeShare: boolean;
+  isMobileViewport: boolean;
+}): "native" | "sharer" {
+  return input.hasNativeShare && input.isMobileViewport ? "native" : "sharer";
 }
 
 export function formatStoreShareFollowersLabel(count: number): string {
@@ -288,12 +372,13 @@ function publicStoreAvatarParam(avatarUrl: string | null): string | null {
 export function buildStoreOgImagePath(data: StoreShareData): string {
   const params = new URLSearchParams({
     kind: "store",
-    name: data.displayName.slice(0, 80),
+    name: truncateStoreShareCardText(data.displayName, 22),
     username: data.username.slice(0, 64),
     verified: data.verified ? "1" : "0",
     reviews: String(Math.max(0, data.reviewCount)),
     followers: String(Math.max(0, data.followersCount)),
     listings: String(Math.max(0, data.activeListingsCount)),
+    description: resolveStoreShareCardDescription(data.storeDescription),
   });
   if (data.rating != null && data.reviewCount > 0 && data.rating > 0) {
     params.set("rating", data.rating.toFixed(1));
@@ -360,11 +445,14 @@ export function toStoreShareData(input: {
   followersCount?: number;
   followingCount?: number;
   activeListingsCount?: number;
+  storeDescription?: string | null;
 }): StoreShareData {
   const username = normalizeStoreUsername(input.username);
   const reviewCount = Math.max(0, input.reviewCount ?? 0);
   const rating =
     reviewCount > 0 && input.rating != null && input.rating > 0 ? input.rating : null;
+  const rawDescription =
+    typeof input.storeDescription === "string" ? input.storeDescription.replace(/\s+/g, " ").trim() : "";
   return {
     displayName: (input.displayName ?? username).trim() || username,
     username,
@@ -375,6 +463,7 @@ export function toStoreShareData(input: {
     followersCount: Math.max(0, input.followersCount ?? 0),
     followingCount: Math.max(0, input.followingCount ?? 0),
     activeListingsCount: Math.max(0, input.activeListingsCount ?? 0),
+    storeDescription: rawDescription || null,
     storeUrl: buildStoreUrl(username),
   };
 }

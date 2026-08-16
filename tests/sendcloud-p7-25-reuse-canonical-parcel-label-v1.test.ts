@@ -48,13 +48,12 @@ const PARCEL_1 = "25db6cb8-8593-4f94-9ec0-b57e3460b0d7";
 const PARCEL_6 = "45f0586b-0d1e-4693-8f0b-70d5acbdc869";
 
 describe("P7.25 resolveShipmentParcelForLabel", () => {
-  it("T1: existing parcels → parcel_number=1 / parcels[0] reused", () => {
+  it("T1: single preparing parcel reused (not a failed historical row)", () => {
     const p1 = fakeParcel({ id: PARCEL_1, shippingRecordId: RECORD_A, parcelNumber: 1 });
-    const p6 = fakeParcel({ id: PARCEL_6, shippingRecordId: RECORD_A, parcelNumber: 6 });
     const result = resolveShipmentParcelForLabel({
       shippingRecordId: RECORD_A,
       loadedExplicitParcel: null,
-      orderParcels: [p1, p6],
+      orderParcels: [p1],
     });
     expect(result).toEqual({ status: "use", parcel: p1 });
     expect(result.status === "use" && result.parcel.id).toBe(PARCEL_1);
@@ -141,11 +140,12 @@ describe("P7.25 resolveShipmentParcelForLabel", () => {
   it("T8: medium_parcel tier does NOT synthesize label dimensions via resolver", () => {
     const synthetic = parcelSpecFromTier("medium_parcel");
     expect(synthetic).toEqual({
-      weightKg: 5,
+      weightKg: 2,
       lengthCm: 61,
       widthCm: 46,
       heightCm: 46,
     });
+    expect(synthetic.weightKg).not.toBe(20);
     // Label path must not use that when parcel measurements are null.
     expect(
       resolveCompleteParcelMeasurements({
@@ -256,7 +256,7 @@ describe("P7.25 + P7.21 adapter measurement pass-through", () => {
 });
 
 describe("P7.25 ConversationHub unchanged", () => {
-  it("Hub still posts orderId only (server reuses parcels[0])", () => {
+  it("Hub still posts orderId only (server selects eligible parcel)", () => {
     const hub = read("features/inbox/components/ConversationHub.tsx");
     expect(hub).toContain('body: JSON.stringify({ orderId: order.id })');
   });

@@ -15,6 +15,9 @@ import {
   buildStoreShareUtmUrl,
   buildStoreTelegramShareUrl,
   buildStoreWhatsAppShareUrl,
+  copyText,
+  isStoreShareMobileViewport,
+  resolveStoreFacebookShareMode,
   type StoreShareChannel,
   type StoreShareData,
 } from "@/lib/store-sharing/store-share-v1";
@@ -41,9 +44,14 @@ export function StoreShareSheet({ open, onClose, data }: StoreShareSheetProps) {
   }, [open, data.username]);
 
   const copyStoreLink = useCallback(async () => {
-    await navigator.clipboard.writeText(data.storeUrl);
+    const copied = await copyText(data.storeUrl);
+    if (!copied) {
+      pushToast({ title: "Unable to copy link.", variant: "error" });
+      return false;
+    }
     trackStoreShare("store_share_copy_link", { username: data.username });
     pushToast({ title: STORE_SHARE_COPY.copied, variant: "success" });
+    return true;
   }, [data.storeUrl, data.username, pushToast]);
 
   const nativeShare = useCallback(async () => {
@@ -65,11 +73,7 @@ export function StoreShareSheet({ open, onClose, data }: StoreShareSheetProps) {
   const onChannel = useCallback(
     async (channel: StoreShareChannel) => {
       if (channel === "copy_link") {
-        try {
-          await copyStoreLink();
-        } catch {
-          pushToast({ title: "Unable to copy link.", variant: "error" });
-        }
+        await copyStoreLink();
         return;
       }
 
@@ -80,25 +84,36 @@ export function StoreShareSheet({ open, onClose, data }: StoreShareSheetProps) {
       }
 
       if (channel === "instagram") {
-        try {
-          await navigator.clipboard.writeText(shareText);
-          trackStoreShare("store_share_instagram", { username: data.username });
-          pushToast({ title: STORE_SHARE_COPY.instagramHint, variant: "success" });
-        } catch {
+        const copied = await copyText(shareText);
+        if (!copied) {
           pushToast({ title: "Unable to copy store message.", variant: "error" });
+          return;
         }
+        trackStoreShare("store_share_instagram", { username: data.username });
+        pushToast({ title: STORE_SHARE_COPY.instagramHint, variant: "success" });
         return;
       }
 
       if (channel === "more") {
         const shared = await nativeShare();
         if (!shared) {
-          try {
-            await copyStoreLink();
-          } catch {
-            pushToast({ title: "Unable to copy link.", variant: "error" });
-          }
+          await copyStoreLink();
         }
+        return;
+      }
+
+      if (channel === "facebook") {
+        trackStoreShare("store_share_facebook", { username: data.username });
+        const isMobile = isStoreShareMobileViewport(window.innerWidth);
+        const mode = resolveStoreFacebookShareMode({
+          hasNativeShare: typeof navigator.share === "function",
+          isMobileViewport: isMobile,
+        });
+        if (mode === "native") {
+          const shared = await nativeShare();
+          if (shared) return;
+        }
+        window.open(buildStoreFacebookShareUrl(data.storeUrl), "_blank", "noopener,noreferrer");
         return;
       }
 
@@ -106,16 +121,13 @@ export function StoreShareSheet({ open, onClose, data }: StoreShareSheetProps) {
       const href =
         channel === "whatsapp"
           ? buildStoreWhatsAppShareUrl(utmUrl)
-          : channel === "facebook"
-            ? buildStoreFacebookShareUrl(data.storeUrl)
-            : channel === "messenger"
-              ? buildStoreMessengerShareUrl(data.storeUrl)
-              : channel === "telegram"
-                ? buildStoreTelegramShareUrl(utmUrl, shareText)
-                : null;
+          : channel === "messenger"
+            ? buildStoreMessengerShareUrl(data.storeUrl)
+            : channel === "telegram"
+              ? buildStoreTelegramShareUrl(utmUrl, shareText)
+              : null;
 
       if (channel === "whatsapp") trackStoreShare("store_share_whatsapp", { username: data.username });
-      if (channel === "facebook") trackStoreShare("store_share_facebook", { username: data.username });
       if (channel === "messenger") trackStoreShare("store_share_messenger", { username: data.username });
       if (channel === "telegram") trackStoreShare("store_share_telegram", { username: data.username });
 

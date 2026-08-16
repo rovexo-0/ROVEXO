@@ -1,6 +1,5 @@
 import "server-only";
 
-import { applyInternalLabelFee } from "@/lib/shipping/labels/fee";
 import { createShippingLabelRouted } from "@/lib/shipping/providers/router";
 import type {
   ShippingLabelProviderFailure,
@@ -11,7 +10,7 @@ import type { ShippingProviderId } from "@/lib/shipping/providers/types";
 
 export type LabelGenerationResult = {
   label: ShippingLabelArtifact;
-  /** Server-side only — never sent to clients */
+  /** Always 0 — internal label stamp removed. Column kept for historical rows. */
   internalPlatformFeePence: number;
   providerId: ShippingProviderId;
   /** Structured provider failure when available=false (P7.1). */
@@ -43,8 +42,6 @@ export async function generateShippingLabel(
     };
   }
 
-  const { platformFeePence } = applyInternalLabelFee(0);
-
   const tracking = response.trackingNumber?.trim() || null;
   const pdfUrl = response.pdfUrl?.trim() || null;
   const labelReady = Boolean(tracking && pdfUrl);
@@ -59,7 +56,7 @@ export async function generateShippingLabel(
       // P8.6: announced without sync tracking stays pending until webhook/refresh fills it.
       status: labelReady ? "ready" : "pending",
     },
-    internalPlatformFeePence: platformFeePence,
+    internalPlatformFeePence: 0,
     providerId: response.providerId,
     sendcloud: response.sendcloudParcelId
       ? {

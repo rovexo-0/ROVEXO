@@ -203,7 +203,7 @@ describe("Store Sharing Engine v1", () => {
   it("STORE_SHARE_INSTAGRAM=PASS", () => {
     const sheet = readSource("features/store-sharing/StoreShareSheet.tsx");
     expect(sheet).toContain('channel === "instagram"');
-    expect(sheet).toContain("navigator.clipboard.writeText(shareText)");
+    expect(sheet).toContain("copyText(shareText)");
     expect(sheet).toContain("STORE_SHARE_COPY.instagramHint");
     expect(buildStoreShareText(buildStoreUrl("mishuu"))).toContain(
       "https://www.rovexo.co.uk/@mishuu",
@@ -284,8 +284,11 @@ describe("Store Sharing Engine v1", () => {
     const og = readSource("app/api/seo/og/route.ts");
     expect(og).toContain('kind === "store"');
     expect(og).toContain("VIEW STORE");
-    expect(og).toContain("BUY • SELL • GROW");
+    expect(og).toContain("STORE_SHARE_COPY.promoLine");
+    expect(readSource("lib/store-sharing/store-share-v1.ts")).toContain("Buy • Sell • Grow on ROVEXO");
+    expect(og).toContain("image/png");
     expect(og).toContain("X-ROVEXO-OG-Store");
+    expect(og).not.toContain("image/svg+xml");
   });
 
   it("15. canonical URL is /@username", () => {

@@ -23,7 +23,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/api/seo/og"],
         disallow: [
           ...protectedPathDisallows(),
           "/api/",

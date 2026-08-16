@@ -51,7 +51,7 @@ export type ParcelSizeOption = {
 };
 
 /**
- * Sell Parcel Size options — customer-facing Sendcloud-derived catalogue.
+ * Sell Parcel Size options — Owner-approved bands.
  * Exactly SMALL · MEDIUM · LARGE. No EXTRA LARGE.
  */
 export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = CANONICAL_PARCEL_SIZES_V1.filter(
@@ -59,7 +59,7 @@ export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = CANONICAL_PARCEL_SIZES_V1
 ).map((def) => ({
   id: def.id,
   label: def.sellLabel,
-  description: def.sellSubtitle,
+  description: def.sellWeightLine,
 }));
 
 export type SellListingDraft = {

@@ -7,6 +7,7 @@ import { SELL_QUICK_CONDITIONS } from "@/lib/sell/sell-condition-options";
 import {
   CANONICAL_PARCEL_SIZES_V1,
   formatCanonicalMaxDimensionsLine,
+  formatCanonicalMaxWeightLine,
 } from "@/lib/shipping/canonical-parcel-size-v1";
 
 export const SELL_PICKER_PRESENTATION_V1 = {
@@ -30,16 +31,18 @@ export const COLOUR_POPULAR_IDS = [
   "Other",
 ] as const;
 
-/** Parcel card presentation — max dimensions from canonical Parcel Size SSOT only. */
+/** Parcel card presentation — Weight + Max dimensions only (Owner-approved). */
 function buildParcelCardPresentation(): Record<
   string,
-  { title: string; subtitle: string; maxDimensions: string }
+  { title: string; subtitle: string; weight: string; maxDimensions: string }
 > {
-  const out: Record<string, { title: string; subtitle: string; maxDimensions: string }> = {};
+  const out: Record<string, { title: string; subtitle: string; weight: string; maxDimensions: string }> = {};
   for (const def of CANONICAL_PARCEL_SIZES_V1.filter((row) => row.customerFacing)) {
+    const weight = formatCanonicalMaxWeightLine(def);
     out[def.id] = {
       title: def.sellLabel,
-      subtitle: def.sellSubtitle,
+      subtitle: weight,
+      weight,
       maxDimensions: formatCanonicalMaxDimensionsLine(def),
     };
   }

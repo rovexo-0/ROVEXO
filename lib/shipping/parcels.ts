@@ -34,7 +34,7 @@ export const PARCEL_TIER_OPTIONS: {
   description: string;
   maxWeightKg: number;
   maxDimensionsCm: { length: number; width: number; height: number };
-  /** Exact shippable weight (kg) from canonical SSOT. */
+  /** In-band quote/label weight (kg) from canonical SSOT. */
   weightKg: number;
   lengthCm: number;
   widthCm: number;

@@ -235,11 +235,13 @@ export function ViewProfilePage({
         followersCount: followerCount,
         followingCount: followingCount,
         activeListingsCount: profile.listingCount,
+        storeDescription: profile.bio,
       }),
     [
       followerCount,
       followingCount,
       liveAvatarUrl,
+      profile.bio,
       profile.listingCount,
       profile.rating,
       profile.reviewCount,
@@ -577,16 +579,9 @@ export function ViewProfilePage({
             </div>
 
             <div
-              className={cn("vp-v1__actions", !isOwnProfile && "vp-v1__actions--single")}
+              className={cn("vp-v1__actions", "vp-v1__actions--single")}
             >
-              {isOwnProfile ? (
-                <Link
-                  href="/account/edit-profile"
-                  className={cn("vp-v1__action-btn", "vp-v1__action-btn--primary", focusRing)}
-                >
-                  Edit Profile
-                </Link>
-              ) : (
+              {isOwnProfile ? null : (
                 <>
                   <FollowButton
                     userId={profile.id}
@@ -607,14 +602,6 @@ export function ViewProfilePage({
                   </button>
                 </>
               )}
-              {isOwnProfile ? (
-                <Link
-                  href="/account/profile/bio"
-                  className={cn("vp-v1__action-btn", "vp-v1__action-btn--secondary", focusRing)}
-                >
-                  Edit Bio
-                </Link>
-              ) : null}
               <button
                 type="button"
                 className={cn(

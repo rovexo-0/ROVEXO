@@ -228,7 +228,8 @@ describe("seller-issue-visibility-v1", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     expect(hub.split('id="conv-hub-composer"').length - 1).toBe(1);
     expect(hub).toContain('if (actionId === "track_parcel")');
-    expect(hub).toContain("EVRI_PUBLIC_TRACK_PARCEL_URL");
+    expect(hub).toContain("getTrackingUrl");
+    expect(hub).not.toContain("EVRI_PUBLIC_TRACK_PARCEL_URL");
     expect(hub).not.toContain("ContactSellerCard");
     expect(hub).not.toContain("SellerIssueCard");
   });

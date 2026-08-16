@@ -13,6 +13,7 @@ import type {
   ShippingAddress,
   ShippingLabelArtifact,
   ShippingPricing,
+  ShippingQuote,
   ShippingQuotePayload,
   ShippingRecord,
   ShippingStatus,
@@ -428,6 +429,59 @@ export async function saveShippingQuotes(input: {
   if (selectError) {
     console.error("[shipping] saveShippingQuotes select update failed:", selectError.message);
     throw new Error(`Failed to select shipping quote: ${selectError.message}`);
+  }
+
+  return getShippingRecord(input.orderId);
+}
+
+/**
+ * Insert one additional quote and select it.
+ * Never deletes or updates existing shipping_quotes rows.
+ */
+export async function appendAndSelectShippingQuoteWithoutReplacing(input: {
+  orderId: string;
+  quote: ShippingQuote;
+}): Promise<ShippingRecord | null> {
+  const record = await ensureShippingRecord({ orderId: input.orderId });
+  if (!record) return null;
+
+  const admin = createShippingAdminClient();
+  const orders = createAdminClient();
+  const externalId = String(input.quote.id);
+  const rowId = isUuid(externalId) ? externalId : randomUUID();
+
+  const { error: insertError } = await admin.from("shipping_quotes").insert({
+    id: rowId,
+    shipping_record_id: record.id,
+    provider_id: input.quote.providerId,
+    carrier: String(input.quote.carrier),
+    service_name: input.quote.serviceName,
+    price_pence: input.quote.pricePence,
+    currency: input.quote.currency,
+    estimated_days_min: input.quote.estimatedDays.min,
+    estimated_days_max: input.quote.estimatedDays.max,
+    recommended: input.quote.recommended ?? null,
+    expires_at: input.quote.expiresAt ?? null,
+    quote_payload: isUuid(externalId) ? null : buildShippingQuotePayload(input.quote),
+  });
+  if (insertError) {
+    throw new Error(`Failed to append shipping quote: ${insertError.message}`);
+  }
+
+  const { error: selectError } = await admin
+    .from("shipping_records")
+    .update({ selected_quote_id: externalId })
+    .eq("id", record.id);
+  if (selectError) {
+    throw new Error(`Failed to select appended shipping quote: ${selectError.message}`);
+  }
+
+  const { error: orderError } = await orders
+    .from("orders")
+    .update({ selected_shipping_quote_id: externalId })
+    .eq("id", input.orderId);
+  if (orderError) {
+    throw new Error(`Failed to select order shipping quote: ${orderError.message}`);
   }
 
   return getShippingRecord(input.orderId);

@@ -95,6 +95,21 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
     expect(page).toContain("Cancel");
   });
 
+  it("HEADER_EDIT_PROFILE_AND_EDIT_BIO_REMOVED=PASS", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    const stats = page.indexOf('className="vp-v1__stats"');
+    const share = page.indexOf("STORE_SHARE_COPY.cta");
+    const headerActions = page.slice(stats, share);
+    expect(stats).toBeGreaterThan(0);
+    expect(share).toBeGreaterThan(stats);
+    expect(headerActions).not.toContain("Edit Profile");
+    expect(headerActions).not.toContain("Edit Bio");
+    expect(headerActions).not.toContain("/account/edit-profile");
+    expect(headerActions).not.toContain("/account/profile/bio");
+    expect(page).toContain("StoreShareSheet");
+    expect(page).toContain("vp-v1__action-btn--share");
+  });
+
   it("SHARE_STORE_REGRESSION=PASS", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
     expect(page).toContain("StoreShareSheet");

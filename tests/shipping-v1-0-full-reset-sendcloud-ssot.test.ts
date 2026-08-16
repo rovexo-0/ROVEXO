@@ -66,19 +66,21 @@ describe("Correct Parcel Size / Sendcloud SSOT V1.0", () => {
     const small = CANONICAL_PARCEL_SIZES_V1.find((d) => d.id === "small")!;
     const medium = CANONICAL_PARCEL_SIZES_V1.find((d) => d.id === "medium")!;
     const large = CANONICAL_PARCEL_SIZES_V1.find((d) => d.id === "large")!;
-    expect(small.sendcloudDerived && medium.sendcloudDerived && large.sendcloudDerived).toBe(true);
+    expect(small.ownerApproved && medium.ownerApproved && large.ownerApproved).toBe(true);
     expect(small.maxDimensionsCm).toEqual({ length: 45, width: 35, height: 16 });
     expect(medium.maxDimensionsCm).toEqual({ length: 61, width: 46, height: 46 });
-    expect(large.maxWeightKg).toBe(SENDCLOUD_DERIVED_PARCEL_LIMITS_V1.large.maxWeightKg);
+    expect(large.maxWeightKg).toBe(15);
+    expect(large.maxWeightKg).not.toBe(SENDCLOUD_DERIVED_PARCEL_LIMITS_V1.large.maxWeightKg);
     expect(formatCanonicalMaxDimensionsLine(small)).toBe("Max dimensions: 45 × 35 × 16 cm");
     expect(formatCanonicalMaxDimensionsLine(small)).not.toMatch(/45 × 10 × 10/);
+    expect(formatCanonicalMaxDimensionsLine(large)).toBe("Max dimensions: Max length 120 cm");
     expect(canonicalParcelMeasurements(small)).not.toEqual({
       weightKg: 2,
       lengthCm: 45,
       widthCm: 10,
       heightCm: 10,
     });
-    expect(large.sellLimitNote).toMatch(/not published by Sendcloud for EVRi/i);
+    expect(large.sellDimensionsLine).not.toMatch(/15\.001|Sendcloud|EVRi/i);
     expect(SENDCLOUD_DERIVED_PARCEL_LIMITS_V1.large.widthHeightPublished).toBe(false);
   });
 
@@ -95,7 +97,7 @@ describe("Correct Parcel Size / Sendcloud SSOT V1.0", () => {
   });
 
   for (const size of ["small", "medium", "large"] as const) {
-    it(`${size.toUpperCase()} × RM/EVRi — cheapest eligible · DPD hidden · +10p`, () => {
+    it(`${size.toUpperCase()} × RM/EVRi — cheapest eligible · DPD hidden · +15p`, () => {
       const def = CANONICAL_PARCEL_SIZES_V1.find((d) => d.id === size)!;
       const parcel = canonicalParcelMeasurements(def);
       const options = mapProviderQuotesToCheckoutOptions(
@@ -140,9 +142,9 @@ describe("Correct Parcel Size / Sendcloud SSOT V1.0", () => {
       );
       expect(options.map((o) => o.carrier)).toEqual(["Evri", "Royal Mail"]);
       expect(options.find((o) => o.carrier === "Evri")?.providerPricePence).toBe(305);
-      expect(options.find((o) => o.carrier === "Evri")?.buyerPricePence).toBe(315);
+      expect(options.find((o) => o.carrier === "Evri")?.buyerPricePence).toBe(320);
       expect(options.find((o) => o.carrier === "Royal Mail")?.providerPricePence).toBe(304);
-      expect(options.find((o) => o.carrier === "Royal Mail")?.buyerPricePence).toBe(314);
+      expect(options.find((o) => o.carrier === "Royal Mail")?.buyerPricePence).toBe(319);
       expect(options.filter((o) => o.carrier === "DPD")).toHaveLength(0);
     });
   }
@@ -156,17 +158,17 @@ describe("Correct Parcel Size / Sendcloud SSOT V1.0", () => {
         quote({
           id: "e-miss",
           carrier: "Evri",
-          serviceName: "0-1kg",
+          serviceName: "0-0.5kg",
           pricePence: 100,
           minWeightKg: 0,
-          maxWeightKg: 1,
+          maxWeightKg: 0.5,
         }),
         quote({
           id: "e-ok",
           carrier: "Evri",
-          serviceName: "1-2kg",
+          serviceName: "0-2kg",
           pricePence: 305,
-          minWeightKg: 1,
+          minWeightKg: 0,
           maxWeightKg: 2,
         }),
       ],
@@ -174,12 +176,12 @@ describe("Correct Parcel Size / Sendcloud SSOT V1.0", () => {
     );
     expect(options).toHaveLength(1);
     expect(options[0]!.id).toBe("e-ok");
-    expect(options[0]!.buyerPricePence - options[0]!.providerPricePence).toBe(10);
+    expect(options[0]!.buyerPricePence - options[0]!.providerPricePence).toBe(15);
   });
 
   it("buyer can select · order total updates · no forced Royal Mail · margin once", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
-    expect(toBuyerShippingPricePence(304) - 304).toBe(10);
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
+    expect(toBuyerShippingPricePence(304) - 304).toBe(15);
     const parcel = canonicalParcelMeasurements(
       CANONICAL_PARCEL_SIZES_V1.find((d) => d.id === "medium")!,
     );

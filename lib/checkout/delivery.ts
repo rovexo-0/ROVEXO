@@ -80,7 +80,7 @@ export function getDeliveryPrice(
   if (options?.listingOffersFreeDelivery) {
     return 0;
   }
-  // Live selected quote buyer price (provider pence + 10) is SSOT when present —
+  // Live selected quote buyer price (provider pence + 15) is SSOT when present —
   // checkout display · totals · order persistence must match.
   if (options?.selectedQuote) {
     return options.selectedQuote.price;

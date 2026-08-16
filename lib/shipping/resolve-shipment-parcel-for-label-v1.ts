@@ -1,7 +1,9 @@
 /**
- * P7.25 — Canonical shipment parcel selection for label generation.
- * Auto Single Parcel: reuse parcels[0] (parcel_number=1) when parcelId omitted.
+ * Canonical shipment parcel selection for label generation.
+ *
  * Explicit parcelId: ownership-checked; never create a substitute on miss/mismatch.
+ * Omitted parcelId (Print Label `{ orderId }` only): select the eligible / active
+ * parcel. Never pick a failed historical shipment merely because it is parcels[0].
  */
 
 import type { ShipmentParcel } from "@/lib/shipping/types";
@@ -11,9 +13,76 @@ export type ResolveShipmentParcelForLabelResult =
   | { status: "create" }
   | { status: "reject"; error: string };
 
+export const MULTIPLE_ELIGIBLE_PARCELS_FOR_LABEL =
+  "Multiple parcels are eligible for label generation.";
+
+export const NO_ELIGIBLE_PARCEL_FOR_LABEL =
+  "No parcel is eligible for label generation.";
+
+function hasUsableReadyLabel(parcel: ShipmentParcel): boolean {
+  return (
+    parcel.label?.status === "ready" &&
+    Boolean(parcel.trackingNumber?.trim()) &&
+    Boolean(parcel.label.pdfUrl)
+  );
+}
+
+function hasProviderShipmentIdentity(parcel: ShipmentParcel): boolean {
+  return (parcel.providerParcelId ?? 0) > 0;
+}
+
+/**
+ * Existing-field failed / historical shipment — no new status vocabulary.
+ * Uses SHIPPING_STATUSES, label.void, parcel_operation, and leftover
+ * collected/in-flight rows that never received tracking or a provider id.
+ */
+export function isFailedHistoricalParcel(parcel: ShipmentParcel): boolean {
+  if (parcel.status === "failed" || parcel.status === "cancelled") return true;
+  if (parcel.status === "lost" || parcel.status === "returned") return true;
+  if (parcel.label?.status === "void") return true;
+  if (
+    parcel.operation === "lost" ||
+    parcel.operation === "return" ||
+    parcel.operation === "damaged"
+  ) {
+    return true;
+  }
+  if (hasUsableReadyLabel(parcel) || hasProviderShipmentIdentity(parcel)) {
+    return false;
+  }
+  if (parcel.trackingNumber?.trim()) return false;
+  if (parcel.status === "preparing") return false;
+  return true;
+}
+
+/** Preparing row with no successful announce identity — valid for a new label. */
+export function isEligibleForNewLabel(parcel: ShipmentParcel): boolean {
+  if (isFailedHistoricalParcel(parcel)) return false;
+  if (hasUsableReadyLabel(parcel)) return false;
+  if (hasProviderShipmentIdentity(parcel)) return false;
+  if (parcel.trackingNumber?.trim()) return false;
+  return parcel.status === "preparing";
+}
+
+/** Successful or in-flight announce — reprint / hydrate, do not re-announce blindly. */
+export function isActiveAnnouncedOrReadyParcel(parcel: ShipmentParcel): boolean {
+  if (isFailedHistoricalParcel(parcel)) return false;
+  return (
+    hasUsableReadyLabel(parcel) ||
+    hasProviderShipmentIdentity(parcel) ||
+    Boolean(parcel.trackingNumber?.trim())
+  );
+}
+
+function pickHighestParcelNumber(parcels: ShipmentParcel[]): ShipmentParcel {
+  return parcels.reduce((best, current) =>
+    current.parcelNumber > best.parcelNumber ? current : best,
+  );
+}
+
 /**
  * Pure selection — no DB I/O.
- * `orderParcels` must already be ordered by parcel_number ascending (listShipmentParcelsForOrder).
+ * `orderParcels` should be the full order list (any order).
  */
 export function resolveShipmentParcelForLabel(input: {
   shippingRecordId: string;
@@ -34,9 +103,25 @@ export function resolveShipmentParcelForLabel(input: {
     return { status: "use", parcel: input.loadedExplicitParcel };
   }
 
-  if (input.orderParcels.length > 0) {
-    return { status: "use", parcel: input.orderParcels[0]! };
+  if (input.orderParcels.length === 0) {
+    return { status: "create" };
   }
 
-  return { status: "create" };
+  const eligible = input.orderParcels.filter(isEligibleForNewLabel);
+  if (eligible.length === 1) {
+    return { status: "use", parcel: eligible[0]! };
+  }
+  if (eligible.length > 1) {
+    return { status: "reject", error: MULTIPLE_ELIGIBLE_PARCELS_FOR_LABEL };
+  }
+
+  const active = input.orderParcels.filter(isActiveAnnouncedOrReadyParcel);
+  if (active.length === 1) {
+    return { status: "use", parcel: active[0]! };
+  }
+  if (active.length > 1) {
+    return { status: "use", parcel: pickHighestParcelNumber(active) };
+  }
+
+  return { status: "reject", error: NO_ELIGIBLE_PARCEL_FOR_LABEL };
 }

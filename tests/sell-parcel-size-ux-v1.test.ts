@@ -23,15 +23,13 @@ describe("Sell Parcel Size UX v1.0", () => {
     expect(PARCEL_SIZE_OPTIONS.some((o) => o.id === "xl")).toBe(false);
   });
 
-  it("6–9. exact subtitles", () => {
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe(
-      "Envelope or small parcel",
-    );
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Medium parcel");
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "large")?.description).toBe("Large parcel");
+  it("6–9. exact weight lines (no carrier / Sendcloud copy)", () => {
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: 1–2 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "large")?.description).toBe("Weight: 2–15 kg");
 
     for (const def of CANONICAL_PARCEL_SIZES_V1) {
-      expect(def.sellSubtitle).toBe(PARCEL_SIZE_OPTIONS.find((o) => o.id === def.id)!.description);
+      expect(def.sellWeightLine).toBe(PARCEL_SIZE_OPTIONS.find((o) => o.id === def.id)!.description);
     }
   });
 
@@ -42,7 +40,8 @@ describe("Sell Parcel Size UX v1.0", () => {
         formatCanonicalMaxDimensionsLine(def),
       );
       expect(PARCEL_CARD_PRESENTATION[def.id].title).toBe(def.sellLabel);
-      expect(PARCEL_CARD_PRESENTATION[def.id].subtitle).toBe(def.sellSubtitle);
+      expect(PARCEL_CARD_PRESENTATION[def.id].weight).toBe(def.sellWeightLine);
+      expect(PARCEL_CARD_PRESENTATION[def.id].subtitle).toBe(def.sellWeightLine);
     }
 
     const ui = readFileSync("features/sell/ui/SellParcelBlock.tsx", "utf8");
@@ -81,6 +80,8 @@ describe("Sell Parcel Size UX v1.0", () => {
     );
     expect(PARCEL_CARD_PRESENTATION.small.maxDimensions).toBe("Max dimensions: 45 × 35 × 16 cm");
     expect(PARCEL_CARD_PRESENTATION.small.maxDimensions).not.toContain("45 × 10 × 10");
-    expect(PARCEL_CARD_PRESENTATION.large.maxDimensions).toMatch(/not published by Sendcloud for EVRi/i);
+    expect(PARCEL_CARD_PRESENTATION.large.maxDimensions).toBe("Max dimensions: Max length 120 cm");
+    expect(PARCEL_CARD_PRESENTATION.large.maxDimensions).not.toMatch(/15\.001|Sendcloud|EVRi/i);
+    expect(ui).not.toMatch(/Packaging guide|PARCEL_PACKAGING_GUIDE|Sendcloud|15\.001/);
   });
 });

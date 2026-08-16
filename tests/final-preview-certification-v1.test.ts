@@ -133,10 +133,8 @@ describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
       "LARGE",
     ]);
     expect(PARCEL_SIZE_OPTIONS.some((o) => /custom|EXTRA/i.test(o.label))).toBe(false);
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Medium parcel");
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe(
-      "Envelope or small parcel",
-    );
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: 1–2 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1 kg");
     expect(PARCEL_SIZE_OPTIONS.every((o) => !o.recommended)).toBe(true);
   });
 

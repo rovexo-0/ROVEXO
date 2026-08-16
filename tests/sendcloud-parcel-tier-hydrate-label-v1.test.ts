@@ -40,7 +40,7 @@ describe("parcel_tier hydrate → label measurements", () => {
     expect(hydrated?.weightKg).toBe(quoteSpec.weightKg);
     // Sendcloud-derived Small envelope (size=s) — never 45×10×10.
     expect(hydrated).toEqual({
-      weightKg: 2,
+      weightKg: 1,
       lengthCm: 45,
       widthCm: 35,
       heightCm: 16,

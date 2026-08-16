@@ -191,7 +191,7 @@ export async function generateShippingLabelForOrder(
     return rovexoValidationFailure("Shipping record not found.");
   }
 
-  // P7.25: reuse Auto Single Parcel (parcels[0]) when parcelId omitted — never spawn extras.
+  // ParcelId omitted (Print Label { orderId }): eligibility resolver — never spawn extras.
   // Explicit parcelId: ownership-checked; never create a substitute on miss/mismatch.
   const explicitParcelId = parcelId?.trim() || null;
   const loadedExplicitParcel = explicitParcelId

@@ -105,7 +105,7 @@ describe("Canonical Carrier Quote Selection V1.0", () => {
 
   for (const size of sizes) {
     for (const carrier of ["Evri", "Royal Mail"] as const) {
-      it(`${size.toUpperCase()}_${carrier.replace(/\s+/g, "_").toUpperCase()} — cheapest eligible +10p`, () => {
+      it(`${size.toUpperCase()}_${carrier.replace(/\s+/g, "_").toUpperCase()} — cheapest eligible +15p`, () => {
         const parcel = parcelFor(size);
         const options = mapProviderQuotesToCheckoutOptions(buildMatrixQuotes(), { parcel });
         const card = options.find((o) => o.carrier === carrier)!;
@@ -115,8 +115,8 @@ describe("Canonical Carrier Quote Selection V1.0", () => {
 
         const expectedProvider = carrier === "Evri" ? 305 : 304;
         expect(card.providerPricePence).toBe(expectedProvider);
-        expect(card.buyerPricePence).toBe(expectedProvider + 10);
-        expect(card.buyerPricePence - card.providerPricePence).toBe(10);
+        expect(card.buyerPricePence).toBe(expectedProvider + 15);
+        expect(card.buyerPricePence - card.providerPricePence).toBe(15);
       });
     }
   }
@@ -126,15 +126,23 @@ describe("Canonical Carrier Quote Selection V1.0", () => {
       parcel: parcelFor("small"),
     });
     expect(options.find((o) => o.carrier === "Evri")?.providerPricePence).toBe(305);
-    expect(options.find((o) => o.carrier === "Evri")?.buyerPricePence).toBe(315);
+    expect(options.find((o) => o.carrier === "Evri")?.buyerPricePence).toBe(320);
     expect(options.find((o) => o.carrier === "Royal Mail")?.providerPricePence).toBe(304);
-    expect(options.find((o) => o.carrier === "Royal Mail")?.buyerPricePence).toBe(314);
+    expect(options.find((o) => o.carrier === "Royal Mail")?.buyerPricePence).toBe(319);
     expect(options.find((o) => o.carrier === "DPD")).toBeUndefined();
   });
 
   it("4–5. cheapest quote ineligible → next eligible (never force cheapest)", () => {
-    const parcel = parcelFor("small"); // weightKg = 2
+    const parcel = parcelFor("small"); // weightKg = 1 (Owner 0–1 kg band)
     const quotes = [
+      quote({
+        id: "evri-half",
+        carrier: "Evri",
+        serviceName: "EVRi 0–0.5kg",
+        pricePence: 200,
+        minWeightKg: 0,
+        maxWeightKg: 0.5,
+      }),
       quote({
         id: "evri-01kg",
         carrier: "Evri",
@@ -142,14 +150,6 @@ describe("Canonical Carrier Quote Selection V1.0", () => {
         pricePence: 305,
         minWeightKg: 0,
         maxWeightKg: 1,
-      }),
-      quote({
-        id: "evri-12kg",
-        carrier: "Evri",
-        serviceName: "EVRi 1–2kg",
-        pricePence: 345,
-        minWeightKg: 1,
-        maxWeightKg: 2,
       }),
       quote({
         id: "evri-25kg",
@@ -163,28 +163,29 @@ describe("Canonical Carrier Quote Selection V1.0", () => {
 
     expect(isQuoteWeightEligibleForParcel(quotes[0]!, parcel)).toBe(false);
     expect(isQuoteWeightEligibleForParcel(quotes[1]!, parcel)).toBe(true);
+    expect(isQuoteWeightEligibleForParcel(quotes[2]!, parcel)).toBe(false);
 
     const best = selectBestQuoteForCarrier(quotes, { parcel });
-    expect(best?.id).toBe("evri-12kg");
-    expect(best?.pricePence).toBe(345);
+    expect(best?.id).toBe("evri-01kg");
+    expect(best?.pricePence).toBe(305);
 
     const [card] = mapProviderQuotesToCheckoutOptions(quotes, { parcel });
-    expect(card?.providerPricePence).toBe(345);
-    expect(card?.buyerPricePence).toBe(355);
+    expect(card?.providerPricePence).toBe(305);
+    expect(card?.buyerPricePence).toBe(320);
   });
 
-  it("6–7. +10p exactly once · double margin invariant", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
+  it("6–7. +15p exactly once · double margin invariant", () => {
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
     for (const p of [305, 304, 698, 441]) {
       const buyer = toBuyerShippingPricePence(p);
-      expect(buyer - p).toBe(10);
+      expect(buyer - p).toBe(15);
     }
     const [card] = mapProviderQuotesToCheckoutOptions(
       [quote({ id: "x", carrier: "Evri", serviceName: "S", pricePence: 305 })],
       { parcel: parcelFor("small") },
     );
-    expect(card!.buyerPricePence - card!.providerPricePence).toBe(10);
-    expect(card!.price).toBe(3.15);
+    expect(card!.buyerPricePence - card!.providerPricePence).toBe(15);
+    expect(card!.price).toBe(3.2);
   });
 
   it("8–9. one card per carrier · InPost/DPD = 0 · max 2 cards", () => {

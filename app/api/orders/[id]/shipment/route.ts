@@ -13,7 +13,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
   const { id } = await params;
   const order = await fetchOrderForUser(id, auth.user.id);
-  if (!order || getOrderViewRole(order, auth.user.id) !== "seller") {
+  const role = order ? getOrderViewRole(order, auth.user.id) : null;
+  if (!order || (role !== "seller" && role !== "buyer")) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
   }
 

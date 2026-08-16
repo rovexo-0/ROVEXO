@@ -1,23 +1,23 @@
 /**
  * ROVEXO v1.0 — canonical buyer shipping price (integer pence only).
  *
- * BUYER_SHIPPING_PRICE_PENCE = RAW_PROVIDER_PRICE_PENCE + 10
+ * BUYER_SHIPPING_PRICE_PENCE = RAW_PROVIDER_PRICE_PENCE + 15
  *
  * One calculation for checkout display · checkout total · order persistence.
  * Never floating-point money arithmetic. Never hardcode buyer display prices.
  *
- * Distinct from INTERNAL_LABEL_PLATFORM_FEE_PENCE (label generation revenue).
+ * Sole buyer shipping margin. The old internal label stamp is not a second fee.
  */
 
-/** Exactly 10 pence per shipping label / quote — buyer-facing margin. */
-export const BUYER_SHIPPING_MARGIN_PENCE = 10 as const;
+/** Exactly 15 pence per shipping quote — buyer-facing margin. */
+export const BUYER_SHIPPING_MARGIN_PENCE = 15 as const;
 
 export const BUYER_SHIPPING_PRICE_V1 = {
-  version: "v1.0",
+  version: "v1.1",
   currency: "GBP" as const,
   moneyUnit: "PENCE" as const,
   marginPence: BUYER_SHIPPING_MARGIN_PENCE,
-  equation: "BUYER = PROVIDER_PENCE + 10",
+  equation: "BUYER = PROVIDER_PENCE + 15",
 } as const;
 
 function toNonNegativeIntPence(value: number): number {

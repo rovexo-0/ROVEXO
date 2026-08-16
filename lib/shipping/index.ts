@@ -53,11 +53,13 @@ export {
 
 export {
   CANONICAL_PARCEL_SIZES_V1,
+  OWNER_APPROVED_PARCEL_BANDS_V1,
   PARCEL_SIZE_CANONICAL_V1,
   resolveCanonicalParcelSize,
   canonicalParcelMeasurements,
   formatCanonicalParcelSummary,
   formatCanonicalMaxDimensionsLine,
+  formatCanonicalMaxWeightLine,
   getV1_0ParcelShippingDetailsBlocks,
 } from "@/lib/shipping/canonical-parcel-size-v1";
 

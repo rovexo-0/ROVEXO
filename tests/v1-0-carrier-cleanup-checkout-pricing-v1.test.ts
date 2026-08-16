@@ -1,5 +1,5 @@
 /**
- * ROVEXO v1.0 — carrier cleanup + checkout buyer pricing (+10p) + icons.
+ * ROVEXO v1.0 — carrier cleanup + checkout buyer pricing (+15p) + icons.
  * ACTIVE: EVRi · Royal Mail · HIDDEN: DPD · InPost
  */
 import { describe, expect, it } from "vitest";
@@ -73,14 +73,14 @@ describe("v1.0 carrier whitelist", () => {
 });
 
 describe("v1.0 buyer shipping price (integer pence)", () => {
-  it("uses +10 pence margin and integer pence only", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
-    expect(toBuyerShippingPricePence(200)).toBe(210);
-    expect(toBuyerShippingPricePence(304)).toBe(314);
-    expect(toBuyerShippingPricePence(388)).toBe(398);
-    expect(penceToGbpMajor(210)).toBe(2.1);
-    expect(penceToGbpMajor(314)).toBe(3.14);
-    expect(penceToGbpMajor(398)).toBe(3.98);
+  it("uses +15 pence margin and integer pence only", () => {
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
+    expect(toBuyerShippingPricePence(200)).toBe(215);
+    expect(toBuyerShippingPricePence(304)).toBe(319);
+    expect(toBuyerShippingPricePence(388)).toBe(403);
+    expect(penceToGbpMajor(215)).toBe(2.15);
+    expect(penceToGbpMajor(319)).toBe(3.19);
+    expect(penceToGbpMajor(403)).toBe(4.03);
 
     const src = readFileSync("lib/shipping/pricing/buyer-shipping-price-v1.ts", "utf8");
     expect(src).not.toMatch(/\*\s*0\.\d+/);
@@ -96,8 +96,8 @@ describe("v1.0 buyer shipping price (integer pence)", () => {
     ]);
     expect(options).toHaveLength(2);
     expect(options.map((o) => o.carrier)).toEqual(["Evri", "Royal Mail"]);
-    expect(options.find((o) => o.carrier === "Royal Mail")!.price).toBe(2.1);
-    expect(options.find((o) => o.carrier === "Evri")!.price).toBe(3.98);
+    expect(options.find((o) => o.carrier === "Royal Mail")!.price).toBe(2.15);
+    expect(options.find((o) => o.carrier === "Evri")!.price).toBe(4.03);
 
     const shippingQuotesSrc = readFileSync("lib/checkout/map-provider-quotes-to-checkout-v1.ts", "utf8");
     expect(shippingQuotesSrc).not.toMatch(/2\.10|3\.14|3\.98/);
@@ -115,7 +115,7 @@ describe("v1.0 buyer shipping price (integer pence)", () => {
       listingShippingPrice: 9.99,
     });
     expect(delivery).toBe(option!.price);
-    expect(delivery).toBe(2.1);
+    expect(delivery).toBe(2.15);
     expect(Math.round((delivery ?? 0) * 100)).toBe(option!.buyerPricePence);
   });
 });

@@ -72,7 +72,7 @@ describe("Checkout Carrier Grouping v1.0", () => {
     expect(options).toHaveLength(1);
     expect(options[0]!.carrier).toBe("Evri");
     expect(options[0]!.providerPricePence).toBe(305);
-    expect(options[0]!.buyerPricePence).toBe(315);
+    expect(options[0]!.buyerPricePence).toBe(320);
   });
 
   it("equal provider price → shorter delivery · then deterministic id", () => {

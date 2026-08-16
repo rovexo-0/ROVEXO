@@ -38,7 +38,8 @@ describe("Parcel Size v1.0 canonical SSOT", () => {
     ]);
     for (const def of CANONICAL_PARCEL_SIZES_V1) {
       expect(def.customerFacing).toBe(true);
-      expect(def.sendcloudDerived).toBe(true);
+      expect(def.ownerApproved).toBe(true);
+      expect(def.sendcloudDerived).toBe(false);
       expect(def.weightKg).toBeGreaterThan(0);
       expect(def.lengthCm).toBeGreaterThan(0);
       expect(def.widthCm).toBeGreaterThan(0);
@@ -51,7 +52,7 @@ describe("Parcel Size v1.0 canonical SSOT", () => {
     for (const option of PARCEL_SIZE_OPTIONS) {
       const def = resolveCanonicalParcelSize(option.id);
       expect(def).not.toBeNull();
-      expect(option.description).toBe(def!.sellSubtitle);
+      expect(option.description).toBe(def!.sellWeightLine);
       expect(option.label).toBe(def!.sellLabel);
       expect(PARCEL_CARD_PRESENTATION[option.id].maxDimensions).toBe(
         formatCanonicalMaxDimensionsLine(def!),
@@ -102,14 +103,14 @@ describe("Parcel Size v1.0 canonical SSOT", () => {
     expect(small).not.toEqual(parcelTierToDimensions("medium_parcel"));
   });
 
-  it("12. Small uses Sendcloud size=s envelope — never 45×10×10", () => {
+  it("12. Small uses Owner 0–1 kg band — never 2 kg / 45×10×10", () => {
     const small = resolveCanonicalParcelSize("small")!;
-    expect(small.weightKg).toBe(2);
+    expect(small.weightKg).toBe(1);
     expect(small.lengthCm).toBe(45);
     expect(small.widthCm).toBe(35);
     expect(small.heightCm).toBe(16);
     expect(parcelTierToDimensions("small_parcel")).toEqual({
-      weightKg: 2,
+      weightKg: 1,
       lengthCm: 45,
       widthCm: 35,
       heightCm: 16,
@@ -138,8 +139,8 @@ describe("Parcel Size v1.0 canonical SSOT", () => {
     expect(sellParcel).not.toContain("getV1_0ParcelShippingDetailsBlocks");
   });
 
-  it("buyer margin +10p remains singular", () => {
-    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(10);
+  it("buyer margin +15p remains singular", () => {
+    expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
     const q: ShippingQuote = {
       id: "t",
       providerId: "sendcloud",

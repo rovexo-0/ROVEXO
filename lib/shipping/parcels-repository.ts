@@ -1,5 +1,6 @@
 import "server-only";
 
+import { nextAppendParcelNumber } from "@/lib/shipping/append-shipment-parcel-without-renumber-v1";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ensureShippingRecord } from "@/lib/shipping/store";
 import type { ShipmentParcel, ShipmentParcelLabel, ShippingStatus, ParcelOperation } from "@/lib/shipping/types";
@@ -34,7 +35,14 @@ type LabelRow = {
   label_url: string | null;
   pdf_storage_path: string | null;
   label_status: string;
+  provider_parcel_id?: string | null;
 };
+
+function parseProviderParcelId(raw: string | null | undefined): number | null {
+  if (!raw) return null;
+  const parsed = Number.parseInt(String(raw).trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
 
 function mapParcelRow(row: ParcelRow, label: LabelRow | null): ShipmentParcel {
   const pdfPath = label?.label_storage_path ?? label?.pdf_storage_path ?? null;
@@ -77,6 +85,7 @@ function mapParcelRow(row: ParcelRow, label: LabelRow | null): ShipmentParcel {
                 : "pending",
         }
       : null,
+    providerParcelId: parseProviderParcelId(label?.provider_parcel_id),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -88,7 +97,7 @@ async function fetchLabelsByParcelIds(parcelIds: string[]): Promise<Map<string, 
   const admin = createShippingAdminClient();
   const { data } = await admin
     .from("shipping_labels_v1")
-    .select("id, shipment_parcel_id, label_storage_path, label_url, pdf_storage_path, label_status")
+    .select("id, shipment_parcel_id, label_storage_path, label_url, pdf_storage_path, label_status, provider_parcel_id")
     .in("shipment_parcel_id", parcelIds);
 
   const map = new Map<string, LabelRow>();
@@ -226,6 +235,63 @@ export async function createShipmentParcel(input: {
   return getShipmentParcelById((data as ParcelRow).id);
 }
 
+/**
+ * Append one parcel. next = max(parcel_number)+1.
+ * Never calls renumberParcels. Never updates existing parcel rows.
+ */
+export async function appendShipmentParcelWithoutRenumbering(input: {
+  orderId: string;
+  productItemIds?: string[];
+  weightKg?: number | null;
+  lengthCm?: number | null;
+  widthCm?: number | null;
+  heightCm?: number | null;
+  carrier?: string | null;
+  shippingService?: string | null;
+  insuranceEnabled?: boolean;
+  insuranceValueGbp?: number | null;
+}): Promise<ShipmentParcel | null> {
+  const record = await ensureShippingRecord({ orderId: input.orderId });
+  if (!record) return null;
+
+  const admin = createShippingAdminClient();
+  const { data: existing } = await admin
+    .from("shipment_parcels")
+    .select("id, parcel_number")
+    .eq("shipping_record_id", record.id)
+    .order("parcel_number", { ascending: true });
+
+  const existingRows =
+    (existing as Array<{ id: string; parcel_number: number }> | null) ?? [];
+  const nextNumber = nextAppendParcelNumber(
+    existingRows.map((row) => row.parcel_number),
+  );
+
+  const { data, error } = await admin
+    .from("shipment_parcels")
+    .insert({
+      shipping_record_id: record.id,
+      parcel_number: nextNumber,
+      total_parcels: nextNumber,
+      weight_kg: input.weightKg ?? null,
+      length_cm: input.lengthCm ?? null,
+      width_cm: input.widthCm ?? null,
+      height_cm: input.heightCm ?? null,
+      carrier: input.carrier ?? null,
+      shipping_service: input.shippingService ?? null,
+      product_item_ids: input.productItemIds ?? [],
+      insurance_enabled: input.insuranceEnabled ?? false,
+      insurance_value_gbp: input.insuranceValueGbp ?? null,
+      status: "preparing",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) return null;
+
+  return getShipmentParcelById((data as ParcelRow).id);
+}
+
 export async function updateShipmentParcel(
   parcelId: string,
   patch: Partial<{
@@ -294,8 +360,10 @@ export async function attachLabelToParcel(input: {
     labelUrl: string | null;
     status: ShipmentParcelLabel["status"];
   };
+  /** Ignored — column retained for history; new writes must not stamp a label fee. */
   internalPlatformFeePence?: number;
 }): Promise<ShipmentParcel | null> {
+  void input.internalPlatformFeePence;
   const parcel = await getShipmentParcelById(input.parcelId);
   if (!parcel) return null;
 
@@ -314,7 +382,6 @@ export async function attachLabelToParcel(input: {
     label_storage_path: input.label.pdfUrl,
     carrier: input.label.carrier,
     label_status: input.label.status,
-    internal_platform_fee_pence: input.internalPlatformFeePence ?? 0,
     provider_parcel_id:
       input.providerParcelId != null && input.providerParcelId > 0
         ? String(input.providerParcelId)

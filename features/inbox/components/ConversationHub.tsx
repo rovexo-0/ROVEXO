@@ -88,6 +88,7 @@ import {
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
 import { getViewerRole } from "@/lib/messages/types";
 import { formatMessageTime } from "@/lib/messages/utils";
+import { getTrackingUrl } from "@/lib/orders/status";
 import type { Order } from "@/lib/orders/types";
 import type { CanonicalResolutionActionId } from "@/lib/inbox/canonical-buyer-seller-resolution-v1";
 import { isUnauthorizedSellerResolutionAction } from "@/lib/inbox/canonical-buyer-seller-resolution-v1";
@@ -105,8 +106,6 @@ import { invalidateShareInflight, shareInflightJson } from "@/lib/performance/fe
 import { bumpInboxConversationPreview } from "@/lib/inbox/inbox-list-cache";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
 /* conversation-hub-v1.css is page-scoped on this module (P0-01) — do not dual-import via index.css. */
-
-const EVRI_PUBLIC_TRACK_PARCEL_URL = "https://www.evri.com/track-a-parcel";
 
 /**
  * Compact Offer/Counter product thumb(s) — horizontal, max 3 slots, no overlap stack.
@@ -1728,9 +1727,23 @@ export function ConversationHub({
           title: "Tracking will appear once the carrier scans your parcel.",
           variant: "info",
         });
+        return;
       }
-      /* Evri public track-a-parcel has no supported URL prefill. Keep AWB in canonical data only. */
-      window.location.assign(EVRI_PUBLIC_TRACK_PARCEL_URL);
+      const carrier = (
+        activeShippingLabel?.carrier ||
+        view.tracking?.courierName ||
+        order?.deliveryCarrier ||
+        "Royal Mail"
+      ).trim() as Order["deliveryCarrier"];
+      const trackingUrl = getTrackingUrl(carrier, trackingNumber);
+      if (!trackingUrl) {
+        pushToast({
+          title: "Tracking will appear once the carrier scans your parcel.",
+          variant: "info",
+        });
+        return;
+      }
+      window.location.assign(trackingUrl);
       return;
     }
     if (actionId === "buy_now" || actionId === "resume_payment") {
@@ -2822,6 +2835,7 @@ export function ConversationHub({
                   key={order.id}
                   initialOrder={order}
                   userId={profile.id}
+                  activeLabelCarrier={activeShippingLabel?.carrier ?? null}
                   buyerCanCancel={
                     view.viewerRole === "buyer" &&
                     isBuyerCancellableOrderStatus(order.status) &&

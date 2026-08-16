@@ -67,6 +67,7 @@ export function sellerPageMetadata(input: {
   rating?: number | null;
   reviewCount?: number;
   followersCount?: number;
+  storeDescription?: string | null;
 }): Metadata {
   const listingsKnown = input.listingCount != null;
   const share = toStoreShareData({
@@ -78,6 +79,7 @@ export function sellerPageMetadata(input: {
     reviewCount: input.reviewCount,
     activeListingsCount: input.listingCount ?? 0,
     followersCount: input.followersCount,
+    storeDescription: input.storeDescription,
   });
   const meta = buildStoreShareMetadata(share, { listingsKnown });
   const noIndex = input.listingCount == null || input.listingCount <= 0;
@@ -93,7 +95,15 @@ export function sellerPageMetadata(input: {
       siteName: "ROVEXO",
       locale: "en_GB",
       type: "website",
-      images: [{ url: meta.ogImageUrl, width: 1200, height: 630, alt: meta.title }],
+      images: [
+        {
+          url: meta.ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: meta.title,
+          type: "image/png",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
