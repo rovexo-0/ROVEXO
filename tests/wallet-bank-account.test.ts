@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   accountNumberLast4,
+  formatMaskedAccountLast4,
+  formatMaskedSortCodeLast2,
   formatSortCode,
   isValidAccountNumber,
   isValidSortCode,
   normalizeUkAccountNumber,
+  resolveBankAccountDisplayName,
   validateBankAccountInput,
 } from "@/lib/wallet/bank-account";
+
+function readSource(relativePath: string): string {
+  return readFileSync(join(process.cwd(), relativePath), "utf8");
+}
 
 describe("UK sort code validation", () => {
   it("accepts 6 digits with or without separators", () => {
@@ -101,5 +110,48 @@ describe("validateBankAccountInput", () => {
       expect(result.errors.sortCode).toBeDefined();
       expect(result.errors.accountNumber).toBeDefined();
     }
+  });
+});
+
+describe("Bank Account identification display", () => {
+  it("masks last 4 and sort last 2 only", () => {
+    expect(formatMaskedAccountLast4("1234")).toBe("•••• 1234");
+    expect(formatMaskedAccountLast4("")).toBe("•••• ••••");
+    expect(formatMaskedSortCodeLast2("19")).toBe("Sort code ••-••-19");
+    expect(formatMaskedSortCodeLast2(null)).toBe("Sort code ••-••-••");
+  });
+
+  it("uses the stored label and never invents a bank brand", () => {
+    expect(resolveBankAccountDisplayName("Bank account")).toBe("Bank Account");
+    expect(resolveBankAccountDisplayName("")).toBe("Bank Account");
+    expect(resolveBankAccountDisplayName("Custom payout label")).toBe("Custom payout label");
+  });
+
+  it("keeps the identification card on the existing modal without a second edit flow", () => {
+    const form = readSource("features/wallet/components/BankAccountForm.tsx");
+    const route = readSource("app/api/wallet/bank-account/route.ts");
+    const store = readSource("lib/wallet/store.ts");
+
+    expect(form).toContain("data-bank-account-id-card");
+    expect(form).toContain("BankLineIcon");
+    expect(form).toContain("formatMaskedAccountLast4");
+    expect(form).toContain("formatMaskedSortCodeLast2");
+    expect(form).toContain("Connected");
+    expect(form).toContain("focusExistingForm");
+    expect(form).toContain("Account Holder");
+    expect(form).toContain("Confirm Account Number");
+    expect(form).not.toMatch(/Barclays|HSBC|Lloyds|NatWest|Santander/);
+    expect(form).not.toContain("console.log");
+    expect(form).not.toContain("getBankAccountForPayout");
+
+    expect(route).toContain("export async function GET");
+    expect(route).toContain("getBankAccountDisplaySummary");
+    expect(route).toContain("sortCodeLast2");
+    expect(route).not.toContain("account_number");
+    expect(route).not.toContain("sort_code");
+
+    expect(store).toContain("getBankAccountDisplaySummary");
+    expect(store).toContain("digits.slice(-2)");
+    expect(store).not.toContain("BANK_DETAILS_ENCRYPTION_KEY");
   });
 });

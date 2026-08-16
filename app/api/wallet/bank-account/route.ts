@@ -2,8 +2,31 @@ import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { validateBankAccountInput } from "@/lib/wallet/bank-account";
-import { removeBankAccount, saveBankAccount } from "@/lib/wallet/store";
+import { getBankAccountDisplaySummary, removeBankAccount, saveBankAccount } from "@/lib/wallet/store";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
+
+export async function GET(request: Request) {
+  const auth = await requireApiAuth(request);
+  if (auth instanceof NextResponse) {
+    return auth;
+  }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "wallet-bank-account", 20, 60_000);
+  if (limited) return limited;
+
+  const summary = await getBankAccountDisplaySummary(auth.user.id);
+  return NextResponse.json({
+    success: true,
+    summary: summary
+      ? {
+          connected: summary.connected,
+          displayName: summary.displayName,
+          lastDigits: summary.lastDigits,
+          sortCodeLast2: summary.sortCodeLast2,
+        }
+      : null,
+  });
+}
 
 export async function POST(request: Request) {
   const auth = await requireApiAuth(request);

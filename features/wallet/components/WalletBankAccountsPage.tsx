@@ -20,6 +20,7 @@ export const BANK_ACCOUNTS_UI_DOM = "v5.1-profile-inheritance" as const;
 
 type WalletBankAccountsPageProps = {
   personalConnected: boolean;
+  personalLastDigits?: string | null;
   connectStatus: ConnectPayoutStatus;
   isBusinessVerified: boolean;
   returnTo: string | null;
@@ -32,6 +33,7 @@ type WalletBankAccountsPageProps = {
  */
 export function WalletBankAccountsPage({
   personalConnected: initialPersonalConnected,
+  personalLastDigits = null,
   connectStatus,
   isBusinessVerified,
   returnTo,
@@ -64,6 +66,7 @@ export function WalletBankAccountsPage({
           <CanonicalCard variant="list" className="ba-profile__list">
             <PersonalAccountRow
               initialConnected={initialPersonalConnected}
+              lastDigits={personalLastDigits}
               returnTo={returnTo}
             />
             {showBusiness ? (
@@ -109,9 +112,11 @@ export function WalletBankAccountsPage({
 
 function PersonalAccountRow({
   initialConnected,
+  lastDigits,
   returnTo,
 }: {
   initialConnected: boolean;
+  lastDigits: string | null;
   returnTo: string | null;
 }) {
   const [connected, setConnected] = useState(initialConnected);
@@ -129,6 +134,7 @@ function PersonalAccountRow({
       <BankAccountModalLazy
         open={open}
         connected={connected}
+        lastDigits={lastDigits}
         onClose={() => setOpen(false)}
         onSaved={() => {
           setConnected(true);
@@ -189,6 +195,7 @@ function BusinessAccountRow({
 function BankAccountModalLazy({
   open,
   connected,
+  lastDigits,
   onClose,
   onSaved,
   onRemoved,
@@ -196,6 +203,7 @@ function BankAccountModalLazy({
 }: {
   open: boolean;
   connected: boolean;
+  lastDigits: string | null;
   onClose: () => void;
   onSaved: () => void;
   onRemoved: () => void;
@@ -231,6 +239,7 @@ function BankAccountModalLazy({
     <BankAccountForm
       open={open}
       connected={connected}
+      lastDigits={lastDigits}
       onClose={onClose}
       onSaved={() => {
         onSaved();

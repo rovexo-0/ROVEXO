@@ -47,4 +47,15 @@ describe("Bank Accounts v5.1 — Profile Master inheritance", () => {
     expect(bank).toContain("isValidAccountNumber");
     expect(bank).toContain("UK");
   });
+
+  it("adds a compact identification card to the existing Bank Account modal", () => {
+    const form = readSource("features/wallet/components/BankAccountForm.tsx");
+    const css = readSource("styles/rovexo/bank-accounts-v5.css");
+    expect(form).toContain("ba-id-card");
+    expect(form).toContain("Connected");
+    expect(form).toContain("Edit");
+    expect(css).toContain(".ba-id-card");
+    expect(css).toContain("#22c55e");
+    expect(css).toContain("#9333ea");
+  });
 });

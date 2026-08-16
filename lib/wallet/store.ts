@@ -8,6 +8,7 @@ import {
   reverseWithdrawalTransfer,
 } from "@/lib/stripe/withdraw-payout";
 import { mustUseVirtualWallet } from "@/lib/full-demo/security";
+import { resolveBankAccountDisplayName } from "@/lib/wallet/bank-account";
 import { decryptSensitive, encryptSensitive, isBankEncryptionConfigured } from "@/lib/wallet/crypto";
 import { isWalletMoneyEnvReady } from "@/lib/wallet/env-validation";
 import {
@@ -291,6 +292,56 @@ export async function saveBankAccount(input: {
   } catch {
     return null;
   }
+}
+
+export type BankAccountDisplaySummary = {
+  connected: boolean;
+  displayName: string;
+  lastDigits: string;
+  sortCodeLast2: string | null;
+};
+
+/**
+ * Public identification for the Bank Account modal.
+ * Returns last-4 and sort last-2 only. Never returns full sort code or account number.
+ */
+export async function getBankAccountDisplaySummary(
+  userId: string,
+): Promise<BankAccountDisplaySummary | null> {
+  const methods = await listWithdrawMethods(userId);
+  const method = methods.find((item) => item.provider === "bank_account" && item.connected);
+  if (!method) {
+    return null;
+  }
+
+  let sortCodeLast2: string | null = null;
+
+  if (isBankEncryptionConfigured()) {
+    try {
+      const admin = createAdminClient();
+      const { data } = await admin
+        .from("withdraw_methods")
+        .select("sort_code")
+        .eq("user_id", userId)
+        .eq("provider", "bank_account")
+        .maybeSingle();
+      if (data?.sort_code) {
+        const digits = decryptSensitive(data.sort_code).replace(/\D/g, "");
+        if (digits.length >= 2) {
+          sortCodeLast2 = digits.slice(-2);
+        }
+      }
+    } catch {
+      sortCodeLast2 = null;
+    }
+  }
+
+  return {
+    connected: true,
+    displayName: resolveBankAccountDisplayName(method.label),
+    lastDigits: method.lastDigits,
+    sortCodeLast2,
+  };
 }
 
 /**

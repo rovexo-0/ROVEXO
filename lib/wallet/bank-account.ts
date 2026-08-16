@@ -55,6 +55,32 @@ export function accountNumberLast4(value: string): string {
   return digitsOnly(value).slice(-4);
 }
 
+/** Masked account display from already-public last 4 only. Never accepts a full account number for UI. */
+export function formatMaskedAccountLast4(last4: string): string {
+  const digits = digitsOnly(last4).slice(-4);
+  if (digits.length !== 4) return "•••• ••••";
+  return `•••• ${digits}`;
+}
+
+/** Masked sort-code display from last 2 digits only. */
+export function formatMaskedSortCodeLast2(last2: string | null | undefined): string {
+  const digits = digitsOnly(last2 ?? "").slice(-2);
+  if (digits.length !== 2) return "Sort code ••-••-••";
+  return `Sort code ••-••-${digits}`;
+}
+
+/**
+ * Display name from the stored withdraw-method label only.
+ * No sort-code bank directory exists in this repository — never invent a brand.
+ */
+export function resolveBankAccountDisplayName(label: string | null | undefined): string {
+  const trimmed = (label ?? "").trim();
+  if (!trimmed || /^bank account$/i.test(trimmed)) {
+    return "Bank Account";
+  }
+  return trimmed;
+}
+
 export function validateBankAccountInput(input: BankAccountInput): BankAccountValidation {
   const errors: BankAccountErrors = {};
 

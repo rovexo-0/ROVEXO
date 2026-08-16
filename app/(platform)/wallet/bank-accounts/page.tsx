@@ -28,14 +28,15 @@ export default async function WalletBankAccountsRoute({
     fetchWalletData(),
     isBusinessVerifiedAccount(profile.id).catch(() => false),
   ]);
-  const personalConnected = data.withdrawMethods.some(
+  const personal = data.withdrawMethods.find(
     (method) => method.provider === "bank_account" && method.connected,
   );
 
   return (
     <Suspense fallback={<div className="p-ds-6 text-sm text-text-secondary">Loading…</div>}>
       <WalletBankAccountsPage
-        personalConnected={personalConnected}
+        personalConnected={Boolean(personal)}
+        personalLastDigits={personal?.lastDigits ?? null}
         connectStatus={data.connectStatus}
         isBusinessVerified={isBusinessVerified}
         returnTo={returnTo ?? null}

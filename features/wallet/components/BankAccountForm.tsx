@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { BankLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalModal } from "@/src/components/canonical";
 import {
+  formatMaskedAccountLast4,
+  formatMaskedSortCodeLast2,
   formatSortCode,
+  resolveBankAccountDisplayName,
   validateBankAccountInput,
   type BankAccountErrors,
 } from "@/lib/wallet/bank-account";
+import "@/styles/rovexo/bank-accounts-v5.css";
 
 type BankAccountFormProps = {
   open: boolean;
   connected: boolean;
+  lastDigits?: string | null;
   onClose: () => void;
   onSaved: () => void;
   onRemoved?: () => void;
+};
+
+type IdentificationSummary = {
+  displayName: string;
+  lastDigits: string;
+  sortCodeLast2: string | null;
 };
 
 const EMPTY = {
@@ -23,12 +35,54 @@ const EMPTY = {
   confirmAccountNumber: "",
 };
 
-export function BankAccountForm({ open, connected, onClose, onSaved, onRemoved }: BankAccountFormProps) {
+export function BankAccountForm({
+  open,
+  connected,
+  lastDigits = null,
+  onClose,
+  onSaved,
+  onRemoved,
+}: BankAccountFormProps) {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState<BankAccountErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [summary, setSummary] = useState<IdentificationSummary>({
+    displayName: "Bank Account",
+    lastDigits: lastDigits ?? "",
+    sortCodeLast2: null,
+  });
+
+  useEffect(() => {
+    if (!open || !connected) return;
+
+    let cancelled = false;
+    void fetch("/api/wallet/bank-account")
+      .then((response) => response.json())
+      .then((payload: {
+        success?: boolean;
+        summary?: {
+          displayName?: string;
+          lastDigits?: string;
+          sortCodeLast2?: string | null;
+        } | null;
+      }) => {
+        if (cancelled || !payload.success || !payload.summary) return;
+        setSummary({
+          displayName: resolveBankAccountDisplayName(payload.summary.displayName),
+          lastDigits: payload.summary.lastDigits ?? lastDigits ?? "",
+          sortCodeLast2: payload.summary.sortCodeLast2 ?? null,
+        });
+      })
+      .catch(() => {
+        /* keep last-4 from the already-public withdraw method */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [connected, lastDigits, open]);
 
   function reset() {
     setValues(EMPTY);
@@ -46,6 +100,14 @@ export function BankAccountForm({ open, connected, onClose, onSaved, onRemoved }
     const value = field === "sortCode" ? formatSortCode(raw) : raw;
     setValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function focusExistingForm() {
+    const field = document.getElementById("accountHolderName");
+    if (field instanceof HTMLElement) {
+      field.focus();
+      field.scrollIntoView({ block: "nearest" });
+    }
   }
 
   async function submit() {
@@ -110,6 +172,7 @@ export function BankAccountForm({ open, connected, onClose, onSaved, onRemoved }
   }
 
   const busy = submitting || removing;
+  const visibleLast4 = summary.lastDigits || lastDigits || "";
 
   return (
     <CanonicalModal
@@ -124,6 +187,34 @@ export function BankAccountForm({ open, connected, onClose, onSaved, onRemoved }
       onConfirm={() => void submit()}
     >
       <div className="flex flex-col gap-ds-4">
+        {connected ? (
+          <section className="ba-id-card" data-bank-account-id-card="v1" aria-label="Connected bank account">
+            <div className="ba-id-card__top">
+              <span className="ba-id-card__icon" aria-hidden>
+                <BankLineIcon />
+              </span>
+              <div className="ba-id-card__copy">
+                <p className="ba-id-card__name">{summary.displayName}</p>
+                <p className="ba-id-card__meta">{formatMaskedAccountLast4(visibleLast4)}</p>
+                <p className="ba-id-card__meta">{formatMaskedSortCodeLast2(summary.sortCodeLast2)}</p>
+              </div>
+            </div>
+            <div className="ba-id-card__footer">
+              <span className="ba-id-card__status">
+                <span className="ba-id-card__dot" aria-hidden />
+                Connected
+              </span>
+              <button
+                type="button"
+                className="ba-id-card__edit"
+                onClick={focusExistingForm}
+              >
+                Edit
+              </button>
+            </div>
+          </section>
+        ) : null}
+
         <CanonicalInput
           id="accountHolderName"
           label="Account Holder"

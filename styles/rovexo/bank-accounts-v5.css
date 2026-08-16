@@ -26,3 +26,100 @@
   width: 100%;
   max-width: none;
 }
+
+.ba-id-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #f0e6ff;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.ba-id-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ba-id-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #faf5ff;
+  color: #9333ea;
+}
+
+.ba-id-card__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ba-id-card__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.ba-id-card__name {
+  margin: 0;
+  color: #111111;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ba-id-card__meta {
+  margin: 2px 0 0;
+  color: #52525b;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.ba-id-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ba-id-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #22c55e;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ba-id-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.ba-id-card__edit {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9333ea;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.ba-id-card__edit:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
