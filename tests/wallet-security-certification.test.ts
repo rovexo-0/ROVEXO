@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildBuyerRefundIdempotencyKey,
   buildRefundIdempotencyKey,
   buildSaleIdempotencyKey,
   buildWithdrawIdempotencyKey,
@@ -41,6 +42,7 @@ describe("Wallet Security Certification v1.0 — primitives", () => {
     expect(a).toBe(b);
     expect(buildSaleIdempotencyKey("ORD-1", "seller")).toContain("sale:");
     expect(buildRefundIdempotencyKey("ord", "seller")).toContain("refund:");
+    expect(buildBuyerRefundIdempotencyKey("wallet-refund-1")).toBe("buyer-refund:wallet-refund-1");
   });
 
   it("counts only pending withdrawals as processing (failed = rolled back)", () => {

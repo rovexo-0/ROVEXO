@@ -31,6 +31,39 @@ export function buildRefundDescription(orderId: string): string {
   return `order:${orderId}`;
 }
 
+/** Buyer wallet-credit destination — never pair with a Stripe card refund (`re_`). */
+export const ROVEXO_WALLET_REFUND_METHOD = "ROVEXO Wallet";
+
+export function buildBuyerRefundIdempotencyKey(refundId: string): string {
+  return `buyer-refund:${refundId}`;
+}
+
+export function buildBuyerRefundDescription(orderId: string, refundId: string): string {
+  return `buyer-refund:order:${orderId}|refund:${refundId}`;
+}
+
+export function isStripeCardRefundReference(refundId: string): boolean {
+  return refundId.startsWith("re_");
+}
+
+/** True only for the ROVEXO wallet-credit path. Stripe card refunds are excluded. */
+export function isRovexoWalletRefundCreditEligible(input: {
+  refundId: string;
+  paymentMethod?: string | null;
+}): boolean {
+  if (!input.refundId || isStripeCardRefundReference(input.refundId)) {
+    return false;
+  }
+  if (input.paymentMethod === "Original payment method") {
+    return false;
+  }
+  return (
+    input.paymentMethod === ROVEXO_WALLET_REFUND_METHOD ||
+    input.refundId.startsWith("wallet-refund-") ||
+    input.refundId.startsWith("virtual-refund-")
+  );
+}
+
 /** Safe failure: never debit when amount is non-positive or exceeds available. */
 export function canDebitAvailable(available: number, amount: number): boolean {
   const a = roundWalletMoney(available);

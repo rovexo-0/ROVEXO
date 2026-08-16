@@ -73,6 +73,17 @@ describe("Wallet env validation — fail closed", () => {
     }
   });
 
+  it("allows bank_encrypt when only the encryption key is present", () => {
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.BANK_DETAILS_ENCRYPTION_KEY =
+      original.bank || Buffer.alloc(32, 7).toString("base64");
+
+    const result = validateWalletMoneyEnv("bank_encrypt");
+    expect(result.ok).toBe(true);
+  });
+
   it("lists Owner-controlled secrets without inventing values", () => {
     expect(OWNER_CONTROLLED_SECRET_KEYS).toEqual([
       "SUPABASE_SERVICE_ROLE_KEY",

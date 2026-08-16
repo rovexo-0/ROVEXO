@@ -238,8 +238,6 @@ export async function saveBankAccount(input: {
     return null;
   }
 
-  const admin = createAdminClient();
-
   let encryptedSort: string;
   let encryptedAccount: string;
   try {
@@ -249,33 +247,50 @@ export async function saveBankAccount(input: {
     return null;
   }
 
-  await admin
-    .from("withdraw_methods")
-    .delete()
-    .eq("user_id", input.userId)
-    .eq("provider", "bank_account");
+  const lastDigits = input.accountNumber.slice(-4);
+  const payload = {
+    provider: "bank_account" as const,
+    label: "Bank account",
+    last_digits: lastDigits,
+    connected: true,
+    is_default: true,
+    account_holder_name: input.accountHolderName,
+    sort_code: encryptedSort,
+    account_number: encryptedAccount,
+  };
 
-  const { data, error } = await admin
-    .from("withdraw_methods")
-    .insert({
-      user_id: input.userId,
-      provider: "bank_account",
-      label: "Bank account",
-      last_digits: input.accountNumber.slice(-4),
-      connected: true,
-      is_default: true,
-      account_holder_name: input.accountHolderName,
-      sort_code: encryptedSort,
-      account_number: encryptedAccount,
-    })
-    .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
-    .single();
+  try {
+    const admin = createAdminClient();
+    const { data: existing } = await admin
+      .from("withdraw_methods")
+      .select("id")
+      .eq("user_id", input.userId)
+      .eq("provider", "bank_account")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  if (error || !data) {
+    const query = existing
+      ? admin
+          .from("withdraw_methods")
+          .update(payload)
+          .eq("id", existing.id)
+          .eq("user_id", input.userId)
+      : admin.from("withdraw_methods").insert({
+          user_id: input.userId,
+          ...payload,
+        });
+
+    const { data, error } = await query.select(WITHDRAW_METHOD_PUBLIC_COLUMNS).single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return mapWithdrawMethod(data);
+  } catch {
     return null;
   }
-
-  return mapWithdrawMethod(data);
 }
 
 /**

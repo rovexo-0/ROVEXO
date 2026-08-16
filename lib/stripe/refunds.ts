@@ -1,7 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
+import { isStripeConfigured } from "@/lib/stripe/server";
 import { applyOrderRefundLifecycle } from "@/lib/orders/refund-lifecycle.server";
 import { mustUseVirtualPayments } from "@/lib/full-demo/security";
+import { ROVEXO_WALLET_REFUND_METHOD } from "@/lib/wallet/security";
 
 function isVirtualPaymentIntentId(paymentIntentId: string | null | undefined): boolean {
   if (!paymentIntentId) return false;
@@ -25,7 +26,7 @@ async function applyVirtualOrderRefund(
     refundId,
     amount,
     stripeStatus: "succeeded",
-    paymentMethod: "Original payment method",
+    paymentMethod: ROVEXO_WALLET_REFUND_METHOD,
     notifySeller: options?.notifySeller,
   });
   const { data: updated } = await admin
@@ -82,23 +83,15 @@ export async function createOrderStripeRefund(
     return applyVirtualOrderRefund(orderId, amount, options);
   }
 
-  const stripe = getStripeClient();
-  const refund = await stripe.refunds.create(
-    {
-      payment_intent: order.stripe_payment_intent_id,
-      reason: "requested_by_customer",
-      metadata: { orderId, orderNumber: order.order_number },
-    },
-    { idempotencyKey: `order-refund-${orderId}` },
-  );
-
-  const refundedAmount = Math.round(refund.amount) / 100;
+  // ROVEXO wallet-credit path: do NOT create a Stripe card refund.
+  // One financial outcome — wallet credit (idempotent) — then existing Withdraw.
+  const refundId = `wallet-refund-${orderId}`;
   const status = await applyOrderRefundLifecycle({
     orderId,
-    refundId: refund.id,
-    amount: refundedAmount,
-    stripeStatus: refund.status,
-    paymentMethod: "Original payment method",
+    refundId,
+    amount,
+    stripeStatus: "succeeded",
+    paymentMethod: ROVEXO_WALLET_REFUND_METHOD,
     notifySeller: options?.notifySeller,
   });
 
@@ -109,8 +102,8 @@ export async function createOrderStripeRefund(
     .maybeSingle();
 
   return {
-    refundId: refund.id,
-    refundedAmount,
+    refundId,
+    refundedAmount: amount,
     refundedAt: status === "completed" ? updated?.refund_completed_at ?? new Date().toISOString() : undefined,
   };
 }

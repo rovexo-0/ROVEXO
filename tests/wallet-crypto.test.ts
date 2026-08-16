@@ -45,6 +45,18 @@ describe("bank details column encryption — fail closed", () => {
     });
   });
 
+  describe("with a long non-32-byte secret", () => {
+    beforeEach(() => {
+      process.env.BANK_DETAILS_ENCRYPTION_KEY = "rovexo-owner-bank-secret-key";
+    });
+
+    it("derives a usable AES-256 key without inventing a missing secret", async () => {
+      const { encryptSensitive, decryptSensitive, isBankEncryptionConfigured } = await loadModule();
+      expect(isBankEncryptionConfigured()).toBe(true);
+      expect(decryptSensitive(encryptSensitive("00123456"))).toBe("00123456");
+    });
+  });
+
   describe("without a key set", () => {
     beforeEach(() => {
       delete process.env.BANK_DETAILS_ENCRYPTION_KEY;

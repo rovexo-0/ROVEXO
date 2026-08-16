@@ -33,9 +33,15 @@ export function isValidSortCode(value: string): boolean {
   return digitsOnly(value).length === 6;
 }
 
-/** UK account numbers are 8 digits (shorter ones should be zero-padded). */
+/** UK account numbers are 8 digits (7-digit values are accepted and zero-padded). */
 export function isValidAccountNumber(value: string): boolean {
-  return digitsOnly(value).length === 8;
+  const digits = digitsOnly(value);
+  return digits.length === 7 || digits.length === 8;
+}
+
+/** Normalize to an 8-digit string, preserving / adding leading zeroes. */
+export function normalizeUkAccountNumber(value: string): string {
+  return digitsOnly(value).padStart(8, "0").slice(-8);
 }
 
 /** Display helper: "123456" -> "12-34-56". */
@@ -64,7 +70,9 @@ export function validateBankAccountInput(input: BankAccountInput): BankAccountVa
     errors.sortCode = "Enter a valid 6-digit sort code.";
   }
 
-  const accountNumber = digitsOnly(input.accountNumber);
+  const accountNumber = isValidAccountNumber(input.accountNumber)
+    ? normalizeUkAccountNumber(input.accountNumber)
+    : digitsOnly(input.accountNumber);
   if (!isValidAccountNumber(input.accountNumber)) {
     errors.accountNumber = "Enter a valid 8-digit account number.";
   }
@@ -72,7 +80,7 @@ export function validateBankAccountInput(input: BankAccountInput): BankAccountVa
   const confirm = digitsOnly(input.confirmAccountNumber);
   if (!confirm) {
     errors.confirmAccountNumber = "Re-enter your account number.";
-  } else if (accountNumber && confirm !== accountNumber) {
+  } else if (accountNumber && normalizeUkAccountNumber(input.confirmAccountNumber) !== accountNumber) {
     errors.confirmAccountNumber = "Account numbers do not match.";
   }
 

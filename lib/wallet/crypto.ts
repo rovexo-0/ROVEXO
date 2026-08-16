@@ -15,16 +15,34 @@ const PREFIX = "enc:v1:";
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
 
+function isUnusableSecret(raw: string): boolean {
+  return (
+    raw === "[SENSITIVE]" ||
+    raw.startsWith("[SEN") ||
+    raw === "placeholder" ||
+    raw.endsWith("_placeholder")
+  );
+}
+
 function getKey(): Buffer | null {
   const raw = process.env.BANK_DETAILS_ENCRYPTION_KEY?.trim();
-  if (!raw) return null;
+  if (!raw || isUnusableSecret(raw)) return null;
 
-  const buffer =
-    raw.length === 64 && /^[0-9a-fA-F]+$/.test(raw)
-      ? Buffer.from(raw, "hex")
-      : Buffer.from(raw, "base64");
+  if (raw.length === 64 && /^[0-9a-fA-F]+$/.test(raw)) {
+    const hex = Buffer.from(raw, "hex");
+    return hex.length === 32 ? hex : null;
+  }
 
-  return buffer.length === 32 ? buffer : null;
+  const asB64 = Buffer.from(raw, "base64");
+  if (asB64.length === 32) return asB64;
+
+  // Owner-supplied secret that is not raw 32-byte hex/base64 — derive AES-256 key.
+  // Never invent a key when the env value is missing.
+  if (raw.length >= 16) {
+    return crypto.createHash("sha256").update(raw, "utf8").digest();
+  }
+
+  return null;
 }
 
 export function isBankEncryptionConfigured(): boolean {

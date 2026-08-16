@@ -116,16 +116,13 @@ export function validateWalletMoneyEnv(kind: MoneyMovementKind): WalletEnvValida
   const virtual = mustUseVirtualWallet() || mustUseVirtualPayments();
   const required: WalletMoneyEnvKey[] = [];
 
-  // Public URLs always required for wallet money surfaces.
-  required.push("NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL");
-
-  // Admin ledger always required for money movement (except pure encrypt of new bank details).
-  if (kind !== "bank_encrypt") {
-    required.push("SUPABASE_SERVICE_ROLE_KEY");
-  }
-
+  // Encrypting bank details needs only the encryption key.
+  // Public URLs / admin / Stripe must not block Save.
   if (kind === "bank_encrypt") {
     required.push("BANK_DETAILS_ENCRYPTION_KEY");
+  } else {
+    required.push("NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL");
+    required.push("SUPABASE_SERVICE_ROLE_KEY");
   }
 
   if (kind === "withdraw") {

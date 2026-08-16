@@ -331,9 +331,13 @@ export async function notifyRefundInitiated(input: {
   reference: string;
   productTitle?: string;
   productImageUrl?: string;
+  destination?: "wallet" | "card";
 }): Promise<void> {
   const amountLabel = `£${input.amount.toFixed(2)}`;
-  const body = `Your refund of ${amountLabel} has been successfully initiated. The money will be returned to your original payment method. Most refunds arrive within 3–5 business days. Some banks may take up to 10 business days.`;
+  const body =
+    input.destination === "wallet"
+      ? `Your refund of ${amountLabel} has been successfully initiated. The funds will appear in your ROVEXO Wallet when the refund is confirmed.`
+      : `Your refund of ${amountLabel} has been successfully initiated. The money will be returned to your original payment method. Most refunds arrive within 3–5 business days. Some banks may take up to 10 business days.`;
 
   await emitSmartNotification({
     userId: input.buyerId,
@@ -364,9 +368,13 @@ export async function notifyRefundCompleted(input: {
   reference: string;
   productTitle?: string;
   productImageUrl?: string;
+  destination?: "wallet" | "card";
 }): Promise<void> {
   const amountLabel = `£${input.amount.toFixed(2)}`;
-  const body = `Your refund of ${amountLabel} has been completed successfully. The funds have been returned to your original payment method. Reference: ${input.reference}.`;
+  const body =
+    input.destination === "wallet"
+      ? `Your refund of ${amountLabel} has been credited to your ROVEXO Wallet. You can withdraw the available balance to your saved bank account. Reference: ${input.reference}.`
+      : `Your refund of ${amountLabel} has been completed successfully. The funds have been returned to your original payment method. Reference: ${input.reference}.`;
 
   await emitSmartNotification({
     userId: input.buyerId,

@@ -4,9 +4,12 @@ import { calculatePlatformFee } from "@/lib/orders/pricing";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { isWalletMoneyEnvReady, MISSING_REQUIRED_SECRET } from "@/lib/wallet/env-validation";
 import {
+  buildBuyerRefundDescription,
+  buildBuyerRefundIdempotencyKey,
   buildRefundDescription,
   buildRefundIdempotencyKey,
   buildSaleIdempotencyKey,
+  isRovexoWalletRefundCreditEligible,
   roundWalletMoney,
 } from "@/lib/wallet/security";
 
@@ -291,5 +294,115 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
 
   if (insertError?.code === "23505") {
     return;
+  }
+}
+
+export type CreditBuyerWalletForConfirmedRefundInput = {
+  orderId: string;
+  buyerId: string;
+  refundId: string;
+  amount: number;
+  orderNumber: string;
+  productTitle?: string;
+  productImageUrl?: string;
+  paymentMethod?: string | null;
+  paymentId?: string | null;
+};
+
+/**
+ * Credit the buyer's existing wallet ledger after a confirmed ROVEXO wallet-credit refund.
+ * Never credits for Stripe card refunds (`re_*`). Duplicate refundId / order = one credit.
+ */
+export async function creditBuyerWalletForConfirmedRefund(
+  input: CreditBuyerWalletForConfirmedRefundInput,
+): Promise<void> {
+  if (!isRovexoWalletRefundCreditEligible({
+    refundId: input.refundId,
+    paymentMethod: input.paymentMethod,
+  })) {
+    return;
+  }
+
+  const amount = roundWalletMoney(input.amount);
+  if (!(amount > 0)) {
+    return;
+  }
+
+  if (!isWalletMoneyEnvReady("refund")) {
+    return;
+  }
+
+  const admin = createAdminClient();
+  const refundKey = buildBuyerRefundIdempotencyKey(input.refundId);
+  const refundDescription = buildBuyerRefundDescription(input.orderId, input.refundId);
+
+  const { data: byIdem } = await admin
+    .from("wallet_transactions")
+    .select("id")
+    .eq("idempotency_key", refundKey)
+    .maybeSingle();
+  if (byIdem) {
+    return;
+  }
+
+  const { data: existingRefund } = await admin
+    .from("wallet_transactions")
+    .select("id")
+    .eq("user_id", input.buyerId)
+    .eq("order_number", input.orderNumber)
+    .eq("type", "refund")
+    .maybeSingle();
+  if (existingRefund) {
+    return;
+  }
+
+  const wallet = await ensureWallet(input.buyerId);
+  if (!wallet) {
+    return;
+  }
+
+  const previousAvailable = roundWalletMoney(Number(wallet.available_balance));
+  const nextAvailable = roundWalletMoney(previousAvailable + amount);
+
+  const { data: credited, error: creditError } = await admin
+    .from("wallets")
+    .update({ available_balance: nextAvailable })
+    .eq("id", wallet.id)
+    .eq("user_id", input.buyerId)
+    .eq("available_balance", previousAvailable)
+    .select("id");
+
+  if (creditError || !credited?.length) {
+    return;
+  }
+
+  const paymentSuffix = input.paymentId ? `|payment:${input.paymentId}` : "";
+  const refundRow = {
+    wallet_id: wallet.id,
+    user_id: input.buyerId,
+    order_number: input.orderNumber,
+    product_title: input.productTitle?.trim() || `Refund — ${input.orderNumber}`,
+    product_image_url: input.productImageUrl ?? "",
+    amount,
+    status: "completed" as const,
+    type: "refund" as const,
+    description: `${refundDescription}${paymentSuffix}`,
+  };
+
+  let { error: insertError } = await admin.from("wallet_transactions").insert({
+    ...refundRow,
+    idempotency_key: refundKey,
+  });
+
+  if (insertError && /idempotency_key/i.test(insertError.message)) {
+    ({ error: insertError } = await admin.from("wallet_transactions").insert(refundRow));
+  }
+
+  if (insertError) {
+    await admin
+      .from("wallets")
+      .update({ available_balance: previousAvailable })
+      .eq("id", wallet.id)
+      .eq("user_id", input.buyerId);
   }
 }

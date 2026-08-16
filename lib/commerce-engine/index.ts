@@ -15,6 +15,7 @@ import "server-only";
 
 import {
   creditSellerForOrder as walletCreditSellerForOrder,
+  creditBuyerWalletForConfirmedRefund as walletCreditBuyerWalletForConfirmedRefund,
   refundSellerForOrder as walletRefundSellerForOrder,
   calculateSellerNetAmount,
 } from "@/lib/wallet/sales";
@@ -87,6 +88,62 @@ async function creditSeller(input: CreditSellerInput): Promise<void> {
     amount: sellerAmount,
     correlationId: input.correlationId ?? null,
     metadata: { platformFee, orderNumber: input.orderNumber },
+  });
+}
+
+export type CreditBuyerWalletInput = {
+  orderId: string;
+  buyerId: string;
+  refundId: string;
+  amount: number;
+  orderNumber: string;
+  productTitle?: string;
+  productImageUrl?: string;
+  paymentMethod?: string | null;
+  paymentId?: string | null;
+  actorId?: string | null;
+  correlationId?: string | null;
+};
+
+/**
+ * Credit the buyer's canonical wallet after a confirmed ROVEXO wallet-credit refund.
+ * Does nothing for Stripe card refunds. Idempotent per refundId / order.
+ */
+async function creditBuyerWallet(input: CreditBuyerWalletInput): Promise<void> {
+  await walletCreditBuyerWalletForConfirmedRefund({
+    orderId: input.orderId,
+    buyerId: input.buyerId,
+    refundId: input.refundId,
+    amount: input.amount,
+    orderNumber: input.orderNumber,
+    productTitle: input.productTitle,
+    productImageUrl: input.productImageUrl,
+    paymentMethod: input.paymentMethod,
+    paymentId: input.paymentId,
+  });
+
+  await recordRefundEvent({
+    orderId: input.orderId,
+    buyerId: input.buyerId,
+    sellerId: null,
+    refundType: "full",
+    amount: input.amount,
+    status: "completed",
+    stripeRefundId: input.refundId,
+    reason: "buyer_wallet_credit",
+    correlationId: input.correlationId ?? null,
+  });
+
+  await recordCommerceAudit({
+    event: "refund.buyer_wallet",
+    orderId: input.orderId,
+    userId: input.buyerId,
+    actorId: input.actorId ?? null,
+    rule: "buyer_wallet_credit",
+    result: "completed",
+    amount: input.amount,
+    correlationId: input.correlationId ?? null,
+    metadata: { refundId: input.refundId, paymentId: input.paymentId ?? null },
   });
 }
 
@@ -186,6 +243,7 @@ async function releaseEligiblePendingBalances(): Promise<number> {
 export const CommerceEngine = {
   // Settlement / escrow lifecycle
   creditSeller,
+  creditBuyerWallet,
   refundSeller,
   openEscrow: openEscrowForOrder,
   onOrderDelivered,

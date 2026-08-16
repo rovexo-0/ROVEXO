@@ -4,6 +4,7 @@ import {
   formatSortCode,
   isValidAccountNumber,
   isValidSortCode,
+  normalizeUkAccountNumber,
   validateBankAccountInput,
 } from "@/lib/wallet/bank-account";
 
@@ -27,12 +28,13 @@ describe("UK sort code validation", () => {
 });
 
 describe("UK account number validation", () => {
-  it("accepts exactly 8 digits", () => {
+  it("accepts 7 or 8 digits", () => {
     expect(isValidAccountNumber("12345678")).toBe(true);
+    expect(isValidAccountNumber("1234567")).toBe(true);
   });
 
-  it("rejects non-8-digit values", () => {
-    expect(isValidAccountNumber("1234567")).toBe(false);
+  it("rejects other lengths", () => {
+    expect(isValidAccountNumber("123456")).toBe(false);
     expect(isValidAccountNumber("123456789")).toBe(false);
     expect(isValidAccountNumber("abcd1234")).toBe(false);
   });
@@ -72,6 +74,19 @@ describe("validateBankAccountInput", () => {
     const result = validateBankAccountInput({ ...valid, confirmAccountNumber: "87654321" });
     expect(result.valid).toBe(false);
     if (!result.valid) expect(result.errors.confirmAccountNumber).toBeDefined();
+  });
+
+  it("zero-pads a 7-digit account number and keeps leading zeroes", () => {
+    const result = validateBankAccountInput({
+      ...valid,
+      accountNumber: "0123456",
+      confirmAccountNumber: "0123456",
+    });
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.normalized.accountNumber).toBe("00123456");
+      expect(normalizeUkAccountNumber("01234567")).toBe("01234567");
+    }
   });
 
   it("flags invalid sort code and account number", () => {

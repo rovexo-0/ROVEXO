@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { CommerceEngine } from "@/lib/commerce-engine";
 import {
   estimateRefundArrival,
   formatRefundReference,
@@ -13,6 +14,10 @@ import {
   notifyRefundInitiated,
   notifySellerRefundInitiated,
 } from "@/lib/orders/notifications";
+import {
+  isRovexoWalletRefundCreditEligible,
+  ROVEXO_WALLET_REFUND_METHOD,
+} from "@/lib/wallet/security";
 
 type ApplyRefundLifecycleInput = {
   orderId: string;
@@ -47,7 +52,7 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
   const { data: existing } = await admin
     .from("orders")
     .select(
-      "id, order_number, buyer_id, seller_id, refund_status, refund_created_at, stripe_refund_id, total",
+      "id, order_number, buyer_id, seller_id, refund_status, refund_created_at, stripe_refund_id, stripe_payment_intent_id, total",
     )
     .eq("id", input.orderId)
     .maybeSingle();
@@ -113,6 +118,12 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
         reference,
         productTitle,
         productImageUrl,
+        destination: isRovexoWalletRefundCreditEligible({
+          refundId: input.refundId,
+          paymentMethod: input.paymentMethod ?? null,
+        })
+          ? "wallet"
+          : "card",
       });
       if (input.notifySeller !== false) {
         await notifySellerRefundInitiated({
@@ -127,6 +138,25 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
   }
 
   if (mappedStatus === "completed" && previousStatus !== "completed") {
+    if (
+      isRovexoWalletRefundCreditEligible({
+        refundId: input.refundId,
+        paymentMethod: input.paymentMethod ?? null,
+      })
+    ) {
+      await CommerceEngine.creditBuyerWallet({
+        orderId: input.orderId,
+        buyerId: existing.buyer_id,
+        refundId: input.refundId,
+        amount,
+        orderNumber,
+        productTitle: `Refund — ${orderNumber}`,
+        productImageUrl,
+        paymentMethod: input.paymentMethod ?? ROVEXO_WALLET_REFUND_METHOD,
+        paymentId: existing.stripe_payment_intent_id ?? null,
+      });
+    }
+
     await notifyRefundCompleted({
       buyerId: existing.buyer_id,
       buyerEmail: buyer?.email ?? "",
@@ -136,6 +166,12 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
       reference,
       productTitle,
       productImageUrl,
+      destination: isRovexoWalletRefundCreditEligible({
+        refundId: input.refundId,
+        paymentMethod: input.paymentMethod ?? null,
+      })
+        ? "wallet"
+        : "card",
     });
   }
 
