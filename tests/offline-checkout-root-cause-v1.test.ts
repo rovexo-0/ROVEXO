@@ -37,7 +37,8 @@ describe("Blood XXIV — Offline root cause (checkout must never be /offline)", 
     expect(page).not.toContain("/offline");
 
     // Registration site
-    expect(pwa).toContain('navigator.serviceWorker.register("/sw.js")');
+    expect(pwa).toContain("navigator.serviceWorker");
+    expect(pwa).toContain("ROVEXO_SW_SCRIPT");
   });
 
   it("never falls financial /checkout navigate back to /offline", () => {
@@ -52,10 +53,11 @@ describe("Blood XXIV — Offline root cause (checkout must never be /offline)", 
     expect(sw).toMatch(
       /if \(isNextAppRouterFlightRequest\(request, url\.pathname\)\) return;/,
     );
-    // Default cache-first must not run before the RSC bypass
+    // Default network-only must not run before the RSC bypass
     const flightIdx = sw.indexOf("isNextAppRouterFlightRequest(request, url.pathname)");
-    const cacheFirstIdx = sw.indexOf("caches.match(request).then((cached) => cached || fetch(request))");
+    const networkOnlyIdx = sw.lastIndexOf("event.respondWith(fetch(request));");
     expect(flightIdx).toBeGreaterThan(-1);
-    expect(cacheFirstIdx).toBeGreaterThan(flightIdx);
+    expect(networkOnlyIdx).toBeGreaterThan(flightIdx);
+    expect(sw).not.toContain("caches.match(request).then((cached) => cached || fetch(request))");
   });
 });

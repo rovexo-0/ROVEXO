@@ -1,14 +1,18 @@
-/** Aligned with lib/app/version.ts → ROVEXO_SW_CACHE_NAME (RC1 · White Pearl). */
-const CACHE_NAME = "rovexo-static-v16";
+/** Aligned with lib/app/version.ts — bump epoch when Production web/PWA ships. */
+const SW_RELEASE = "1.0.0-rc.1";
+const SW_CACHE_EPOCH = "17";
+const STATIC_CACHE = "rovexo-static-v17";
+const RUNTIME_CACHE = "rovexo-runtime-v17";
+const IMAGES_CACHE = "rovexo-images-v17";
+const CURRENT_CACHES = [STATIC_CACHE, RUNTIME_CACHE, IMAGES_CACHE];
 const OFFLINE_URL = "/offline";
 
 const PRECACHE_URLS = [
-  "/",
   OFFLINE_URL,
-  "/icons/icon-192.png?v=wp-20260805",
-  "/icons/icon-512.png?v=wp-20260805",
-  "/icons/android-chrome-192x192.png?v=wp-20260805",
-  "/icons/android-chrome-512x512.png?v=wp-20260805",
+  "/icons/icon-192.png?v=wp-20260813-pwa-bg-v1",
+  "/icons/icon-512.png?v=wp-20260813-pwa-bg-v1",
+  "/icons/android-chrome-192x192.png?v=wp-20260813-pwa-bg-v1",
+  "/icons/android-chrome-512x512.png?v=wp-20260813-pwa-bg-v1",
 ];
 
 /** Localhost / private LAN — never control the page (dev CSS/JS hashes change constantly). */
@@ -41,13 +45,26 @@ function isFinancialNavigationPath(pathname) {
  * Intercepting them returns document HTML (or fails fetch) →
  * "Failed to fetch RSC payload" → soft-nav fallback → retry storm.
  */
+function isNextStaticAsset(pathname) {
+  return pathname.startsWith("/_next/static/");
+}
+
+function isApiPath(pathname) {
+  return pathname === "/api" || pathname.startsWith("/api/");
+}
+
 function isNextAppRouterFlightRequest(request, pathname) {
+  if (isNextStaticAsset(pathname)) return false;
   if (pathname.startsWith("/_next/")) return true;
   if (request.headers.get("RSC") === "1") return true;
   if (request.headers.get("Next-Router-State-Tree") != null) return true;
   if (request.headers.get("Next-Router-Prefetch") != null) return true;
   if (request.headers.get("Next-Url") != null) return true;
   return false;
+}
+
+function isRovexoCacheName(key) {
+  return typeof key === "string" && key.indexOf("rovexo-") === 0;
 }
 
 /**
@@ -106,37 +123,42 @@ self.addEventListener("install", (event) => {
         await self.skipWaiting();
         return;
       }
-      const cache = await caches.open(CACHE_NAME);
+      const cache = await caches.open(STATIC_CACHE);
       await precacheUrls(cache);
       await self.skipWaiting();
     })(),
   );
 });
 
-// Localhost self-heal: older SW builds may still be controlling until activate runs.
-// Drop control immediately so Turbopack CSS/JS hashes are never served from cache.
-if (isLocalDevelopmentHost(self.location.hostname)) {
-  self.addEventListener("message", (event) => {
-    if (event.data && event.data.type === "ROVEXO_DEV_UNREGISTER") {
-      event.waitUntil(self.registration.unregister());
-    }
-  });
-}
+self.addEventListener("message", (event) => {
+  const type = event.data && event.data.type;
+  if (type === "ROVEXO_DEV_UNREGISTER" && isLocalDevelopmentHost(self.location.hostname)) {
+    event.waitUntil(self.registration.unregister());
+    return;
+  }
+  if (type === "ROVEXO_SKIP_WAITING") {
+    event.waitUntil(self.skipWaiting());
+  }
+});
 
 self.addEventListener("activate", (event) => {
   // TEMP P0 Apple Web Push device probe — remove after Owner Lock Screen certification
   try {
-    console.log("[SW_ACTIVATE]");
+    console.log("[SW_ACTIVATE]", { SW_RELEASE, SW_CACHE_EPOCH });
   } catch (_) {
     /* ignore */
   }
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
+      await Promise.all(
+        keys
+          .filter((key) => isRovexoCacheName(key) && CURRENT_CACHES.indexOf(key) === -1)
+          .map((key) => caches.delete(key)),
+      );
 
       if (isLocalDevelopmentHost(self.location.hostname)) {
-        await Promise.all(keys.map((key) => caches.delete(key)));
+        await Promise.all(keys.filter(isRovexoCacheName).map((key) => caches.delete(key)));
         await self.registration.unregister();
         const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
         for (const client of clients) {
@@ -164,31 +186,43 @@ self.addEventListener("fetch", (event) => {
   // Never intercept on local development hosts — pass through to the network.
   if (isLocalDevelopmentHost(url.hostname)) return;
 
-  // Pass through App Router RSC / flight / _next — do not respondWith.
+  // Pass through App Router RSC / flight / non-static _next — do not respondWith.
   if (isNextAppRouterFlightRequest(request, url.pathname)) return;
+
+  // Dynamic APIs are never cached (financial or otherwise).
+  if (isApiPath(url.pathname) || isFinancialNavigationPath(url.pathname)) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   if (request.mode === "navigate") {
     const financial = isFinancialNavigationPath(url.pathname);
 
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Never cache financial checkout navigations into the SW offline shell.
-          if (!financial && response.ok && response.type === "basic") {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
+      fetch(request, { cache: "no-store" })
+        .then((response) => response)
         .catch(async () => {
           if (financial) {
             // Blood XXIV OFFLINE ROOT CAUSE FIX:
             // BUY NOW → ORDER → SESSION → LOAD /checkout must NEVER land on /offline.
             return financialCheckoutUnavailableResponse(url.pathname + url.search);
           }
-          const cached = await caches.match(request);
-          return cached || caches.match(OFFLINE_URL);
+          return caches.match(OFFLINE_URL);
         }),
+    );
+    return;
+  }
+
+  // Fingerprinted Next.js assets — immutable cache-first.
+  if (isNextStaticAsset(url.pathname)) {
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        const response = await fetch(request);
+        if (response.ok) cache.put(request, response.clone());
+        return response;
+      }),
     );
     return;
   }
@@ -198,7 +232,7 @@ self.addEventListener("fetch", (event) => {
   // on the next load instead of being pinned forever by a cache-first strategy.
   if (url.pathname.startsWith("/icons/") || url.pathname.startsWith("/categories/")) {
     event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
+      caches.open(IMAGES_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         const network = fetch(request)
           .then((response) => {
@@ -217,13 +251,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Financial APIs: network only — never cache-first offline masquerade.
-  if (isFinancialNavigationPath(url.pathname)) {
-    event.respondWith(fetch(request));
-    return;
-  }
-
-  event.respondWith(caches.match(request).then((cached) => cached || fetch(request)));
+  // Default: network only. Never cache-first HTML or unknown GETs.
+  event.respondWith(fetch(request));
 });
 
 function parsePushPayload(event) {

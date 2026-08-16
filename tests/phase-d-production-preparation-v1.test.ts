@@ -53,7 +53,7 @@ describe("Phase D — Production Preparation & Launch Certification", () => {
     expect(exists("public/apple-icon.png")).toBe(true);
     expect(exists("app/apple-icon.png")).toBe(true);
     expect(exists("public/sw.js")).toBe(true);
-    expect(readSource("public/sw.js")).toContain("rovexo-static-v16");
+    expect(readSource("public/sw.js")).toContain("rovexo-static-v17");
     expect(readSource("public/sw.js")).toContain("/offline");
     expect(readSource("public/sw.js")).toContain("push");
     expect(exists("app/(platform)/offline/page.tsx")).toBe(true);

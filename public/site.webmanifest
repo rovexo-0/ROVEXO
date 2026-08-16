@@ -1,6 +1,7 @@
 {
   "name": "ROVEXO",
   "short_name": "ROVEXO",
+  "id": "https://www.rovexo.co.uk/",
   "icons": [
     {
       "src": "/icons/android-chrome-192x192.png?v=wp-20260813-pwa-bg-v1",

@@ -40,9 +40,11 @@ describe("push production PWA / Home Screen path", () => {
 
   it("PwaProvider registers Production SW with scope /", () => {
     const pwa = readSource("components/pwa/PwaProvider.tsx");
-    expect(pwa).toContain('register("/sw.js"');
-    expect(pwa).toContain('scope: "/"');
+    expect(pwa).toContain("ROVEXO_SW_SCRIPT");
+    expect(pwa).toContain("ROVEXO_SW_SCOPE");
     expect(pwa).toContain("localhost");
+    expect(readSource("lib/pwa/pwa-update-engine-v1.ts")).toContain('"/sw.js"');
+    expect(readSource("lib/pwa/pwa-update-engine-v1.ts")).toContain('ROVEXO_SW_SCOPE = "/"');
   });
 
   it("notificationclick opens absolute same-origin URL for iOS PWA", () => {

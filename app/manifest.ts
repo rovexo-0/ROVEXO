@@ -1,21 +1,25 @@
 import type { MetadataRoute } from "next";
-import { getAppUrl } from "@/lib/supabase/env";
 import {
   CANONICAL_RX_PWA_SIZES,
-  CANONICAL_RX_APP_ICON,
   ROVEXO_PWA_BACKGROUND_COLOR,
   ROVEXO_PWA_DISPLAY,
   ROVEXO_PWA_THEME_COLOR,
   withWhitePearlFaviconCacheBust,
 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
+
+/** Level III source remains CANONICAL_RX_APP_ICON on disk — not an install-manifest icon. */
 import { ROVEXO_APP_VERSION, ROVEXO_RELEASE_CODE } from "@/lib/app/version";
+import { ROVEXO_PWA_ID } from "@/lib/pwa/pwa-update-engine-v1";
+
+const INSTALL_ICON_SIZES = CANONICAL_RX_PWA_SIZES.filter(
+  (size) => size === 192 || size === 512,
+);
 
 export default function manifest(): MetadataRoute.Manifest {
-  const baseUrl = getAppUrl();
   const v = withWhitePearlFaviconCacheBust;
 
   const icons: MetadataRoute.Manifest["icons"] = [
-    ...CANONICAL_RX_PWA_SIZES.map((size) => ({
+    ...INSTALL_ICON_SIZES.map((size) => ({
       src: v(`/icons/icon-${size}.png`),
       sizes: `${size}x${size}`,
       type: "image/png" as const,
@@ -39,34 +43,30 @@ export default function manifest(): MetadataRoute.Manifest {
       type: "image/png",
       purpose: "maskable",
     },
-    {
-      src: v("/icons/maskable-icon-512.png"),
-      sizes: "512x512",
-      type: "image/png",
-      purpose: "maskable",
-    },
-    {
-      src: v(CANONICAL_RX_APP_ICON),
-      sizes: "2048x2048",
-      type: "image/png",
-      purpose: "any",
-    },
   ];
 
   return {
     name: "ROVEXO",
     short_name: "ROVEXO",
     description: `Buy and sell on the modern UK marketplace with purchase protection. (${ROVEXO_RELEASE_CODE} ${ROVEXO_APP_VERSION})`,
+    id: ROVEXO_PWA_ID,
     start_url: "/",
+    scope: "/",
     display: ROVEXO_PWA_DISPLAY,
     background_color: ROVEXO_PWA_BACKGROUND_COLOR,
     theme_color: ROVEXO_PWA_THEME_COLOR,
-    orientation: "portrait-primary",
     lang: "en-GB",
     dir: "ltr",
     categories: ["shopping", "marketplace"],
     icons,
-    screenshots: [{ src: "/brand/og-image.png", sizes: "1200x630", type: "image/png" }],
+    screenshots: [
+      {
+        src: "/brand/og-image.png",
+        sizes: "1200x630",
+        type: "image/png",
+        form_factor: "wide",
+      } as NonNullable<MetadataRoute.Manifest["screenshots"]>[number],
+    ],
     shortcuts: [
       { name: "Search", url: "/search", description: "Search listings" },
       { name: "Sell", url: "/sell", description: "Create a listing" },
@@ -74,7 +74,5 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     related_applications: [],
     prefer_related_applications: false,
-    scope: "/",
-    id: `${baseUrl}/`,
   };
 }

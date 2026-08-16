@@ -28,7 +28,7 @@ describe("ROVEXO v1.0.0 RC1 — Master Code Freeze Certificate", () => {
     expect(ROVEXO_APP_VERSION).toBe("1.0.0-rc.1");
     expect(ROVEXO_RELEASE_CODE).toBe("RC1");
     expect(ROVEXO_RELEASE_LABEL).toContain("Release Candidate 1");
-    expect(ROVEXO_SW_CACHE_NAME).toBe("rovexo-static-v16");
+    expect(ROVEXO_SW_CACHE_NAME).toBe("rovexo-static-v17");
     expect(JSON.parse(readSource("package.json")).version).toBe(ROVEXO_APP_VERSION);
     expect(readSource("public/sw.js")).toContain(ROVEXO_SW_CACHE_NAME);
     expect(readSource("lib/app/version.ts")).toContain(ROVEXO_APP_VERSION);

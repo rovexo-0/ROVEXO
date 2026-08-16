@@ -24,7 +24,21 @@ export function buildPerformanceRouteHeaders(): Array<{
     { source: "/favicon.svg", headers: immutable },
     { source: "/safari-pinned-tab.svg", headers: immutable },
     { source: "/browserconfig.xml", headers: immutable },
-    { source: "/site.webmanifest", headers: immutable },
+    {
+      source: "/site.webmanifest",
+      headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+    },
+    {
+      source: "/sw.js",
+      headers: [
+        { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+        { key: "Service-Worker-Allowed", value: "/" },
+      ],
+    },
+    {
+      source: "/manifest.webmanifest",
+      headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+    },
     { source: "/apple-touch-icon.png", headers: immutable },
     { source: "/apple-icon.png", headers: immutable },
   ];
