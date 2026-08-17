@@ -36,6 +36,13 @@ const REMOVED_FROM_HOMEPAGE_INDEX = [
   "platform-visual.css",
   "premium-empty-state.css",
   "rvx-topbar-v1.css",
+  "home-polish.css",
+  "home-product-cards.css",
+  "home-final.css",
+  "home-launch-polish.css",
+  "home-sections-premium.css",
+  "home-v1-launch-polish.css",
+  "home-v1-visual-qa.css",
 ] as const;
 
 /** Must remain on the Homepage / global platform critical path. */
@@ -48,7 +55,7 @@ const REQUIRED_IN_HOMEPAGE_INDEX = [
   "bottom-nav-premium.css",
   "full-width-engine-v1.css",
   "phone-width-v1-freeze.css",
-  "home-polish.css",
+  "listing-card-official.css",
   "store-listing-card-premium-v1.css",
   "category-rail.css",
   "primary-button-v1.css",
@@ -150,5 +157,31 @@ describe("OPT-P0-CSS-02 Homepage global CSS isolation", () => {
     const index = readSource("styles/rovexo/index.css");
     expect(index).toContain('@import "./store-listing-card-premium-v1.css"');
     expect(sha256File("styles/rovexo/store-listing-card-premium-v1.css").length).toBe(64);
+  });
+
+  it("PERF-P2: archive Homepage sheets leave index.css; files retained", () => {
+    const index = readSource("styles/rovexo/index.css");
+    for (const sheet of [
+      "home-polish.css",
+      "home-product-cards.css",
+      "home-final.css",
+      "home-launch-polish.css",
+      "home-sections-premium.css",
+      "home-v1-launch-polish.css",
+      "home-v1-visual-qa.css",
+    ] as const) {
+      expect(index, sheet).not.toContain(`@import "./${sheet}"`);
+      expect(existsSync(join(process.cwd(), `styles/rovexo/${sheet}`)), sheet).toBe(true);
+    }
+  });
+
+  it("PERF-P2: addresses-v1 stays route-owned by AddressesPage", () => {
+    expect(readSource("styles/rovexo/platform-canonical-ui.css")).not.toContain(
+      '@import "./addresses-v1.css"',
+    );
+    expect(readSource("features/account/components/addresses/AddressesPage.tsx")).toContain(
+      'import "@/styles/rovexo/addresses-v1.css"',
+    );
+    expect(existsSync(join(process.cwd(), "styles/rovexo/addresses-v1.css"))).toBe(true);
   });
 });

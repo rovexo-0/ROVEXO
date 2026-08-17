@@ -6,7 +6,8 @@
 
 @import "./account-canonical-v2.css";
 @import "./account-settings-ui.css";
-@import "./addresses-v1.css";
+/* PERF-P2: addresses-v1.css is exclusive to Addresses and already imported by
+   AddressesPage — do not load it on the Homepage / platform megabundle. */
 
 :root {
   --pcu-card-radius: 14px;

@@ -10,6 +10,7 @@ import { ShowcaseViewAllCard } from "@/components/homepage/canonical/featured-st
 import { ListingCard } from "@/components/ui/ListingCard";
 import {
   HP_CANONICAL_LISTING_PROPS,
+  HP_SHOWCASE_LCP_IMAGE_WIDTH_PX,
   HP_SHOWCASE_LISTING_IMAGE_SIZES,
 } from "@/components/homepage/canonical/constants";
 import {
@@ -118,6 +119,7 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
                 imageSizes={HP_SHOWCASE_LISTING_IMAGE_SIZES}
                 /* P0-01-A: exactly one homepage LCP listing when Showcase is visible. */
                 priority={index === 0}
+                priorityImageWidth={index === 0 ? HP_SHOWCASE_LCP_IMAGE_WIDTH_PX : undefined}
               />
             </div>
           );

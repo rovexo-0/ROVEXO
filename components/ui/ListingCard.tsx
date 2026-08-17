@@ -70,6 +70,12 @@ export interface ListingCardProps {
   surface?: ListingCardSurface;
   trackImpressions?: boolean;
   priority?: boolean;
+  /**
+   * When set with `priority`, the LCP image uses intrinsic width/height instead of
+   * `fill` so Next/Image emits 1x/2x srcset (no w=3840 fallback). Delivery only —
+   * card CSS still fills the locked figure. Omit for non-LCP cards.
+   */
+  priorityImageWidth?: number;
   imageSizes?: string;
   href?: string;
   priceLabel?: string;
@@ -156,6 +162,7 @@ export const ListingCard = memo(function ListingCard({
   surface = "search",
   trackImpressions = true,
   priority = false,
+  priorityImageWidth,
   imageSizes,
   className,
   href: hrefOverride,
@@ -234,6 +241,14 @@ export const ListingCard = memo(function ListingCard({
   );
 
   const isHomepageCard = surface === "homepage";
+  const lcpIntrinsic =
+    Boolean(priority) &&
+    typeof priorityImageWidth === "number" &&
+    Number.isFinite(priorityImageWidth) &&
+    priorityImageWidth > 0;
+  const lcpWidth =
+    lcpIntrinsic && priorityImageWidth ? Math.round(priorityImageWidth) : undefined;
+  const lcpHeight = lcpWidth ? Math.round((lcpWidth * 5) / 4) : undefined;
   const showFooter = !isHomepageCard && (showSeller || showRating || showViews);
   const ratingEnd = surface === "homepage" && showRating && !showSeller && !showViews;
   const soldBadge = Boolean(
@@ -268,10 +283,12 @@ export const ListingCard = memo(function ListingCard({
           <SafeImage
             src={cardImageSrc}
             alt={product.title}
-            fill
+            fill={!lcpIntrinsic}
+            width={lcpWidth}
+            height={lcpHeight}
             priority={priority}
             loading={priority ? undefined : "lazy"}
-            sizes={imageSizes ?? IMG_SIZES}
+            sizes={lcpIntrinsic ? undefined : imageSizes ?? IMG_SIZES}
             unoptimized={cardImageUnoptimized}
             onError={onCardImageError}
           />

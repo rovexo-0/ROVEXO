@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import {
   HP_CANONICAL_LISTING_PROPS,
+  HP_FEED_LCP_IMAGE_WIDTH_PX,
   HP_FEED_LISTING_IMAGE_SIZES,
 } from "@/components/homepage/canonical/constants";
 import { CanonicalFeedSkeletonGrid } from "@/components/homepage/canonical/CanonicalFeedSkeleton";
@@ -218,6 +219,9 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
               imageSizes={HP_FEED_LISTING_IMAGE_SIZES}
               /* P0-01-A: at most one homepage LCP listing; never when Showcase owns it. */
               priority={lcpImagePriority && index === 0}
+              priorityImageWidth={
+                lcpImagePriority && index === 0 ? HP_FEED_LCP_IMAGE_WIDTH_PX : undefined
+              }
             />
           ))
         )}

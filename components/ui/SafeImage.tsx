@@ -98,7 +98,7 @@ export function SafeImage({
     <Image
       src={src as string | StaticImageData}
       alt={alt}
-      fill={fill}
+      fill={fill ? true : undefined}
       width={width}
       height={height}
       className={className}

@@ -31,7 +31,7 @@ const PROTECTED_IMPORT_ANCHORS = [
   "bottom-nav-premium.css",
   "full-width-engine-v1.css",
   "phone-width-v1-freeze.css",
-  "home-polish.css",
+  "listing-card-official.css",
   "store-listing-card-premium-v1.css",
   "category-rail.css",
   "primary-button-v1.css",

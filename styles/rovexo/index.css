@@ -38,13 +38,10 @@
 /* OPT-P0-CSS-01: auctions CSS is page-scoped via auctions route entry. */
 @import "./chrome-scroll.css";
 /* OPT-P0-CSS-02: sign-out.css — owned by RovexoSignOutLink. */
-@import "./home-polish.css";
-@import "./home-product-cards.css";
-@import "./home-final.css";
-@import "./home-launch-polish.css";
-@import "./home-sections-premium.css";
-@import "./home-v1-launch-polish.css";
-@import "./home-v1-visual-qa.css";
+/* PERF-P2: archive Homepage sheets (rx-page-home / rx-home-polish / rx-home-final /
+   rx-listing-card carousel) are not used by CanonicalHomepage. Live Homepage uses
+   CanonicalHomepage.module.css + ListingCard.module.css + homepage-canonical.css.
+   Files retained on disk — not deleted. */
 /* OPT-P0-CSS-02: account.css / account-center.css / account-2026.css — dead / superseded by account-canonical-v2. */
 /* OPT-P0-CSS-02: rovexo-ideas-v1.css — page-scoped via RovexoIdeasPage. */
 /* OPT-P0-CSS-02: secondary-banners.css — archive Homepage only. */
