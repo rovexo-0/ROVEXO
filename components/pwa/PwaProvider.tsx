@@ -7,7 +7,7 @@ import {
   ROVEXO_SW_SCOPE,
   ROVEXO_SW_SCRIPT,
   ROVEXO_SW_SKIP_WAITING_MESSAGE,
-  shouldReloadForServiceWorkerUpdate,
+  scheduleDeferredSafeServiceWorkerReload,
 } from "@/lib/pwa/pwa-update-engine-v1";
 
 type BeforeInstallPromptEvent = Event & {
@@ -48,19 +48,18 @@ function markReloaded(version: string): void {
 }
 
 function reloadOnceWhenSafe(version: string): boolean {
-  if (
-    !shouldReloadForServiceWorkerUpdate({
-      pathname: window.location.pathname,
+  return (
+    scheduleDeferredSafeServiceWorkerReload({
+      getPathname: () => window.location.pathname,
       nextVersion: version,
-      alreadyReloadedForVersion: readReloadedVersion(),
-      isFormActive: isFormActive(),
-    })
-  ) {
-    return false;
-  }
-  markReloaded(version);
-  window.location.reload();
-  return true;
+      getAlreadyReloadedForVersion: readReloadedVersion,
+      getIsFormActive: isFormActive,
+      reload: () => {
+        markReloaded(version);
+        window.location.reload();
+      },
+    }) === "scheduled"
+  );
 }
 
 export function PwaProvider({ children }: { children: React.ReactNode }) {

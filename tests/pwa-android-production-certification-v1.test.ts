@@ -17,6 +17,7 @@ import {
 import { ROVEXO_PWA_ID } from "@/lib/pwa/pwa-update-engine-v1";
 import {
   isUnsafePwaReloadPath,
+  scheduleDeferredSafeServiceWorkerReload,
   shouldReloadForServiceWorkerUpdate,
 } from "@/lib/pwa/pwa-update-engine-v1";
 
@@ -74,6 +75,10 @@ describe("PWA + Android production certification v1", () => {
         isFormActive: false,
       }),
     ).toBe(false);
+    expect(typeof scheduleDeferredSafeServiceWorkerReload).toBe("function");
+    const pwa = read("components/pwa/PwaProvider.tsx");
+    expect(pwa).toContain("scheduleDeferredSafeServiceWorkerReload");
+    expect(pwa).toContain('addEventListener("controllerchange"');
   });
 
   it("locks canonical consumer Android to API 36", () => {

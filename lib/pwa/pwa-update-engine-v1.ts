@@ -53,6 +53,96 @@ export function shouldReloadForServiceWorkerUpdate(input: {
   return true;
 }
 
+export type DeferredSafeReloadDecision = "skipped" | "scheduled" | "already-armed";
+
+type DeferredReloadSchedulerState = {
+  scheduled: boolean;
+  executed: boolean;
+};
+
+let deferredReloadScheduler: DeferredReloadSchedulerState = {
+  scheduled: false,
+  executed: false,
+};
+
+export function resetDeferredSafeServiceWorkerReloadForTests(): void {
+  deferredReloadScheduler = { scheduled: false, executed: false };
+}
+
+export type ScheduleDeferredSafeServiceWorkerReloadInput = {
+  getPathname: () => string;
+  nextVersion: string;
+  getAlreadyReloadedForVersion: () => string | null;
+  getIsFormActive: () => boolean;
+  reload: () => void;
+  /** Test injection. Production uses after-paint / idle scheduling. */
+  schedule?: (run: () => void) => void;
+};
+
+function policyAllowsReload(
+  input: ScheduleDeferredSafeServiceWorkerReloadInput,
+): boolean {
+  return shouldReloadForServiceWorkerUpdate({
+    pathname: input.getPathname(),
+    nextVersion: input.nextVersion,
+    alreadyReloadedForVersion: input.getAlreadyReloadedForVersion(),
+    isFormActive: input.getIsFormActive(),
+  });
+}
+
+function scheduleAfterInitialPaint(run: () => void): void {
+  const afterPaint = () => {
+    const idle = (
+      globalThis as typeof globalThis & {
+        requestIdleCallback?: (
+          callback: () => void,
+          options?: { timeout: number },
+        ) => number;
+      }
+    ).requestIdleCallback;
+    if (typeof idle === "function") {
+      idle(() => run(), { timeout: 2500 });
+      return;
+    }
+    setTimeout(run, 0);
+  };
+
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(afterPaint);
+    });
+    return;
+  }
+  afterPaint();
+}
+
+/**
+ * Arm at most one safe SW update reload for this page lifecycle.
+ * Never reloads synchronously — first paint / idle must complete first.
+ */
+export function scheduleDeferredSafeServiceWorkerReload(
+  input: ScheduleDeferredSafeServiceWorkerReloadInput,
+): DeferredSafeReloadDecision {
+  if (deferredReloadScheduler.executed || deferredReloadScheduler.scheduled) {
+    return "already-armed";
+  }
+  if (!policyAllowsReload(input)) {
+    return "skipped";
+  }
+
+  deferredReloadScheduler.scheduled = true;
+
+  const fire = () => {
+    if (deferredReloadScheduler.executed) return;
+    if (!policyAllowsReload(input)) return;
+    deferredReloadScheduler.executed = true;
+    input.reload();
+  };
+
+  (input.schedule ?? scheduleAfterInitialPaint)(fire);
+  return "scheduled";
+}
+
 export function pwaReleaseIdentity() {
   return {
     web: ROVEXO_APP_VERSION,
