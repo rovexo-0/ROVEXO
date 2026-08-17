@@ -295,18 +295,6 @@ export const ListingCard = memo(function ListingCard({
           {promotionBadge ? (
             <ListingPromotionBadge label={promotionBadge.label} tone={promotionBadge.tone} />
           ) : null}
-          {showFavorite ? (
-            <button
-              type="button"
-              className={css.save}
-              data-active={pinned ? "true" : "false"}
-              aria-label={pinned ? "Remove from wishlist" : "Add to wishlist"}
-              aria-pressed={pinned}
-              onClick={onSave}
-            >
-              <IconHeart filled={pinned} />
-            </button>
-          ) : null}
         </figure>
 
         {isHomepageCard ? (
@@ -421,6 +409,18 @@ export const ListingCard = memo(function ListingCard({
         </div>
         )}
       </Link>
+      {showFavorite ? (
+        <button
+          type="button"
+          className={css.save}
+          data-active={pinned ? "true" : "false"}
+          aria-label={pinned ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={pinned}
+          onClick={onSave}
+        >
+          <IconHeart filled={pinned} />
+        </button>
+      ) : null}
 
       {showShare ? (
         <ShareListingSheet
