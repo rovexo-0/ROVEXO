@@ -108,8 +108,10 @@ describe("Organic Growth Phase 1 — SEO foundation", () => {
     const listing = readSource("app/(platform)/listing/[slug]/page.tsx");
     const store = readSource("app/(platform)/store/[slug]/page.tsx");
     expect(listing).toContain("StoreUnavailablePage");
-    expect(listing).toContain("index: false");
+    expect(listing).toContain("noIndex: true");
+    expect(listing).toContain("buildPageMetadata");
     expect(store).toContain("StoreUnavailablePage");
-    expect(store).toContain("index: false");
+    expect(store).toContain("noIndex: true");
+    expect(store).toContain("buildPageMetadata");
   });
 });

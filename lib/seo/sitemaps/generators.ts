@@ -8,6 +8,8 @@ import { getLocationCategoryStaticParams } from "@/lib/seo/engine/routing";
 import { ALL_UK_LOCATIONS } from "@/lib/seo/locations/uk";
 import { CATEGORY_ALIASES } from "@/lib/seo/programmatic/aliases";
 import { getAppUrl } from "@/lib/supabase/env";
+import { filterSitemapEntries } from "@/lib/seo/sitemaps/eligibility-filter";
+import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
 
 const baseUrl = () => getAppUrl();
 
@@ -18,15 +20,14 @@ export function buildStaticSitemapEntries(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [
+  return filterSitemapEntries([
     { url: baseUrl(), changeFrequency: "daily", priority: 1 },
     { url: `${baseUrl()}/search`, changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl()}/categories`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl()}/help`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${baseUrl()}/support`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${baseUrl()}/resolution`, changeFrequency: "monthly", priority: 0.4 },
     ...helpRoutes,
-  ];
+  ]);
 }
 
 export function buildCategorySitemapEntries(): MetadataRoute.Sitemap {
@@ -43,15 +44,17 @@ export function buildCategorySitemapEntries(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...categoryUrls, ...browseAliases];
+  return filterSitemapEntries([...categoryUrls, ...browseAliases]);
 }
 
 export function buildLocationSitemapEntries(): MetadataRoute.Sitemap {
-  return ALL_UK_LOCATIONS.map((location) => ({
-    url: `${baseUrl()}/l/${location.slug}`,
-    changeFrequency: "weekly" as const,
-    priority: location.type === "city" ? 0.75 : 0.65,
-  }));
+  return filterSitemapEntries(
+    ALL_UK_LOCATIONS.map((location) => ({
+      url: `${baseUrl()}/l/${location.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: location.type === "city" ? 0.75 : 0.65,
+    })),
+  );
 }
 
 export async function buildProductSitemapEntries(limit = 5000): Promise<MetadataRoute.Sitemap> {
@@ -65,12 +68,21 @@ export async function buildProductSitemapEntries(limit = 5000): Promise<Metadata
       .order("updated_at", { ascending: false })
       .limit(limit);
 
-    return (products ?? []).map((product) => ({
-      url: `${baseUrl()}/listing/${product.slug}`,
-      lastModified: product.updated_at,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    return filterSitemapEntries(
+      (products ?? [])
+        .filter((product) => product.slug && !isForbiddenMarketplaceSlug(product.slug))
+        .map((product) => ({
+          url: `${baseUrl()}/listing/${product.slug}`,
+          lastModified: product.updated_at,
+          changeFrequency: "weekly" as const,
+          priority: 0.7,
+        })),
+      () => ({
+        pageType: "product",
+        productFound: true,
+        productStatus: "published",
+      }),
+    );
   } catch {
     return [];
   }
@@ -87,14 +99,16 @@ export async function buildSellerSitemapEntries(limit = 1000): Promise<MetadataR
       .order("updated_at", { ascending: false })
       .limit(limit);
 
-    return (sellers ?? [])
-      .filter((seller) => seller.username)
-      .map((seller) => ({
-        url: `${baseUrl()}/user/${seller.username}`,
-        lastModified: seller.updated_at,
-        changeFrequency: "weekly" as const,
-        priority: 0.55,
-      }));
+    return filterSitemapEntries(
+      (sellers ?? [])
+        .filter((seller) => seller.username)
+        .map((seller) => ({
+          url: `${baseUrl()}/user/${seller.username}`,
+          lastModified: seller.updated_at,
+          changeFrequency: "weekly" as const,
+          priority: 0.55,
+        })),
+    );
   } catch {
     return [];
   }
@@ -111,68 +125,82 @@ export async function buildBusinessSitemapEntries(limit = 500): Promise<Metadata
       .order("updated_at", { ascending: false })
       .limit(limit);
 
-    return (stores ?? []).map((store) => ({
-      url: `${baseUrl()}/store/${store.username}`,
-      lastModified: store.updated_at,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
+    return filterSitemapEntries(
+      (stores ?? []).map((store) => ({
+        url: `${baseUrl()}/store/${store.username}`,
+        lastModified: store.updated_at,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      })),
+    );
   } catch {
     return [];
   }
 }
 
 export function buildBlogSitemapEntries(): MetadataRoute.Sitemap {
-  return getAllHelpArticles().map((article) => ({
-    url: `${baseUrl()}/help/${article.slug}`,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  return filterSitemapEntries(
+    getAllHelpArticles().map((article) => ({
+      url: `${baseUrl()}/help/${article.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+  );
 }
 
 export function buildDiscoverSitemapEntries(): MetadataRoute.Sitemap {
-  return getStaticDiscoverySlugs().map((slug) => ({
-    url: `${baseUrl()}/discover/${slug}`,
-    changeFrequency: "daily" as const,
-    priority: 0.72,
-  }));
+  return filterSitemapEntries(
+    getStaticDiscoverySlugs().map((slug) => ({
+      url: `${baseUrl()}/discover/${slug}`,
+      changeFrequency: "daily" as const,
+      priority: 0.72,
+    })),
+  );
 }
 
 export function buildCollectionsSitemapEntries(): MetadataRoute.Sitemap {
-  return getAllCollectionSlugs().map((slug) => ({
-    url: `${baseUrl()}/collections/${slug}`,
-    changeFrequency: "daily" as const,
-    priority: 0.72,
-  }));
+  return filterSitemapEntries(
+    getAllCollectionSlugs().map((slug) => ({
+      url: `${baseUrl()}/collections/${slug}`,
+      changeFrequency: "daily" as const,
+      priority: 0.72,
+    })),
+  );
 }
 
 export function buildTrendsSitemapEntries(): MetadataRoute.Sitemap {
-  return getStaticDiscoverySlugs()
-    .filter((slug) => slug.includes("trending"))
-    .map((slug) => ({
-      url: `${baseUrl()}/discover/${slug}`,
-      changeFrequency: "hourly" as const,
-      priority: 0.74,
-    }));
+  return filterSitemapEntries(
+    getStaticDiscoverySlugs()
+      .filter((slug) => slug.includes("trending"))
+      .map((slug) => ({
+        url: `${baseUrl()}/discover/${slug}`,
+        changeFrequency: "hourly" as const,
+        priority: 0.74,
+      })),
+  );
 }
 
 export async function buildBrandSitemapEntries(limit = 500): Promise<MetadataRoute.Sitemap> {
   const { fetchBrandsWithListings } = await import("@/lib/seo/engine/brands");
   const brands = await fetchBrandsWithListings(limit);
-  return brands.map((brand) => ({
-    url: `${baseUrl()}/brand/${brand.slug}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.68,
-  }));
+  return filterSitemapEntries(
+    brands.map((brand) => ({
+      url: `${baseUrl()}/brand/${brand.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.68,
+    })),
+  );
 }
 
 export function buildLocationCategorySitemapEntries(): MetadataRoute.Sitemap {
   const combos = getLocationCategoryStaticParams(500);
-  return combos.map(({ location, category }) => ({
-    url: `${baseUrl()}/l/${location}/${category.join("/")}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
+  return filterSitemapEntries(
+    combos.map(({ location, category }) => ({
+      url: `${baseUrl()}/l/${location}/${category.join("/")}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+  );
 }
 
 export function buildBrowseComboSitemapEntries(): MetadataRoute.Sitemap {
@@ -190,7 +218,7 @@ export function buildBrowseComboSitemapEntries(): MetadataRoute.Sitemap {
     }
   }
 
-  return entries;
+  return filterSitemapEntries(entries);
 }
 
 export async function buildImageSitemapEntries(limit = 2000): Promise<MetadataRoute.Sitemap> {
@@ -202,16 +230,28 @@ export async function buildImageSitemapEntries(limit = 2000): Promise<MetadataRo
       .eq("products.status", "published")
       .limit(limit);
 
-    return (images ?? []).map((image) => {
-      const product = image.products as { slug: string; updated_at: string };
-      return {
-        url: `${baseUrl()}/listing/${product.slug}`,
-        lastModified: product.updated_at,
-        changeFrequency: "weekly" as const,
-        priority: 0.65,
-        images: [image.url],
-      };
-    });
+    return filterSitemapEntries(
+      (images ?? [])
+        .map((image) => {
+          const product = image.products as { slug: string; updated_at: string };
+          return {
+            url: `${baseUrl()}/listing/${product.slug}`,
+            lastModified: product.updated_at,
+            changeFrequency: "weekly" as const,
+            priority: 0.65,
+            images: [image.url],
+          };
+        })
+        .filter((entry) => {
+          const slug = entry.url.split("/listing/")[1] ?? "";
+          return slug.length > 0 && !isForbiddenMarketplaceSlug(slug);
+        }),
+      () => ({
+        pageType: "product",
+        productFound: true,
+        productStatus: "published",
+      }),
+    );
   } catch {
     return [];
   }

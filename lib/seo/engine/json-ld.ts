@@ -1,5 +1,5 @@
 import type { Product } from "@/lib/products/types";
-import { getAppUrl } from "@/lib/supabase/env";
+import { absoluteCanonicalFromPath } from "@/lib/seo/engine/canonical";
 import type { BrandPage, OrganicLandingPage } from "@/lib/seo/engine/types";
 import { breadcrumbJsonLd, categoryJsonLd } from "@/lib/seo/json-ld";
 
@@ -23,7 +23,7 @@ export function brandPageJsonLd(page: BrandPage, products: Product[]) {
       "@type": "CollectionPage",
       name: page.title,
       description: page.description,
-      url: `${getAppUrl()}${page.path}`,
+      url: absoluteCanonicalFromPath(page.path),
     },
     breadcrumbs: breadcrumbJsonLd(breadcrumbs),
     itemList: itemListJsonLd(page.path, page.name, products),
@@ -43,7 +43,7 @@ export function storePageJsonLd(input: {
       "@context": "https://schema.org",
       "@type": "Store",
       name: input.name,
-      url: `${getAppUrl()}/store/${input.slug}`,
+      url: absoluteCanonicalFromPath(`/store/${input.slug}`),
       description: input.description ?? `${input.name} on ROVEXO`,
       aggregateRating:
         input.reviewCount && input.reviewCount > 0
@@ -72,7 +72,7 @@ export function sellerProfilePageJsonLd(input: {
       mainEntity: {
         "@type": "Person",
         name: input.name,
-        url: `${getAppUrl()}/user/${input.username}`,
+        url: absoluteCanonicalFromPath(`/user/${input.username}`),
         aggregateRating:
           input.reviewCount && input.reviewCount > 0
             ? {
@@ -94,12 +94,12 @@ function itemListJsonLd(path: string, name: string, products: Product[]) {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name,
-    url: `${getAppUrl()}${path}`,
+    url: absoluteCanonicalFromPath(path),
     numberOfItems: products.length,
     itemListElement: products.slice(0, 12).map((product, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `${getAppUrl()}/listing/${product.slug}`,
+      url: absoluteCanonicalFromPath(`/listing/${product.slug}`),
       name: product.title,
     })),
   };

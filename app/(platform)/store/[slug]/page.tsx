@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { StoreVisitPageV2 } from "@/features/store/components/StoreVisitPageV2";
 import { storePageJsonLd, storePageMetadata } from "@/lib/seo/engine";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { loadStoreVisitPayload } from "@/lib/store/load-store-visit-payload";
@@ -27,10 +28,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const store = await resolveStoreByRouteParam(slug).catch(() => null);
   if (!store) {
-    return {
-      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-      robots: { index: false, follow: false },
-    };
+    return buildPageMetadata({
+      title: STORE_UNAVAILABLE_COPY.title,
+      description: STORE_UNAVAILABLE_COPY.body,
+      path: `/store/${slug}`,
+      noIndex: true,
+      omitCanonical: true,
+    });
   }
   return toMeta(store);
 }

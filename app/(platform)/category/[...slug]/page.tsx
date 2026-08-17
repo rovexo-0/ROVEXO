@@ -23,8 +23,14 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const { slug } = await params;
   const category = await resolveCategoryPage(slug);
 
-  if (!category) {
-    return { title: "Category not found", robots: { index: false, follow: false } };
+  if (!category || !category.isActive) {
+    return buildPageMetadata({
+      title: "Category not found",
+      description: "This category is not available.",
+      path: `/category/${slug.join("/")}`,
+      noIndex: true,
+      omitCanonical: true,
+    });
   }
 
   const results = await getEligibleListings(

@@ -1,3 +1,8 @@
+/**
+ * SEO internal-link contract SSOT.
+ * Specialized builders in engine/internal-linking.ts and engine/link-graph.ts
+ * must return InternalLinkGroup. This module does not change visible navigation.
+ */
 import type { Product } from "@/lib/products/types";
 import { categoryTree } from "@/lib/categories/tree";
 import { findNodeBySlugPath } from "@/lib/categories/navigation";

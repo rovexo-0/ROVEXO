@@ -207,4 +207,9 @@ export {
   sellerAggregateRatingJsonLd,
 } from "@/lib/seo/engine/ugc-seo";
 
-export { buildHreflangAlternates, getMarketSeoConfig, regionalSitemapPath } from "@/lib/seo/engine/markets-v2";
+export {
+  buildHreflangAlternates,
+  getMarketSeoConfig,
+  hasAlternateHreflangMarkets,
+  regionalSitemapPath,
+} from "@/lib/seo/engine/markets-v2";

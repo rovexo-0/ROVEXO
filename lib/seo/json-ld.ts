@@ -1,13 +1,13 @@
 import type { ProductDetail } from "@/lib/products/types";
 import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
+import { absoluteCanonicalFromPath } from "@/lib/seo/engine/canonical";
 import { getActiveMarket } from "@/lib/seo/markets";
-import { getAppUrl } from "@/lib/supabase/env";
 
 export function productJsonLd(
   product: ProductDetail,
   breadcrumbs: CategoryBreadcrumb[],
 ) {
-  const url = `${getAppUrl()}/listing/${product.slug}`;
+  const url = absoluteCanonicalFromPath(`/listing/${product.slug}`);
   const { currency } = getActiveMarket();
 
   return {
@@ -55,13 +55,13 @@ export function productJsonLd(
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: getAppUrl(),
+                item: absoluteCanonicalFromPath("/"),
               },
               ...breadcrumbs.map((crumb, index) => ({
                 "@type": "ListItem",
                 position: index + 2,
                 name: crumb.name,
-                item: `${getAppUrl()}${crumb.href}`,
+                item: absoluteCanonicalFromPath(crumb.href),
               })),
               {
                 "@type": "ListItem",
@@ -82,11 +82,11 @@ export function categoryJsonLd(name: string, slugPath: string[], description: st
     "@type": "CollectionPage",
     name,
     description,
-    url: `${getAppUrl()}/category/${slugPath.join("/")}`,
+    url: absoluteCanonicalFromPath(`/category/${slugPath.join("/")}`),
     isPartOf: {
       "@type": "WebSite",
       name: "ROVEXO",
-      url: getAppUrl(),
+      url: absoluteCanonicalFromPath("/"),
     },
   };
 }
@@ -101,7 +101,7 @@ export function breadcrumbJsonLd(
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `${getAppUrl()}${item.href.startsWith("/") ? item.href : `/${item.href}`}`,
+      item: absoluteCanonicalFromPath(item.href.startsWith("/") ? item.href : `/${item.href}`),
     })),
   };
 }
@@ -115,7 +115,7 @@ export function businessStoreJsonLd(input: {
     "@context": "https://schema.org",
     "@type": "Store",
     name: input.name,
-    url: `${getAppUrl()}/store/${input.slug}`,
+    url: absoluteCanonicalFromPath(`/store/${input.slug}`),
     description: input.description ?? `${input.name} on ROVEXO`,
   };
 }
@@ -130,7 +130,7 @@ export function sellerStoreJsonLd(input: {
     "@context": "https://schema.org",
     "@type": "Person",
     name: input.name,
-    url: `${getAppUrl()}/user/${input.username}`,
+    url: absoluteCanonicalFromPath(`/user/${input.username}`),
     aggregateRating:
       input.reviewCount && input.reviewCount > 0
         ? {
@@ -151,7 +151,7 @@ export function localBusinessJsonLd(input: {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: input.name,
-    url: `${getAppUrl()}${input.path}`,
+    url: absoluteCanonicalFromPath(input.path),
     contentLocation: {
       "@type": "Place",
       name: input.locationName,

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { absoluteCanonicalFromPath } from "@/lib/seo/engine/canonical";
 import { getAppUrl } from "@/lib/supabase/env";
 
 type PageMetadataInput = {
@@ -8,21 +9,29 @@ type PageMetadataInput = {
   imageUrl?: string;
   type?: "website" | "article";
   noIndex?: boolean;
+  /** 404 / soft-unavailable: do not emit a canonical (or OG url) for a missing page. */
+  omitCanonical?: boolean;
 };
 
+function metadataTitle(title: string): Metadata["title"] {
+  return /\bROVEXO\b/i.test(title) ? { absolute: title } : title;
+}
+
 export function buildPageMetadata(input: PageMetadataInput): Metadata {
-  const canonical = `${getAppUrl()}${input.path.startsWith("/") ? input.path : `/${input.path}`}`;
+  const path = input.path.startsWith("/") ? input.path : `/${input.path}`;
+  const canonical = absoluteCanonicalFromPath(path);
   const image = input.imageUrl ?? `${getAppUrl()}/brand/og-image.png`;
+  const omitCanonical = input.omitCanonical === true;
 
   return {
-    title: input.title,
+    title: metadataTitle(input.title),
     description: input.description,
-    alternates: { canonical },
+    ...(omitCanonical ? {} : { alternates: { canonical } }),
     robots: input.noIndex ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
       title: input.title,
       description: input.description,
-      url: canonical,
+      ...(omitCanonical ? {} : { url: canonical }),
       siteName: "ROVEXO",
       locale: "en_GB",
       type: input.type ?? "website",

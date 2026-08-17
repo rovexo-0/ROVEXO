@@ -6,12 +6,24 @@ export type HreflangAlternate = {
   href: string;
 };
 
-/** Multi-market SEO scaffolding — UK active; others prepared for future launch. */
+/** UK-first. Do not emit hreflang until a second active market exists. */
+export function hasAlternateHreflangMarkets(): boolean {
+  return MARKET_REGIONS.filter((region) => region.active).length > 1;
+}
+
+/**
+ * Alternate-market URLs only. UK-only → empty (no fake locale prefixes).
+ * Pages must not call this until hasAlternateHreflangMarkets() is true.
+ */
 export function buildHreflangAlternates(path: string): HreflangAlternate[] {
+  if (!hasAlternateHreflangMarkets()) {
+    return [];
+  }
+
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const base = getAppUrl();
 
-  return MARKET_REGIONS.filter((region) => region.active || region.code === "uk").map((region) => ({
+  return MARKET_REGIONS.filter((region) => region.active).map((region) => ({
     hreflang: region.locale.replace("_", "-").toLowerCase(),
     href: region.code === "uk" ? `${base}${normalizedPath}` : `${base}/${region.code}${normalizedPath}`,
   }));
@@ -24,7 +36,7 @@ export function getMarketSeoConfig() {
     locale: active.locale,
     currency: active.currency,
     regions: MARKET_REGIONS,
-    hreflangReady: true,
+    hreflangReady: hasAlternateHreflangMarkets(),
     regionalDomainsReady: false,
   };
 }

@@ -37,7 +37,7 @@ const HOMEPAGE_OG_IMAGE = {
 } as const;
 
 export const metadata: Metadata = {
-  title: HOMEPAGE_OG_TITLE,
+  title: { absolute: HOMEPAGE_OG_TITLE },
   description: HOMEPAGE_OG_DESCRIPTION,
   // No alternates.canonical — see rootCanonical comment (Next strips homepage slash).
   openGraph: {

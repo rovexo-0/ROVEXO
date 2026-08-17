@@ -9,6 +9,7 @@ import {
   selectHomepageFeaturedStore,
 } from "@/components/homepage/canonical/featured-store/FeaturedStoreSection";
 import { CanonicalMarketplaceFeed } from "@/components/homepage/canonical/CanonicalMarketplaceFeed";
+import { HOMEPAGE_SOCIAL_PREVIEW_V2 } from "@/lib/share/homepage";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 
 export type CanonicalHomepageProps = HomepageV4Sections;
@@ -47,6 +48,9 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
       data-hp-homepage-version="phase-2-refinement-01"
       data-hp-following="removed"
     >
+      <h1 className={css.hpH1} data-hp-h1="phase-2">
+        {HOMEPAGE_SOCIAL_PREVIEW_V2.title}
+      </h1>
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
       <CanonicalMarketplaceFeed

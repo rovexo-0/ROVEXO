@@ -6,6 +6,7 @@ import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { fetchProductBySlug } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productPageMetadata } from "@/lib/seo/engine";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { productJsonLd } from "@/lib/seo/json-ld";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
@@ -23,10 +24,13 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    return {
-      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-      robots: { index: false, follow: false },
-    };
+    return buildPageMetadata({
+      title: STORE_UNAVAILABLE_COPY.title,
+      description: STORE_UNAVAILABLE_COPY.body,
+      path: `/listing/${slug}`,
+      noIndex: true,
+      omitCanonical: true,
+    });
   }
 
   return productPageMetadata({

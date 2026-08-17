@@ -11,6 +11,7 @@ import { getFollowCounts, isFollowing } from "@/lib/follow/marketplace-follow-st
 import { failClosedPublicTrustSummary, getPublicTrustSummary } from "@/lib/trust/service";
 import { getAuthContext } from "@/lib/auth/session";
 import { sellerPageMetadata, sellerProfilePageJsonLd } from "@/lib/seo/engine";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { isValidStoreUsername } from "@/lib/store-sharing/store-share-v1";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import {
@@ -208,10 +209,13 @@ function storeShareFallbackMetadata(username: string): Metadata {
   if (isValidStoreUsername(username)) {
     return sellerPageMetadata({ username, listingCount: null });
   }
-  return {
-    title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata({
+    title: STORE_UNAVAILABLE_COPY.title,
+    description: STORE_UNAVAILABLE_COPY.body,
+    path: `/user/${username}`,
+    noIndex: true,
+    omitCanonical: true,
+  });
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
