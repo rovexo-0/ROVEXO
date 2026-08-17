@@ -13,12 +13,22 @@ function readSource(relativePath: string): string {
 }
 
 describe("SEO Phase 2 — Technical SEO", () => {
-  it("canonical homepage has exactly one meaningful visible H1", () => {
+  it("canonical homepage has exactly one meaningful semantic H1", () => {
     const home = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
+    const css = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
+    const srOnly = readSource("app/globals.css");
     const matches = home.match(/<h1\b/g) ?? [];
     expect(matches).toHaveLength(1);
     expect(home).toContain("HOMEPAGE_SOCIAL_PREVIEW_V2.title");
     expect(home).toContain('data-hp-h1="phase-2"');
+    expect(home).toContain('className="sr-only"');
+    expect(home).not.toContain("css.hpH1");
+    expect(css).not.toContain(".hpH1");
+    expect(srOnly).toContain(".sr-only {");
+    expect(srOnly).toContain("position: absolute");
+    expect(srOnly).toContain("clip: rect(0, 0, 0, 0)");
+    expect(srOnly).not.toMatch(/\.sr-only\s*\{[^}]*display:\s*none/);
+    expect(srOnly).not.toMatch(/\.sr-only\s*\{[^}]*opacity:\s*0/);
     expect(HOMEPAGE_SOCIAL_PREVIEW_V2.title).toBe("ROVEXO — Buy • Sell • Grow");
     expect(HOMEPAGE_SOCIAL_PREVIEW_V2.title.toLowerCase()).toContain("rovexo");
     expect(home).toContain("CanonicalCategoryRail");

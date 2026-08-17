@@ -48,7 +48,7 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
       data-hp-homepage-version="phase-2-refinement-01"
       data-hp-following="removed"
     >
-      <h1 className={css.hpH1} data-hp-h1="phase-2">
+      <h1 className="sr-only" data-hp-h1="phase-2">
         {HOMEPAGE_SOCIAL_PREVIEW_V2.title}
       </h1>
       <CanonicalCategoryRail />
