@@ -93,8 +93,9 @@ describe("canonical refund architecture (no second engine)", () => {
     expect(lifecycle).not.toMatch(/creditBuyerWalletForConfirmedRefund\s*\(/);
     expect(refunds).toContain("ROVEXO_WALLET_REFUND_METHOD");
     expect(refunds).toContain("wallet-refund-");
+    expect(refunds).toContain("getStripeClient");
+    expect(refunds).toContain("amount_captured");
     expect(refunds).not.toContain("stripe.refunds.create");
-    expect(refunds).not.toContain("getStripeClient");
   });
 
   it("keeps ITEM_JUST_SOLD as a Stripe card refund (not wallet credit)", () => {
