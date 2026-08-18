@@ -244,6 +244,7 @@ describe("P7.4 canonical wiring (source)", () => {
     expect(getQuotesFn).toContain("gateSendcloudV3MetadataByRouteAvailability");
     expect(getQuotesFn).toContain("resolveSendcloudV3MetadataForMethods");
     expect(getQuotesFn).toContain("COMPAT_IDENTITY_FOUND_BUT_ROUTE_UNAVAILABLE");
+    expect(getQuotesFn).toContain("isRouteProvenSendcloudQuote");
     expect(getQuotesFn).not.toContain("announceSendcloudShipmentV3");
   });
 

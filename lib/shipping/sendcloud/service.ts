@@ -26,6 +26,7 @@ import {
 import { SendcloudError, toSendcloudError } from "@/lib/shipping/sendcloud/errors";
 import { mapSendcloudCarrier, mapSendcloudTrackingStatus } from "@/lib/shipping/sendcloud/status-mapper";
 import { isConfirmedSendcloudV3ShippingOptionCode } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
+import { isRouteProvenSendcloudQuote } from "@/lib/shipping/selected-shipping-quote-contract-v1";
 import { resolveSendcloudV3MetadataForMethods, gateSendcloudV3MetadataByRouteAvailability } from "@/lib/shipping/sendcloud/v3-catalog-v1";
 import { isEvriSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/evri-label-engine-certification-v1";
 import { isRoyalMailSendcloudShippingOptionCode } from "@/lib/shipping/sendcloud/royal-mail-label-engine-certification-v1";
@@ -110,7 +111,7 @@ export const SendcloudService = {
 
     // V3 discovery: compat identity first, then route-aware /shipping-options gate.
     // Compat alone is NOT announce-ready — unavailable codes are stripped (no carrier substitute).
-    // Failures must not break V2 pricing; quotes remain label-blocked until a route-proven code exists.
+    // Route-unproven V2 methods are not offered at checkout (label-blocked quotes are not selectable).
     let v3ByMethod = new Map<
       number,
       { shippingOptionCode?: string; contractId?: string; v2MethodId?: number }
@@ -149,7 +150,8 @@ export const SendcloudService = {
       .map((method) =>
         mapSendcloudMethodToQuote(method, v3ByMethod.get(method.id) ?? { v2MethodId: method.id }),
       )
-      .filter((quote): quote is ShippingQuote => quote != null);
+      .filter((quote): quote is ShippingQuote => quote != null)
+      .filter(isRouteProvenSendcloudQuote);
 
     // Fail-closed: preferred carrier list must never fall back to a broader catalog
     // (e.g. InPost must not reappear when v1.0 whitelist is EVRi/RM).

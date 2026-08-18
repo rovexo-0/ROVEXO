@@ -246,6 +246,21 @@ export function selectedSendcloudQuoteNeedsV3Discovery(
 }
 
 /**
+ * Checkout/quote eligibility: Sendcloud methods are offerable only when the
+ * confirmed V3 identity survived the existing route-aware catalog gate.
+ * Never treats sendcloud:N / digits-only as a shippingOptionCode.
+ */
+export function isRouteProvenSendcloudQuote(
+  quote: ShippingQuote | null | undefined,
+): boolean {
+  if (!quote || quote.providerId !== "sendcloud") return false;
+  return isConfirmedSendcloudV3ShippingOptionCode(
+    quote.shippingOptionCode,
+    quote.v2MethodId,
+  );
+}
+
+/**
  * Keep the checkout-selected quote identity.
  * If it already hydrates from quotes, return the hydrated external id.
  * If it is absent from quotes, return the selected id unchanged.
