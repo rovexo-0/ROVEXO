@@ -19,7 +19,11 @@ import type {
   ShippingStatus,
   ShippingTrackingEvent,
 } from "@/lib/shipping/types";
-import { shippingQuoteFromPayloadRow, buildShippingQuotePayload } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
+import {
+  shippingQuoteFromPayloadRow,
+  buildShippingQuotePayload,
+  coerceShippingQuotePayload,
+} from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import {
   estimateDeliveryDate,
   isValidTrackingNumber,
@@ -482,6 +486,46 @@ export async function appendAndSelectShippingQuoteWithoutReplacing(input: {
     .eq("id", input.orderId);
   if (orderError) {
     throw new Error(`Failed to select order shipping quote: ${orderError.message}`);
+  }
+
+  return getShippingRecord(input.orderId);
+}
+
+/**
+ * Overlay confirmed V3 metadata onto the existing selected shipping_quotes row.
+ * Never inserts a second quote. Never changes selected_quote_id.
+ */
+export async function updateShippingQuotePayloadWithoutReplacing(input: {
+  orderId: string;
+  quote: ShippingQuote;
+}): Promise<ShippingRecord | null> {
+  const record = await getShippingRecord(input.orderId);
+  if (!record?.id) return null;
+
+  const admin = createShippingAdminClient();
+  const { data: rows } = await admin
+    .from("shipping_quotes")
+    .select("id, quote_payload")
+    .eq("shipping_record_id", record.id);
+
+  const externalId = String(input.quote.id);
+  const match = ((rows ?? []) as Array<{ id?: string; quote_payload?: unknown }>).find((row) => {
+    if (input.quote.quoteRowId && row.id === input.quote.quoteRowId) return true;
+    const payload = coerceShippingQuotePayload(row.quote_payload ?? null);
+    return Boolean(payload?.externalQuoteId && payload.externalQuoteId === externalId);
+  });
+
+  if (!match?.id) {
+    throw new Error("Selected shipping quote row not found for V3 payload update.");
+  }
+
+  const { error } = await admin
+    .from("shipping_quotes")
+    .update({ quote_payload: buildShippingQuotePayload(input.quote) })
+    .eq("id", match.id)
+    .eq("shipping_record_id", record.id);
+  if (error) {
+    throw new Error(`Failed to update shipping quote payload: ${error.message}`);
   }
 
   return getShippingRecord(input.orderId);

@@ -7,6 +7,7 @@ import {
   appendAndSelectShippingQuoteWithoutReplacing,
   getShippingRecord,
   saveShippingQuotes,
+  updateShippingQuotePayloadWithoutReplacing,
 } from "@/lib/shipping/store";
 import {
   getShipmentParcelById,
@@ -22,9 +23,15 @@ import {
 } from "@/lib/shipping/parcels";
 import { resolveShipmentParcelForLabel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
 import {
+  applySelectedShippingQuotePayload,
   buildLegacyBridgeShippingQuote,
   resolveSelectedShippingQuoteForLabel,
+  selectedSendcloudQuoteNeedsV3Discovery,
 } from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import {
+  normalizeCountryCode,
+  parseSendcloudQuoteId,
+} from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   mustUseDemoShipping,
   mustUseDemoShippingForActors,
@@ -208,6 +215,65 @@ export async function generateShippingLabelForOrder(
   }
   // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
   quoteId = selectedQuote.id;
+
+  // Recover confirmed V3 metadata for a V2-only selected quote via the existing catalog.
+  // Never invents codes. Never changes selected quote identity. Existing V3 gate stays below.
+  if (
+    !forceDemoShipping &&
+    !mustUseDemoShipping() &&
+    selectedSendcloudQuoteNeedsV3Discovery(selectedQuote)
+  ) {
+    const methodId =
+      selectedQuote.v2MethodId ?? parseSendcloudQuoteId(selectedQuote.id);
+    const collection = record?.collectionAddress;
+    const delivery = record?.deliveryAddress;
+    const parcelTier = record?.parcelTier;
+    if (
+      methodId != null &&
+      collection?.postcode?.trim() &&
+      collection.country?.trim() &&
+      delivery?.postcode?.trim() &&
+      delivery.country?.trim() &&
+      parcelTier
+    ) {
+      try {
+        const { discoverConfirmedV3MetadataForV2Method } = await import(
+          "@/lib/shipping/sendcloud/v3-catalog-v1"
+        );
+        const meta = await discoverConfirmedV3MetadataForV2Method({
+          v2MethodId: methodId,
+          route: {
+            fromCountryCode: normalizeCountryCode(collection.country),
+            toCountryCode: normalizeCountryCode(delivery.country),
+            fromPostalCode: collection.postcode,
+            toPostalCode: delivery.postcode,
+            parcelTier,
+          },
+        });
+        if (meta?.shippingOptionCode) {
+          const enriched = applySelectedShippingQuotePayload(selectedQuote, {
+            externalQuoteId: selectedQuote.id,
+            v2MethodId: methodId,
+            shippingOptionCode: meta.shippingOptionCode,
+            ...(meta.contractId ? { contractId: meta.contractId } : {}),
+          });
+          record = await updateShippingQuotePayloadWithoutReplacing({
+            orderId,
+            quote: enriched,
+          });
+          selectedQuote = resolveSelectedShippingQuoteForLabel(
+            record?.pricing?.quotes,
+            quoteId,
+          );
+        }
+      } catch {
+        selectedQuote = resolveSelectedShippingQuoteForLabel(
+          record?.pricing?.quotes,
+          quoteId,
+        );
+      }
+    }
+  }
 
   // Sendcloud production: fail closed when V3 shipping_option_code was never confirmed.
   // Never invent codes from sendcloud:N / method.id. Demo path skips this gate.

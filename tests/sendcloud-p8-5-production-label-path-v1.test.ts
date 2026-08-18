@@ -219,6 +219,8 @@ describe("P8.5 production label path", () => {
     );
     expect(labelGen).toContain("appendAndSelectShippingQuoteWithoutReplacing");
     expect(labelGen).toContain("buildLegacyBridgeShippingQuote");
+    expect(labelGen).toContain("discoverConfirmedV3MetadataForV2Method");
+    expect(labelGen).toContain("updateShippingQuotePayloadWithoutReplacing");
   });
 
   it("I/J — announce payload uses selected V3 option + InPost phone contract + success yields usable label", async () => {

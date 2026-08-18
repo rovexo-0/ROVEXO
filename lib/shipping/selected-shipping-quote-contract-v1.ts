@@ -157,6 +157,17 @@ export function resolveSelectedShippingQuoteForLabel(
   return null;
 }
 
+/** True when a resolved Sendcloud quote still has no confirmed V3 shippingOptionCode. */
+export function selectedSendcloudQuoteNeedsV3Discovery(
+  quote: ShippingQuote | null | undefined,
+): boolean {
+  if (!quote || quote.providerId !== "sendcloud") return false;
+  return !isConfirmedSendcloudV3ShippingOptionCode(
+    quote.shippingOptionCode,
+    quote.v2MethodId,
+  );
+}
+
 /**
  * Keep the checkout-selected quote identity.
  * If it already hydrates from quotes, return the hydrated external id.

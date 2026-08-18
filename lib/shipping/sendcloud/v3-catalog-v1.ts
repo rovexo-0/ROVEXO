@@ -204,6 +204,27 @@ export async function gateSendcloudV3MetadataByRouteAvailability(
   };
 }
 
+/**
+ * Recover confirmed V3 metadata for one selected V2 method.
+ * Uses the same compat + route-aware exact-match path as live quotes.
+ * Never invents codes. Never substitutes another method/carrier.
+ */
+export async function discoverConfirmedV3MetadataForV2Method(input: {
+  v2MethodId: number;
+  route: SendcloudV3ShippingOptionsRequest;
+}): Promise<SendcloudV3QuoteMetadata | null> {
+  const methodId = Math.trunc(input.v2MethodId);
+  if (!Number.isFinite(methodId) || methodId <= 0) return null;
+
+  const compatMeta = await resolveSendcloudV3MetadataForMethods([methodId]);
+  const gated = await gateSendcloudV3MetadataByRouteAvailability(compatMeta, input.route);
+  const meta = gated.metadata.get(methodId);
+  if (!isConfirmedSendcloudV3ShippingOptionCode(meta?.shippingOptionCode, methodId)) {
+    return null;
+  }
+  return meta ?? null;
+}
+
 /** Convenience for resolveLiveDeliveryPrice / quote paths sharing catalog cache. */
 export async function prefetchSendcloudV3CatalogForQuoteRoute(input: {
   fromCountryCode: string;
