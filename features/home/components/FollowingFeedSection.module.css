@@ -118,6 +118,9 @@
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   font-weight: 600;
   color: #6b21a8;

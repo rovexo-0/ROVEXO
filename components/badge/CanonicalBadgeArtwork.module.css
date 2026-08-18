@@ -1,0 +1,57 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: var(--badge-art-size, 40px);
+  height: var(--badge-art-size, 40px);
+  line-height: 0;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.art[data-badge-state="in_progress"] {
+  filter: saturate(0.42) brightness(1.08);
+}
+
+.art[data-badge-state="locked"] {
+  filter: grayscale(1) brightness(1.18) contrast(0.92);
+}
+
+.root[data-badge-state="earned"] {
+  filter: drop-shadow(0 3px 8px rgb(15 23 42 / 0.16));
+}
+
+.mark {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38%;
+  height: 38%;
+  min-width: 12px;
+  min-height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.18);
+}
+
+.check {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.lock {
+  background: #94a3b8;
+  color: #ffffff;
+}
+
+.mark svg {
+  width: 62%;
+  height: 62%;
+}

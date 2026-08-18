@@ -73,12 +73,15 @@ export async function creditSellerForOrder(input: {
 
   const { data: existing } = await admin
     .from("wallet_transactions")
-    .select("id")
+    .select("id, status")
     .eq("user_id", input.sellerId)
     .eq("order_number", input.orderNumber)
     .eq("type", "sale")
     .maybeSingle();
 
+  if (existing?.status === "refunded") {
+    return;
+  }
   if (existing) {
     return;
   }

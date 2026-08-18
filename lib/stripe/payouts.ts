@@ -36,6 +36,24 @@ export async function transferSalePayoutToConnect(input: {
     return { success: false, error: "Invalid payout amount.", retryable: false };
   }
 
+  const { data: saleTx } = await admin
+    .from("wallet_transactions")
+    .select("id, wallet_id, amount, status, stripe_transfer_id")
+    .eq("id", input.saleTransactionId)
+    .maybeSingle();
+
+  if (!saleTx) {
+    return { success: false, error: "Sale transaction not found.", retryable: false };
+  }
+
+  if (saleTx.status === "refunded") {
+    return { success: false, error: "sale_refunded", retryable: false };
+  }
+
+  if (saleTx.stripe_transfer_id) {
+    return { success: true, transferId: saleTx.stripe_transfer_id };
+  }
+
   let transferId: string;
 
   if (mustUseVirtualWallet()) {
@@ -76,16 +94,6 @@ export async function transferSalePayoutToConnect(input: {
     transferId = `dev_transfer_${input.orderId}`;
   }
 
-  const { data: saleTx } = await admin
-    .from("wallet_transactions")
-    .select("id, wallet_id, amount, status, stripe_transfer_id")
-    .eq("id", input.saleTransactionId)
-    .maybeSingle();
-
-  if (!saleTx || saleTx.stripe_transfer_id) {
-    return { success: true, transferId: saleTx?.stripe_transfer_id ?? transferId };
-  }
-
   const { data: wallet } = await admin
     .from("wallets")
     .select("pending_balance")
@@ -116,6 +124,7 @@ export async function transferSalePayoutToConnect(input: {
       description: `order:${input.orderId}|transfer:${transferId}`,
     })
     .eq("id", input.saleTransactionId)
+    .neq("status", "refunded")
     .is("stripe_transfer_id", null);
 
   if (txError) {

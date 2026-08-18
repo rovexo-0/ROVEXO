@@ -89,8 +89,15 @@ describe("ROVEXO Seller Rating System v1.0", () => {
     expect(viewProfile).toContain("verifiedPurchaseLabel");
     expect(viewProfile).toContain("SELLER_RATING_RULES");
     expect(viewProfile).toContain("Rating");
+    expect(viewProfile).toContain("rating: averageRating");
+    expect(viewProfile).toContain("reviewCount,");
     expect(productStore).toContain("sellerRating");
     expect(repo).toContain("enrichProductDetailWithSellerRating");
+    expect(repo).toContain("enrichProductsWithCanonicalSellerRating");
+    expect(readSource("lib/listings/repository.ts")).toContain(
+      "enrichProductsWithCanonicalSellerRating",
+    );
+    expect(readSource("lib/listings/repository.ts")).toContain("sellerId: row.seller_id");
   });
 
   it("keeps marketplace Follow (XLVI) without social-media FollowSellerButton", () => {

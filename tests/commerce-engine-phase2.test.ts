@@ -133,6 +133,34 @@ describe("commerce engine phase 2+3 — release gate", () => {
       }),
     ).toBe("released");
   });
+
+  it("never releases a refunded seller sale after order completion", () => {
+    expect(
+      decideRelease({
+        status: "completed",
+        deliveredAt: deliveredJustNow,
+        hasRefund: true,
+        hasOpenClaim: false,
+        saleRefunded: true,
+        requireTimer: false,
+        now,
+      }),
+    ).toBe("sale_refunded");
+  });
+
+  it("never releases a refunded seller sale after delivered + 24h", () => {
+    expect(
+      decideRelease({
+        status: "delivered",
+        deliveredAt: delivered25hAgo,
+        hasRefund: false,
+        hasOpenClaim: false,
+        saleRefunded: true,
+        requireTimer: true,
+        now,
+      }),
+    ).toBe("sale_refunded");
+  });
 });
 
 describe("commerce engine phase 2+3 — constants", () => {

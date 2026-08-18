@@ -12,6 +12,7 @@ import {
   type ShowcaseSellerSection,
 } from "@/lib/homepage/showcase-sellers";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
+import { collectEligibleHomepageFeedPage } from "@/lib/products/homepage-feed-eligible-pagination-v1";
 import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { isPromotionActive } from "@/lib/promotions/format";
@@ -20,6 +21,7 @@ import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { toProductDetail } from "@/lib/products/detail";
 import { toPublicProductDocument } from "@/lib/products/public-product-contract-v1";
+import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveProductInformationValuesV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
@@ -235,6 +237,11 @@ async function enrichProductsWithTrust(products: Product[]): Promise<Product[]> 
   }
 }
 
+async function enrichMarketplaceListingProducts(products: Product[]): Promise<Product[]> {
+  const withTrust = await enrichProductsWithTrust(products);
+  return enrichProductsWithCanonicalSellerRating(withTrust);
+}
+
 function productAvailability(
   stock: number,
   lowStockAlert: number,
@@ -379,7 +386,7 @@ export async function getProductsBySection(
   const visibleRows = await applyHolidayModeVisibilityFilter(supabase, rawRows);
   const mapped = visibleRows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
-  const enriched = await enrichProductsWithTrust(withModes);
+  const enriched = await enrichMarketplaceListingProducts(withModes);
   const items = HomepageEligibility.filterProducts(enriched).map(toPublicProductDocument);
 
   return {
@@ -401,56 +408,43 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   // USER-SPECIFIC identity must never enter this path (CDN/ISR document).
   const supabase = createPublicCatalogueClient();
   const pageSize = HOMEPAGE_FEED_PAGE_SIZE;
-  const targetFrom = (page - 1) * pageSize;
-  let scanFrom = targetFrom;
-  const eligibleRows: ProductRow[] = [];
-  let exhausted = false;
+  const { items: eligibleRows, hasMore: streamHasMore } = await collectEligibleHomepageFeedPage<ProductRow>({
+    page,
+    pageSize,
+    isEligible: (row) => HomepageEligibility.isRowEligible(row),
+    getId: (row) => row.id,
+    fetchScanWindow: async (fromInclusive, toInclusive) => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(HOMEPAGE_FEED_SELECT)
+        .eq("status", "published")
+        .eq("is_demo", false)
+        .gt("stock", 0)
+        .order("promotion_score", { ascending: false })
+        .order("created_at", { ascending: false })
+        .order("views", { ascending: false })
+        .range(fromInclusive, toInclusive);
 
-  while (eligibleRows.length < pageSize && !exhausted) {
-    const scanTo = scanFrom + pageSize * 3 - 1;
-    const { data, error } = await supabase
-      .from("products")
-      .select(HOMEPAGE_FEED_SELECT)
-      .eq("status", "published")
-      .eq("is_demo", false)
-      .gt("stock", 0)
-      .order("promotion_score", { ascending: false })
-      .order("created_at", { ascending: false })
-      .order("views", { ascending: false })
-      .range(scanFrom, scanTo);
-
-    if (error) {
-      /* Past-end range → empty page (never surface PGRST103 as 500). */
-      if (error.code === "PGRST103") {
-        exhausted = true;
-        break;
+      if (error) {
+        /* Past-end range → empty window (never surface PGRST103 as 500). */
+        if (error.code === "PGRST103") {
+          return { rows: [], fetchedCount: 0 };
+        }
+        throw error;
       }
-      throw error;
-    }
 
-    const batch = (data as ProductRow[] | null) ?? [];
-    if (!batch.length) {
-      exhausted = true;
-      break;
-    }
-
-    const visibleBatch = await applyHolidayModeVisibilityFilter(supabase, batch);
-    for (const row of visibleBatch) {
-      if (HomepageEligibility.isRowEligible(row)) {
-        eligibleRows.push(row);
-        if (eligibleRows.length >= pageSize) break;
+      const batch = (data as ProductRow[] | null) ?? [];
+      if (batch.length === 0) {
+        return { rows: [], fetchedCount: 0 };
       }
-    }
+      const visibleBatch = await applyHolidayModeVisibilityFilter(supabase, batch);
+      return { rows: visibleBatch, fetchedCount: batch.length };
+    },
+  });
 
-    scanFrom += pageSize * 3;
-    if (batch.length < pageSize * 3) {
-      exhausted = true;
-    }
-  }
-
-  const mapped = eligibleRows.slice(0, pageSize).map((row) => mapProductRow(row));
+  const mapped = eligibleRows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
-  const enriched = await enrichProductsWithTrust(withModes);
+  const enriched = await enrichMarketplaceListingProducts(withModes);
   const items = HomepageEligibility.filterProducts(
     enriched.map((product) => ({
       ...product,
@@ -461,7 +455,6 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
     // Eligibility already consumed sellerEmail server-side; redact before public document.
     .map(toPublicProductDocument);
 
-  /* Empty page or exhausted scan → stop pagination (never infinite hasMore). */
   if (items.length === 0) {
     return { items: [], page, hasMore: false };
   }
@@ -469,7 +462,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   return {
     items,
     page,
-    hasMore: items.length >= pageSize && !exhausted,
+    hasMore: streamHasMore,
   };
 }
 
@@ -522,7 +515,7 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
   );
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
-  const enriched = await enrichProductsWithTrust(withModes);
+  const enriched = await enrichMarketplaceListingProducts(withModes);
   const sections = buildShowcaseSellerSections(enriched, {
     featuredSellerIds: new Set(featuredSellerIds),
   });

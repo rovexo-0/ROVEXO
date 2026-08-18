@@ -1,0 +1,336 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  gap: 24px;
+  padding-bottom: 20px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+.cardKicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.scoreWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.scoreRing {
+  --p: 0;
+  position: relative;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  background: conic-gradient(#9333ea calc(var(--p) * 1%), #f1f5f9 0);
+}
+
+.scoreRingInner {
+  position: absolute;
+  inset: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.scoreValue {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #111111;
+}
+
+.scoreMax {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.levelTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.levelBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgb(147 51 234 / 0.08);
+  color: #9333ea;
+}
+
+.levelBadge svg {
+  width: 28px;
+  height: 28px;
+}
+
+.levelName {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #111111;
+}
+
+.nextLevel {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+}
+
+.levelMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.rewardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rewardItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #111111;
+}
+
+.rewardMark {
+  flex: 0 0 auto;
+  color: #9333ea;
+  font-weight: 700;
+}
+
+.factorIcon {
+  color: #9333ea;
+}
+
+.sectionIntro {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.subsection + .subsection {
+  margin-top: 20px;
+}
+
+.subsectionTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.emptyHint {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.earnedRail {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.earnedCard,
+.lockedCard,
+.progressCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
+  box-sizing: border-box;
+}
+
+.earnedCard {
+  flex: 0 0 min(168px, 46vw);
+  scroll-snap-align: start;
+}
+
+.progressList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.progressCard {
+  width: 100%;
+}
+
+.progressHead {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.progressCopy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  flex: 1;
+  gap: 12px;
+}
+
+.progressCount {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.lockedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.badgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgb(147 51 234 / 0.08);
+  color: #9333ea;
+}
+
+.badgeIconLocked {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.badgeName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #111111;
+}
+
+.badgeMeta {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #64748b;
+}
+
+.lockedHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.lockMark {
+  flex: 0 0 auto;
+  color: #94a3b8;
+}
+
+@media (min-width: 768px) {
+  .summaryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .earnedRail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .earnedCard {
+    flex: unset;
+  }
+
+  .lockedGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

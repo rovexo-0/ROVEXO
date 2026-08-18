@@ -452,6 +452,25 @@ export async function recalculateSellerPerformanceInternal(input: {
   return next;
 }
 
+async function loadFirstCompletedSaleAt(userId: string): Promise<string | null> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("orders")
+      .select("completed_at, created_at")
+      .eq("seller_id", userId)
+      .eq("status", "completed")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!data) return null;
+    const row = data as { completed_at: string | null; created_at: string | null };
+    return row.completed_at ?? row.created_at ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getSellerPerformanceDashboard(
   userId: string,
   range: ScoreHistoryRange = "90d",
@@ -459,26 +478,57 @@ export async function getSellerPerformanceDashboard(
   const cached = getCachedSellerPerformanceDashboard(userId);
   if (cached && range === "90d") return cached;
 
-  const [scoreRow, latestChanges, scoreHistory] = await Promise.all([
+  const [scoreRow, latestChanges, scoreHistory, firstCompletedSaleAt] = await Promise.all([
     getSellerPerformanceScore(userId),
     getSellerPerformanceChanges(userId, 12),
     getSellerPerformanceHistory(userId, range),
+    loadFirstCompletedSaleAt(userId),
   ]);
 
-  const factors = scoreRow.factors;
-  const components = scoreRow.componentScores;
-  const progress = progressToNextLevel(scoreRow.score);
+  let liveScore = scoreRow;
+  try {
+    const { collectSellerPerformanceFactors } = await import("@/lib/seller-performance/factors");
+    const liveFactors = await collectSellerPerformanceFactors(userId);
+    const componentScores = buildComponentScores(liveFactors);
+    const score = calculateSellerPerformanceScore(liveFactors);
+    const derived = deriveAchievements(score, liveFactors);
+    const achievements = mergeAchievementsWithAdminOverrides({
+      derived,
+      granted: scoreRow.badgesGranted,
+      revoked: scoreRow.badgesRevoked,
+    });
+    liveScore = {
+      userId,
+      score,
+      level: levelForScore(score),
+      componentScores,
+      factors: liveFactors,
+      achievements,
+      badgesGranted: scoreRow.badgesGranted,
+      badgesRevoked: scoreRow.badgesRevoked,
+      updatedAt: new Date().toISOString(),
+      lastRecalculatedAt: new Date().toISOString(),
+    };
+  } catch {
+    liveScore = scoreRow;
+  }
+
+  const factors = liveScore.factors;
+  const components = liveScore.componentScores;
+  const progress = progressToNextLevel(liveScore.score);
   if (factors) {
-    progress.requirements = buildNextLevelRequirements(scoreRow.score, factors, components);
+    progress.requirements = buildNextLevelRequirements(liveScore.score, factors, components);
   }
 
   const dashboard: SellerPerformanceDashboard = {
-    score: scoreRow,
+    score: liveScore,
     progress,
     latestChanges,
     scoreHistory,
     factorBreakdown: factors ? buildFactorBreakdown(factors, components) : [],
-    achievements: achievementCatalog(scoreRow.achievements),
+    achievements: achievementCatalog(liveScore.achievements, {
+      first_sale: firstCompletedSaleAt,
+    }),
   };
 
   if (range === "90d") {

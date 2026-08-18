@@ -273,6 +273,7 @@
 
 .vp-v1__badge-chip {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   width: fit-content;

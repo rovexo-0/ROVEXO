@@ -3,6 +3,7 @@ import { HomepageEligibility, type EligibilityRow } from "@/lib/homepage/homepag
 import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
 import type { Product } from "@/lib/products/types";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
+import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
 
 type RecentlyViewedRow = {
   viewed_at: string;
@@ -39,6 +40,7 @@ function mapProduct(row: NonNullable<RecentlyViewedRow["products"]>): Product {
     originalPrice: null,
     condition: row.condition,
     sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
+    sellerId: row.seller_id ?? undefined,
     sellerUsername: row.profiles?.username ?? null,
     sellerAvatar: row.profiles?.avatar_url,
     sellerVerified: row.profiles?.verified ?? false,
@@ -94,9 +96,10 @@ export async function listRecentlyViewed(userId: string, limit = 12): Promise<Pr
       .map((row) => row.products)
       .filter((product): product is NonNullable<RecentlyViewedRow["products"]> => product !== null);
     const visible = await applyHolidayModeVisibilityFilter(supabase, products);
-    return visible
+    const mapped = visible
       .filter((product) => HomepageEligibility.isRowEligible(product))
       .map((product) => mapProduct(product));
+    return enrichProductsWithCanonicalSellerRating(mapped);
   } catch {
     return [];
   }

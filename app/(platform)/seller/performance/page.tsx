@@ -24,7 +24,7 @@ export default async function SellerPerformancePage() {
   return (
     <SellerPerformanceDashboardView
       data={data}
-      publicBadges={badges.map((b) => ({ id: b.id, label: b.label }))}
+      publicBadges={badges.map((b) => ({ id: b.id, label: b.label, tooltip: b.tooltip }))}
     />
   );
 }

@@ -62,6 +62,8 @@ function storeToPublicProfile(store: StoreRecord): PublicSellerProfile {
     followerCount: store.followerCount,
     followingCount: store.followingCount,
     badgeLabel: null,
+    badgeId: null,
+    earnedBadges: [],
     isFollowing: false,
   };
 }
@@ -123,7 +125,7 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
       if (owned) ownerListings = owned.items;
     }
 
-    const [followCounts, viewerFollowing] = await Promise.all([
+    const [followCounts, viewerFollowing, publicBadges] = await Promise.all([
       getFollowCounts(profile.id).catch(() => ({
         followerCount: 0,
         followingCount: 0,
@@ -131,13 +133,20 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
       auth?.user.id && !isOwnProfile
         ? isFollowing(auth.user.id, profile.id).catch(() => false)
         : Promise.resolve(false),
+      import("@/lib/badge/store")
+        .then((mod) => mod.getPublicBadges(profile.id))
+        .catch(() => []),
     ]);
+
+    const earnedBadges = publicBadges.map((badge) => ({ id: badge.id, label: badge.label }));
 
     const safeProfile: PublicSellerProfile = {
       ...profile,
       listings: isOwnProfile ? ownerListings : profile.listings,
       draftListings,
-      badgeLabel: profile.badgeLabel ?? null,
+      badgeId: earnedBadges[0]?.id ?? profile.badgeId ?? null,
+      badgeLabel: earnedBadges[0]?.label ?? profile.badgeLabel ?? null,
+      earnedBadges,
       followerCount: followCounts.followerCount,
       followingCount: followCounts.followingCount,
       isFollowing: Boolean(viewerFollowing),

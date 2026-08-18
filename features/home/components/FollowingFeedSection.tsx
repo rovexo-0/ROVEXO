@@ -15,6 +15,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CanonicalBadgeArtwork } from "@/components/badge/CanonicalBadgeArtwork";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCardImageSrc } from "@/lib/media/use-card-image-src";
@@ -150,7 +151,16 @@ const FollowingFeedCardView = memo(function FollowingFeedCardView({
             <div className={css.sellerBadges}>
               {card.seller.verified ? <span className={css.chip}>Verified</span> : null}
               {card.seller.badgeLabel ? (
-                <span className={css.chip}>{card.seller.badgeLabel}</span>
+                <span className={css.chip}>
+                  <CanonicalBadgeArtwork
+                    badgeKey={card.seller.badgeLabel}
+                    state="earned"
+                    size={16}
+                    showStateMark={false}
+                    title={card.seller.badgeLabel}
+                  />
+                  {card.seller.badgeLabel}
+                </span>
               ) : null}
             </div>
           </div>

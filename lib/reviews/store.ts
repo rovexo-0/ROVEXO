@@ -135,13 +135,24 @@ async function loadOrderForReview(orderId: string): Promise<OrderEligibilityRow 
   // Participant check still enforces buyer/seller; admin read avoids RLS false "Order not found"
   // when the authenticated client cookie jar cannot see a just-completed order row.
   const admin = createAdminClient();
-  const { data: order } = await admin
+  const { data: order, error } = await admin
     .from("orders")
     .select(
       "id, buyer_id, seller_id, status, paid_at, delivered_at, completed_at, refunded_at, refund_status, review_window_opens_at, review_window_closes_at, review_window_closed",
     )
     .eq("id", orderId)
     .maybeSingle();
+  // TEMP LOCAL DIAGNOSTIC — observe { data, error } only. Remove after capture. Do not change return.
+  console.info(
+    [
+      "REVIEW_ORDER_DIAGNOSTIC",
+      `orderId=${orderId.slice(0, 8)}…`,
+      `dataPresent=${Boolean(order)}`,
+      `errorCode=${error?.code ?? "null"}`,
+      `errorMessage=${error?.message ?? "null"}`,
+      `errorDetails=${error?.details ?? "null"}`,
+    ].join("\n"),
+  );
   return (order as OrderEligibilityRow | null) ?? null;
 }
 

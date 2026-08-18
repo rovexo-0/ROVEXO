@@ -18,6 +18,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { CanonicalBadgeArtwork } from "@/components/badge/CanonicalBadgeArtwork";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { useToast } from "@/components/ui/Toast";
 import { resolveVerifiedStatus } from "@/lib/master-engine";
@@ -518,11 +519,22 @@ export function ViewProfilePage({
                 </h1>
                 <p className="vp-v1__username">@{profile.username}</p>
 
-                {profile.badgeLabel ? (
+                {profile.earnedBadges?.length || profile.badgeLabel ? (
                   <p className="vp-v1__badge-chip" data-seller-badge="xlvi">
-                    <span className="vp-v1__badge-diamond" aria-hidden>
-                      ◆
-                    </span>
+                    {(profile.earnedBadges?.length
+                      ? profile.earnedBadges
+                      : profile.badgeId || profile.badgeLabel
+                        ? [{ id: profile.badgeId ?? profile.badgeLabel ?? "", label: profile.badgeLabel ?? "" }]
+                        : []
+                    ).map((badge) => (
+                      <CanonicalBadgeArtwork
+                        key={badge.id || badge.label}
+                        badgeKey={badge.id || badge.label}
+                        state="earned"
+                        size={22}
+                        title={badge.label}
+                      />
+                    ))}
                     {profile.badgeLabel}
                   </p>
                 ) : null}
@@ -695,7 +707,11 @@ export function ViewProfilePage({
                   {storeItems.map((product) => (
                     <ListingCard
                       key={product.id}
-                      product={product}
+                      product={{
+                        ...product,
+                        rating: averageRating,
+                        reviewCount,
+                      }}
                       variant="grid"
                       {...HP_CANONICAL_LISTING_PROPS}
                       surface="store"

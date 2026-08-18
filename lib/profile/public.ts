@@ -41,6 +41,10 @@ export type PublicSellerProfile = {
   followingCount: number;
   /** Reputation badge label from Seller Performance (Bronze→Legend). */
   badgeLabel: string | null;
+  /** Canonical Badge Engine / achievement key for the primary public badge. */
+  badgeId: string | null;
+  /** Public earned badges — same visual keys as Performance. */
+  earnedBadges: Array<{ id: string; label: string }>;
   /** Viewer follow state (false for guests / own profile). */
   isFollowing: boolean;
 };
@@ -191,6 +195,8 @@ export async function getPublicSellerProfile(
     followerCount: 0,
     followingCount: 0,
     badgeLabel: publicBadges[0]?.label ?? null,
+    badgeId: publicBadges[0]?.id ?? null,
+    earnedBadges: publicBadges.map((badge) => ({ id: badge.id, label: badge.label })),
     isFollowing: false,
   };
 }

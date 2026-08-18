@@ -15,6 +15,7 @@ import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
+import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
 import { purgeListingNotifications } from "@/lib/listings/purge-listing-notifications";
 import { normalizeListingPrice } from "@/lib/sell/listing-price";
 import type {
@@ -181,6 +182,7 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     condition: row.condition,
     brand: row.brands?.name,
     sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
+    sellerId: row.seller_id,
     sellerAvatar: normalizeAvatarUrl(row.profiles?.avatar_url) ?? undefined,
     sellerVerified: row.profiles?.verified ?? false,
     sellerUsername: row.profiles?.username ?? null,
@@ -227,7 +229,8 @@ export async function getRecentPublishedListings(limit = 8): Promise<Product[]> 
   const mapped = HomepageEligibility.filterEligibleRows((data as ProductRow[] | null) ?? []).map(
     (row) => mapProductRow(row),
   );
-  return attachTransactionModes(mapped);
+  const withModes = await attachTransactionModes(mapped);
+  return enrichProductsWithCanonicalSellerRating(withModes);
 }
 
 async function attachTransactionModes(products: Product[]): Promise<Product[]> {
@@ -1148,10 +1151,11 @@ export async function searchListings(
   const rows = HomepageEligibility.filterEligibleRows(rawRows);
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
+  const withSellerRating = await enrichProductsWithCanonicalSellerRating(withModes);
   const items =
     options.sort === "newest" || options.sort === "price_asc" || options.sort === "price_desc"
-      ? withModes
-      : applyAntiMonopolyRotation(withModes);
+      ? withSellerRating
+      : applyAntiMonopolyRotation(withSellerRating);
 
   const dbTotal = count ?? 0;
   const total = resolveEligibleVisibleTotal({

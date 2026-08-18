@@ -11,6 +11,7 @@ import type { SavedItem } from "@/lib/saved/types";
 import type { Product } from "@/lib/products/types";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
+import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
 
 type SavedProductJoin = Tables<"products"> & {
   profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified" | "username"> | null;
@@ -39,6 +40,7 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
     originalPrice: row.products.original_price != null ? Number(row.products.original_price) : null,
     condition: row.products.condition,
     sellerName: resolvePublicUsernameLabel(row.products.profiles?.username, "Seller"),
+    sellerId: row.products.seller_id,
     sellerUsername: row.products.profiles?.username ?? null,
     sellerAvatar: row.products.profiles?.avatar_url,
     sellerVerified: row.products.profiles?.verified,
@@ -128,6 +130,11 @@ export async function listSavedItems(userId: string): Promise<SavedItem[]> {
       continue;
     }
     live.push(mapSavedRow({ ...row, products: product }));
+  }
+
+  const boundProducts = await enrichProductsWithCanonicalSellerRating(live.map((item) => item.product));
+  for (let index = 0; index < live.length; index += 1) {
+    live[index] = { ...live[index], product: boundProducts[index] };
   }
 
   if (orphanProductIds.length) {

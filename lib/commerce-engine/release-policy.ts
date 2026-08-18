@@ -6,6 +6,7 @@ export type ReleaseReason =
   | "within_hold_window"
   | "claim_open"
   | "refund_present"
+  | "sale_refunded"
   | "order_missing"
   | "cancelled"
   | "connect_not_ready"
@@ -18,6 +19,8 @@ export type ReleaseDecisionInput = {
   hasRefund: boolean;
   hasOpenClaim: boolean;
   requireTimer: boolean;
+  /** Canonical seller sale ledger is already refunded — never releasable. */
+  saleRefunded?: boolean;
   now?: number;
 };
 
@@ -29,6 +32,7 @@ export function decideRelease(input: ReleaseDecisionInput): ReleaseReason {
   const now = input.now ?? Date.now();
 
   if (input.status === "cancelled") return "cancelled";
+  if (input.saleRefunded) return "sale_refunded";
   if (input.status === "issue_open") return "claim_open";
 
   const buyerConfirmed = input.status === "completed";

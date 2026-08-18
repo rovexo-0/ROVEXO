@@ -53,6 +53,8 @@ type PendingSale = {
   order_number: string | null;
   amount: number;
   description: string | null;
+  status?: string | null;
+  stripe_transfer_id?: string | null;
 };
 
 function parseOrderIdFromDescription(description: string | null): string | null {
@@ -85,27 +87,46 @@ async function hasBlockingRefund(order: OrderRow): Promise<boolean> {
   return Array.isArray(data) && data.length > 0;
 }
 
+async function loadSellerSaleStatus(order: OrderRow): Promise<string | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("wallet_transactions")
+    .select("status")
+    .eq("user_id", order.seller_id)
+    .eq("order_number", order.order_number)
+    .eq("type", "sale")
+    .maybeSingle();
+  return data?.status ?? null;
+}
+
 /**
  * Evaluate whether an order's escrow may be released now (loads claim/refund
  * state, then applies the pure gate).
  */
 async function evaluateRelease(order: OrderRow, requireTimer: boolean): Promise<ReleaseReason> {
-  // Cheap terminal checks first (avoid I/O when already blocked/eligible-shape).
   if (order.status === "cancelled") return "cancelled";
-  if (order.status === "issue_open") return "claim_open";
 
-  const [refund, claim] = await Promise.all([hasBlockingRefund(order), hasOpenClaim(order.id)]);
+  const [refund, claim, saleStatus] = await Promise.all([
+    hasBlockingRefund(order),
+    hasOpenClaim(order.id),
+    loadSellerSaleStatus(order),
+  ]);
 
   return decideRelease({
     status: order.status,
     deliveredAt: order.delivered_at,
     hasRefund: refund,
     hasOpenClaim: claim,
+    saleRefunded: saleStatus === "refunded",
     requireTimer,
   });
 }
 
 async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: boolean): Promise<ReleaseOutcome> {
+  if (sale.status === "refunded") {
+    return { released: false, reason: "sale_refunded" };
+  }
+
   const gate = await evaluateRelease(order, requireTimer);
   if (gate !== "released") {
     return { released: false, reason: gate };
@@ -244,7 +265,7 @@ export async function releaseEligibleOrders(limit = 100): Promise<number> {
   const admin = createAdminClient();
   const { data: pendingSales } = await admin
     .from("wallet_transactions")
-    .select("id, user_id, order_number, amount, description")
+    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id")
     .eq("type", "sale")
     .eq("status", "pending")
     .is("stripe_transfer_id", null)
@@ -276,15 +297,19 @@ export async function releaseOrderNow(orderId: string): Promise<ReleaseOutcome> 
   const admin = createAdminClient();
   const { data: sale } = await admin
     .from("wallet_transactions")
-    .select("id, user_id, order_number, amount, description")
+    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id")
     .eq("user_id", order.seller_id)
     .eq("order_number", order.order_number)
     .eq("type", "sale")
-    .eq("status", "pending")
-    .is("stripe_transfer_id", null)
     .maybeSingle();
 
-  if (!sale) return { released: false, reason: "no_pending_sale" };
+  if (sale?.status === "refunded") {
+    return { released: false, reason: "sale_refunded" };
+  }
+
+  if (!sale || sale.status !== "pending" || sale.stripe_transfer_id) {
+    return { released: false, reason: "no_pending_sale" };
+  }
 
   return settleSale(sale as PendingSale, order, false);
 }

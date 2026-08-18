@@ -14,6 +14,7 @@ import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import type { Product } from "@/lib/products/types";
+import { applyCanonicalSellerRatingsToProducts } from "@/lib/products/canonical-seller-rating-v1";
 import { isStoreId, isStoreSlug } from "@/lib/store/store-href";
 
 export const STORE_SSOT_VERSION = "1.0" as const;
@@ -136,10 +137,17 @@ async function loadStoreFromProfile(profile: {
     ]);
 
   const listings = storeListings.items ?? [];
-  const soldListings = mapSoldRows((soldResult.data ?? []) as Array<Record<string, unknown>>, {
-    id: profile.id,
-    username: profile.username,
-  });
+  const canonicalSellerRating = {
+    rating: Number(sellerProfile?.rating ?? 0),
+    reviewCount: Number(sellerProfile?.review_count ?? 0),
+  };
+  const soldListings = applyCanonicalSellerRatingsToProducts(
+    mapSoldRows((soldResult.data ?? []) as Array<Record<string, unknown>>, {
+      id: profile.id,
+      username: profile.username,
+    }),
+    new Map([[profile.id, canonicalSellerRating]]),
+  );
 
   // Public identity = username only (never personal full name).
   const storeName = resolvePublicUsernameLabel(profile.username, "Store");
