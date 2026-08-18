@@ -87,6 +87,16 @@ function inferCity(addressLine: string, postcode: string): string {
   return postcode.trim().split(/\s+/)[0] || "United Kingdom";
 }
 
+function existingAddressSnapshotOrNull(
+  address: ShippingAddress | null | undefined,
+): ShippingAddress | null {
+  if (!address) return null;
+  if (!address.line1?.trim() || !address.postcode?.trim() || !address.country?.trim()) {
+    return null;
+  }
+  return address;
+}
+
 async function resolveDeliveryAddress(
   shippingAddressId: string | null,
 ): Promise<ShippingAddress | null> {
@@ -264,15 +274,18 @@ async function runEnsureOrderShippingPersistence(
   }
 
   const admin = createAdminClient();
-  const [{ data: sellerProfile }, deliveryAddress] = await Promise.all([
+  const [{ data: sellerProfile }, resolvedDelivery] = await Promise.all([
     admin.from("profiles").select("full_name").eq("id", order.seller_id).maybeSingle(),
     resolveDeliveryAddress(order.shipping_address_id),
   ]);
 
-  const collectionAddress = await resolveSellerCollectionAddress(
-    order.seller_id,
-    sellerProfile?.full_name?.trim() || "Seller",
+  const collectionSnapshot = existingAddressSnapshotOrNull(
+    await resolveSellerCollectionAddress(
+      order.seller_id,
+      sellerProfile?.full_name?.trim() || "Seller",
+    ),
   );
+  const deliverySnapshot = existingAddressSnapshotOrNull(resolvedDelivery);
 
   // INSERT failures throw from ensureShippingRecord (never silent null).
   const record = await ensureShippingRecord({
@@ -282,20 +295,20 @@ async function runEnsureOrderShippingPersistence(
     manualTier: parcelTier,
     carrier: order.delivery_carrier || null,
     selectedQuoteId: preferredQuoteId,
-    collectionAddress,
-    deliveryAddress,
+    collectionAddress: collectionSnapshot,
+    deliveryAddress: deliverySnapshot,
   });
   if (!record) {
     throw new Error(`Failed to create shipping record for order ${order.id}.`);
   }
 
-  if (collectionAddress || deliveryAddress || order.delivery_carrier) {
+  if (collectionSnapshot || deliverySnapshot || order.delivery_carrier) {
     const shippingAdmin = createShippingAdminClient();
     await shippingAdmin
       .from("shipping_records")
       .update({
-        ...(collectionAddress ? { collection_address: collectionAddress } : {}),
-        ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
+        ...(collectionSnapshot ? { collection_address: collectionSnapshot } : {}),
+        ...(deliverySnapshot ? { delivery_address: deliverySnapshot } : {}),
         ...(order.delivery_carrier ? { carrier: order.delivery_carrier } : {}),
         ...(preferredQuoteId ? { selected_quote_id: preferredQuoteId } : {}),
       })
@@ -324,9 +337,9 @@ async function runEnsureOrderShippingPersistence(
     !selectedSendcloudQuoteNeedsV3Discovery(existingSelected);
 
   if (checkoutQuote && !existingSelected?.id) {
-    if (allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
-      const collectionValidated = ShippingService.validateAddress(collectionAddress);
-      const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
+    if (allowLiveQuoteEnrichment && collectionSnapshot && deliverySnapshot) {
+      const collectionValidated = ShippingService.validateAddress(collectionSnapshot);
+      const deliveryValidated = ShippingService.validateAddress(deliverySnapshot);
       if (collectionValidated.valid && deliveryValidated.valid) {
         try {
           const pricing = await fetchShippingQuotesServer({
@@ -405,12 +418,12 @@ async function runEnsureOrderShippingPersistence(
     !existingHasConfirmedV3 &&
     !hasQuotes &&
     allowLiveQuoteEnrichment &&
-    collectionAddress &&
-    deliveryAddress
+    collectionSnapshot &&
+    deliverySnapshot
   ) {
     // Legacy orders without selected_shipping_quote_id — best-effort live quotes.
-    const collectionValidated = ShippingService.validateAddress(collectionAddress);
-    const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
+    const collectionValidated = ShippingService.validateAddress(collectionSnapshot);
+    const deliveryValidated = ShippingService.validateAddress(deliverySnapshot);
 
     if (collectionValidated.valid && deliveryValidated.valid) {
       const pricing = await fetchShippingQuotesServer({
@@ -436,7 +449,7 @@ async function runEnsureOrderShippingPersistence(
   // Full Demo / Sendcloud sandbox: materialize demo quotes when still empty.
   const afterAddressQuotes = await getShippingRecord(order.id);
   if ((afterAddressQuotes?.pricing?.quotes.length ?? 0) === 0 && mustUseDemoShipping()) {
-    const demoCollection: ShippingAddress = collectionAddress ?? {
+    const demoCollection: ShippingAddress = collectionSnapshot ?? {
       role: "collection",
       fullName: "ROVEXO Demo Seller",
       line1: "1 Demo Street",
@@ -445,7 +458,7 @@ async function runEnsureOrderShippingPersistence(
       country: "GB",
       validated: true,
     };
-    const demoDelivery: ShippingAddress = deliveryAddress ?? {
+    const demoDelivery: ShippingAddress = deliverySnapshot ?? {
       role: "delivery",
       fullName: "ROVEXO Demo Buyer",
       line1: "2 Demo Road",
@@ -523,13 +536,13 @@ async function runEnsureOrderShippingPersistence(
     !mustUseDemoShipping() &&
     resolvedSelected &&
     selectedSendcloudQuoteNeedsV3Discovery(resolvedSelected) &&
-    collectionAddress &&
-    deliveryAddress
+    collectionSnapshot &&
+    deliverySnapshot
   ) {
     const methodId =
       resolvedSelected.v2MethodId ?? parseSendcloudQuoteId(resolvedSelected.id);
-    const collectionValidated = ShippingService.validateAddress(collectionAddress);
-    const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
+    const collectionValidated = ShippingService.validateAddress(collectionSnapshot);
+    const deliveryValidated = ShippingService.validateAddress(deliverySnapshot);
     const routeParcelTier = refreshed?.parcelTier ?? parcelTier;
     if (
       methodId != null &&
@@ -618,7 +631,7 @@ async function runEnsureOrderShippingPersistence(
   if (
     !mustUseDemoShipping() &&
     sendcloudSelected &&
-    (!collectionAddress || !deliveryAddress)
+    (!collectionSnapshot || !deliverySnapshot)
   ) {
     throw new Error(
       `SHIPPING_ADDRESS_SNAPSHOTS_REQUIRED: order ${order.id} is missing required address snapshots for Sendcloud label recovery.`,
