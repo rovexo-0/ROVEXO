@@ -28,6 +28,8 @@ import {
   isOrderClosed,
 } from "@/lib/orders/delivery";
 import { resolveOrderViewRole } from "@/lib/orders/role";
+import { isPersistedSellerCancellationReason } from "@/lib/orders/cancellation";
+import { formatCurrency } from "@/lib/wallet/utils";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { Order } from "@/lib/orders/types";
@@ -135,6 +137,7 @@ export function OrderDetailView({
   if (!view) return null;
 
   const stages = getDeliveryStages(order);
+  const sellerCancelled = isPersistedSellerCancellationReason(order.cancellationReason);
   const showBuyerConfirm = view === "buyer" && canConfirmDelivery(order.status, order.disputesDisabled);
   const showCompleted = view === "buyer" && order.status === "completed";
 
@@ -179,6 +182,15 @@ export function OrderDetailView({
 
       {stages.length > 0 && view === "buyer" ? (
         <DeliveryStatusCard stages={stages} carrier={displayCarrier} />
+      ) : null}
+
+      {view === "buyer" && order.status === "cancelled" && sellerCancelled ? (
+        <CanonicalInfoBlock variant="description">
+          <p className="font-medium text-text-primary">Cancelled by seller</p>
+          <p className="mt-ds-1">Reason: {order.cancellationReason}</p>
+          <p className="mt-ds-1">Refunded to Wallet</p>
+          <p className="mt-ds-1">{formatCurrency(order.refundedAmount ?? order.totals.total)}</p>
+        </CanonicalInfoBlock>
       ) : null}
 
       {order.status === "awaiting_payment" ? (

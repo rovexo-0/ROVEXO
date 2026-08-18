@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createOrderStripeRefund } from "@/lib/stripe/refunds";
-import { cancelBuyerOrder } from "@/lib/orders/cancel-order.server";
+import { cancelBuyerOrder, cancelSellerOrder } from "@/lib/orders/cancel-order.server";
 import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@/lib/orders/notifications";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
@@ -156,6 +156,7 @@ export async function applyOrderAction(
   id: string,
   action: OrderAction,
   payload?: AddTrackingInput | CancelOrderInput | ReportIssueInput,
+  actorUserId?: string,
 ): Promise<Order | null> {
   const existing = await getOrderById(id);
   if (!existing) {
@@ -250,12 +251,24 @@ export async function applyOrderAction(
   }
 
   if (action === "cancel") {
+    if (!actorUserId) {
+      throw new Error("Unauthorized.");
+    }
     const cancelPayload = payload as CancelOrderInput | undefined;
-    const result = await cancelBuyerOrder({
-      orderId: id,
-      buyerId: existing.buyer.id,
-      cancellationReasonId: cancelPayload?.cancellationReasonId,
-    });
+    const result =
+      actorUserId === existing.seller.id
+        ? await cancelSellerOrder({
+            orderId: id,
+            sellerId: actorUserId,
+            cancellationReasonId: cancelPayload?.cancellationReasonId,
+          })
+        : actorUserId === existing.buyer.id
+          ? await cancelBuyerOrder({
+              orderId: id,
+              buyerId: actorUserId,
+              cancellationReasonId: cancelPayload?.cancellationReasonId,
+            })
+          : { success: false as const, error: "Forbidden." };
     if (!result.success) {
       throw new Error(result.error ?? "Unable to cancel order.");
     }

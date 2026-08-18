@@ -10,7 +10,9 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { BanLineIcon } from "@/components/icons/RvxLineIcons";
 import {
   BUYER_CANCELLATION_REASON_OPTIONS,
+  SELLER_CANCELLATION_REASON_OPTIONS,
   type BuyerCancellationReasonId,
+  type SellerCancellationReasonId,
 } from "@/lib/orders/cancellation";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { Order } from "@/lib/orders/types";
@@ -22,6 +24,12 @@ type BuyerCancelOrderCardProps = {
   canCancel: boolean;
   disabledReason?: string;
   onCancelled: (order: Order) => void;
+  /** Default buyer — seller uses the same sheet, not a second card. */
+  actor?: "buyer" | "seller";
+  /** Hub card opens the existing reason sheet without the Order Details row. */
+  presentation?: "card" | "sheet";
+  sheetOpen?: boolean;
+  onSheetClose?: () => void;
 };
 
 type CancelStep = "closed" | "reason" | "confirm";
@@ -34,25 +42,42 @@ export function BuyerCancelOrderCard({
   canCancel,
   disabledReason,
   onCancelled,
+  actor = "buyer",
+  presentation = "card",
+  sheetOpen,
+  onSheetClose,
 }: BuyerCancelOrderCardProps) {
   const [step, setStep] = useState<CancelStep>("closed");
-  const [reasonId, setReasonId] = useState<BuyerCancellationReasonId | null>(null);
+  const [reasonId, setReasonId] = useState<
+    BuyerCancellationReasonId | SellerCancellationReasonId | null
+  >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isSeller = actor === "seller";
+  const reasonOptions = isSeller
+    ? SELLER_CANCELLATION_REASON_OPTIONS
+    : BUYER_CANCELLATION_REASON_OPTIONS;
+  const sheetOnly = presentation === "sheet";
+  const activeStep: CancelStep =
+    sheetOnly && sheetOpen && step === "closed"
+      ? "reason"
+      : sheetOnly && !sheetOpen
+        ? "closed"
+        : step;
+  const modalOpen = sheetOnly ? Boolean(sheetOpen) : activeStep === "reason" || activeStep === "confirm";
+  const refundAmount = order.paidAt ? order.totals.total : 0;
+  const blocked = Boolean(disabledReason);
 
   if (!canCancel || order.status === "cancelled") {
     return null;
   }
-
-  const refundAmount = order.paidAt ? order.totals.total : 0;
-  const modalOpen = step === "reason" || step === "confirm";
-  const blocked = Boolean(disabledReason);
 
   function closeFlow() {
     if (isSubmitting) return;
     setStep("closed");
     setReasonId(null);
     setError(null);
+    onSheetClose?.();
   }
 
   async function submitCancel() {
@@ -82,6 +107,7 @@ export function BuyerCancelOrderCard({
 
       setStep("closed");
       setReasonId(null);
+      onSheetClose?.();
       onCancelled(payload.order);
     } catch (cancelError) {
       setError(cancelError instanceof Error ? cancelError.message : "Unable to cancel order.");
@@ -93,28 +119,30 @@ export function BuyerCancelOrderCard({
 
   return (
     <>
-      <div className="w-full" data-buyer-cancel-order="v1.0">
-        <div
-          className="order-detail-action-card order-detail-action-card--cancel"
-          data-order-detail-action="cancel"
-        >
-          <CanonicalMenuRow
-            title="Cancel order"
-            description="Cancel your purchase before the seller ships the item."
-            icon={<BanLineIcon />}
-            destructive
-            disabled={blocked || isSubmitting}
-            onClick={() => {
-              if (blocked) return;
-              setError(null);
-              setStep("reason");
-            }}
-          />
+      {sheetOnly ? null : (
+        <div className="w-full" data-buyer-cancel-order="v1.0">
+          <div
+            className="order-detail-action-card order-detail-action-card--cancel"
+            data-order-detail-action="cancel"
+          >
+            <CanonicalMenuRow
+              title="Cancel order"
+              description="Cancel your purchase before the seller ships the item."
+              icon={<BanLineIcon />}
+              destructive
+              disabled={blocked || isSubmitting}
+              onClick={() => {
+                if (blocked) return;
+                setError(null);
+                setStep("reason");
+              }}
+            />
+          </div>
+          {disabledReason ? (
+            <p className="order-detail-action-blocked">{disabledReason}</p>
+          ) : null}
         </div>
-        {disabledReason ? (
-          <p className="order-detail-action-blocked">{disabledReason}</p>
-        ) : null}
-      </div>
+      )}
 
       <ModalContainer
         open={modalOpen}
@@ -129,11 +157,11 @@ export function BuyerCancelOrderCard({
             <h2 className="buyer-cancel-order__title">Cancel order</h2>
           </header>
 
-          {step === "reason" ? (
+          {activeStep === "reason" ? (
             <div className="buyer-cancel-order__body">
               <p className="buyer-cancel-order__question">Why do you want to cancel?</p>
               <ul className="buyer-cancel-order__reasons" role="listbox" aria-label="Cancellation reason">
-                {BUYER_CANCELLATION_REASON_OPTIONS.map((option) => {
+                {reasonOptions.map((option) => {
                   const selected = reasonId === option.id;
                   return (
                     <li key={option.id}>
@@ -180,15 +208,19 @@ export function BuyerCancelOrderCard({
             </div>
           ) : null}
 
-          {step === "confirm" ? (
+          {activeStep === "confirm" ? (
             <div className="buyer-cancel-order__body">
               <p className="buyer-cancel-order__question">Cancel this order?</p>
               {refundAmount > 0 ? (
                 <div className="buyer-cancel-order__refund">
-                  <p className="buyer-cancel-order__refund-label">You will receive a refund of</p>
+                  <p className="buyer-cancel-order__refund-label">
+                    {isSeller ? "The buyer will be refunded" : "You will receive a refund of"}
+                  </p>
                   <p className="buyer-cancel-order__refund-amount">{formatCurrency(refundAmount)}</p>
                   <p className="buyer-cancel-order__refund-note">
-                    Your payment will be refunded according to the order&apos;s cancellation terms.
+                    {isSeller
+                      ? "The refund will be credited to the buyer Wallet."
+                      : "Your payment will be refunded according to the order's cancellation terms."}
                   </p>
                 </div>
               ) : (
@@ -215,6 +247,7 @@ export function BuyerCancelOrderCard({
                     setError(null);
                     setStep("closed");
                     setReasonId(null);
+                    onSheetClose?.();
                   }}
                 >
                   Keep order

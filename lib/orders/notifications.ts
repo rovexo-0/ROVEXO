@@ -266,6 +266,40 @@ export async function notifyBuyerOrderCancelledWithRefund(input: {
   });
 }
 
+export async function notifyBuyerOrderCancelledBySeller(input: {
+  buyerId: string;
+  buyerEmail: string;
+  orderId: string;
+  orderNumber: string;
+  reason: string;
+  refunded: boolean;
+  amount?: number;
+  productImageUrl?: string;
+}): Promise<void> {
+  const amountLabel =
+    input.amount != null ? ` £${input.amount.toFixed(2)}` : "";
+  const body = input.refunded
+    ? `Order ${input.orderNumber} was cancelled by the seller. Reason: ${input.reason}. Refunded to Wallet${amountLabel}.`
+    : `Order ${input.orderNumber} was cancelled by the seller. Reason: ${input.reason}.`;
+
+  await emitSmartNotification({
+    userId: input.buyerId,
+    eventType: input.refunded ? "refund" : "order_confirmed",
+    idempotencyKey: `order-cancelled-by-seller-${input.orderNumber}`,
+    notificationType: "order",
+    title: "Order cancelled by seller",
+    subtitle: `Reason: ${input.reason}`,
+    href: orderHref(input.orderId),
+    avatarUrl: input.productImageUrl,
+    payload: { orderId: input.orderId, orderNumber: input.orderNumber, reason: input.reason },
+    email: {
+      to: input.buyerEmail,
+      subject: `Order cancelled by seller — ${input.orderNumber}`,
+      body,
+    },
+  });
+}
+
 export async function notifySellerOrderCancelledByBuyer(input: {
   sellerId: string;
   sellerEmail: string;

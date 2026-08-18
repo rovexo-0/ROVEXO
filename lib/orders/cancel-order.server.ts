@@ -9,14 +9,17 @@ import {
 } from "@/lib/inventory/service";
 import { cancelPendingOrder } from "@/lib/orders/checkout";
 import {
-  BUYER_CANCELLATION_REASON,
   evaluateBuyerCancellationEligibility,
+  evaluateSellerCancellationEligibility,
   resolveBuyerCancellationReason,
+  resolveSellerCancellationReason,
 } from "@/lib/orders/cancellation";
 import {
+  notifyBuyerOrderCancelledBySeller,
   notifyOrderCancelled,
   notifySellerOrderCancelledByBuyer,
 } from "@/lib/orders/notifications";
+import { onOrderCancelled } from "@/lib/trust/events";
 import { markOrderCancellationRequested } from "@/lib/orders/refund-lifecycle.server";
 import { createOrderStripeRefund } from "@/lib/stripe/refunds";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
@@ -158,7 +161,7 @@ async function cancelSendcloudParcels(providerParcelIds: string[]): Promise<void
   }
 }
 
-async function voidLocalShippingArtifacts(orderId: string): Promise<void> {
+async function voidLocalShippingArtifacts(orderId: string, reason: string): Promise<void> {
   const record = await getShippingRecord(orderId);
   if (!record) return;
 
@@ -185,7 +188,7 @@ async function voidLocalShippingArtifacts(orderId: string): Promise<void> {
       orderId,
       status: "cancelled",
       title: "Order cancelled",
-      description: BUYER_CANCELLATION_REASON,
+      description: reason,
     });
   }
 }
@@ -348,7 +351,7 @@ export async function cancelBuyerOrder(input: {
   }
 
   if (carrierCancelOk) {
-    await voidLocalShippingArtifacts(input.orderId);
+    await voidLocalShippingArtifacts(input.orderId, cancellationReason);
   }
 
   const admin = createAdminClient();
@@ -371,6 +374,138 @@ export async function cancelBuyerOrder(input: {
     orderNumber: context.orderNumber,
     productTitle: context.productTitle,
     refundInitiated: Boolean(stripeRefundId),
+  });
+
+  return { success: true };
+}
+
+export async function getSellerOrderCancellationEligibility(
+  orderId: string,
+  sellerId: string,
+): Promise<{ canCancel: boolean; reason?: string }> {
+  const context = await loadCancellationContext(orderId);
+  if (!context || context.sellerId !== sellerId) {
+    return { canCancel: false, reason: "Order not found." };
+  }
+
+  const eligibility = evaluateSellerCancellationEligibility({
+    status: context.status,
+    shippingRecordStatus: context.shippingRecordStatus,
+    parcelStatuses: context.parcelStatuses,
+    alreadyRefunded: Boolean(context.stripeRefundId) && context.status !== "cancelled",
+  });
+
+  return { canCancel: eligibility.allowed, reason: eligibility.reason };
+}
+
+/**
+ * Seller-initiated cancellation while awaiting shipment and before carrier handover.
+ * Reuses the paid buyer-cancel refund / wallet / Sendcloud helpers.
+ */
+export async function cancelSellerOrder(input: {
+  orderId: string;
+  sellerId: string;
+  cancellationReasonId?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const cancellationReason = resolveSellerCancellationReason(input.cancellationReasonId);
+  if (!cancellationReason) {
+    return { success: false, error: "Select a valid cancellation reason." };
+  }
+
+  const context = await loadCancellationContext(input.orderId);
+  if (!context) {
+    return { success: false, error: "Order not found." };
+  }
+  if (context.sellerId !== input.sellerId) {
+    return { success: false, error: "Forbidden." };
+  }
+
+  if (context.status === "cancelled") {
+    if (context.productId) {
+      await healInventoryAfterCancelledOrder(context.productId, context.productQuantity);
+    }
+    return { success: true };
+  }
+
+  const eligibility = evaluateSellerCancellationEligibility({
+    status: context.status,
+    shippingRecordStatus: context.shippingRecordStatus,
+    parcelStatuses: context.parcelStatuses,
+  });
+
+  if (!eligibility.allowed) {
+    return { success: false, error: eligibility.reason ?? "Order cannot be cancelled." };
+  }
+
+  let stripeRefundId = context.stripeRefundId;
+
+  if (context.paidAt || context.stripePaymentIntentId) {
+    await markOrderCancellationRequested(input.orderId);
+    const refundResult = await createOrderStripeRefund(input.orderId, { notifySeller: false });
+    if ("error" in refundResult) {
+      return { success: false, error: refundResult.error };
+    }
+    stripeRefundId = refundResult.refundId;
+  }
+
+  await CommerceEngine.refundSeller({
+    orderId: input.orderId,
+    sellerId: context.sellerId,
+    buyerId: context.buyerId,
+    refundType: "full",
+    amount: context.total,
+    stripeRefundId,
+    reason: "seller_cancelled",
+  });
+
+  await releaseShippingReserveForOrder({ orderId: input.orderId });
+  await markOrderCancelled({ orderId: input.orderId, reason: cancellationReason });
+
+  if (context.productId) {
+    await restoreInventoryAfterOrderCancellation(context.productId, context.productQuantity);
+  }
+
+  let carrierCancelOk = true;
+  if (context.providerParcelIds.length > 0) {
+    try {
+      await cancelSendcloudParcels(context.providerParcelIds);
+    } catch (error) {
+      carrierCancelOk = false;
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[orders/cancel] Sendcloud cancel failed after seller refund — reconciliation required:", {
+        orderId: input.orderId,
+        message,
+      });
+      await markCarrierCancellationFailed(input.orderId, message);
+    }
+  }
+
+  if (carrierCancelOk) {
+    await voidLocalShippingArtifacts(input.orderId, cancellationReason);
+  }
+
+  const admin = createAdminClient();
+  const { data: buyerProfile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", context.buyerId)
+    .maybeSingle();
+
+  await notifyBuyerOrderCancelledBySeller({
+    buyerId: context.buyerId,
+    buyerEmail: buyerProfile?.email ?? "",
+    orderId: input.orderId,
+    orderNumber: context.orderNumber,
+    reason: cancellationReason,
+    refunded: Boolean(stripeRefundId),
+    amount: context.total,
+  });
+
+  void onOrderCancelled({
+    orderId: input.orderId,
+    buyerId: context.buyerId,
+    sellerId: context.sellerId,
+    initiatedBy: "seller",
   });
 
   return { success: true };

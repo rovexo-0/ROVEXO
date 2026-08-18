@@ -35,7 +35,7 @@ export type OrderProduct = {
 };
 
 export type DeliveryStage = {
-  id: "placed" | "shipped" | "in_transit" | "delivered";
+  id: "placed" | "paid" | "preparing" | "shipped" | "in_transit" | "delivered" | "cancelled";
   label: string;
   /** Compact supporting line from canonical delivery copy (optional). */
   description?: string;

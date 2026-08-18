@@ -70,7 +70,7 @@ export async function PATCH(request: Request, context: RouteContext) {
           ? { trackingNumber: body.trackingNumber }
           : undefined;
 
-    const order = await applyOrderAction(id, body.action, payload);
+    const order = await applyOrderAction(id, body.action, payload, auth.user.id);
     return NextResponse.json({ order });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to update order.";

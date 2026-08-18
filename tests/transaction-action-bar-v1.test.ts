@@ -4,6 +4,7 @@ import {
   TRANSACTION_ACTION_BAR_MAX_BUTTONS,
   TRANSACTION_ACTION_BAR_VERSION,
 } from "@/lib/inbox/transaction-action-bar-v1";
+import { resolveTransactionStatusCard } from "@/lib/inbox/transaction-status-card-v1";
 import type { Conversation } from "@/lib/messages/types";
 import type { Order } from "@/lib/orders/types";
 import { readFileSync } from "node:fs";
@@ -130,7 +131,17 @@ describe("Dynamic Transaction Action Bar MES v1.1", () => {
 
     const statusCard = readSource("lib/inbox/transaction-status-card-v1.ts");
     expect(statusCard).toContain('label: "VIEW ORDER"');
-    expect(statusCard).not.toContain('label: "CANCEL ORDER"');
+    expect(statusCard).toContain("Cancel lives compactly inside Order Details");
+    const buyerCard = resolveTransactionStatusCard({
+      viewerRole: "buyer",
+      order: order("awaiting_shipment", { paidAt: new Date().toISOString() }),
+      hasAcceptedOffer: true,
+      hasShippingLabel: false,
+      tracking: null,
+    });
+    expect(buyerCard?.primaryAction).toEqual({ id: "view_order", label: "VIEW ORDER" });
+    expect(buyerCard?.secondaryAction).toBeNull();
+    expect(buyerCard?.secondaryAction?.id === "cancel_order").toBe(false);
 
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     expect(hub).toContain('actionId === "view_order"');
@@ -160,6 +171,58 @@ describe("Dynamic Transaction Action Bar MES v1.1", () => {
     expect(detail).toContain('data-order-detail-actions="v1.0"');
     expect(detail).toContain("OrderActionsCard");
     expect(detail).toContain("BuyerCancelOrderCard");
+  });
+
+  it("seller Dynamic Order Card — CANCEL ORDER under CREATE/PRINT LABEL until carrier handover", () => {
+    const paid = { paidAt: new Date().toISOString() };
+    const noLabel = resolveTransactionStatusCard({
+      viewerRole: "seller",
+      order: order("awaiting_shipment", paid),
+      hasAcceptedOffer: true,
+      hasShippingLabel: false,
+      tracking: null,
+    });
+    expect(noLabel?.primaryAction).toEqual({
+      id: "print_label",
+      label: "CREATE SHIPPING LABEL",
+    });
+    expect(noLabel?.secondaryAction).toEqual({
+      id: "cancel_order",
+      label: "CANCEL ORDER",
+    });
+
+    const labeled = resolveTransactionStatusCard({
+      viewerRole: "seller",
+      order: order("awaiting_shipment", paid),
+      hasAcceptedOffer: true,
+      hasShippingLabel: true,
+      tracking: null,
+    });
+    expect(labeled?.primaryAction).toEqual({
+      id: "print_label",
+      label: "PRINT LABEL",
+    });
+    expect(labeled?.secondaryAction).toEqual({
+      id: "cancel_order",
+      label: "CANCEL ORDER",
+    });
+
+    const collected = resolveTransactionStatusCard({
+      viewerRole: "seller",
+      order: order("awaiting_shipment", paid),
+      hasAcceptedOffer: true,
+      hasShippingLabel: true,
+      tracking: null,
+      shippingRecordStatus: "collected",
+    });
+    expect(collected?.primaryAction?.label).toBe("PRINT LABEL");
+    expect(collected?.secondaryAction).toBeNull();
+
+    const cardUi = readSource("features/inbox/components/TransactionStatusCard.tsx");
+    const primaryIndex = cardUi.indexOf("{busy ? \"…\" : primaryAction.label}");
+    const secondaryIndex = cardUi.indexOf("{busy ? \"…\" : secondaryAction.label}");
+    expect(primaryIndex).toBeGreaterThan(-1);
+    expect(secondaryIndex).toBeGreaterThan(primaryIndex);
   });
 
   it("never exceeds two sticky buttons", () => {

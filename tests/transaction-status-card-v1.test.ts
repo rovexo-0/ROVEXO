@@ -100,6 +100,10 @@ describe("Transaction Status Card — state content certification", () => {
       id: "print_label",
       label: "CREATE SHIPPING LABEL",
     });
+    expect(paidSeller?.secondaryAction).toEqual({
+      id: "cancel_order",
+      label: "CANCEL ORDER",
+    });
 
     const paidBuyer = resolveTransactionStatusCard({
       viewerRole: "buyer",
@@ -122,7 +126,21 @@ describe("Transaction Status Card — state content certification", () => {
     });
     expect(labelSeller?.status).toBe("LABEL_CREATED");
     expect(labelSeller?.primaryAction?.label).toBe("PRINT LABEL");
-    expect(labelSeller?.secondaryAction).toBeNull();
+    expect(labelSeller?.secondaryAction).toEqual({
+      id: "cancel_order",
+      label: "CANCEL ORDER",
+    });
+
+    const collectedBlocksCancel = resolveTransactionStatusCard({
+      viewerRole: "seller",
+      order: { ...baseOrder, status: "awaiting_shipment", paidAt: baseOrder.createdAt },
+      hasAcceptedOffer: true,
+      hasShippingLabel: true,
+      tracking: null,
+      shippingRecordStatus: "collected",
+    });
+    expect(collectedBlocksCancel?.primaryAction?.label).toBe("PRINT LABEL");
+    expect(collectedBlocksCancel?.secondaryAction).toBeNull();
   });
 
   it("STATE 05 LABEL_CREATED — buyer never gets VIEW LABEL", () => {

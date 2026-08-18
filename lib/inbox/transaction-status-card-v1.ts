@@ -36,6 +36,11 @@ import {
   resolveSellerResolutionLifecycle,
 } from "@/lib/inbox/seller-resolution-lifecycle-v1";
 import type { ConversationDisputeView } from "@/lib/inbox/conversation-view";
+import {
+  evaluateSellerCancellationEligibility,
+  isShippingStatusAtLeastCollected,
+} from "@/lib/orders/cancellation";
+import type { ShippingStatus } from "@/lib/shipping/types";
 
 export const TRANSACTION_STATUS_CARD_V1 = {
   version: "v1.0",
@@ -120,6 +125,8 @@ export type ResolveTransactionStatusCardInput = {
   hasOfficialTicketId?: boolean;
   /** Existing protection case already loaded by Conversation Hub. */
   dispute?: ConversationDisputeView | null;
+  /** Existing shipping_records.status when already known — never invent. */
+  shippingRecordStatus?: ShippingStatus | null;
   /** Existing carrier_returns.status when already known — never invent. */
   returnStatus?: string | null;
   overlayProtectionStatus?: string | null;
@@ -302,6 +309,30 @@ function resolveSellerLifecycleCard(
   });
 }
 
+function sellerCancelOrderAction(input: {
+  order: Order;
+  shippingRecordStatus?: ShippingStatus | null;
+  tracking: ConversationTrackingView | null | undefined;
+}): TransactionStatusCardAction | null {
+  const shippingPhase = resolveExistingShippingUiPhase(input.tracking, input.order.status);
+  const trackingImpliesHandover =
+    shippingPhase === "collected" ||
+    shippingPhase === "in_transit" ||
+    shippingPhase === "out_for_delivery" ||
+    shippingPhase === "delivered";
+  if (trackingImpliesHandover || isShippingStatusAtLeastCollected(input.shippingRecordStatus)) {
+    return null;
+  }
+  const eligibility = evaluateSellerCancellationEligibility({
+    status: input.order.status,
+    shippingRecordStatus: input.shippingRecordStatus ?? null,
+    parcelStatuses: [],
+    alreadyRefunded: Boolean(input.order.stripeRefundId || input.order.refundedAt),
+  });
+  if (!eligibility.allowed) return null;
+  return { id: "cancel_order", label: "CANCEL ORDER" };
+}
+
 /**
  * Read existing state → one presentation model (certified copy per role).
  * Returns null when inactive (card must not mount).
@@ -432,6 +463,11 @@ export function resolveTransactionStatusCard(
         title: "Shipping Label Ready",
         description: "Parcel is ready to hand over.",
         primaryAction: { id: "print_label", label: "PRINT LABEL" },
+        secondaryAction: sellerCancelOrderAction({
+          order,
+          shippingRecordStatus: input.shippingRecordStatus,
+          tracking,
+        }),
       });
     }
 
@@ -453,6 +489,11 @@ export function resolveTransactionStatusCard(
       title: "Payment Received",
       description: "Prepare the parcel for shipment.",
       primaryAction: { id: "print_label", label: "CREATE SHIPPING LABEL" },
+      secondaryAction: sellerCancelOrderAction({
+        order,
+        shippingRecordStatus: input.shippingRecordStatus,
+        tracking,
+      }),
     });
   }
 

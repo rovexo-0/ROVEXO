@@ -43,6 +43,8 @@ import { useToast } from "@/components/ui/Toast";
 import { ProductFullscreenImageViewer } from "@/features/product-detail/ProductFullscreenImageViewer";
 import { cn } from "@/lib/cn";
 import { isBuyerCancellableOrderStatus } from "@/lib/orders/cancellation";
+import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
+import type { ShippingStatus } from "@/lib/shipping/types";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
 import {
@@ -407,6 +409,8 @@ export function ConversationHub({
     { previewUrl: string; file: File }[]
   >([]);
   const [hasShippingLabel, setHasShippingLabel] = useState(initialHasShippingLabel);
+  const [shippingRecordStatus, setShippingRecordStatus] = useState<ShippingStatus | null>(null);
+  const [sellerCancelOpen, setSellerCancelOpen] = useState(false);
   const [activeShippingLabel, setActiveShippingLabel] = useState<ActiveShippingLabelView | null>(
     null,
   );
@@ -584,6 +588,7 @@ export function ConversationHub({
       if (!nextOrder) {
         setHasShippingLabel(false);
         setActiveShippingLabel(null);
+        setShippingRecordStatus(null);
       }
 
       setOffers(
@@ -611,7 +616,8 @@ export function ConversationHub({
       if (nextOrder) {
         const labelKey = `GET:/api/shipping/labels?orderId=${nextOrder.id}`;
         const caseKey = `GET:/api/protection/cases?orderId=${nextOrder.id}`;
-        const [labelPayload, casePayload] = await Promise.all([
+        const shipmentKey = `GET:/api/orders/${nextOrder.id}/shipment`;
+        const [labelPayload, casePayload, shipmentPayload] = await Promise.all([
           shareInflightJson<{
             ok?: boolean;
             pdfUrl?: string | null;
@@ -643,7 +649,15 @@ export function ConversationHub({
             `/api/protection/cases?orderId=${encodeURIComponent(nextOrder.id)}`,
             { ttlMs: 2000 },
           ).catch(() => null),
+          shareInflightJson<{
+            shipment?: { record?: { status?: ShippingStatus | null } | null } | null;
+          }>(
+            shipmentKey,
+            `/api/orders/${encodeURIComponent(nextOrder.id)}/shipment`,
+            { ttlMs: 2000 },
+          ).catch(() => null),
         ]);
+        setShippingRecordStatus(shipmentPayload?.shipment?.record?.status ?? null);
 
         if (labelPayload) {
           setHasShippingLabel(
@@ -941,6 +955,7 @@ export function ConversationHub({
         order,
         hasAcceptedOffer: offers.some((offer) => offer.state === "accepted"),
         hasShippingLabel,
+        shippingRecordStatus,
         tracking: null,
         checkoutResumeAvailable: resumeCheckoutOpen,
         liveDispute: dispute,
@@ -952,6 +967,7 @@ export function ConversationHub({
       order,
       offers,
       hasShippingLabel,
+      shippingRecordStatus,
       resumeCheckoutOpen,
       dispute,
       buyerNonDeliveryUi,
@@ -1050,6 +1066,7 @@ export function ConversationHub({
         order,
         hasAcceptedOffer: Boolean(acceptedOffer),
         hasShippingLabel,
+        shippingRecordStatus,
         tracking: view.tracking,
         checkoutResumeAvailable: resumeCheckoutOpen,
         liveDispute: dispute,
@@ -1062,6 +1079,7 @@ export function ConversationHub({
       order,
       acceptedOffer,
       hasShippingLabel,
+      shippingRecordStatus,
       resumeCheckoutOpen,
       dispute,
       buyerNonDeliveryUi,
@@ -1661,20 +1679,20 @@ export function ConversationHub({
       return;
     }
     if (actionId === "cancel_order") {
-      /*
-       * Cancel is compact inside Order Details (BuyerCancelOrderCard).
-       * Legacy status-card cancel_order opens the same canonical surface.
-       */
-      if (view.viewerRole !== "buyer") {
-        pushToast({ title: "Only the buyer can cancel this order.", variant: "info" });
-        return;
-      }
       if (!order) {
         pushToast({ title: "Order details will appear once purchased.", variant: "info" });
         return;
       }
       if (!profile?.id) {
         pushToast({ title: "Sign in again to view order details.", variant: "error" });
+        return;
+      }
+      if (view.viewerRole === "seller") {
+        setSellerCancelOpen(true);
+        return;
+      }
+      if (view.viewerRole !== "buyer") {
+        pushToast({ title: "Only the buyer or seller can cancel this order.", variant: "info" });
         return;
       }
       setOrderDetailsOpen(true);
@@ -2232,6 +2250,26 @@ export function ConversationHub({
               informationHint={nonDeliveryInformationHint}
               busy={Boolean(actionBusy)}
               onAction={(actionId) => void runOrderAction(actionId)}
+            />
+          ) : null}
+
+          {view.viewerRole === "seller" && order ? (
+            <BuyerCancelOrderCard
+              key={sellerCancelOpen ? `${order.id}-seller-cancel-open` : `${order.id}-seller-cancel-closed`}
+              order={order}
+              actor="seller"
+              presentation="sheet"
+              sheetOpen={sellerCancelOpen}
+              canCancel={order.status === "awaiting_shipment"}
+              onSheetClose={() => setSellerCancelOpen(false)}
+              onCancelled={(next) => {
+                setOrder(next);
+                setSellerCancelOpen(false);
+                void reloadRelated();
+                if (next.status === "cancelled") {
+                  pushToast({ title: "Order cancelled.", variant: "success" });
+                }
+              }}
             />
           ) : null}
 

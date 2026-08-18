@@ -11,6 +11,7 @@ import {
 import type { LostParcelLogicalState } from "@/lib/resolution-engine/lost-parcel-resolution-v1";
 import type { SenderRole } from "@/lib/messages/types";
 import type { Order } from "@/lib/orders/types";
+import type { ShippingStatus } from "@/lib/shipping/types";
 
 export type ConversationHubTransactionCardInput = {
   viewerRole: SenderRole;
@@ -19,6 +20,7 @@ export type ConversationHubTransactionCardInput = {
   hasShippingLabel: boolean;
   tracking: ConversationTrackingView | null | undefined;
   checkoutResumeAvailable?: boolean;
+  shippingRecordStatus?: ShippingStatus | null;
   liveDispute?: ConversationDisputeView | null;
   buyerNonDeliveryUi?: boolean;
   reasonId?: string | null;
@@ -51,6 +53,7 @@ export function resolveConversationHubTransactionCardView(
       hasShippingLabel: input.hasShippingLabel,
       tracking: input.tracking,
       checkoutResumeAvailable: input.checkoutResumeAvailable,
+      shippingRecordStatus: input.shippingRecordStatus ?? null,
       lossState,
       dispute,
       returnStatus: input.returnStatus ?? null,

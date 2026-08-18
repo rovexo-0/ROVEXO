@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_CANCELLATION_REASON,
   BUYER_CANCELLATION_REASON_OPTIONS,
+  SELLER_CANCELLATION_REASON_OPTIONS,
   evaluateBuyerCancellationEligibility,
+  evaluateSellerCancellationEligibility,
   isBuyerCancellableOrderStatus,
+  isSellerCancellableOrderStatus,
   resolveBuyerCancellationReason,
+  resolveSellerCancellationReason,
 } from "@/lib/orders/cancellation";
 import { getDeliveryStages } from "@/lib/orders/delivery";
 import { canPerformOrderAction } from "@/lib/orders/role";
@@ -214,5 +218,181 @@ describe("cancellation UI + inventory restore contracts", () => {
     expect(src).toContain('product.status === "paused"');
     expect(src).toContain("healInventoryAfterCancelledOrder");
     expect(src).toContain("restoreProductInventoryClaim");
+  });
+});
+
+describe("seller cancellation eligibility", () => {
+  it("allows awaiting_shipment without a label", () => {
+    expect(isSellerCancellableOrderStatus("awaiting_shipment")).toBe(true);
+    expect(isSellerCancellableOrderStatus("awaiting_payment")).toBe(false);
+    const result = evaluateSellerCancellationEligibility({
+      status: "awaiting_shipment",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it("allows cancellation when a label is ready but carrier has not collected", () => {
+    const result = evaluateSellerCancellationEligibility({
+      status: "awaiting_shipment",
+      shippingRecordStatus: "preparing",
+      parcelStatuses: ["preparing"],
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it("rejects collected and later carrier statuses", () => {
+    expect(
+      evaluateSellerCancellationEligibility({
+        status: "awaiting_shipment",
+        shippingRecordStatus: "collected",
+        parcelStatuses: [],
+      }).allowed,
+    ).toBe(false);
+    expect(
+      evaluateSellerCancellationEligibility({
+        status: "awaiting_shipment",
+        shippingRecordStatus: "in_transit",
+        parcelStatuses: [],
+      }).allowed,
+    ).toBe(false);
+  });
+
+  it("rejects shipped, delivered, completed, cancelled, and refunded", () => {
+    expect(evaluateSellerCancellationEligibility({
+      status: "shipped",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+    }).allowed).toBe(false);
+    expect(evaluateSellerCancellationEligibility({
+      status: "delivered",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+    }).allowed).toBe(false);
+    expect(evaluateSellerCancellationEligibility({
+      status: "completed",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+    }).allowed).toBe(false);
+    expect(evaluateSellerCancellationEligibility({
+      status: "cancelled",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+    }).reason).toMatch(/already been cancelled/i);
+    expect(evaluateSellerCancellationEligibility({
+      status: "awaiting_shipment",
+      shippingRecordStatus: null,
+      parcelStatuses: [],
+      alreadyRefunded: true,
+    }).allowed).toBe(false);
+  });
+
+  it("resolves seller reasons and rejects invalid ids", () => {
+    expect(resolveSellerCancellationReason("out_of_stock")).toBe("Out of stock");
+    expect(resolveSellerCancellationReason("item_damaged")).toBe("Item damaged");
+    expect(resolveSellerCancellationReason("item_no_longer_available")).toBe(
+      "Item no longer available",
+    );
+    expect(resolveSellerCancellationReason("unable_to_proceed")).toBe("Unable to proceed");
+    expect(resolveSellerCancellationReason("other")).toBe("Other");
+    expect(resolveSellerCancellationReason("unknown")).toBeNull();
+    expect(SELLER_CANCELLATION_REASON_OPTIONS).toHaveLength(5);
+    expect(SELLER_CANCELLATION_REASON_OPTIONS.map((option) => option.label)).not.toContain(
+      "Item cannot be located",
+    );
+    expect(SELLER_CANCELLATION_REASON_OPTIONS.map((option) => option.label)).not.toContain(
+      "Unable to fulfil order",
+    );
+  });
+
+  it("authorizes seller cancel on own awaiting_shipment order only", () => {
+    const own = baseOrder({ status: "awaiting_shipment" });
+    const shipped = baseOrder({ status: "shipped" });
+    expect(canPerformOrderAction("cancel", own, "seller-1")).toBe(true);
+    expect(canPerformOrderAction("cancel", own, "buyer-1")).toBe(true);
+    expect(canPerformOrderAction("cancel", own, "seller-2")).toBe(false);
+    expect(canPerformOrderAction("cancel", shipped, "seller-1")).toBe(false);
+    expect(canPerformOrderAction("refund", own, "seller-1")).toBe(true);
+  });
+});
+
+describe("seller cancellation timeline and buyer result", () => {
+  it("exposes placed, paid, preparing, and cancelled-by-seller stages", () => {
+    const stages = getDeliveryStages(
+      baseOrder({
+        status: "cancelled",
+        cancellationReason: "Out of stock",
+        cancelledAt: "2026-07-01T12:00:00Z",
+        refundedAmount: 50,
+      }),
+    );
+    expect(stages.map((s) => s.label)).toEqual([
+      "Order placed",
+      "Payment confirmed",
+      "Preparing order",
+      "Cancelled by seller",
+    ]);
+    expect(stages.find((s) => s.id === "cancelled")?.description).toBe("Reason: Out of stock");
+  });
+});
+
+describe("seller cancellation contracts", () => {
+  it("reuses existing refund, wallet, Sendcloud, and notification helpers", () => {
+    const cancel = readFileSync(
+      path.join(process.cwd(), "lib/orders/cancel-order.server.ts"),
+      "utf8",
+    );
+    const store = readFileSync(path.join(process.cwd(), "lib/orders/store.ts"), "utf8");
+    const api = readFileSync(path.join(process.cwd(), "app/api/orders/[id]/route.ts"), "utf8");
+    const notify = readFileSync(
+      path.join(process.cwd(), "lib/orders/notifications.ts"),
+      "utf8",
+    );
+    const hub = readFileSync(
+      path.join(process.cwd(), "features/inbox/components/ConversationHub.tsx"),
+      "utf8",
+    );
+    const card = readFileSync(
+      path.join(process.cwd(), "lib/inbox/transaction-status-card-v1.ts"),
+      "utf8",
+    );
+    const detail = readFileSync(
+      path.join(process.cwd(), "features/orders/components/OrderDetailView.tsx"),
+      "utf8",
+    );
+
+    expect(cancel).toContain("export async function cancelSellerOrder");
+    expect(cancel).toContain("createOrderStripeRefund");
+    expect(cancel).toContain("CommerceEngine.refundSeller");
+    expect(cancel).toContain("cancelSendcloudParcels");
+    expect(cancel).toContain("notifyBuyerOrderCancelledBySeller");
+    expect(cancel).toContain('reason: "seller_cancelled"');
+    expect(store).toContain("cancelSellerOrder");
+    expect(store).toContain("actorUserId === existing.seller.id");
+    expect(api).toContain("requireApiAuth");
+    expect(api).toContain("applyOrderAction(id, body.action, payload, auth.user.id)");
+    expect(notify).toContain("Order cancelled by seller");
+    expect(notify).toContain("Reason: ${input.reason}");
+    expect(hub).toContain('actor="seller"');
+    expect(hub).toContain('setSellerCancelOpen(true)');
+    expect(hub).toContain('actionId === "print_label"');
+    expect(store).toContain('throw new Error("Unauthorized.")');
+    expect(store).toContain('error: "Forbidden."');
+    expect(api).toContain("requireApiAuth");
+    expect(card).toContain('label: "CREATE SHIPPING LABEL"');
+    expect(card).toContain('label: "CANCEL ORDER"');
+    expect(detail).toContain("Cancelled by seller");
+    expect(detail).toContain("Refunded to Wallet");
+    expect(store).toContain('if (action === "refund")');
+    expect(cancel).toContain("export async function cancelBuyerOrder");
+  });
+
+  it("CREATE LABEL remains the seller primary action", () => {
+    const card = readFileSync(
+      path.join(process.cwd(), "lib/inbox/transaction-status-card-v1.ts"),
+      "utf8",
+    );
+    expect(card).toContain('primaryAction: { id: "print_label", label: "CREATE SHIPPING LABEL" }');
   });
 });
