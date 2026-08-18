@@ -32,6 +32,11 @@ import {
 } from "@/lib/checkout/engines/checkout-session-engine-v1";
 import { CHECKOUT_SESSION_TTL_SECONDS } from "@/lib/checkout/engines/status-map-v1";
 import { createOrderFromPaidCheckoutSession } from "@/lib/orders/create-order-from-checkout-session.server";
+import {
+  buildSelectedShippingQuotePayload,
+  parseConfirmedShippingQuotePayloadFromMetadata,
+} from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import type { ShippingQuotePayload } from "@/lib/shipping/types";
 import { isBundleCheckoutSnapshot } from "@/lib/bundle/bundle-snapshot-v1";
 import {
   CHECKOUT_RACE_CONDITION_V1,
@@ -482,6 +487,7 @@ async function finalizeCheckoutSessionPayment(
     typeof input.shippingQuoteId === "string" && input.shippingQuoteId.trim()
       ? input.shippingQuoteId.trim()
       : session.selected_shipping_quote_id?.trim() || null;
+  let selectedShippingQuotePayload: ShippingQuotePayload | null = null;
   if (input.shippingQuoteId && input.shippingAddressId) {
     const { data: shippingAddress } = await admin
       .from("shipping_addresses")
@@ -503,6 +509,7 @@ async function finalizeCheckoutSessionPayment(
       deliveryCarrier = getDeliveryCarrierFromQuote(selectedQuote);
       if (selectedQuote?.id) {
         selectedShippingQuoteId = selectedQuote.id;
+        selectedShippingQuotePayload = buildSelectedShippingQuotePayload(selectedQuote);
       }
       if (
         selectedQuote &&
@@ -605,6 +612,7 @@ async function finalizeCheckoutSessionPayment(
       shippingAddressId: input.shippingAddressId,
       deliveryCarrier,
       selectedShippingQuoteId,
+      selectedShippingQuotePayload,
       stripeSessionId: virtualSessionId,
       stripePaymentIntentId: virtualPi,
       fulfill: false,
@@ -649,6 +657,7 @@ async function finalizeCheckoutSessionPayment(
       stripeSessionId: debit.sessionId,
       stripePaymentIntentId: virtualPi,
       inventoryAlreadyClaimed: true,
+      selectedShippingQuotePayload,
     });
     if (!fulfilled.success) {
       return { error: fulfilled.error ?? "Unable to complete virtual payment." };
@@ -673,6 +682,7 @@ async function finalizeCheckoutSessionPayment(
       shippingAddressId: input.shippingAddressId,
       deliveryCarrier,
       selectedShippingQuoteId,
+      selectedShippingQuotePayload,
       stripeSessionId: `dev-${session.public_id}`,
       stripePaymentIntentId: null,
     });
@@ -778,6 +788,12 @@ async function finalizeCheckoutSessionPayment(
         shippingAddressId: input.shippingAddressId,
         deliveryCarrier,
         shippingQuoteId: selectedShippingQuoteId ?? "",
+        ...(selectedShippingQuotePayload?.shippingOptionCode
+          ? { shippingOptionCode: selectedShippingQuotePayload.shippingOptionCode }
+          : {}),
+        ...(selectedShippingQuotePayload?.contractId
+          ? { shippingContractId: selectedShippingQuotePayload.contractId }
+          : {}),
         paymentMethodId: selected?.id ?? "",
         offerId: session.offer_id ?? "",
         bundleId: bundleSnap?.bundleId ?? "",
@@ -796,6 +812,12 @@ async function finalizeCheckoutSessionPayment(
           shippingAddressId: input.shippingAddressId,
           deliveryCarrier,
           shippingQuoteId: selectedShippingQuoteId ?? "",
+          ...(selectedShippingQuotePayload?.shippingOptionCode
+            ? { shippingOptionCode: selectedShippingQuotePayload.shippingOptionCode }
+            : {}),
+          ...(selectedShippingQuotePayload?.contractId
+            ? { shippingContractId: selectedShippingQuotePayload.contractId }
+            : {}),
           offerId: session.offer_id ?? "",
           bundleId: bundleSnap?.bundleId ?? "",
           bundleLines: bundleLinesMeta,
@@ -940,6 +962,11 @@ export async function fulfillOrderFromStripeSession(session: {
       shippingAddressId: metadata.shippingAddressId || null,
       deliveryCarrier: metadata.deliveryCarrier || null,
       selectedShippingQuoteId: metadata.shippingQuoteId || null,
+      selectedShippingQuotePayload: parseConfirmedShippingQuotePayloadFromMetadata({
+        selectedQuoteId: metadata.shippingQuoteId || null,
+        shippingOptionCode: metadata.shippingOptionCode || null,
+        contractId: metadata.shippingContractId || null,
+      }),
       stripeSessionId: session.id,
       stripePaymentIntentId: paymentIntentId,
     });

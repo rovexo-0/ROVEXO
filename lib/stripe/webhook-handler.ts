@@ -232,11 +232,19 @@ async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
         const { createOrderFromPaidCheckoutSession } = await import(
           "@/lib/orders/create-order-from-checkout-session.server"
         );
+        const { parseConfirmedShippingQuotePayloadFromMetadata } = await import(
+          "@/lib/shipping/selected-shipping-quote-contract-v1"
+        );
         const result = await createOrderFromPaidCheckoutSession({
           checkoutSessionPublicId: checkoutSessionId,
           shippingAddressId: paymentIntent.metadata?.shippingAddressId || null,
           deliveryCarrier: paymentIntent.metadata?.deliveryCarrier || null,
           selectedShippingQuoteId: paymentIntent.metadata?.shippingQuoteId || null,
+          selectedShippingQuotePayload: parseConfirmedShippingQuotePayloadFromMetadata({
+            selectedQuoteId: paymentIntent.metadata?.shippingQuoteId || null,
+            shippingOptionCode: paymentIntent.metadata?.shippingOptionCode || null,
+            contractId: paymentIntent.metadata?.shippingContractId || null,
+          }),
           stripePaymentIntentId: paymentIntent.id,
         });
         if (!result.success) {

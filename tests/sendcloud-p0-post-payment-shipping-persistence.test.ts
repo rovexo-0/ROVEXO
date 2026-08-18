@@ -645,6 +645,110 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     );
   });
 
+  it("D: already V3-enriched selected quote is not downgraded or rediscovered", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    getShippingRecord.mockResolvedValue({
+      id: "sr-1",
+      orderId: "ord-1",
+      parcelTier: "small_parcel",
+      status: "preparing",
+      carrier: "Royal Mail",
+      pricing: {
+        quotes: [
+          {
+            id: "sendcloud:42",
+            providerId: "sendcloud",
+            carrier: "Royal Mail",
+            serviceName: "Royal Mail",
+            pricePence: 238,
+            currency: "GBP",
+            estimatedDays: { min: 1, max: 5 },
+            v2MethodId: 42,
+            shippingOptionCode: "royal_mailv2:tracked_48/size=s",
+            contractId: "116816",
+            quoteApiVersion: "v2+v3",
+          },
+        ],
+        selectedQuoteId: "sendcloud:42",
+        currency: "GBP",
+        providerAvailable: true,
+      },
+    });
+    const quoteCallsBefore = saveShippingQuotes.mock.calls.length;
+    const result = await ensureOrderShippingPersistence({
+      id: "ord-1",
+      order_number: "RVXTEST",
+      status: "awaiting_shipment",
+      buyer_id: "b1",
+      seller_id: "s1",
+      item_price: 10,
+      delivery_fee: 2.38,
+      delivery_carrier: "Royal Mail",
+      shipping_address_id: "addr-1",
+      selected_shipping_quote_id: "sendcloud:42",
+      order_items: [
+        {
+          product_id: "p1",
+          title: "Item",
+          image_url: "/x.png",
+          quantity: 1,
+          slug: "item",
+        },
+      ],
+    });
+    expect(result.selectedQuoteId).toBe("sendcloud:42");
+    expect(saveShippingQuotes.mock.calls.length).toBe(quoteCallsBefore);
+    expect(discoverConfirmedV3MetadataForV2Method).not.toHaveBeenCalled();
+    expect(updateShippingQuotePayloadWithoutReplacing).not.toHaveBeenCalled();
+  });
+
+  it("A: checkout-confirmed V3 payload is persisted onto the existing sendcloud:N row", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+    const result = await ensureOrderShippingPersistence({
+      id: "ord-1",
+      order_number: "RVXTEST",
+      status: "awaiting_shipment",
+      buyer_id: "b1",
+      seller_id: "s1",
+      item_price: 10,
+      delivery_fee: 2.38,
+      delivery_carrier: "Royal Mail",
+      shipping_address_id: "addr-1",
+      selected_shipping_quote_id: "sendcloud:42",
+      selected_shipping_quote_payload: {
+        externalQuoteId: "sendcloud:42",
+        v2MethodId: 42,
+        shippingOptionCode: "royal_mailv2:tracked_48/size=s",
+        contractId: "116816",
+      },
+      order_items: [
+        {
+          product_id: "p1",
+          title: "Item",
+          image_url: "/x.png",
+          quantity: 1,
+          slug: "item",
+        },
+      ],
+    });
+    expect(result.selectedQuoteId).toBe("sendcloud:42");
+    expect(updateShippingQuotePayloadWithoutReplacing).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderId: "ord-1",
+        quote: expect.objectContaining({
+          id: "sendcloud:42",
+          shippingOptionCode: "royal_mailv2:tracked_48/size=s",
+          contractId: "116816",
+        }),
+      }),
+    );
+    expect(discoverConfirmedV3MetadataForV2Method).not.toHaveBeenCalled();
+  });
+
   it("migration adds selected quote + shipping_setup_status without new tables", () => {
     const migration = readFileSync(
       "supabase/migrations/20260811140000_post_payment_shipping_persistence_v1.sql",

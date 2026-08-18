@@ -11,13 +11,16 @@ import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
-import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import { parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   applySelectedShippingQuotePayload,
+  buildPersistedCheckoutQuote,
+  confirmedV3PayloadFromSelectedQuote,
   retainCheckoutSelectedQuoteId,
   resolveSelectedShippingQuoteForLabel,
   selectedSendcloudQuoteNeedsV3Discovery,
 } from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import type { ShippingQuotePayload } from "@/lib/shipping/types";
 import {
   createShipmentParcel,
   listShipmentParcelsForOrder,
@@ -72,6 +75,8 @@ export type PaidOrderShippingRow = {
   delivery_carrier: string;
   shipping_address_id: string | null;
   selected_shipping_quote_id?: string | null;
+  /** In-memory checkout V3 payload — never a DB column; persist into quote_payload only. */
+  selected_shipping_quote_payload?: ShippingQuotePayload | null;
   order_items: OrderItemRow[];
 };
 
@@ -172,23 +177,17 @@ function pickSelectedQuoteId(
   return (supported ?? pool[0])?.id ?? preferredQuoteId ?? null;
 }
 
-function buildPersistedCheckoutQuote(order: PaidOrderShippingRow): ShippingQuote | null {
-  const quoteId = order.selected_shipping_quote_id?.trim() || null;
-  if (!quoteId) return null;
-
-  const v2MethodId = isSendcloudQuoteId(quoteId) ? parseSendcloudQuoteId(quoteId) : null;
-
-  return {
-    id: quoteId,
-    providerId: isSendcloudQuoteId(quoteId) ? "sendcloud" : "checkout",
+function persistedCheckoutQuoteFromOrder(
+  order: PaidOrderShippingRow,
+  source?: ShippingQuote | ShippingQuotePayload | null,
+): ShippingQuote | null {
+  return buildPersistedCheckoutQuote({
+    selectedQuoteId: order.selected_shipping_quote_id,
     carrier: order.delivery_carrier || "Royal Mail",
     serviceName: order.delivery_carrier || "Selected delivery",
     pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
-    currency: "GBP",
-    estimatedDays: { min: 1, max: 5 },
-    // Legacy bridge only — never invent shippingOptionCode for sendcloud:N.
-    ...(v2MethodId != null ? { v2MethodId, quoteApiVersion: "v2" as const } : {}),
-  };
+    payload: source ?? order.selected_shipping_quote_payload ?? null,
+  });
 }
 
 export async function markOrderShippingSetupStatus(
@@ -335,11 +334,21 @@ async function runEnsureOrderShippingPersistence(
 
   // Always persist the exact checkout-selected method identity when present.
   // Never reconstruct method id from carrier name / price alone.
-  const checkoutQuote = buildPersistedCheckoutQuote(order);
-  if (
-    checkoutQuote &&
-    !resolveSelectedShippingQuoteForLabel(refreshed?.pricing?.quotes, checkoutQuote.id)?.id
-  ) {
+  // If the live/selected quote already has confirmed V3, persist it into quote_payload.
+  const checkoutPayload =
+    confirmedV3PayloadFromSelectedQuote(order.selected_shipping_quote_payload) ??
+    order.selected_shipping_quote_payload ??
+    null;
+  let checkoutQuote = persistedCheckoutQuoteFromOrder(order, checkoutPayload);
+  const existingSelected = resolveSelectedShippingQuoteForLabel(
+    refreshed?.pricing?.quotes,
+    checkoutQuote?.id ?? preferredQuoteId,
+  );
+  const existingHasConfirmedV3 =
+    Boolean(existingSelected?.id) &&
+    !selectedSendcloudQuoteNeedsV3Discovery(existingSelected);
+
+  if (checkoutQuote && !existingSelected?.id) {
     if (allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
       const collectionValidated = ShippingService.validateAddress(collectionAddress);
       const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
@@ -359,11 +368,29 @@ async function runEnsureOrderShippingPersistence(
                 Number(order.delivery_fee ?? 0),
                 preferredQuoteId,
               ) ?? checkoutQuote.id;
-            const quotes = pricing.quotes.some((q) => q.id === selected)
-              ? pricing.quotes
-              : [...pricing.quotes, checkoutQuote];
+            const liveSelected = resolveSelectedShippingQuoteForLabel(pricing.quotes, selected);
+            checkoutQuote =
+              persistedCheckoutQuoteFromOrder(
+                order,
+                liveSelected ?? checkoutPayload,
+              ) ?? checkoutQuote;
+            const confirmedFromLive = confirmedV3PayloadFromSelectedQuote(
+              liveSelected ?? checkoutQuote,
+            );
+            const quotes = pricing.quotes.map((quote) => {
+              if (quote.id !== selected && quote.v2MethodId !== checkoutQuote?.v2MethodId) {
+                return quote;
+              }
+              if (!selectedSendcloudQuoteNeedsV3Discovery(quote) || !confirmedFromLive) {
+                return quote;
+              }
+              return applySelectedShippingQuotePayload(quote, confirmedFromLive);
+            });
+            const mergedQuotes = quotes.some((quote) => quote.id === selected)
+              ? quotes
+              : [...quotes, checkoutQuote];
             const merged: ShippingPricing = {
-              quotes,
+              quotes: mergedQuotes,
               selectedQuoteId: selected,
               currency: "GBP",
               providerAvailable: pricing.providerAvailable,
@@ -385,19 +412,27 @@ async function runEnsureOrderShippingPersistence(
     refreshed = await getShippingRecord(order.id);
     if (!resolveSelectedShippingQuoteForLabel(refreshed?.pricing?.quotes, checkoutQuote.id)?.id) {
       const existing = refreshed?.pricing?.quotes ?? [];
-      const quotes = existing.some((quote) => quote.id === checkoutQuote.id)
+      const persistQuote =
+        persistedCheckoutQuoteFromOrder(order, checkoutPayload) ?? checkoutQuote;
+      const quotes = existing.some((quote) => quote.id === persistQuote.id)
         ? existing
-        : [...existing, checkoutQuote];
+        : [...existing, persistQuote];
       const pricing: ShippingPricing = {
         quotes,
-        selectedQuoteId: checkoutQuote.id,
+        selectedQuoteId: persistQuote.id,
         currency: "GBP",
         providerAvailable: true,
       };
       await saveShippingQuotes({ orderId: order.id, pricing });
       refreshed = await getShippingRecord(order.id);
     }
-  } else if (!hasQuotes && allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
+  } else if (
+    !existingHasConfirmedV3 &&
+    !hasQuotes &&
+    allowLiveQuoteEnrichment &&
+    collectionAddress &&
+    deliveryAddress
+  ) {
     // Legacy orders without selected_shipping_quote_id — best-effort live quotes.
     const collectionValidated = ShippingService.validateAddress(collectionAddress);
     const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
@@ -463,6 +498,7 @@ async function runEnsureOrderShippingPersistence(
   }
 
   // Identity resolve ≠ V3 persistence. Enrich the SAME selected sendcloud:N payload.
+  // Never downgrade a V3-enriched selected quote into a V2-only bridge.
   refreshed = await getShippingRecord(order.id);
   const selectedIdentity =
     retainCheckoutSelectedQuoteId(
@@ -472,10 +508,41 @@ async function runEnsureOrderShippingPersistence(
     preferredQuoteId ??
     checkoutQuote?.id ??
     null;
-  const resolvedSelected = resolveSelectedShippingQuoteForLabel(
+  let resolvedSelected = resolveSelectedShippingQuoteForLabel(
     refreshed?.pricing?.quotes,
     selectedIdentity,
   );
+  const checkoutConfirmedV3 =
+    confirmedV3PayloadFromSelectedQuote(checkoutPayload) ??
+    confirmedV3PayloadFromSelectedQuote(resolvedSelected);
+  if (
+    resolvedSelected &&
+    checkoutConfirmedV3 &&
+    selectedSendcloudQuoteNeedsV3Discovery(resolvedSelected)
+  ) {
+    try {
+      const enriched = applySelectedShippingQuotePayload(resolvedSelected, checkoutConfirmedV3);
+      const persisted = await updateShippingQuotePayloadWithoutReplacing({
+        orderId: order.id,
+        quote: enriched,
+      });
+      if (persisted) {
+        refreshed = persisted;
+        resolvedSelected = resolveSelectedShippingQuoteForLabel(
+          persisted.pricing?.quotes,
+          selectedIdentity,
+        );
+      }
+    } catch (error) {
+      console.warn("[orders/post-payment] checkout V3 payload persist skipped", {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        failureStage: "checkout_v3_payload_persist",
+        selectedQuoteId: resolvedSelected?.id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
   if (
     allowLiveQuoteEnrichment &&
     !mustUseDemoShipping() &&
@@ -594,6 +661,8 @@ export async function completePaidOrderFulfillment(input: {
   stripePaymentIntentId?: string | null;
   /** When true, inventory was claimed in createOrderFromPaidCheckoutSession. */
   inventoryAlreadyClaimed?: boolean;
+  /** Confirmed checkout V3 payload — persist into quote_payload only. */
+  selectedShippingQuotePayload?: ShippingQuotePayload | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -619,6 +688,7 @@ async function runCompletePaidOrderFulfillment(input: {
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
   inventoryAlreadyClaimed?: boolean;
+  selectedShippingQuotePayload?: ShippingQuotePayload | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -652,6 +722,9 @@ async function runCompletePaidOrderFulfillment(input: {
   }
 
   const row = order as PaidOrderShippingRow & { shipping_setup_status?: string | null };
+  if (input.selectedShippingQuotePayload) {
+    row.selected_shipping_quote_payload = input.selectedShippingQuotePayload;
+  }
   const awaitingPayment = row.status === "awaiting_payment";
   const alreadyPaid = PAID_ORDER_STATUSES.has(row.status);
 

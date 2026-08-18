@@ -86,6 +86,83 @@ export function buildSelectedShippingQuotePayload(
   return buildShippingQuotePayload(shippingQuoteFromCheckoutCarrierQuote(quote));
 }
 
+function payloadFromUnknownQuoteSource(
+  source: CheckoutCarrierQuote | ShippingQuote | ShippingQuotePayload | null | undefined,
+): ShippingQuotePayload | null {
+  if (!source) return null;
+  if ("externalQuoteId" in source) {
+    return parseSelectedShippingQuotePayload(source);
+  }
+  return buildSelectedShippingQuotePayload(source);
+}
+
+/**
+ * Confirmed V3 payload only. Never invents codes from sendcloud:N / method id.
+ */
+export function confirmedV3PayloadFromSelectedQuote(
+  source: CheckoutCarrierQuote | ShippingQuote | ShippingQuotePayload | null | undefined,
+): ShippingQuotePayload | null {
+  const payload = payloadFromUnknownQuoteSource(source);
+  if (
+    !payload ||
+    !isConfirmedSendcloudV3ShippingOptionCode(payload.shippingOptionCode, payload.v2MethodId)
+  ) {
+    return null;
+  }
+  return payload;
+}
+
+/**
+ * Recover confirmed checkout V3 fields from Stripe / session metadata.
+ * Only attaches shippingOptionCode when the confirmation helper accepts it.
+ */
+export function parseConfirmedShippingQuotePayloadFromMetadata(input: {
+  selectedQuoteId?: string | null;
+  shippingOptionCode?: string | null;
+  contractId?: string | null;
+  v2MethodId?: number | null;
+}): ShippingQuotePayload | null {
+  const selectedQuoteId = input.selectedQuoteId?.trim() || "";
+  if (!selectedQuoteId) return null;
+  const v2MethodId =
+    input.v2MethodId != null && Number.isFinite(input.v2MethodId) && input.v2MethodId > 0
+      ? input.v2MethodId
+      : isSendcloudQuoteId(selectedQuoteId)
+        ? parseSendcloudQuoteId(selectedQuoteId)
+        : undefined;
+  return confirmedV3PayloadFromSelectedQuote({
+    externalQuoteId: selectedQuoteId,
+    ...(v2MethodId != null ? { v2MethodId } : {}),
+    ...(typeof input.shippingOptionCode === "string"
+      ? { shippingOptionCode: input.shippingOptionCode }
+      : {}),
+    ...(typeof input.contractId === "string" ? { contractId: input.contractId } : {}),
+  });
+}
+
+/**
+ * Canonical persistable checkout quote.
+ * Preserves confirmed V3 metadata when the live/selected quote already has it.
+ * Never invents shippingOptionCode. Never replaces sendcloud:N identity.
+ */
+export function buildPersistedCheckoutQuote(input: {
+  selectedQuoteId: string | null | undefined;
+  carrier: string;
+  serviceName?: string;
+  pricePence: number;
+  payload?: CheckoutCarrierQuote | ShippingQuote | ShippingQuotePayload | null;
+}): ShippingQuote | null {
+  const quoteId = input.selectedQuoteId?.trim() || null;
+  if (!quoteId) return null;
+  return buildLegacyBridgeShippingQuote({
+    quoteId,
+    carrier: input.carrier,
+    serviceName: input.serviceName,
+    pricePence: input.pricePence,
+    payload: payloadFromUnknownQuoteSource(input.payload),
+  });
+}
+
 export function parseSelectedShippingQuotePayload(
   raw: unknown,
 ): ShippingQuotePayload | null {

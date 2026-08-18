@@ -15,6 +15,7 @@ import { getDeliveryCarrierFromQuote } from "@/lib/checkout/delivery";
 import { generateInvoiceNumber } from "@/lib/invoices/receipt";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
+import type { ShippingQuotePayload } from "@/lib/shipping/types";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import {
   isBundleCheckoutSnapshot,
@@ -42,6 +43,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
   shippingAddressId?: string | null;
   deliveryCarrier?: string | null;
   selectedShippingQuoteId?: string | null;
+  selectedShippingQuotePayload?: ShippingQuotePayload | null;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
   /** When false, only creates order + marks session paid (caller runs fulfillment). */
@@ -61,6 +63,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
         stripePaymentIntentId:
           input.stripePaymentIntentId ?? session.stripe_payment_intent_id,
         inventoryAlreadyClaimed: true,
+        selectedShippingQuotePayload: input.selectedShippingQuotePayload ?? null,
       });
       if (!fulfilled.success) {
         return { success: false, error: fulfilled.error ?? "Unable to fulfill paid order." };
@@ -231,6 +234,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
       stripeSessionId: input.stripeSessionId ?? null,
       stripePaymentIntentId: input.stripePaymentIntentId ?? null,
       inventoryAlreadyClaimed: true,
+      selectedShippingQuotePayload: input.selectedShippingQuotePayload ?? null,
     });
 
     if (!fulfilled.success) {
