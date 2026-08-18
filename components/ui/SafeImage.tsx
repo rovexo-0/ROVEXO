@@ -15,7 +15,7 @@
  * Use this everywhere product/user/store/banner imagery is displayed.
  */
 
-import Image, { type ImageProps, type StaticImageData } from "next/image";
+import Image, { getImageProps, type ImageProps, type StaticImageData } from "next/image";
 import { useState, type CSSProperties, type SyntheticEvent } from "react";
 import { isFailedImageSrc, markFailedImageSrc } from "@/lib/media/failed-image-src";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
@@ -60,6 +60,8 @@ export function SafeImage({
   height,
   priority,
   fetchPriority,
+  loading,
+  unoptimized,
   onError,
   onLoad,
   ...rest
@@ -71,6 +73,32 @@ export function SafeImage({
   const usable = isUsableSafeImageSrc(src) && !broken;
   /* P1 CWV: LCP candidates with `priority` also declare high fetch priority explicitly. */
   const resolvedFetchPriority = fetchPriority ?? (priority ? "high" : undefined);
+  /*
+   * Homepage feed LCP only — matches ListingCard intrinsic 200×250 + priority.
+   * Production Next.js ImagePreload emits imageSrcSet without href, so the
+   * browser does not fetch until the parser reaches the <img>. Emit one
+   * explicit preload with href and disable the automatic preload for this
+   * image only. Density srcset (1x/2x) does not use imageSizes.
+   */
+  const isHomepageFeedLcp =
+    Boolean(priority) &&
+    !fill &&
+    unoptimized !== true &&
+    width === 200 &&
+    height === 250 &&
+    typeof src === "string";
+  const homepageFeedLcpPreload = isHomepageFeedLcp
+    ? (() => {
+        const { props } = getImageProps({
+          src,
+          width: 200,
+          height: 250,
+          alt,
+        });
+        if (!props.src || !props.srcSet) return null;
+        return { href: props.src, imageSrcSet: props.srcSet };
+      })()
+    : null;
 
   if (!usable) {
     if (fallback === "hide") return null;
@@ -94,8 +122,9 @@ export function SafeImage({
     );
   }
 
-  return (
+  const image = (
     <Image
+      {...rest}
       src={src as string | StaticImageData}
       alt={alt}
       fill={fill ? true : undefined}
@@ -103,8 +132,11 @@ export function SafeImage({
       height={height}
       className={className}
       style={style}
-      priority={priority}
+      unoptimized={unoptimized}
       fetchPriority={resolvedFetchPriority}
+      {...(homepageFeedLcpPreload
+        ? { priority: false as const, preload: false as const, loading: "eager" as const }
+        : { priority, loading })}
       onLoad={(event) => {
         /* Optimizer/host failures and corrupt Storage objects can report
          * complete with 0×0 or 1×1 placeholders — treat as broken. */
@@ -120,7 +152,26 @@ export function SafeImage({
         setFailedKey(sourceKey);
         onError?.(event);
       }}
-      {...rest}
     />
+  );
+
+  return (
+    <>
+      {homepageFeedLcpPreload ? (
+        <link
+          rel="preload"
+          as="image"
+          href={homepageFeedLcpPreload.href}
+          imageSrcSet={homepageFeedLcpPreload.imageSrcSet}
+          fetchPriority="high"
+        />
+      ) : null}
+      {/*
+       * React 19 auto-emits a no-href image preload for <img fetchPriority="high" srcSet>.
+       * <picture> sets SSR tagScope so that hint is skipped; display:contents keeps
+       * the existing .visual img box tree (no layout/CSS change).
+       */}
+      {homepageFeedLcpPreload ? <picture style={{ display: "contents" }}>{image}</picture> : image}
+    </>
   );
 }

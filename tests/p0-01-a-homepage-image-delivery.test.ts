@@ -132,4 +132,22 @@ describe("Performance Phase 1 — LCP delivery widths", () => {
     expect(card).toContain("priority={priority}");
     expect(safe).toContain('resolvedFetchPriority = fetchPriority ?? (priority ? "high" : undefined)');
   });
+
+  it("emits one explicit homepage feed LCP preload and disables Next.js automatic preload for that image only", () => {
+    const safe = readSource("components/ui/SafeImage.tsx");
+    const card = readSource("components/ui/ListingCard.tsx");
+    expect(safe).toContain("getImageProps");
+    expect(safe).toContain('rel="preload"');
+    expect(safe).toContain("href={homepageFeedLcpPreload.href}");
+    expect(safe).toContain("imageSrcSet={homepageFeedLcpPreload.imageSrcSet}");
+    expect(safe).not.toContain("imageSizes=");
+    expect(safe).not.toContain("@/components/homepage/canonical/constants");
+    expect(safe).toContain('priority: false as const, preload: false as const, loading: "eager" as const');
+    expect(safe).toContain('<picture style={{ display: "contents" }}>{image}</picture>');
+    expect(safe).toContain("width === 200");
+    expect(safe).toContain("height === 250");
+    expect(card).toContain("sizes={lcpIntrinsic ? undefined : imageSizes ?? IMG_SIZES}");
+    expect(card).toContain("priority={priority}");
+    expect(card).toContain("fill={!lcpIntrinsic}");
+  });
 });
