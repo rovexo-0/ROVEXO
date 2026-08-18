@@ -219,20 +219,26 @@ export async function ensureShippingRecord(input: {
   manualTier?: ParcelTier | null;
   carrier?: string | null;
   selectedQuoteId?: string | null;
+  collectionAddress?: ShippingAddress | null;
+  deliveryAddress?: ShippingAddress | null;
 }): Promise<ShippingRecord | null> {
   const existing = await getShippingRecord(input.orderId);
   if (existing) {
-    if (input.carrier || input.selectedQuoteId) {
-      const admin = createShippingAdminClient();
-      const patch: Record<string, unknown> = {};
-      if (input.carrier && !existing.carrier) patch.carrier = input.carrier;
-      if (input.selectedQuoteId && !existing.pricing?.selectedQuoteId) {
-        patch.selected_quote_id = input.selectedQuoteId;
-      }
-      if (Object.keys(patch).length > 0) {
-        await admin.from("shipping_records").update(patch).eq("order_id", input.orderId);
-        return getShippingRecord(input.orderId);
-      }
+    const admin = createShippingAdminClient();
+    const patch: Record<string, unknown> = {};
+    if (input.carrier && !existing.carrier) patch.carrier = input.carrier;
+    if (input.selectedQuoteId && !existing.pricing?.selectedQuoteId) {
+      patch.selected_quote_id = input.selectedQuoteId;
+    }
+    if (input.collectionAddress && !existing.collectionAddress) {
+      patch.collection_address = input.collectionAddress;
+    }
+    if (input.deliveryAddress && !existing.deliveryAddress) {
+      patch.delivery_address = input.deliveryAddress;
+    }
+    if (Object.keys(patch).length > 0) {
+      await admin.from("shipping_records").update(patch).eq("order_id", input.orderId);
+      return getShippingRecord(input.orderId);
     }
     return existing;
   }
@@ -255,6 +261,8 @@ export async function ensureShippingRecord(input: {
       status: "preparing",
       carrier: input.carrier ?? null,
       selected_quote_id: input.selectedQuoteId ?? null,
+      ...(input.collectionAddress ? { collection_address: input.collectionAddress } : {}),
+      ...(input.deliveryAddress ? { delivery_address: input.deliveryAddress } : {}),
     })
     .select("*")
     .single();

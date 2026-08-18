@@ -42,7 +42,7 @@ function toShippingAddress(input: {
   };
 }
 
-async function resolveSellerCollectionAddress(
+export async function resolveSellerCollectionAddress(
   sellerId: string,
   sellerName: string,
 ): Promise<ShippingAddress | null> {

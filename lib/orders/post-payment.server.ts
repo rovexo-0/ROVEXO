@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CHECKOUT_CARRIERS } from "@/lib/checkout/delivery";
+import { resolveSellerCollectionAddress } from "@/lib/checkout/shipping-quotes.server";
 import { openEscrowForOrder } from "@/lib/commerce-engine";
 import { mustUseDemoShipping } from "@/lib/full-demo/security";
 import { buildOrderReceiptUrl } from "@/lib/invoices/receipt";
@@ -11,7 +12,7 @@ import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
-import { parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   applySelectedShippingQuotePayload,
   buildPersistedCheckoutQuote,
@@ -108,34 +109,6 @@ async function resolveDeliveryAddress(
     city: data.city?.trim() || inferCity(data.address_line, data.postcode),
     postcode: data.postcode,
     country: data.country?.trim() || "United Kingdom",
-    validated: true,
-  };
-}
-
-async function resolveCollectionAddress(
-  sellerId: string,
-  sellerName: string,
-): Promise<ShippingAddress | null> {
-  const admin = createAdminClient();
-  const { data: row } = await admin
-    .from("shipping_addresses")
-    .select("recipient_name, address_line, address_line_2, city, postcode, country")
-    .eq("user_id", sellerId)
-    .eq("address_type", "shipping")
-    .order("is_default", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!row?.address_line || !row.postcode) return null;
-
-  return {
-    role: "collection",
-    fullName: row.recipient_name?.trim() || sellerName,
-    line1: row.address_line,
-    line2: row.address_line_2 ?? undefined,
-    city: row.city?.trim() || inferCity(row.address_line, row.postcode),
-    postcode: row.postcode,
-    country: row.country?.trim() || "United Kingdom",
     validated: true,
   };
 }
@@ -290,6 +263,17 @@ async function runEnsureOrderShippingPersistence(
     );
   }
 
+  const admin = createAdminClient();
+  const [{ data: sellerProfile }, deliveryAddress] = await Promise.all([
+    admin.from("profiles").select("full_name").eq("id", order.seller_id).maybeSingle(),
+    resolveDeliveryAddress(order.shipping_address_id),
+  ]);
+
+  const collectionAddress = await resolveSellerCollectionAddress(
+    order.seller_id,
+    sellerProfile?.full_name?.trim() || "Seller",
+  );
+
   // INSERT failures throw from ensureShippingRecord (never silent null).
   const record = await ensureShippingRecord({
     orderId: order.id,
@@ -298,21 +282,12 @@ async function runEnsureOrderShippingPersistence(
     manualTier: parcelTier,
     carrier: order.delivery_carrier || null,
     selectedQuoteId: preferredQuoteId,
+    collectionAddress,
+    deliveryAddress,
   });
   if (!record) {
     throw new Error(`Failed to create shipping record for order ${order.id}.`);
   }
-
-  const admin = createAdminClient();
-  const [{ data: sellerProfile }, deliveryAddress] = await Promise.all([
-    admin.from("profiles").select("full_name").eq("id", order.seller_id).maybeSingle(),
-    resolveDeliveryAddress(order.shipping_address_id),
-  ]);
-
-  const collectionAddress = await resolveCollectionAddress(
-    order.seller_id,
-    sellerProfile?.full_name?.trim() || "Seller",
-  );
 
   if (collectionAddress || deliveryAddress || order.delivery_carrier) {
     const shippingAdmin = createShippingAdminClient();
@@ -632,6 +607,22 @@ async function runEnsureOrderShippingPersistence(
   const finalRecord = await getShippingRecord(order.id);
   if (!finalRecord) {
     throw new Error(`Failed to create shipping record for order ${order.id}.`);
+  }
+
+  const sendcloudSelected =
+    (preferredQuoteId != null && isSendcloudQuoteId(preferredQuoteId)) ||
+    resolveSelectedShippingQuoteForLabel(
+      finalRecord.pricing?.quotes,
+      preferredQuoteId,
+    )?.providerId === "sendcloud";
+  if (
+    !mustUseDemoShipping() &&
+    sendcloudSelected &&
+    (!collectionAddress || !deliveryAddress)
+  ) {
+    throw new Error(
+      `SHIPPING_ADDRESS_SNAPSHOTS_REQUIRED: order ${order.id} is missing required address snapshots for Sendcloud label recovery.`,
+    );
   }
 
   void hasSelected;
