@@ -3,8 +3,10 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateOrderShippingLabel } from "@/lib/shipping/server";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
+import { resolveSellerCollectionAddress } from "@/lib/checkout/shipping-quotes.server";
 import {
   appendAndSelectShippingQuoteWithoutReplacing,
+  ensureShippingRecord,
   getShippingRecord,
   saveShippingQuotes,
   updateShippingQuotePayloadWithoutReplacing,
@@ -46,6 +48,12 @@ export type GenerateShippingLabelForOrderFailure = {
   error: string;
   providerFailure: ShippingLabelProviderFailure;
 };
+
+function shippingAddressHasRouteSnapshot(
+  address: ShippingAddress | null | undefined,
+): address is ShippingAddress {
+  return Boolean(address?.postcode?.trim() && address.country?.trim());
+}
 
 function rovexoValidationFailure(error: string): GenerateShippingLabelForOrderFailure {
   return {
@@ -94,9 +102,12 @@ export async function generateShippingLabelForOrder(
   const partyIds = [order.seller_id, order.buyer_id].filter(Boolean) as string[];
   const { data: partyProfiles } = await admin
     .from("profiles")
-    .select("id, email, phone")
+    .select("id, email, phone, full_name")
     .in("id", partyIds);
   const partyEmails = (partyProfiles ?? []).map((p) => p.email);
+  const sellerDisplayName =
+    (partyProfiles ?? []).find((profile) => profile.id === order.seller_id)
+      ?.full_name?.trim() || "Seller";
   const profileById = new Map(
     (partyProfiles ?? []).map((p) => [
       p.id,
@@ -217,6 +228,31 @@ export async function generateShippingLabelForOrder(
   // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
   quoteId = selectedQuote.id;
 
+  // Paid-before-snapshot records may have NULL collection/delivery on shipping_records.
+  // Reuse the same existing resolvers as post-payment; persist fill-if-null; never fabricate.
+  if (
+    !forceDemoShipping &&
+    !mustUseDemoShipping() &&
+    selectedSendcloudQuoteNeedsV3Discovery(selectedQuote) &&
+    (!shippingAddressHasRouteSnapshot(record?.collectionAddress) ||
+      !shippingAddressHasRouteSnapshot(record?.deliveryAddress))
+  ) {
+    const collectionResolved = shippingAddressHasRouteSnapshot(record?.collectionAddress)
+      ? record.collectionAddress
+      : await resolveSellerCollectionAddress(order.seller_id, sellerDisplayName);
+    const deliveryResolved = shippingAddressHasRouteSnapshot(record?.deliveryAddress)
+      ? record.deliveryAddress
+      : await resolveOrderDeliveryAddress(order.shipping_address_id);
+    if (collectionResolved || deliveryResolved) {
+      const persistedAddresses = await ensureShippingRecord({
+        orderId,
+        collectionAddress: collectionResolved ?? null,
+        deliveryAddress: deliveryResolved ?? null,
+      });
+      if (persistedAddresses) record = persistedAddresses;
+    }
+  }
+
   // Recover confirmed V3 metadata for a V2-only selected quote via the existing catalog.
   // Never invents codes. Never changes selected quote identity. Existing V3 gate stays below.
   if (
@@ -283,6 +319,14 @@ export async function generateShippingLabelForOrder(
           quoteId,
         );
       }
+    } else {
+      console.warn("[shipping/label] V3 discovery skipped", {
+        orderId,
+        hasMethodId: methodId != null,
+        hasCollectionRoute: shippingAddressHasRouteSnapshot(collection),
+        hasDeliveryRoute: shippingAddressHasRouteSnapshot(delivery),
+        hasParcelTier: Boolean(parcelTier),
+      });
     }
   }
 
