@@ -13,8 +13,10 @@ import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
 import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
+  applySelectedShippingQuotePayload,
   retainCheckoutSelectedQuoteId,
   resolveSelectedShippingQuoteForLabel,
+  selectedSendcloudQuoteNeedsV3Discovery,
 } from "@/lib/shipping/selected-shipping-quote-contract-v1";
 import {
   createShipmentParcel,
@@ -24,6 +26,7 @@ import {
   ensureShippingRecord,
   getShippingRecord,
   saveShippingQuotes,
+  updateShippingQuotePayloadWithoutReplacing,
 } from "@/lib/shipping/store";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
@@ -35,6 +38,11 @@ import {
   type ShippingSetupStatus,
 } from "@/lib/shipping/shipping-setup-status-v1";
 import { parcelTierToDimensions, resolveListingParcelTier } from "@/lib/shipping/parcels";
+import {
+  canonicalParcelMeasurements,
+  getCanonicalParcelSizeByTier,
+  resolveCanonicalParcelSize,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
 
 const PAID_ORDER_STATUSES = new Set([
@@ -451,6 +459,83 @@ async function runEnsureOrderShippingPersistence(
           preferredQuoteId,
         ) ?? demoPricing.selectedQuoteId;
       await saveShippingQuotes({ orderId: order.id, pricing: demoPricing });
+    }
+  }
+
+  // Identity resolve ≠ V3 persistence. Enrich the SAME selected sendcloud:N payload.
+  refreshed = await getShippingRecord(order.id);
+  const selectedIdentity =
+    retainCheckoutSelectedQuoteId(
+      refreshed?.pricing?.quotes,
+      preferredQuoteId ?? checkoutQuote?.id ?? null,
+    ) ??
+    preferredQuoteId ??
+    checkoutQuote?.id ??
+    null;
+  const resolvedSelected = resolveSelectedShippingQuoteForLabel(
+    refreshed?.pricing?.quotes,
+    selectedIdentity,
+  );
+  if (
+    allowLiveQuoteEnrichment &&
+    !mustUseDemoShipping() &&
+    resolvedSelected &&
+    selectedSendcloudQuoteNeedsV3Discovery(resolvedSelected) &&
+    collectionAddress &&
+    deliveryAddress
+  ) {
+    const methodId =
+      resolvedSelected.v2MethodId ?? parseSendcloudQuoteId(resolvedSelected.id);
+    const collectionValidated = ShippingService.validateAddress(collectionAddress);
+    const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
+    const routeParcelTier = refreshed?.parcelTier ?? parcelTier;
+    if (
+      methodId != null &&
+      collectionValidated.valid &&
+      deliveryValidated.valid &&
+      routeParcelTier
+    ) {
+      try {
+        const {
+          buildLiveCheckoutSendcloudV3Route,
+          discoverConfirmedV3MetadataForV2Method,
+        } = await import("@/lib/shipping/sendcloud/v3-catalog-v1");
+        const parcelDef =
+          resolveCanonicalParcelSize(parcelSize) ??
+          getCanonicalParcelSizeByTier(routeParcelTier);
+        const measurements = parcelDef ? canonicalParcelMeasurements(parcelDef) : null;
+        const meta = await discoverConfirmedV3MetadataForV2Method({
+          v2MethodId: methodId,
+          route: buildLiveCheckoutSendcloudV3Route({
+            fromCountryCode: collectionValidated.normalized.country,
+            toCountryCode: deliveryValidated.normalized.country,
+            fromPostalCode: collectionValidated.normalized.postcode,
+            toPostalCode: deliveryValidated.normalized.postcode,
+            parcelTier: routeParcelTier,
+            weightKg: measurements?.weightKg,
+          }),
+        });
+        if (meta?.shippingOptionCode) {
+          const enriched = applySelectedShippingQuotePayload(resolvedSelected, {
+            externalQuoteId: resolvedSelected.id,
+            v2MethodId: methodId,
+            shippingOptionCode: meta.shippingOptionCode,
+            ...(meta.contractId ? { contractId: meta.contractId } : {}),
+          });
+          await updateShippingQuotePayloadWithoutReplacing({
+            orderId: order.id,
+            quote: enriched,
+          });
+        }
+      } catch (error) {
+        console.warn("[orders/post-payment] V3 metadata persistence skipped", {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          failureStage: "v3_metadata_persistence",
+          selectedQuoteId: resolvedSelected.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
   }
 

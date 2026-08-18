@@ -5,7 +5,11 @@
 
 import "server-only";
 
-import { parcelSpecFromTier } from "@/lib/shipping/pricing/sendcloud-mappers";
+import {
+  normalizeCountryCode,
+  normalizeSendcloudPostalCode,
+  parcelSpecFromTier,
+} from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   buildSendcloudV3CatalogCacheKey,
   buildSendcloudV3CompatCacheKey,
@@ -38,10 +42,35 @@ async function v3Request<T>(
   return sendcloudV3Request<T>(path, init);
 }
 
-import { normalizeSendcloudPostalCode } from "@/lib/shipping/pricing/sendcloud-mappers";
-
 function normalizePostal(postcode: string): string {
   return normalizeSendcloudPostalCode(postcode);
+}
+
+/**
+ * Same from/to/parcel envelope as live checkout `SendcloudService.getQuotes`.
+ * Never invents a V3 code. Callers still run exact-match catalog discovery.
+ */
+export function buildLiveCheckoutSendcloudV3Route(input: {
+  fromCountryCode: string;
+  toCountryCode: string;
+  fromPostalCode: string;
+  toPostalCode: string;
+  parcelTier: ParcelTier;
+  weightKg?: number;
+}): SendcloudV3ShippingOptionsRequest {
+  const spec = parcelSpecFromTier(input.parcelTier, input.weightKg);
+  return {
+    fromCountryCode: normalizeCountryCode(input.fromCountryCode),
+    toCountryCode: normalizeCountryCode(input.toCountryCode),
+    fromPostalCode: input.fromPostalCode,
+    toPostalCode: input.toPostalCode,
+    parcelTier: input.parcelTier,
+    weightKg: spec.weightKg,
+    lengthCm: spec.lengthCm,
+    widthCm: spec.widthCm,
+    heightCm: spec.heightCm,
+    calculateQuotes: true,
+  };
 }
 
 /** Build official V3 shipping-options request body (read-only discovery). */

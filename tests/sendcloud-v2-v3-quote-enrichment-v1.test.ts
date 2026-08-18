@@ -198,10 +198,12 @@ describe("sendcloud V2 → V3 selected-quote enrichment", () => {
     const labelGen = read("lib/shipping/label-generation.server.ts");
     const store = read("lib/shipping/store.ts");
     expect(labelGen).toContain("discoverConfirmedV3MetadataForV2Method");
+    expect(labelGen).toContain("buildLiveCheckoutSendcloudV3Route");
     expect(labelGen).toContain("updateShippingQuotePayloadWithoutReplacing");
     expect(labelGen).toContain("selectedSendcloudQuoteNeedsV3Discovery");
     expect(store).toContain("updateShippingQuotePayloadWithoutReplacing");
     expect(store).toContain("Never inserts a second quote");
+    expect(store).toContain("Never changes selected_quote_id");
     const enrichBlock = labelGen.slice(
       labelGen.indexOf("Recover confirmed V3 metadata"),
       labelGen.indexOf("Sendcloud production: fail closed when V3 shipping_option_code"),

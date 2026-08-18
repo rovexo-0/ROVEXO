@@ -28,10 +28,11 @@ import {
   resolveSelectedShippingQuoteForLabel,
   selectedSendcloudQuoteNeedsV3Discovery,
 } from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import { parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
-  normalizeCountryCode,
-  parseSendcloudQuoteId,
-} from "@/lib/shipping/pricing/sendcloud-mappers";
+  canonicalParcelMeasurements,
+  getCanonicalParcelSizeByTier,
+} from "@/lib/shipping/canonical-parcel-size-v1";
 import {
   mustUseDemoShipping,
   mustUseDemoShippingForActors,
@@ -237,18 +238,22 @@ export async function generateShippingLabelForOrder(
       parcelTier
     ) {
       try {
-        const { discoverConfirmedV3MetadataForV2Method } = await import(
-          "@/lib/shipping/sendcloud/v3-catalog-v1"
-        );
+        const {
+          buildLiveCheckoutSendcloudV3Route,
+          discoverConfirmedV3MetadataForV2Method,
+        } = await import("@/lib/shipping/sendcloud/v3-catalog-v1");
+        const parcelDef = getCanonicalParcelSizeByTier(parcelTier);
+        const measurements = parcelDef ? canonicalParcelMeasurements(parcelDef) : null;
         const meta = await discoverConfirmedV3MetadataForV2Method({
           v2MethodId: methodId,
-          route: {
-            fromCountryCode: normalizeCountryCode(collection.country),
-            toCountryCode: normalizeCountryCode(delivery.country),
+          route: buildLiveCheckoutSendcloudV3Route({
+            fromCountryCode: collection.country,
+            toCountryCode: delivery.country,
             fromPostalCode: collection.postcode,
             toPostalCode: delivery.postcode,
             parcelTier,
-          },
+            weightKg: measurements?.weightKg,
+          }),
         });
         if (meta?.shippingOptionCode) {
           const enriched = applySelectedShippingQuotePayload(selectedQuote, {
@@ -257,14 +262,20 @@ export async function generateShippingLabelForOrder(
             shippingOptionCode: meta.shippingOptionCode,
             ...(meta.contractId ? { contractId: meta.contractId } : {}),
           });
-          record = await updateShippingQuotePayloadWithoutReplacing({
+          const persisted = await updateShippingQuotePayloadWithoutReplacing({
             orderId,
             quote: enriched,
           });
-          selectedQuote = resolveSelectedShippingQuoteForLabel(
-            record?.pricing?.quotes,
-            quoteId,
-          );
+          if (persisted) {
+            record = persisted;
+            const again = resolveSelectedShippingQuoteForLabel(
+              persisted.pricing?.quotes,
+              quoteId,
+            );
+            if (again && !selectedSendcloudQuoteNeedsV3Discovery(again)) {
+              selectedQuote = again;
+            }
+          }
         }
       } catch {
         selectedQuote = resolveSelectedShippingQuoteForLabel(

@@ -7,6 +7,12 @@ import { readFileSync } from "node:fs";
 const ensureShippingRecord = vi.fn();
 const getShippingRecord = vi.fn();
 const saveShippingQuotes = vi.fn();
+const updateShippingQuotePayloadWithoutReplacing = vi.fn();
+const discoverConfirmedV3MetadataForV2Method = vi.fn();
+const buildLiveCheckoutSendcloudV3Route = vi.fn((input: Record<string, unknown>) => ({
+  ...input,
+  calculateQuotes: true,
+}));
 const listShipmentParcelsForOrder = vi.fn();
 const createShipmentParcel = vi.fn();
 const fetchShippingQuotesServer = vi.fn();
@@ -18,6 +24,8 @@ vi.mock("@/lib/shipping/store", () => ({
   ensureShippingRecord: (...args: unknown[]) => ensureShippingRecord(...args),
   getShippingRecord: (...args: unknown[]) => getShippingRecord(...args),
   saveShippingQuotes: (...args: unknown[]) => saveShippingQuotes(...args),
+  updateShippingQuotePayloadWithoutReplacing: (...args: unknown[]) =>
+    updateShippingQuotePayloadWithoutReplacing(...args),
 }));
 
 vi.mock("@/lib/shipping/parcels-repository", () => ({
@@ -27,6 +35,13 @@ vi.mock("@/lib/shipping/parcels-repository", () => ({
 
 vi.mock("@/lib/shipping/pricing/service.server", () => ({
   fetchShippingQuotesServer: (...args: unknown[]) => fetchShippingQuotesServer(...args),
+}));
+
+vi.mock("@/lib/shipping/sendcloud/v3-catalog-v1", () => ({
+  discoverConfirmedV3MetadataForV2Method: (...args: unknown[]) =>
+    discoverConfirmedV3MetadataForV2Method(...args),
+  buildLiveCheckoutSendcloudV3Route: (...args: unknown[]) =>
+    buildLiveCheckoutSendcloudV3Route(...args),
 }));
 
 vi.mock("@/lib/full-demo/security", () => ({
@@ -142,6 +157,20 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
       carrier: "Royal Mail",
       pricing,
     }));
+    updateShippingQuotePayloadWithoutReplacing.mockImplementation(async ({ quote }) => ({
+      id: "sr-1",
+      orderId: "ord-1",
+      parcelTier: "small_parcel",
+      status: "preparing",
+      carrier: "Royal Mail",
+      pricing: {
+        quotes: [quote],
+        selectedQuoteId: "sendcloud:42",
+        currency: "GBP",
+        providerAvailable: true,
+      },
+    }));
+    discoverConfirmedV3MetadataForV2Method.mockResolvedValue(null);
     listShipmentParcelsForOrder.mockResolvedValue([]);
     createShipmentParcel.mockResolvedValue({ id: "parcel-1" });
     fetchShippingQuotesServer.mockResolvedValue({
@@ -169,6 +198,9 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     expect(postPayment).toContain("retainCheckoutSelectedQuoteId");
     expect(postPayment).toContain("const retained = retainCheckoutSelectedQuoteId(quotes, preferredQuoteId)");
     expect(postPayment).toContain("resolveSelectedShippingQuoteForLabel");
+    expect(postPayment).toContain("selectedSendcloudQuoteNeedsV3Discovery");
+    expect(postPayment).toContain("discoverConfirmedV3MetadataForV2Method");
+    expect(postPayment).toContain("updateShippingQuotePayloadWithoutReplacing");
     expect(postPayment).not.toContain(
       "refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id",
     );
@@ -552,9 +584,65 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     );
 
     expect(fetchShippingQuotesServer).not.toHaveBeenCalled();
+    expect(discoverConfirmedV3MetadataForV2Method).not.toHaveBeenCalled();
+    expect(updateShippingQuotePayloadWithoutReplacing).not.toHaveBeenCalled();
     const repair = readFileSync("lib/orders/repair-paid-order-shipping.server.ts", "utf8");
     expect(repair).not.toContain("generateShippingLabelForOrder");
     expect(repair).not.toContain("SendcloudService");
+  });
+
+  it("I: resolved V2-only quote persists confirmed V3 without changing selected id", async () => {
+    const { ensureOrderShippingPersistence } = await import(
+      "@/lib/orders/post-payment.server"
+    );
+
+    discoverConfirmedV3MetadataForV2Method.mockResolvedValue({
+      v2MethodId: 42,
+      shippingOptionCode: "royal_mailv2:tracked_48/size=s",
+      contractId: "116816",
+    });
+
+    const quoteCallsBefore = saveShippingQuotes.mock.calls.length;
+    const result = await ensureOrderShippingPersistence({
+      id: "ord-1",
+      order_number: "RVXTEST",
+      status: "awaiting_shipment",
+      buyer_id: "b1",
+      seller_id: "s1",
+      item_price: 10,
+      delivery_fee: 2.38,
+      delivery_carrier: "Royal Mail",
+      shipping_address_id: "addr-1",
+      selected_shipping_quote_id: "sendcloud:42",
+      order_items: [
+        {
+          product_id: "p1",
+          title: "Item",
+          image_url: "/x.png",
+          quantity: 1,
+          slug: "item",
+        },
+      ],
+    });
+
+    expect(result.selectedQuoteId).toBe("sendcloud:42");
+    expect(discoverConfirmedV3MetadataForV2Method).toHaveBeenCalledWith(
+      expect.objectContaining({ v2MethodId: 42 }),
+    );
+    expect(updateShippingQuotePayloadWithoutReplacing).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderId: "ord-1",
+        quote: expect.objectContaining({
+          id: "sendcloud:42",
+          v2MethodId: 42,
+          shippingOptionCode: "royal_mailv2:tracked_48/size=s",
+        }),
+      }),
+    );
+    expect(saveShippingQuotes.mock.calls.length).toBe(quoteCallsBefore);
+    expect(ensureShippingRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ selectedQuoteId: "sendcloud:42" }),
+    );
   });
 
   it("migration adds selected quote + shipping_setup_status without new tables", () => {
