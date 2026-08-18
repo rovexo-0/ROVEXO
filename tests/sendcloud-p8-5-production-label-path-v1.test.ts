@@ -206,7 +206,7 @@ describe("P8.5 production label path", () => {
     const labelGen = read("lib/shipping/label-generation.server.ts");
     const fn = resolveSrc.slice(
       resolveSrc.indexOf("export function resolveSelectedShippingQuoteForLabel"),
-      resolveSrc.indexOf("export function applySelectedShippingQuotePayload"),
+      resolveSrc.indexOf("export function retainCheckoutSelectedQuoteId"),
     );
     expect(fn).not.toContain("quotes[0]");
     expect(fn).not.toMatch(/return quotes\[0\]/);
@@ -217,6 +217,8 @@ describe("P8.5 production label path", () => {
     expect(labelGen).toContain(
       "Selected shipping quote could not be resolved for this order.",
     );
+    expect(labelGen).toContain("appendAndSelectShippingQuoteWithoutReplacing");
+    expect(labelGen).toContain("buildLegacyBridgeShippingQuote");
   });
 
   it("I/J — announce payload uses selected V3 option + InPost phone contract + success yields usable label", async () => {

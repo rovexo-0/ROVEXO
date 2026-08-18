@@ -158,6 +158,22 @@ export function resolveSelectedShippingQuoteForLabel(
 }
 
 /**
+ * Keep the checkout-selected quote identity.
+ * If it already hydrates from quotes, return the hydrated external id.
+ * If it is absent from quotes, return the selected id unchanged.
+ * Never substitute another quote by price, carrier, or first-list fallback.
+ */
+export function retainCheckoutSelectedQuoteId(
+  quotes: ShippingQuote[] | null | undefined,
+  selectedQuoteId: string | null | undefined,
+): string | null {
+  const selected = typeof selectedQuoteId === "string" ? selectedQuoteId.trim() : "";
+  if (!selected) return null;
+  const resolved = resolveSelectedShippingQuoteForLabel(quotes, selected);
+  return resolved?.id ?? selected;
+}
+
+/**
  * Overlay confirmed checkout payload onto a base quote.
  * Never invents codes. Never reformats confirmed shippingOptionCode.
  * Prefer existing confirmed base.shippingOptionCode when already present.

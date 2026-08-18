@@ -3,7 +3,11 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateOrderShippingLabel } from "@/lib/shipping/server";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
-import { getShippingRecord, saveShippingQuotes } from "@/lib/shipping/store";
+import {
+  appendAndSelectShippingQuoteWithoutReplacing,
+  getShippingRecord,
+  saveShippingQuotes,
+} from "@/lib/shipping/store";
 import {
   getShipmentParcelById,
   createShipmentParcel,
@@ -17,7 +21,10 @@ import {
   resolveLabelParcelMeasurements,
 } from "@/lib/shipping/parcels";
 import { resolveShipmentParcelForLabel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
-import { resolveSelectedShippingQuoteForLabel } from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import {
+  buildLegacyBridgeShippingQuote,
+  resolveSelectedShippingQuoteForLabel,
+} from "@/lib/shipping/selected-shipping-quote-contract-v1";
 import {
   mustUseDemoShipping,
   mustUseDemoShippingForActors,
@@ -59,7 +66,7 @@ export async function generateShippingLabelForOrder(
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, order_number, seller_id, buyer_id, shipping_address_id, status, selected_shipping_quote_id",
+      "id, order_number, seller_id, buyer_id, shipping_address_id, status, selected_shipping_quote_id, delivery_carrier, delivery_fee",
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -162,10 +169,38 @@ export async function generateShippingLabelForOrder(
   }
 
   // P8.5: resolve selected identity (row UUID ↔ externalQuoteId) — never quotes[0].
-  const selectedQuote = resolveSelectedShippingQuoteForLabel(
+  let selectedQuote = resolveSelectedShippingQuoteForLabel(
     record?.pricing?.quotes,
     quoteId,
   );
+  if (!selectedQuote?.id) {
+    const checkoutIdentity = buildLegacyBridgeShippingQuote({
+      quoteId,
+      carrier:
+        (typeof order.delivery_carrier === "string" && order.delivery_carrier.trim()) ||
+        record?.carrier ||
+        "Selected delivery",
+      serviceName:
+        (typeof order.delivery_carrier === "string" && order.delivery_carrier.trim()) ||
+        record?.carrier ||
+        undefined,
+      pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
+    });
+    if (resolveSelectedShippingQuoteForLabel([checkoutIdentity], quoteId)?.id) {
+      try {
+        record = await appendAndSelectShippingQuoteWithoutReplacing({
+          orderId,
+          quote: checkoutIdentity,
+        });
+        selectedQuote = resolveSelectedShippingQuoteForLabel(
+          record?.pricing?.quotes,
+          quoteId,
+        );
+      } catch {
+        selectedQuote = null;
+      }
+    }
+  }
   if (!selectedQuote?.id) {
     return rovexoValidationFailure(
       "Selected shipping quote could not be resolved for this order.",

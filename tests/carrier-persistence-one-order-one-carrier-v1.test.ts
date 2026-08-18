@@ -119,7 +119,7 @@ describe("TEST 3 — Royal Mail cannot become InPost after payment", () => {
     const postPayment = readFileSync("lib/orders/post-payment.server.ts", "utf8");
     expect(postPayment).toContain("const preferredQuoteId = order.selected_shipping_quote_id?.trim() || null");
     expect(postPayment).toContain("carrier: order.delivery_carrier || null");
-    expect(postPayment).toContain("if (preferredQuoteId)");
+    expect(postPayment).toContain("retainCheckoutSelectedQuoteId");
     expect(postPayment).toContain("Never reconstruct method id from carrier name / price alone");
     expect(postPayment).not.toMatch(/delivery_carrier:\s*["']InPost["']/);
   });

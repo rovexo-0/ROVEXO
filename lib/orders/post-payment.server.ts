@@ -13,6 +13,10 @@ import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
 import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
+  retainCheckoutSelectedQuoteId,
+  resolveSelectedShippingQuoteForLabel,
+} from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import {
   createShipmentParcel,
   listShipmentParcelsForOrder,
 } from "@/lib/shipping/parcels-repository";
@@ -142,10 +146,8 @@ function pickSelectedQuoteId(
   deliveryFee: number,
   preferredQuoteId?: string | null,
 ): string | null {
-  if (preferredQuoteId) {
-    const exactId = quotes.find((quote) => quote.id === preferredQuoteId);
-    if (exactId) return exactId.id;
-  }
+  const retained = retainCheckoutSelectedQuoteId(quotes, preferredQuoteId);
+  if (retained) return retained;
 
   if (quotes.length === 0) return preferredQuoteId ?? null;
 
@@ -326,7 +328,10 @@ async function runEnsureOrderShippingPersistence(
   // Always persist the exact checkout-selected method identity when present.
   // Never reconstruct method id from carrier name / price alone.
   const checkoutQuote = buildPersistedCheckoutQuote(order);
-  if (checkoutQuote && (!hasQuotes || refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id)) {
+  if (
+    checkoutQuote &&
+    !resolveSelectedShippingQuoteForLabel(refreshed?.pricing?.quotes, checkoutQuote.id)?.id
+  ) {
     if (allowLiveQuoteEnrichment && collectionAddress && deliveryAddress) {
       const collectionValidated = ShippingService.validateAddress(collectionAddress);
       const deliveryValidated = ShippingService.validateAddress(deliveryAddress);
@@ -370,9 +375,13 @@ async function runEnsureOrderShippingPersistence(
     }
 
     refreshed = await getShippingRecord(order.id);
-    if ((refreshed?.pricing?.quotes.length ?? 0) === 0 || refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id) {
+    if (!resolveSelectedShippingQuoteForLabel(refreshed?.pricing?.quotes, checkoutQuote.id)?.id) {
+      const existing = refreshed?.pricing?.quotes ?? [];
+      const quotes = existing.some((quote) => quote.id === checkoutQuote.id)
+        ? existing
+        : [...existing, checkoutQuote];
       const pricing: ShippingPricing = {
-        quotes: [checkoutQuote],
+        quotes,
         selectedQuoteId: checkoutQuote.id,
         currency: "GBP",
         providerAvailable: true,

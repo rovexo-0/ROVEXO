@@ -164,6 +164,14 @@ describe("SENDCLOUD_P0 post-payment shipping persistence", () => {
     );
     expect(createOrder).toContain("selected_shipping_quote_id: selectedShippingQuoteId");
     expect(createOrder).toContain("shipping_setup_status: \"pending\"");
+
+    const postPayment = readFileSync("lib/orders/post-payment.server.ts", "utf8");
+    expect(postPayment).toContain("retainCheckoutSelectedQuoteId");
+    expect(postPayment).toContain("const retained = retainCheckoutSelectedQuoteId(quotes, preferredQuoteId)");
+    expect(postPayment).toContain("resolveSelectedShippingQuoteForLabel");
+    expect(postPayment).not.toContain(
+      "refreshed?.pricing?.selectedQuoteId !== checkoutQuote.id",
+    );
   });
 
   it("B: paid order persistence creates exactly one shipping_record path", async () => {
