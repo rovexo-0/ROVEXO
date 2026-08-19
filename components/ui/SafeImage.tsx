@@ -79,6 +79,8 @@ export function SafeImage({
    * browser does not fetch until the parser reaches the <img>. Emit one
    * explicit preload with href and disable the automatic preload for this
    * image only. Density srcset (1x/2x) does not use imageSizes.
+   * Media is the existing 200px feed-sizes slot: (max-width: 440px).
+   * That is the PSI/iPhone card width (185–199px), not the 2x file width 640.
    */
   const isHomepageFeedLcp =
     Boolean(priority) &&
@@ -164,6 +166,7 @@ export function SafeImage({
           href={homepageFeedLcpPreload.href}
           imageSrcSet={homepageFeedLcpPreload.imageSrcSet}
           fetchPriority="high"
+          media="(max-width: 440px)"
         />
       ) : null}
       {/*

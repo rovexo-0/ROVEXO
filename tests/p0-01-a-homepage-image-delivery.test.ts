@@ -140,6 +140,7 @@ describe("Performance Phase 1 — LCP delivery widths", () => {
     expect(safe).toContain('rel="preload"');
     expect(safe).toContain("href={homepageFeedLcpPreload.href}");
     expect(safe).toContain("imageSrcSet={homepageFeedLcpPreload.imageSrcSet}");
+    expect(safe).toContain('media="(max-width: 440px)"');
     expect(safe).not.toContain("imageSizes=");
     expect(safe).not.toContain("@/components/homepage/canonical/constants");
     expect(safe).toContain('priority: false as const, preload: false as const, loading: "eager" as const');

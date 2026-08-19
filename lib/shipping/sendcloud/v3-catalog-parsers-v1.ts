@@ -493,7 +493,8 @@ export function selectRouteAwareV3OptionForCompatMapping(input: {
 
 /**
  * Apply route-aware selections onto quote metadata used by mapSendcloudMethodToQuote.
- * Unavailable compat codes are stripped — quotes remain V2-priced / label-blocked.
+ * Unavailable compat codes are stripped. Callers must not offer those methods
+ * as selectable checkout quotes (see isRouteProvenSendcloudQuote).
  */
 export function applyRouteAwareSelectionsToQuoteMetadata(
   metadata: Map<number, SendcloudV3QuoteMetadata>,
