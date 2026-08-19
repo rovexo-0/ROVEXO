@@ -30,6 +30,7 @@ type OrderRow = {
   order_number: string;
   stripe_payment_intent_id: string | null;
   stripe_refund_id: string | null;
+  refunded_amount?: number | null;
   total: number;
   buyer_id: string;
   seller_id: string;
@@ -42,6 +43,7 @@ function liveOrder(overrides: Partial<OrderRow> = {}): OrderRow {
     order_number: "RVX-1001",
     stripe_payment_intent_id: "pi_live_abc",
     stripe_refund_id: null,
+    refunded_amount: null,
     total: 10,
     buyer_id: "buyer-1",
     seller_id: "seller-1",
@@ -225,19 +227,83 @@ describe("refund capture verification v1", () => {
     expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
   });
 
-  it("TEST 10: existing stripe_refund_id idempotency remains intact", async () => {
+  it("TEST 10: existing stripe_refund_id + valid refunded_amount is preserved", async () => {
     mockAdmin({
-      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1" }),
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: 6, total: 10 }),
     });
     const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
     const result = await createOrderStripeRefund("order-1");
     expect(result).toEqual({
       refundId: "wallet-refund-order-1",
-      refundedAmount: 10,
+      refundedAmount: 6,
+      refundedAt: undefined,
+    });
+    expect(result).not.toMatchObject({ refundedAmount: 10 });
+    expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
+    expect(getStripeClient).not.toHaveBeenCalled();
+  });
+
+  it("CASE 2: existing stripe_refund_id + refunded_amount null fails closed", async () => {
+    mockAdmin({
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: null, total: 10 }),
+    });
+    const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
+    const result = await createOrderStripeRefund("order-1");
+    expect(result).toEqual({ error: "Unable to verify captured payment." });
+    expect(result).not.toMatchObject({ refundedAmount: 10 });
+    expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
+    expect(getStripeClient).not.toHaveBeenCalled();
+  });
+
+  it("CASE 3: existing stripe_refund_id + refunded_amount undefined fails closed", async () => {
+    mockAdmin({
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: undefined, total: 10 }),
+    });
+    const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
+    const result = await createOrderStripeRefund("order-1");
+    expect(result).toEqual({ error: "Unable to verify captured payment." });
+    expect(result).not.toMatchObject({ refundedAmount: 10 });
+    expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
+  });
+
+  it("CASE 4: existing stripe_refund_id + refunded_amount NaN fails closed", async () => {
+    mockAdmin({
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: Number.NaN, total: 10 }),
+    });
+    const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
+    const result = await createOrderStripeRefund("order-1");
+    expect(result).toEqual({ error: "Unable to verify captured payment." });
+    expect(result).not.toMatchObject({ refundedAmount: 10 });
+    expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
+  });
+
+  it("CASE 5: existing stripe_refund_id + refunded_amount 0 fails closed", async () => {
+    mockAdmin({
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: 0, total: 10 }),
+    });
+    const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
+    const result = await createOrderStripeRefund("order-1");
+    expect(result).toEqual({ error: "Unable to verify captured payment." });
+    expect(result).not.toMatchObject({ refundedAmount: 10 });
+    expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
+  });
+
+  it("CASE 6/7: existing stripe_refund_id + positive amount is exact and does not re-credit", async () => {
+    mockAdmin({
+      order: liveOrder({ stripe_refund_id: "wallet-refund-order-1", refunded_amount: 2.95, total: 10 }),
+    });
+    const { createOrderStripeRefund } = await import("@/lib/stripe/refunds");
+    const result = await createOrderStripeRefund("order-1");
+    expect(result).toEqual({
+      refundId: "wallet-refund-order-1",
+      refundedAmount: 2.95,
       refundedAt: undefined,
     });
     expect(applyOrderRefundLifecycle).not.toHaveBeenCalled();
     expect(getStripeClient).not.toHaveBeenCalled();
+    const refunds = readFileSync(join(process.cwd(), "lib/stripe/refunds.ts"), "utf8");
+    expect(refunds).not.toMatch(/alreadyRefunded\) \? alreadyRefunded : Number\(order\.total\)/);
+    expect(refunds).not.toMatch(/refundedAmount: Number\(order\.total\)/);
   });
 
   it("TEST 11: wallet-credit path still uses existing lifecycle + wallet-refund id", async () => {
@@ -257,11 +323,13 @@ describe("refund capture verification v1", () => {
     expect(sales).toContain('type: "refund"');
   });
 
-  it("TEST 12: cancel callers are unchanged", () => {
+  it("TEST 12: cancel callers stay on createOrderStripeRefund and allow £0 cancel", () => {
     const cancel = readFileSync(join(process.cwd(), "lib/orders/cancel-order.server.ts"), "utf8");
     expect(cancel).toContain("export async function cancelBuyerOrder");
     expect(cancel).toContain("export async function cancelSellerOrder");
     expect(cancel).toContain("createOrderStripeRefund");
+    expect(cancel).toContain("isZeroCaptureRefundError");
+    expect(cancel).toContain("refundCapturedPaymentOrZero");
     expect(cancel).toContain("context.paidAt || context.stripePaymentIntentId");
   });
 

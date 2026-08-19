@@ -61,6 +61,9 @@ vi.mock("@/lib/shipping/sendcloud/service", () => ({
 
 vi.mock("@/lib/stripe/refunds", () => ({
   createOrderStripeRefund,
+  ZERO_CAPTURE_ERROR: "No captured payment to refund.",
+  isZeroCaptureRefundError: (error: string | undefined) =>
+    error === "No captured payment to refund.",
 }));
 
 vi.mock("@/lib/orders/refund-lifecycle.server", () => ({
@@ -186,6 +189,18 @@ describe("cancelBuyerOrder — refund before Sendcloud cancel", () => {
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/refund/i);
     expect(cancelParcel).not.toHaveBeenCalled();
+  });
+
+  it("B2: zero capture => cancel proceeds with £0 and no Wallet refund id", async () => {
+    createOrderStripeRefund.mockResolvedValue({ error: "No captured payment to refund." });
+    cancelParcel.mockResolvedValue(undefined);
+
+    const { cancelBuyerOrder } = await import("@/lib/orders/cancel-order.server");
+    const result = await cancelBuyerOrder({ orderId: "order-1", buyerId: "buyer-1" });
+
+    expect(result.success).toBe(true);
+    expect(result.error).toBeUndefined();
+    expect(cancelParcel).toHaveBeenCalled();
   });
 
   it("C: refund succeeds + Sendcloud cancel fails => refund kept; carrier not falsely cancelled", async () => {

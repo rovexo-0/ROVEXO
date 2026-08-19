@@ -21,7 +21,7 @@ import {
 } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
 import { markOrderCancellationRequested } from "@/lib/orders/refund-lifecycle.server";
-import { createOrderStripeRefund } from "@/lib/stripe/refunds";
+import { createOrderStripeRefund, isZeroCaptureRefundError } from "@/lib/stripe/refunds";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import { SendcloudService } from "@/lib/shipping/sendcloud/service";
@@ -231,6 +231,23 @@ async function markOrderCancelled(input: {
 }
 
 /**
+ * Cancel may proceed with £0 when capture/virtual debit is proven zero.
+ * Lookup failure remains fail-closed — do not cancel a possibly paid order.
+ */
+async function refundCapturedPaymentOrZero(
+  orderId: string,
+): Promise<{ ok: true; refundId: string | null } | { ok: false; error: string }> {
+  const refundResult = await createOrderStripeRefund(orderId, { notifySeller: false });
+  if ("error" in refundResult) {
+    if (isZeroCaptureRefundError(refundResult.error)) {
+      return { ok: true, refundId: null };
+    }
+    return { ok: false, error: refundResult.error };
+  }
+  return { ok: true, refundId: refundResult.refundId };
+}
+
+/**
  * Buyer-initiated order cancellation with automatic Stripe refund when payment succeeded.
  * Idempotent when the order is already cancelled.
  */
@@ -306,8 +323,8 @@ export async function cancelBuyerOrder(input: {
 
   if (context.paidAt || context.stripePaymentIntentId) {
     await markOrderCancellationRequested(input.orderId);
-    const refundResult = await createOrderStripeRefund(input.orderId, { notifySeller: false });
-    if ("error" in refundResult) {
+    const refundResult = await refundCapturedPaymentOrZero(input.orderId);
+    if (!refundResult.ok) {
       return { success: false, error: refundResult.error };
     }
     stripeRefundId = refundResult.refundId;
@@ -441,8 +458,8 @@ export async function cancelSellerOrder(input: {
 
   if (context.paidAt || context.stripePaymentIntentId) {
     await markOrderCancellationRequested(input.orderId);
-    const refundResult = await createOrderStripeRefund(input.orderId, { notifySeller: false });
-    if ("error" in refundResult) {
+    const refundResult = await refundCapturedPaymentOrZero(input.orderId);
+    if (!refundResult.ok) {
       return { success: false, error: refundResult.error };
     }
     stripeRefundId = refundResult.refundId;

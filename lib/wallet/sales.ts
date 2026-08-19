@@ -220,6 +220,10 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
     return;
   }
 
+  if (!saleTx) {
+    return;
+  }
+
   const { sellerAmount } = calculateSellerNetAmount(Number(order.item_price));
   const wallet = await ensureWallet(sellerId);
   if (!wallet) {

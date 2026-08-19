@@ -4,8 +4,12 @@ import { applyOrderRefundLifecycle } from "@/lib/orders/refund-lifecycle.server"
 import { mustUseVirtualPayments } from "@/lib/full-demo/security";
 import { ROVEXO_WALLET_REFUND_METHOD } from "@/lib/wallet/security";
 
-const ZERO_CAPTURE_ERROR = "No captured payment to refund.";
-const CAPTURE_UNVERIFIED_ERROR = "Unable to verify captured payment.";
+export const ZERO_CAPTURE_ERROR = "No captured payment to refund.";
+export const CAPTURE_UNVERIFIED_ERROR = "Unable to verify captured payment.";
+
+export function isZeroCaptureRefundError(error: string | undefined): boolean {
+  return error === ZERO_CAPTURE_ERROR;
+}
 
 function isVirtualPaymentIntentId(paymentIntentId: string | null | undefined): boolean {
   if (!paymentIntentId) return false;
@@ -161,7 +165,7 @@ export async function createOrderStripeRefund(
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, order_number, stripe_payment_intent_id, stripe_refund_id, total, buyer_id, seller_id")
+    .select("id, order_number, stripe_payment_intent_id, stripe_refund_id, refunded_amount, total, buyer_id, seller_id")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -170,9 +174,13 @@ export async function createOrderStripeRefund(
   }
 
   if (order.stripe_refund_id) {
+    const alreadyRefunded = Number(order.refunded_amount);
+    if (!Number.isFinite(alreadyRefunded) || alreadyRefunded <= 0) {
+      return { error: CAPTURE_UNVERIFIED_ERROR };
+    }
     return {
       refundId: order.stripe_refund_id,
-      refundedAmount: Number(order.total),
+      refundedAmount: alreadyRefunded,
       refundedAt: undefined,
     };
   }

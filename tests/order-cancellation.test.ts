@@ -386,6 +386,8 @@ describe("seller cancellation contracts", () => {
     expect(detail).toContain("Refunded to Wallet");
     expect(store).toContain('if (action === "refund")');
     expect(cancel).toContain("export async function cancelBuyerOrder");
+    expect(cancel).toContain("isZeroCaptureRefundError");
+    expect(cancel).toContain("refundCapturedPaymentOrZero");
   });
 
   it("CREATE LABEL remains the seller primary action", () => {

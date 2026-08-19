@@ -98,7 +98,8 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
     .limit(1)
     .maybeSingle();
 
-  const amount = input.amount || Number(existing.total);
+  const requested = Number(input.amount);
+  const amount = Number.isFinite(requested) && requested > 0 ? requested : 0;
   const orderNumber = existing.order_number;
   const productTitle = orderItem?.title ?? undefined;
   const productImageUrl = orderItem?.image_url ?? undefined;
@@ -139,6 +140,7 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
 
   if (mappedStatus === "completed" && previousStatus !== "completed") {
     if (
+      amount > 0 &&
       isRovexoWalletRefundCreditEligible({
         refundId: input.refundId,
         paymentMethod: input.paymentMethod ?? null,
