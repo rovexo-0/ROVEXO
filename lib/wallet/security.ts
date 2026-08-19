@@ -70,3 +70,40 @@ export function canDebitAvailable(available: number, amount: number): boolean {
   const d = roundWalletMoney(amount);
   return d > 0 && a >= d;
 }
+
+/** One debit per Checkout Session — Confirm & Pay retries must not charge twice. */
+export function buildBuyerCheckoutDebitIdempotencyKey(
+  checkoutSessionPublicId: string,
+): string {
+  return `buyer-checkout:${checkoutSessionPublicId.trim()}`;
+}
+
+/**
+ * Capture-proof prefix required by `lib/stripe/refunds.ts` (commit 522847aa).
+ * Do not change without updating that capture verifier.
+ */
+export const WALLET_CHECKOUT_DEBIT_DESCRIPTION_PREFIX = "Virtual payment for order ";
+
+export function buildBuyerCheckoutDebitDescription(input: {
+  orderNumber: string;
+  sessionId: string;
+}): string {
+  return `${WALLET_CHECKOUT_DEBIT_DESCRIPTION_PREFIX}${input.orderNumber} (${input.sessionId})`;
+}
+
+/** Wallet checkout eligibility: available must cover the locked payable total. */
+export function isWalletCheckoutEligible(
+  available: number,
+  lockedPayableTotal: number,
+): boolean {
+  return canDebitAvailable(available, lockedPayableTotal);
+}
+
+/** Remaining available after debiting the locked payable total. Null if ineligible. */
+export function remainingAfterWalletCheckoutDebit(
+  available: number,
+  lockedPayableTotal: number,
+): number | null {
+  if (!isWalletCheckoutEligible(available, lockedPayableTotal)) return null;
+  return roundWalletMoney(roundWalletMoney(available) - roundWalletMoney(lockedPayableTotal));
+}

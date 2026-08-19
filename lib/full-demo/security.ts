@@ -79,6 +79,22 @@ export function isProtectedDemoActor(email: string | null | undefined): boolean 
   return normalized.endsWith("@demo.rovexo.co.uk");
 }
 
+export type CheckoutPaymentRail = "virtual_demo" | "rovexo_balance" | "stripe";
+
+/**
+ * Payment-method routing — Wallet must never require Stripe readiness.
+ * Card / unknown methods stay on the Stripe rail.
+ */
+export function resolveCheckoutPaymentRail(input?: {
+  buyerEmail?: string | null;
+  paymentMethod?: string | null;
+}): CheckoutPaymentRail {
+  if (mustUseVirtualPayments()) return "virtual_demo";
+  if (isProtectedDemoActor(input?.buyerEmail)) return "virtual_demo";
+  if (input?.paymentMethod === "rovexo_balance") return "rovexo_balance";
+  return "stripe";
+}
+
 /**
  * Virtual / wallet settlement required — never open real Stripe Checkout.
  * Full Demo accounts are always virtual regardless of env flags.
@@ -87,8 +103,5 @@ export function mustSettleWithoutStripe(input?: {
   buyerEmail?: string | null;
   paymentMethod?: string | null;
 }): boolean {
-  if (mustUseVirtualPayments()) return true;
-  if (isProtectedDemoActor(input?.buyerEmail)) return true;
-  if (input?.paymentMethod === "rovexo_balance") return true;
-  return false;
+  return resolveCheckoutPaymentRail(input) !== "stripe";
 }

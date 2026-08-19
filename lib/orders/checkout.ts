@@ -13,13 +13,22 @@ import { notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
 import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
-import { calculateSellerNetAmount } from "@/lib/wallet/sales";
+import {
+  calculateSellerNetAmount,
+  debitBuyerWalletForCheckout,
+  readBuyerWalletCheckoutEligibility,
+  reverseBuyerWalletCheckoutDebit,
+} from "@/lib/wallet/sales";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
 import { resolveLockedAcceptedOffer } from "@/lib/offers/accepted-price";
-import { mustSettleWithoutStripe, mustUseVirtualPayments } from "@/lib/full-demo/security";
+import {
+  mustSettleWithoutStripe,
+  mustUseVirtualPayments,
+  resolveCheckoutPaymentRail,
+} from "@/lib/full-demo/security";
 import { debitVirtualBuyerWallet } from "@/lib/full-demo/virtual-checkout";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 import {
@@ -249,15 +258,44 @@ async function finalizePendingOrderCheckoutSession(
     : `/checkout/${product.slug}?${cancelQuery.toString()}`;
   const cancelUrl = `${baseUrl}${cancelPath}`;
   const resolvedOrderNumber = orderRow.order_number;
+  const { data: pendingBuyerProfile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", input.buyerId)
+    .maybeSingle();
+  const pendingRail = resolveCheckoutPaymentRail({
+    buyerEmail: pendingBuyerProfile?.email,
+    paymentMethod: input.paymentMethod ?? null,
+  });
 
-  if (mustUseVirtualPayments()) {
-    const debit = await debitVirtualBuyerWallet({
-      buyerId: input.buyerId,
-      amount: totals.total,
-      orderId: orderRow.id,
-      orderNumber: resolvedOrderNumber,
-      productTitle: product.title,
-    });
+  if (pendingRail === "virtual_demo" || pendingRail === "rovexo_balance") {
+    if (pendingRail === "rovexo_balance") {
+      const eligible = await readBuyerWalletCheckoutEligibility({
+        buyerId: input.buyerId,
+        amount: totals.total,
+      });
+      if (!eligible.ok) {
+        return { error: eligible.error };
+      }
+    }
+
+    const debit =
+      pendingRail === "rovexo_balance"
+        ? await debitBuyerWalletForCheckout({
+            buyerId: input.buyerId,
+            amount: totals.total,
+            orderId: orderRow.id,
+            orderNumber: resolvedOrderNumber,
+            productTitle: product.title,
+            checkoutSessionPublicId: orderRow.id,
+          })
+        : await debitVirtualBuyerWallet({
+            buyerId: input.buyerId,
+            amount: totals.total,
+            orderId: orderRow.id,
+            orderNumber: resolvedOrderNumber,
+            productTitle: product.title,
+          });
 
     if (!debit.ok) {
       return { error: debit.error };
@@ -271,13 +309,19 @@ async function finalizePendingOrderCheckoutSession(
         buyerId: input.buyerId,
         sellerId: product.seller_id,
         productId: product.id,
-        paymentMode: "virtual_demo",
+        paymentMode: pendingRail === "rovexo_balance" ? "rovexo_balance" : "virtual_demo",
       },
       payment_intent: debit.sessionId,
       payment_status: "paid",
     });
 
     if (!fulfilled.success) {
+      if (pendingRail === "rovexo_balance") {
+        await reverseBuyerWalletCheckoutDebit({
+          buyerId: input.buyerId,
+          checkoutSessionPublicId: orderRow.id,
+        });
+      }
       return { error: fulfilled.error ?? "Unable to complete virtual payment." };
     }
 
@@ -452,6 +496,10 @@ async function finalizeCheckoutSessionPayment(
     .select("email")
     .eq("id", input.buyerId)
     .maybeSingle();
+  const paymentRail = resolveCheckoutPaymentRail({
+    buyerEmail: buyerProfile?.email,
+    paymentMethod: input.paymentMethod ?? null,
+  });
   const settleWithoutStripe = mustSettleWithoutStripe({
     buyerEmail: buyerProfile?.email,
     paymentMethod: input.paymentMethod ?? null,
@@ -606,38 +654,89 @@ async function finalizeCheckoutSessionPayment(
   if (settleWithoutStripe) {
     const virtualSessionId = `virtual_${session.public_id}`;
     const virtualPi = `pi_virtual_${session.public_id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20)}`;
+    const useProductionWallet = paymentRail === "rovexo_balance";
 
-    const created = await createOrderFromPaidCheckoutSession({
-      checkoutSessionPublicId: session.public_id,
-      shippingAddressId: input.shippingAddressId,
-      deliveryCarrier,
-      selectedShippingQuoteId,
-      selectedShippingQuotePayload,
-      stripeSessionId: virtualSessionId,
-      stripePaymentIntentId: virtualPi,
-      fulfill: false,
-    });
-    if (!created.success) {
-      return { error: created.error };
+    if (useProductionWallet) {
+      const eligible = await readBuyerWalletCheckoutEligibility({
+        buyerId: input.buyerId,
+        amount: lockedTotal,
+      });
+      if (!eligible.ok) {
+        return { error: eligible.error };
+      }
+    }
+
+    let orderId = session.order_id;
+    if (!orderId) {
+      const created = await createOrderFromPaidCheckoutSession({
+        checkoutSessionPublicId: session.public_id,
+        shippingAddressId: input.shippingAddressId,
+        deliveryCarrier,
+        selectedShippingQuoteId,
+        selectedShippingQuotePayload,
+        stripeSessionId: virtualSessionId,
+        stripePaymentIntentId: virtualPi,
+        fulfill: false,
+      });
+      if (!created.success) {
+        return { error: created.error };
+      }
+      orderId = created.orderId;
     }
 
     const { data: orderMeta } = await admin
       .from("orders")
-      .select("order_number")
-      .eq("id", created.orderId)
+      .select("order_number, status")
+      .eq("id", orderId)
       .maybeSingle();
 
-    const debit = await debitVirtualBuyerWallet({
-      buyerId: input.buyerId,
-      amount: lockedTotal,
-      orderId: created.orderId,
-      orderNumber: orderMeta?.order_number ?? created.orderId,
-      productTitle: product.title,
-    });
+    if (!orderMeta || orderMeta.status === "cancelled") {
+      return { error: "Unable to create order." };
+    }
+
+    let debit: { ok: true; sessionId: string } | { ok: false; error: string };
+    try {
+      debit = useProductionWallet
+        ? await debitBuyerWalletForCheckout({
+            buyerId: input.buyerId,
+            amount: lockedTotal,
+            orderId,
+            orderNumber: orderMeta.order_number ?? orderId,
+            productTitle: product.title,
+            checkoutSessionPublicId: session.public_id,
+          })
+        : await debitVirtualBuyerWallet({
+            buyerId: input.buyerId,
+            amount: lockedTotal,
+            orderId,
+            orderNumber: orderMeta.order_number ?? orderId,
+            productTitle: product.title,
+          });
+    } catch {
+      await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
+      await restoreProductInventoryClaim(product.id, 1);
+      if (useProductionWallet) {
+        await reverseBuyerWalletCheckoutDebit({
+          buyerId: input.buyerId,
+          checkoutSessionPublicId: session.public_id,
+        });
+      }
+      const fresh = await CHECKOUT_SESSION_ENGINE_getByPublicId(session.public_id);
+      if (fresh && fresh.status === "open") {
+        await CHECKOUT_SESSION_ENGINE_destroy({ session: fresh, status: "cancelled" });
+      }
+      return { error: "Unable to complete virtual payment." };
+    }
 
     if (!debit.ok) {
-      await admin.from("orders").update({ status: "cancelled" }).eq("id", created.orderId);
+      await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
       await restoreProductInventoryClaim(product.id, 1);
+      if (useProductionWallet) {
+        await reverseBuyerWalletCheckoutDebit({
+          buyerId: input.buyerId,
+          checkoutSessionPublicId: session.public_id,
+        });
+      }
       const fresh = await CHECKOUT_SESSION_ENGINE_getByPublicId(session.public_id);
       if (fresh && fresh.status === "open") {
         await CHECKOUT_SESSION_ENGINE_destroy({ session: fresh, status: "cancelled" });
@@ -647,27 +746,33 @@ async function finalizeCheckoutSessionPayment(
 
     await CHECKOUT_SESSION_ENGINE_markPaid({
       sessionId: session.id,
-      orderId: created.orderId,
+      orderId,
       stripeSessionId: debit.sessionId,
       stripePaymentIntentId: virtualPi,
     });
 
     const fulfilled = await completePaidOrderFulfillment({
-      orderId: created.orderId,
+      orderId,
       stripeSessionId: debit.sessionId,
       stripePaymentIntentId: virtualPi,
       inventoryAlreadyClaimed: true,
       selectedShippingQuotePayload,
     });
     if (!fulfilled.success) {
+      if (useProductionWallet) {
+        await reverseBuyerWalletCheckoutDebit({
+          buyerId: input.buyerId,
+          checkoutSessionPublicId: session.public_id,
+        });
+      }
       return { error: fulfilled.error ?? "Unable to complete virtual payment." };
     }
 
-    const order = await getOrderById(created.orderId);
+    const order = await getOrderById(orderId);
     return {
-      orderId: created.orderId,
+      orderId,
       checkoutSessionId: session.public_id,
-      url: `${orderSuccessUrl}&order_id=${created.orderId}`,
+      url: `${orderSuccessUrl}&order_id=${orderId}`,
       order: order ?? undefined,
     };
   }

@@ -4,12 +4,16 @@ import { calculatePlatformFee } from "@/lib/orders/pricing";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { isWalletMoneyEnvReady, MISSING_REQUIRED_SECRET } from "@/lib/wallet/env-validation";
 import {
+  buildBuyerCheckoutDebitDescription,
+  buildBuyerCheckoutDebitIdempotencyKey,
   buildBuyerRefundDescription,
   buildBuyerRefundIdempotencyKey,
   buildRefundDescription,
   buildRefundIdempotencyKey,
   buildSaleIdempotencyKey,
+  canDebitAvailable,
   isRovexoWalletRefundCreditEligible,
+  remainingAfterWalletCheckoutDebit,
   roundWalletMoney,
 } from "@/lib/wallet/security";
 
@@ -412,4 +416,236 @@ export async function creditBuyerWalletForConfirmedRefund(
       .eq("id", wallet.id)
       .eq("user_id", input.buyerId);
   }
+}
+
+export type DebitBuyerWalletForCheckoutInput = {
+  buyerId: string;
+  /** Locked checkout payable total — never recalculated here. */
+  amount: number;
+  orderId: string;
+  orderNumber: string;
+  productTitle: string;
+  checkoutSessionPublicId: string;
+};
+
+export type DebitBuyerWalletForCheckoutResult =
+  | {
+      ok: true;
+      sessionId: string;
+      remainingBalance: number;
+      alreadyDebited: boolean;
+    }
+  | { ok: false; error: string };
+
+/**
+ * Production ROVEXO Balance debit for Confirm & Pay.
+ * Debits the locked payable total only. No Stripe. No Full Demo seed.
+ */
+export async function readBuyerWalletCheckoutEligibility(input: {
+  buyerId: string;
+  amount: number;
+}): Promise<
+  | { ok: true; available: number; remaining: number }
+  | { ok: false; error: string }
+> {
+  const amount = roundWalletMoney(input.amount);
+  if (!(amount > 0)) {
+    return { ok: false, error: "Invalid wallet payment amount." };
+  }
+
+  const admin = createAdminClient();
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("id, available_balance")
+    .eq("user_id", input.buyerId)
+    .maybeSingle();
+
+  const available = roundWalletMoney(Number(wallet?.available_balance ?? 0));
+  const remaining = remainingAfterWalletCheckoutDebit(available, amount);
+  if (remaining === null || !canDebitAvailable(available, amount)) {
+    return { ok: false, error: "Insufficient wallet balance." };
+  }
+
+  return { ok: true, available, remaining };
+}
+
+export async function debitBuyerWalletForCheckout(
+  input: DebitBuyerWalletForCheckoutInput,
+): Promise<DebitBuyerWalletForCheckoutResult> {
+  const amount = roundWalletMoney(input.amount);
+  if (!(amount > 0)) {
+    return { ok: false, error: "Invalid wallet payment amount." };
+  }
+
+  const checkoutSessionPublicId = input.checkoutSessionPublicId.trim();
+  if (!checkoutSessionPublicId) {
+    return { ok: false, error: "Checkout session required." };
+  }
+
+  const admin = createAdminClient();
+  const idempotencyKey = buildBuyerCheckoutDebitIdempotencyKey(checkoutSessionPublicId);
+  const sessionId = `wallet_pay_${input.orderId}`;
+
+  const { data: existing } = await admin
+    .from("wallet_transactions")
+    .select("id, amount, status")
+    .eq("idempotency_key", idempotencyKey)
+    .maybeSingle();
+
+  if (existing) {
+    const existingAmount = roundWalletMoney(Math.abs(Number(existing.amount)));
+    if (existing.status === "completed" && existingAmount === amount) {
+      const { data: wallet } = await admin
+        .from("wallets")
+        .select("available_balance")
+        .eq("user_id", input.buyerId)
+        .maybeSingle();
+      return {
+        ok: true,
+        sessionId,
+        remainingBalance: roundWalletMoney(Number(wallet?.available_balance ?? 0)),
+        alreadyDebited: true,
+      };
+    }
+    return { ok: false, error: "Duplicate wallet payment could not be verified." };
+  }
+
+  const eligible = await readBuyerWalletCheckoutEligibility({
+    buyerId: input.buyerId,
+    amount,
+  });
+  if (!eligible.ok) {
+    return eligible;
+  }
+
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("id, available_balance")
+    .eq("user_id", input.buyerId)
+    .maybeSingle();
+
+  if (!wallet) {
+    return { ok: false, error: "Insufficient wallet balance." };
+  }
+
+  const previousAvailable = roundWalletMoney(Number(wallet.available_balance));
+  const nextAvailable = remainingAfterWalletCheckoutDebit(previousAvailable, amount);
+  if (nextAvailable === null) {
+    return { ok: false, error: "Insufficient wallet balance." };
+  }
+
+  const { data: debited, error: debitError } = await admin
+    .from("wallets")
+    .update({ available_balance: nextAvailable })
+    .eq("id", wallet.id)
+    .eq("user_id", input.buyerId)
+    .eq("available_balance", previousAvailable)
+    .gte("available_balance", amount)
+    .select("id");
+
+  if (debitError || !debited?.length) {
+    return { ok: false, error: "Insufficient wallet balance." };
+  }
+
+  const description = buildBuyerCheckoutDebitDescription({
+    orderNumber: input.orderNumber,
+    sessionId,
+  });
+
+  const { error: insertError } = await admin.from("wallet_transactions").insert({
+    wallet_id: wallet.id,
+    user_id: input.buyerId,
+    order_number: input.orderNumber,
+    product_title: input.productTitle,
+    amount: -amount,
+    status: "completed",
+    type: "fee",
+    idempotency_key: idempotencyKey,
+    description,
+  });
+
+  if (insertError) {
+    if (insertError.code === "23505") {
+      const { data: raced } = await admin
+        .from("wallet_transactions")
+        .select("id, amount, status")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle();
+      const racedAmount = roundWalletMoney(Math.abs(Number(raced?.amount)));
+      if (raced?.status === "completed" && racedAmount === amount) {
+        await admin
+          .from("wallets")
+          .update({ available_balance: previousAvailable })
+          .eq("id", wallet.id)
+          .eq("user_id", input.buyerId);
+        return {
+          ok: true,
+          sessionId,
+          remainingBalance: previousAvailable === amount
+            ? nextAvailable
+            : roundWalletMoney(previousAvailable - amount),
+          alreadyDebited: true,
+        };
+      }
+    }
+
+    await admin
+      .from("wallets")
+      .update({ available_balance: previousAvailable })
+      .eq("id", wallet.id)
+      .eq("user_id", input.buyerId);
+    return { ok: false, error: "Unable to record wallet payment." };
+  }
+
+  return {
+    ok: true,
+    sessionId,
+    remainingBalance: nextAvailable,
+    alreadyDebited: false,
+  };
+}
+
+export async function reverseBuyerWalletCheckoutDebit(input: {
+  buyerId: string;
+  checkoutSessionPublicId: string;
+}): Promise<void> {
+  const checkoutSessionPublicId = input.checkoutSessionPublicId.trim();
+  if (!checkoutSessionPublicId) return;
+
+  const admin = createAdminClient();
+  const idempotencyKey = buildBuyerCheckoutDebitIdempotencyKey(checkoutSessionPublicId);
+  const { data: existing } = await admin
+    .from("wallet_transactions")
+    .select("id, amount, wallet_id, status")
+    .eq("idempotency_key", idempotencyKey)
+    .eq("user_id", input.buyerId)
+    .maybeSingle();
+
+  if (!existing || existing.status !== "completed") return;
+
+  const restore = roundWalletMoney(Math.abs(Number(existing.amount)));
+  if (!(restore > 0)) return;
+
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("id, available_balance")
+    .eq("id", existing.wallet_id)
+    .eq("user_id", input.buyerId)
+    .maybeSingle();
+
+  if (!wallet) return;
+
+  const previousAvailable = roundWalletMoney(Number(wallet.available_balance));
+  await admin
+    .from("wallets")
+    .update({ available_balance: roundWalletMoney(previousAvailable + restore) })
+    .eq("id", wallet.id)
+    .eq("user_id", input.buyerId)
+    .eq("available_balance", previousAvailable);
+
+  await admin
+    .from("wallet_transactions")
+    .update({ status: "failed" })
+    .eq("id", existing.id)
+    .eq("user_id", input.buyerId);
 }
