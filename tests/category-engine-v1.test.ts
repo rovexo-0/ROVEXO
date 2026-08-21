@@ -15,11 +15,10 @@ function readSource(relativePath: string): string {
 }
 
 describe("Category Engine v1.0 — manual only · Catalog Master · fail closed", () => {
-  it("locks confirm-only suggestion contract (no AI / auto-select)", () => {
-    expect(CATEGORY_ENGINE_V1.selection).toBe("manual_with_confirm_suggestion");
+  it("locks title-only Native category contract (no AI / description classification)", () => {
+    expect(CATEGORY_ENGINE_V1.selection).toBe("title_only_leaf_apply_manual_lock");
     expect(CATEGORY_ENGINE_V1.depth).toBe(3);
     expect(CATEGORY_ENGINE_V1.forbidden).toContain("ai_category");
-    expect(CATEGORY_ENGINE_V1.forbidden).toContain("auto_select_category");
     expect(CATEGORY_ENGINE_V1.forbidden).toContain("auto_description");
     expect(CATEGORY_ENGINE_V1.forbidden).not.toContain("suggested_category");
   });
@@ -49,16 +48,17 @@ describe("Category Engine v1.0 — manual only · Catalog Master · fail closed"
     expect(validateManualCategoryPath(null).ok).toBe(false);
   });
 
-  it("Sell UI wires confirm-only suggestion; picker stays manual; no auto-select", () => {
+  it("Sell UI wires title-only leaf apply; picker stays manual browse/search", () => {
     const picker = readSource("features/sell/ui/SellCategoryPicker.tsx");
     const block = readSource("features/sell/ui/SellCategoryBlock.tsx");
     const provider = readSource("features/sell/context/SellProvider.tsx");
 
     expect(picker).not.toContain("suggestCategoryFromTitle");
     expect(picker).not.toContain("detectCategoryFromTitle");
-    expect(block).toContain("resolveLiveCategorySuggestion");
+    expect(block).toContain("resolveTitleOnlyCategoryDecision");
     expect(block).toContain("shouldAutoApplyCategorySuggestion");
     expect(block).not.toContain("shouldAutoSelectCategory(");
+    expect(block).not.toContain("deferredDescription");
     expect(provider).not.toContain("buildSmartDescription");
     expect(provider).not.toContain("canStartSmartDescriptionEngine");
   });

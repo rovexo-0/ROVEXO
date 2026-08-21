@@ -28,12 +28,13 @@ export function normalizeListingText(title: string): string {
  */
 export function suggestCategoryFromTitle(
   title: string,
-  description = "",
+  _description = "",
 ): TitleCategorySuggestion[] {
+  void _description;
   const trimmed = title.trim();
   if (trimmed.length < MIN_TITLE_LENGTH) return [];
 
-  const top = suggestCategory(trimmed, description);
+  const top = suggestCategory(trimmed);
   if (!top) return [];
   return [{ path: top.path, confidence: top.confidence }];
 }

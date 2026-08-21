@@ -6,6 +6,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
 
+/** Cookie session client, or service-role when native Bearer has no RLS user. */
+export async function savedDatabaseClient() {
+  return tryCreateAdminClient() ?? (await createClient());
+}
+
 export async function resolveProductIdBySlug(productSlug: string): Promise<string | null> {
   const supabase = await createClient();
   const { data: product } = await supabase
@@ -34,7 +39,7 @@ export async function isProductSaved(userId: string, productSlug: string): Promi
 }
 
 export async function isProductIdSaved(userId: string, productId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { data } = await supabase
     .from("saved_items")
     .select("product_id")
@@ -52,7 +57,7 @@ export async function assertSavedRowsAbsent(
 ): Promise<{ ok: true } | { ok: false; stillSavedProductIds: string[] }> {
   if (!productIds.length) return { ok: true };
 
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { data, error } = await supabase
     .from("saved_items")
     .select("product_id")
@@ -77,7 +82,7 @@ export async function assertSavedRowsPresent(
 ): Promise<{ ok: true } | { ok: false; missingProductIds: string[] }> {
   if (!productIds.length) return { ok: false, missingProductIds: [] };
 
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { data, error } = await supabase
     .from("saved_items")
     .select("product_id")

@@ -92,4 +92,31 @@ describe("COD SÂNGE CSRF production origin", () => {
       ),
     ).toBeNull();
   });
+
+  it("production CSRF allows native Bearer mutations without Origin", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
+
+    expect(
+      validateMutationOrigin(
+        new Request("https://www.rovexo.co.uk/api/listings", {
+          method: "POST",
+          headers: { authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.e30.sig" },
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  it("production CSRF still rejects cookie mutations without Origin", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
+
+    const blocked = validateMutationOrigin(
+      new Request("https://www.rovexo.co.uk/api/listings", {
+        method: "POST",
+        headers: { host: "www.rovexo.co.uk" },
+      }),
+    );
+    expect(blocked?.status).toBe(403);
+  });
 });

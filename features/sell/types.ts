@@ -65,6 +65,11 @@ export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = CANONICAL_PARCEL_SIZES_V1
 export type SellListingDraft = {
   photos: SellPhoto[];
   categoryPath: FlatCategoryPath | null;
+  /**
+   * Native parity: picker/search leaf selection is canonical.
+   * Title-only auto-apply never sets this; description never touches it.
+   */
+  categoryManual: boolean;
   parcelSize: ParcelSize | null;
 
   listingType: ListingType;
@@ -123,10 +128,19 @@ export const SELL_CONDITIONS = [
 
 export type SellCondition = (typeof SELL_CONDITIONS)[number];
 
+export function inferCategoryManual(
+  stored: Partial<SellListingDraft> | null | undefined,
+): boolean {
+  if (!stored) return false;
+  if (typeof stored.categoryManual === "boolean") return stored.categoryManual;
+  return Boolean(stored.categoryPath);
+}
+
 export function createEmptyDraft(): SellListingDraft {
   return {
     photos: [],
     categoryPath: null,
+    categoryManual: false,
     parcelSize: null,
 
     listingType: "fixed",

@@ -14,7 +14,13 @@ import {
   encodeMiddlewareVerifiedUser,
   ROVEXO_VERIFIED_USER_HEADER,
   shouldSkipMfaNetworkWork,
+  stripIncomingVerifiedUserHeader,
 } from "@/lib/auth/middleware-verified-user-v1";
+import {
+  preserveAuthorizationHeader,
+  readBearerAccessToken,
+  verifyBearerAccessToken,
+} from "@/lib/auth/verify-bearer-access-token-v1";
 import { enforceApiPerimeterSecurity } from "@/lib/api/api-perimeter-security-v1";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 import { isMfaPendingAllowedPath, MFA_TOTP_V1 } from "@/lib/auth/mfa/ssot";
@@ -36,11 +42,19 @@ function applyPendingCookies(response: NextResponse, pendingCookies: PendingCook
   return response;
 }
 
-/** Passthrough that stamps pathname + same-request verified user (never client-spoofable). */
-function nextWithPathname(request: NextRequest, verifiedUser: User | null = null) {
+/**
+ * Passthrough that drops any client-supplied trust header, keeps Authorization,
+ * and writes only a server HMAC stamp after Cookie/Bearer getUser().
+ * `null` omits the stamp so cookie getUser() can still run if signing is unavailable.
+ */
+function nextWithTrustedStamp(request: NextRequest, trustedStamp: string | null) {
   const requestHeaders = new Headers(request.headers);
+  stripIncomingVerifiedUserHeader(requestHeaders);
+  preserveAuthorizationHeader(request.headers, requestHeaders);
   requestHeaders.set(ROVEXO_PATHNAME_HEADER, request.nextUrl.pathname);
-  requestHeaders.set(ROVEXO_VERIFIED_USER_HEADER, encodeMiddlewareVerifiedUser(verifiedUser));
+  if (trustedStamp !== null) {
+    requestHeaders.set(ROVEXO_VERIFIED_USER_HEADER, trustedStamp);
+  }
   return NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -77,7 +91,8 @@ function forbiddenApiResponse() {
 }
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = nextWithPathname(request);
+  let trustedStamp: string | null = await encodeMiddlewareVerifiedUser(null);
+  let supabaseResponse = nextWithTrustedStamp(request, trustedStamp);
   let pendingCookies: PendingCookie[] = [];
 
   if (!isSupabaseConfigured()) {
@@ -96,7 +111,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
           });
-          supabaseResponse = nextWithPathname(request, user);
+          supabaseResponse = nextWithTrustedStamp(request, trustedStamp);
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
           });
@@ -105,8 +120,10 @@ export async function updateSession(request: NextRequest) {
     });
 
     try {
-      // Anonymous fast-path: no Supabase auth cookie → skip getUser() network RTT.
-      // Auth is unchanged when cookies exist (refresh, MFA, protected gates still run).
+      // Cookie sessions: getUser() from SSR cookies.
+      // Native Bearer: getUser(accessToken) and stamp the verified user so
+      // Route Handlers still authenticate if Authorization is stripped.
+      // Guests with neither cookie nor Bearer skip getUser().
       const hasAuthCookie = request.cookies.getAll().some((cookie) =>
         cookie.name.includes("-auth-token"),
       );
@@ -116,6 +133,11 @@ export async function updateSession(request: NextRequest) {
         const result = await supabase.auth.getUser();
         user = result.data.user;
         userError = result.error;
+      } else {
+        const bearer = readBearerAccessToken(request);
+        if (bearer) {
+          user = await verifyBearerAccessToken(bearer);
+        }
       }
 
       if (userError && isInvalidOrExpiredRefreshError(userError)) {
@@ -195,7 +217,9 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Re-stamp after getUser so route handlers can reuse this verified identity.
-    supabaseResponse = applyPendingCookies(nextWithPathname(request, user), pendingCookies);
+    const encodedStamp = await encodeMiddlewareVerifiedUser(user);
+    trustedStamp = user && encodedStamp === "" ? null : encodedStamp;
+    supabaseResponse = applyPendingCookies(nextWithTrustedStamp(request, trustedStamp), pendingCookies);
 
     // MFA enforcement: AAL1 sessions with verified TOTP must complete challenge
     // before entering protected / private surfaces. Public GET catalogue and
@@ -376,7 +400,7 @@ export async function updateSession(request: NextRequest) {
               cookiesToSet.forEach(({ name, value }) => {
                 request.cookies.set(name, value);
               });
-              supabaseResponse = nextWithPathname(request);
+              supabaseResponse = nextWithTrustedStamp(request, trustedStamp);
               cookiesToSet.forEach(({ name, value, options }) => {
                 supabaseResponse.cookies.set(name, value, options);
               });

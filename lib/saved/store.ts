@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types/database";
 import { getProductCategorySlug } from "@/lib/saved/categories";
@@ -6,6 +5,7 @@ import {
   assertSavedRowsAbsent,
   assertSavedRowsPresent,
   resolveProductIdBySlug,
+  savedDatabaseClient,
 } from "@/lib/saved/check";
 import type { SavedItem } from "@/lib/saved/types";
 import type { Product } from "@/lib/products/types";
@@ -87,7 +87,7 @@ async function hydrateSoldProducts(
 }
 
 export async function listSavedItems(userId: string): Promise<SavedItem[]> {
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { data } = await supabase
     .from("saved_items")
     .select(
@@ -161,7 +161,7 @@ export async function removeSavedItemsVerified(
     return { ok: true, verified: true, items: current, saved: false };
   }
 
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { data: products, error: lookupError } = await supabase
     .from("products")
     .select("id, slug")
@@ -285,7 +285,7 @@ export async function saveItemVerified(
     };
   }
 
-  const supabase = await createClient();
+  const supabase = await savedDatabaseClient();
   const { error } = await supabase.from("saved_items").upsert({
     user_id: userId,
     product_id: productId,

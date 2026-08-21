@@ -40,7 +40,7 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
     expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("fuzzy_ai_matching");
     expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("auto_category");
     expect(shouldAutoApplyCategorySuggestion()).toBe(false);
-    expect(CATEGORY_ENGINE_V1.selection).toBe("manual_with_confirm_suggestion");
+    expect(CATEGORY_ENGINE_V1.selection).toBe("title_only_leaf_apply_manual_lock");
   });
 
   it("ONE runtime Catalog Master index · Localhost ≡ Preview ≡ Production lock", () => {
@@ -119,6 +119,27 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
     }
   });
 
+  it("normalizes jacket titles to Catalog Master Leather Jackets", () => {
+    for (const title of [
+      "jacket",
+      "jackets",
+      "leather jacket",
+      "leather jackets",
+      "women leather jacket",
+      "women's leather jacket",
+    ] as const) {
+      const suggestion = suggestCategory(title);
+      expect(suggestion, title).not.toBeNull();
+      expect(suggestion!.path.segments.map((s) => s.slug), title).toEqual([
+        "womens-fashion",
+        "jackets",
+        "leather-jackets",
+      ]);
+    }
+    expect(suggestCategory("summer leather jacket")!.path.childCategorySlug).toBe("leather-jackets");
+    expect(suggestCategory("summer jacket")).toBeNull();
+  });
+
   it("Sleeping Bag never maps to Women's Fashion Bags", () => {
     for (const title of ["Sleeping bag", "sleeping-bag", "Camping Sleeping Bag"] as const) {
       const suggestion = suggestCategory(title);
@@ -131,7 +152,7 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
     }
   });
 
-  it("never auto-overwrites a manual category — only Better suggestion available", () => {
+  it("never auto-overwrites a manual category — Native lock", () => {
     const manual = resolveCategoryPathBySlugs([
       "jewellery",
       "fine-jewellery",
@@ -141,16 +162,15 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
 
     const live = resolveLiveCategorySuggestion({
       title: "Memory Foam Pillow",
+      description: "memory foam cushion donut",
       manualPath: manual,
     });
 
-    expect(live.suggestion).not.toBeNull();
-    expect(live.suggestion!.path.childCategorySlug).toBe("memory-foam-pillows");
-    expect(live.betterSuggestionAvailable).toBe(true);
-    expect(toSamePath(live.suggestion!.path, manual!)).toBe(false);
+    expect(live.suggestion).toBeNull();
+    expect(live.betterSuggestionAvailable).toBe(false);
   });
 
-  it("Apply Suggestion returns Category → Subcategory → Product Type only", () => {
+  it("applyCategorySuggestion returns Category → Subcategory → Product Type only", () => {
     const suggestion = suggestCategory("iPhone 16 Pro");
     expect(suggestion).not.toBeNull();
     const applied = applyCategorySuggestion(suggestion!);
@@ -188,16 +208,19 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
     if (!gate.ok) expect(gate.code).toBe("PROHIBITED_ITEM");
   });
 
-  it("Sell UI wires confirm-only suggestion above Category picker", () => {
+  it("Sell UI wires title-only Native category contract above Category picker", () => {
     const block = readSource("features/sell/ui/SellCategoryBlock.tsx");
     const card = readSource("features/sell/ui/SellCategorySuggestion.tsx");
-    expect(block).toContain("resolveLiveCategorySuggestion");
+    expect(block).toContain("resolveTitleOnlyCategoryDecision");
     expect(block).toContain("SellCategorySuggestionCard");
-    expect(block).toContain("applyCategorySuggestion");
+    expect(block).not.toContain("deferredDescription");
     expect(block).not.toContain("shouldAutoSelectCategory(");
     expect(card).toContain("Suggested Category");
-    expect(card).toContain("Better suggestion available");
-    expect(card).toContain("Apply Suggestion");
+    expect(card).toContain("Browse manually");
+    expect(card).not.toContain("Better suggestion available");
+    expect(card).not.toContain("Apply Suggestion");
+    expect(card).not.toMatch(/\bConfidence\b/);
+    expect(card).not.toContain("suggestionConfidencePercent");
   });
 
   it("Suggest engine consumes runtime Catalog Master indexes only", () => {
@@ -218,10 +241,3 @@ describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
     expect(provider).toContain("window.scrollTo(0, 0)");
   });
 });
-
-function toSamePath(
-  a: { segments: Array<{ slug: string }> },
-  b: { segments: Array<{ slug: string }> },
-): boolean {
-  return a.segments.map((s) => s.slug).join("/") === b.segments.map((s) => s.slug).join("/");
-}

@@ -9,6 +9,7 @@
  *   → Leaf Index · Phrase Index · Synonym Index
  *   → Suggest Engine → Sell
  *
+ * Title-only. Description never participates. Never AI.
  * Never guesses below Owner confidence threshold.
  * Never uses generated taxonomy JSON, legacy keyword maps, or parallel trees.
  */
@@ -21,7 +22,7 @@ import {
   tokenizeCatalogText,
   type RuntimeLeafEntry,
 } from "@/lib/catalog/runtime-catalog-index-v1";
-import { resolveCategoryPathBySlugs, toPathId } from "@/lib/categories/queries";
+import { resolveCategoryPathBySlugs } from "@/lib/categories/queries";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 
 export const CATEGORY_SUGGESTION_ENGINE_V1 = {
@@ -68,9 +69,15 @@ export type CategorySuggestion = {
 
 export type CategorySuggestionResult = {
   suggestion: CategorySuggestion | null;
-  /** True when a manual path is set and a higher-score suggestion exists. */
-  betterSuggestionAvailable: boolean;
+  /** Always false — Native contract never surfaces a “better” overlay. */
+  betterSuggestionAvailable: false;
 };
+
+export type TitleOnlyCategoryDecision =
+  | { action: "keep"; suggestion: null }
+  | { action: "apply-leaf"; suggestion: CategorySuggestion; path: FlatCategoryPath }
+  | { action: "browse-non-leaf"; suggestion: CategorySuggestion }
+  | { action: "clear"; suggestion: null };
 
 const RANK_PRIORITY: Record<CategoryMatchRank, number> = {
   exact_product_type: 6,
@@ -246,7 +253,61 @@ function matchSynonymIndex(normalized: string): CategorySuggestion | null {
     }
   }
 
+  if (best) return best;
+  return matchProductTypeToken(pool, queryTokens);
+}
+
+/**
+ * Singular/plural Catalog Master product-type match.
+ * Extra query tokens must be explained by the canonical path (never invented leaves).
+ */
+function matchProductTypeToken(
+  pool: Iterable<RuntimeLeafEntry>,
+  queryTokens: ReadonlySet<string>,
+): CategorySuggestion | null {
+  let best: CategorySuggestion | null = null;
+  let bestCovered = 0;
+
+  for (const leaf of pool) {
+    if (leaf.tokens.length === 0) continue;
+    const last = leaf.tokens[leaf.tokens.length - 1]!;
+    if (!expandTokenAliases(last).some((alias) => queryTokens.has(alias))) continue;
+    const covered = leaf.tokens.filter((token) =>
+      expandTokenAliases(token).some((alias) => queryTokens.has(alias)),
+    );
+    if (covered.length === 0) continue;
+    if (!extraTokensExplainedByPath(leaf, queryTokens, new Set(covered))) continue;
+    const candidate = canonicalize(
+      leaf.path,
+      RANK_CONFIDENCE.exact_product_type,
+      "exact_product_type",
+    );
+    if (!candidate) continue;
+    if (!best || covered.length > bestCovered) {
+      best = candidate;
+      bestCovered = covered.length;
+    }
+  }
   return best;
+}
+
+function extraTokensExplainedByPath(
+  leaf: RuntimeLeafEntry,
+  queryTokens: ReadonlySet<string>,
+  covered: ReadonlySet<string>,
+): boolean {
+  const pathTokens = new Set(
+    leaf.path.segments.flatMap((segment) => tokenizeCatalogText(segment.name)),
+  );
+  for (const token of queryTokens) {
+    if (expandTokenAliases(token).some((alias) => covered.has(alias))) continue;
+    if (expandTokenAliases(token).some((alias) => pathTokens.has(alias))) continue;
+    if (/^\d+$/.test(token)) continue;
+    if (STORAGE_OR_SKU_TOKEN.test(token)) continue;
+    if (token.length <= 3) continue;
+    return false;
+  }
+  return true;
 }
 
 function pickBest(...candidates: Array<CategorySuggestion | null>): CategorySuggestion | null {
@@ -269,19 +330,23 @@ export function invalidateCategorySuggestionIndex(): void {
   resetRuntimeCatalogIndexForTests();
 }
 
+function isCatalogLeafPath(path: FlatCategoryPath): boolean {
+  return path.segments.length === 3 && Boolean(path.childCategorySlug);
+}
+
 /**
- * Suggest the single highest-ranked Catalog Master path for title + description.
- * Never mutates selection — UI must call Apply.
+ * Suggest the single highest-ranked Catalog Master path for title only.
+ * Description is unused (Native canonical). Engine never mutates selection.
  * Below Owner confidence threshold → null (no unrelated category).
  */
 export function suggestCategory(
   title: string,
-  description = "",
+  _description = "",
 ): CategorySuggestion | null {
-  const combined = `${title} ${description}`.trim();
-  if (normalizeCatalogText(combined).length < MIN_QUERY_LENGTH) return null;
+  void _description;
+  if (normalizeCatalogText(title).length < MIN_QUERY_LENGTH) return null;
 
-  const normalized = normalizeCatalogText(combined);
+  const normalized = normalizeCatalogText(title);
   if (!normalized) return null;
 
   // Warm / reuse the ONE runtime Catalog Master index.
@@ -297,44 +362,68 @@ export function suggestCategory(
 }
 
 /**
- * Live monitor helper: recalculate suggestion; never overwrite manual category.
+ * Native ViewModel.refreshLiveSuggestion contract (title-only).
+ * Description is never an input. Manual lock never silently overwrites.
+ */
+export function resolveTitleOnlyCategoryDecision(input: {
+  title: string;
+  currentPath: FlatCategoryPath | null | undefined;
+  categoryManual: boolean;
+}): TitleOnlyCategoryDecision {
+  if (input.categoryManual && input.currentPath) {
+    return { action: "keep", suggestion: null };
+  }
+
+  const suggestion = suggestCategory(input.title);
+  if (suggestion && isCatalogLeafPath(suggestion.path)) {
+    return {
+      action: "apply-leaf",
+      suggestion,
+      path: applyCategorySuggestion(suggestion),
+    };
+  }
+  if (!suggestion) {
+    return { action: "clear", suggestion: null };
+  }
+  return { action: "browse-non-leaf", suggestion };
+}
+
+/**
+ * Native resolveLive: if a category is already selected, no overlay suggestion.
+ * Description is unused. Never reports a “better suggestion”.
  */
 export function resolveLiveCategorySuggestion(input: {
   title: string;
   description?: string;
   manualPath: FlatCategoryPath | null | undefined;
+  categoryManual?: boolean;
 }): CategorySuggestionResult {
-  const suggestion = suggestCategory(input.title, input.description ?? "");
-  if (!suggestion) {
+  void input.description;
+  if (input.manualPath) {
     return { suggestion: null, betterSuggestionAvailable: false };
   }
-
-  if (!input.manualPath) {
-    return { suggestion, betterSuggestionAvailable: false };
+  const decision = resolveTitleOnlyCategoryDecision({
+    title: input.title,
+    currentPath: null,
+    categoryManual: input.categoryManual === true,
+  });
+  if (decision.action === "browse-non-leaf" || decision.action === "apply-leaf") {
+    return { suggestion: decision.suggestion, betterSuggestionAvailable: false };
   }
-
-  const same = toPathId(input.manualPath) === toPathId(suggestion.path);
-  if (same) {
-    return { suggestion: null, betterSuggestionAvailable: false };
-  }
-
-  return {
-    suggestion,
-    betterSuggestionAvailable: true,
-  };
+  return { suggestion: null, betterSuggestionAvailable: false };
 }
 
-/** Confidence as integer percent for UI (e.g. 98). */
+/** Internal ranking helper — never displayed in Sell UI. */
 export function suggestionConfidencePercent(suggestion: CategorySuggestion): number {
   return Math.round(Math.min(0.99, Math.max(0, suggestion.confidence)) * 100);
 }
 
-/** Apply Suggestion may only populate these three taxonomy levels. */
+/** Apply a leaf suggestion path (Category → Subcategory → Product Type). */
 export function applyCategorySuggestion(suggestion: CategorySuggestion): FlatCategoryPath {
   return suggestion.path;
 }
 
-/** Always false — Category Suggestion Engine never auto-selects. */
+/** Always false — non-leaf suggestions never auto-apply (Native shouldAutoApply). */
 export function shouldAutoApplyCategorySuggestion(): false {
   return false;
 }

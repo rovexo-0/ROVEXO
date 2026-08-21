@@ -40,9 +40,10 @@ export function tierSectionLabel(tier: CategoryDetectionTier): string {
 
 export function detectCategoryFromTitle(
   title: string,
-  description = "",
+  _description = "",
 ): CategoryDetectionResult {
-  const suggestions = suggestCategoryFromTitle(title, description);
+  void _description;
+  const suggestions = suggestCategoryFromTitle(title);
   const top = suggestions.find((item) => item.confidence >= POSSIBLE_MATCH_MIN) ?? null;
   const tier = top ? getCategoryDetectionTier(top.confidence) : "none";
 
@@ -54,8 +55,7 @@ export function detectCategoryFromTitle(
 }
 
 /**
- * Category Suggestion Engine v1.0 — NEVER auto-select.
- * Seller must press Apply Suggestion.
+ * Engine never mutates draft. Leaf title apply is SellCategoryBlock / Native ViewModel.
  */
 export function shouldAutoSelectCategory(
   suggestions: TitleCategorySuggestion[],

@@ -43,7 +43,7 @@ describe("title-only category detection", () => {
     expect(SUGGEST_CONFIDENCE_MIN).toBe(0.8);
   });
 
-  it("never auto-selects — seller must Apply Suggestion", () => {
+  it("engine never mutates selection — leaf apply is the Native ViewModel contract", () => {
     const auto = shouldAutoSelectCategory(suggestCategoryFromTitle("iPhone 15 Pro Max 256GB"));
     expect(auto).toBeNull();
     const top = detectCategoryFromTitle("iPhone 15 Pro Max 256GB").top;

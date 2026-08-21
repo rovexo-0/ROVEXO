@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
+import { toPathId } from "@/lib/categories/queries";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import { clearSellDraft, loadDatabaseDraftId, loadSellDraft, loadUploadSessionId } from "@/lib/sell/draft-storage";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
@@ -62,6 +63,7 @@ import {
 import { assertSellCategoryPublishGate } from "@/lib/sell/category-engine-v1";
 import {
   createEmptyDraft,
+  inferCategoryManual,
   capSellPhotoSelection,
   SELL_PHOTO_MAX,
   type SellListingDraft,
@@ -150,7 +152,10 @@ export type SellActionsContextValue = {
   setMainPhoto: (id: string) => void;
   retryPhotoUpload: (id: string) => Promise<void>;
   updateDraft: (patch: Partial<SellListingDraft>, options?: { userModifiedFields?: SuggestionFieldId[] }) => void;
-  setCategoryPath: (categoryPath: FlatCategoryPath) => void;
+  setCategoryPath: (
+    categoryPath: FlatCategoryPath | null,
+    options?: { manual?: boolean },
+  ) => void;
   publishListing: () => Promise<void>;
   restoreLocalDraft: () => Promise<void>;
   discardRecoveryDraft: () => Promise<void>;
@@ -186,7 +191,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const { pushToast } = useToast();
   const [view, setView] = useState<SellView>("form");
   const [draft, setDraft] = useState<SellListingDraft>(() => {
-    if (initialDraft) return initialDraft;
+    if (initialDraft) {
+      return { ...initialDraft, categoryManual: inferCategoryManual(initialDraft) };
+    }
     return createEmptyDraft();
   });
   const [formError, setFormError] = useState<string | null>(null);
@@ -293,6 +300,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           parcelSize: stored?.parcelSize ?? "medium",
           photos: photos.length > 0 ? photos : current.photos,
           userModified: inferUserModifiedFromDraft(stored ?? {}),
+          categoryManual: inferCategoryManual(stored ?? {}),
         };
         pendingTitleRef.current = merged.title;
         pendingDescriptionRef.current = merged.description;
@@ -473,6 +481,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
             parcelSize: stored?.parcelSize ?? "medium",
             photos: photos.length > 0 ? photos : current.photos,
             userModified: inferUserModifiedFromDraft(stored ?? {}),
+            categoryManual: inferCategoryManual(stored ?? {}),
           };
           pendingTitleRef.current = merged.title;
           pendingDescriptionRef.current = merged.description;
@@ -872,27 +881,55 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     });
   }, [ensurePhotoSessionOwnerId]);
 
-  const setCategoryPath = useCallback((categoryPath: FlatCategoryPath) => {
-    setDraft((current) => ({
-      ...current,
-      categoryPath,
-      // COD SÂNGE — category loads its attribute DB; nothing auto-selected.
-      brand: "",
-      color: "",
-      material: "",
-      size: "",
-      condition: "",
-      attributes: {},
-      userModified: {
-        ...markFieldsUserModified(current.userModified, ["category"]),
-        brand: false,
-        colour: false,
-        material: false,
-        size: false,
-        condition: false,
-      },
-    }));
-  }, []);
+  const setCategoryPath = useCallback(
+    (categoryPath: FlatCategoryPath | null, options?: { manual?: boolean }) => {
+      const manual = options?.manual !== false && categoryPath !== null;
+      setDraft((current) => {
+        if (
+          categoryPath &&
+          current.categoryPath &&
+          toPathId(current.categoryPath) === toPathId(categoryPath) &&
+          current.categoryManual === manual
+        ) {
+          return current;
+        }
+
+        const nextUserModified = categoryPath
+          ? {
+              ...current.userModified,
+              ...(manual ? markFieldsUserModified(current.userModified, ["category"]) : { category: false }),
+              brand: false,
+              colour: false,
+              material: false,
+              size: false,
+              condition: false,
+            }
+          : {
+              ...current.userModified,
+              category: false,
+              brand: false,
+              colour: false,
+              material: false,
+              size: false,
+              condition: false,
+            };
+
+        return {
+          ...current,
+          categoryPath,
+          categoryManual: Boolean(manual && categoryPath),
+          brand: "",
+          color: "",
+          material: "",
+          size: "",
+          condition: "",
+          attributes: {},
+          userModified: nextUserModified,
+        };
+      });
+    },
+    [],
+  );
 
   const publishListing = useCallback(async () => {
     if (isPublishing) return;

@@ -1,14 +1,14 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useLayoutEffect, useMemo, useState } from "react";
 import { SellInlineError, SellNavRow } from "@/features/sell/ui/SellPrimitives";
 import { SellCategoryPicker } from "@/features/sell/ui/SellCategoryPicker";
 import { SellCategorySuggestionCard } from "@/features/sell/ui/SellCategorySuggestion";
 import { useSellActions, useSellDraft } from "@/features/sell/context/SellProvider";
+import { toPathId } from "@/lib/categories/queries";
 import { getSellValidationErrorForField } from "@/lib/sell/sell-validation";
 import {
-  applyCategorySuggestion,
-  resolveLiveCategorySuggestion,
+  resolveTitleOnlyCategoryDecision,
   shouldAutoApplyCategorySuggestion,
 } from "@/lib/sell/category-suggestion-engine-v1";
 
@@ -17,9 +17,9 @@ type SellCategoryBlockProps = {
 };
 
 /**
- * Category picker + live Suggested Category (confirm-only).
- * Presentation: one continuous Description → Suggest → Apply → Category flow.
- * Category Suggestion Engine v1.0 — never auto-selects / overwrites.
+ * Category picker + title-only Native category contract.
+ * Description never participates. Leaf title matches auto-apply.
+ * Manual browse/search selection is canonical.
  */
 export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps) {
   const { draft, showValidation } = useSellDraft();
@@ -27,20 +27,40 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
   const [open, setOpen] = useState(false);
 
   const deferredTitle = useDeferredValue(draft.title);
-  const deferredDescription = useDeferredValue(draft.description);
 
-  const live = useMemo(
+  const decision = useMemo(
     () =>
-      resolveLiveCategorySuggestion({
+      resolveTitleOnlyCategoryDecision({
         title: deferredTitle,
-        description: deferredDescription,
-        manualPath: draft.categoryPath,
+        currentPath: draft.categoryPath,
+        categoryManual: draft.categoryManual,
       }),
-    [deferredTitle, deferredDescription, draft.categoryPath],
+    [deferredTitle, draft.categoryPath, draft.categoryManual],
   );
 
-  // Hard lock: engine must never auto-apply.
+  // Non-leaf never auto-applies (Native shouldAutoApply = false).
   void shouldAutoApplyCategorySuggestion();
+
+  useLayoutEffect(() => {
+    if (decision.action === "keep") return;
+
+    if (decision.action === "apply-leaf") {
+      if (
+        draft.categoryPath &&
+        toPathId(draft.categoryPath) === toPathId(decision.path)
+      ) {
+        return;
+      }
+      setCategoryPath(decision.path, { manual: false });
+      return;
+    }
+
+    if (decision.action === "clear" || decision.action === "browse-non-leaf") {
+      if (draft.categoryPath) {
+        setCategoryPath(null, { manual: false });
+      }
+    }
+  }, [decision, draft.categoryPath, setCategoryPath]);
 
   const categoryError = useMemo(() => {
     if (!showValidation) return undefined;
@@ -51,27 +71,20 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
     );
   }, [draft, showValidation]);
 
-  const commitCategory = (path: Parameters<typeof setCategoryPath>[0]) => {
-    setCategoryPath(path);
+  const commitManualCategory = (path: Parameters<typeof setCategoryPath>[0]) => {
+    if (!path) return;
+    setCategoryPath(path, { manual: true });
     onCategorySelected?.();
   };
 
-  const applySuggestion = () => {
-    if (!live.suggestion) return;
-    commitCategory(applyCategorySuggestion(live.suggestion));
-  };
-
-  const showSuggestion =
-    live.suggestion !== null &&
-    (!draft.categoryPath || live.betterSuggestionAvailable);
+  const showSuggestion = decision.action === "browse-non-leaf";
 
   return (
     <section className="sell-category-flow" data-sell-category-block="v1.0">
-      {showSuggestion && live.suggestion ? (
+      {showSuggestion && decision.suggestion ? (
         <SellCategorySuggestionCard
-          suggestion={live.suggestion}
-          betterSuggestionAvailable={live.betterSuggestionAvailable}
-          onApply={applySuggestion}
+          suggestion={decision.suggestion}
+          onBrowseManually={() => setOpen(true)}
         />
       ) : null}
 
@@ -92,7 +105,7 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
         <SellCategoryPicker
           open={open}
           onClose={() => setOpen(false)}
-          onSelect={commitCategory}
+          onSelect={commitManualCategory}
         />
       </div>
     </section>

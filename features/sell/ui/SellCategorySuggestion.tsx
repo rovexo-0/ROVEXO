@@ -1,26 +1,21 @@
 "use client";
 
 /**
- * Suggested Category — confirm-only UI (Category Suggestion Engine v1.0).
- * Presentation only — continuous with Category row (one Sell category flow).
+ * Non-leaf title match only — Native SellSuggestedCategoryCard parity.
+ * Path labels + Browse manually. No confirm overlay. No ranking percent.
  */
 
-import { CanonicalButton } from "@/src/components/canonical";
 import type { CategorySuggestion } from "@/lib/sell/category-suggestion-engine-v1";
-import { suggestionConfidencePercent } from "@/lib/sell/category-suggestion-engine-v1";
 
 type SellCategorySuggestionProps = {
   suggestion: CategorySuggestion;
-  betterSuggestionAvailable: boolean;
-  onApply: () => void;
+  onBrowseManually: () => void;
 };
 
 export function SellCategorySuggestionCard({
   suggestion,
-  betterSuggestionAvailable,
-  onApply,
+  onBrowseManually,
 }: SellCategorySuggestionProps) {
-  const percent = suggestionConfidencePercent(suggestion);
   const [root, sub, leaf] = suggestion.labels;
 
   return (
@@ -31,23 +26,18 @@ export function SellCategorySuggestionCard({
     >
       <div className="sell-category-flow__suggestion-copy">
         <p className="sell-category-flow__eyebrow">Suggested Category</p>
-        {betterSuggestionAvailable ? (
-          <p className="sell-category-flow__better">Better suggestion available</p>
-        ) : null}
         <p className="sell-category-flow__path-root">{root}</p>
         {sub ? <p className="sell-category-flow__path-step">› {sub}</p> : null}
         {leaf ? <p className="sell-category-flow__path-step">› {leaf}</p> : null}
-        <p className="sell-category-flow__confidence">Confidence {percent}%</p>
+        <button
+          type="button"
+          className="sell-category-flow__browse-manually"
+          onClick={onBrowseManually}
+          aria-label="Browse manually"
+        >
+          Browse manually
+        </button>
       </div>
-      <CanonicalButton
-        type="button"
-        variant="outline"
-        fullWidth
-        onClick={onApply}
-        aria-label="Apply Suggestion"
-      >
-        Apply Suggestion
-      </CanonicalButton>
     </div>
   );
 }

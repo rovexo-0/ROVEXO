@@ -4,8 +4,9 @@
  * STATUS: OWNER AUTHORIZED · CONFIRM-ONLY SUGGESTION · FAIL CLOSED
  *
  * ONE taxonomy = Catalog Master (`lib/catalog/tree.ts` → `getCategoryTree()`).
- * Suggestion Engine may propose a path; seller must Apply.
- * NEVER: AI category · auto category · auto description · parallel engines.
+ * Title-only leaf apply (Native canonical). Description is never a classifier.
+ * Manual picker/search leaf is canonical and is not silently overwritten.
+ * NEVER: AI category · description-based category · ranking percent overlay · confirm overlay.
  * Depth: Category → Subcategory → Product Type (exactly 3 levels).
  */
 
@@ -21,8 +22,8 @@ export const CATEGORY_ENGINE_V1 = {
   ssot: "lib/catalog/tree.ts",
   depth: 3 as const,
   levels: ["category", "subcategory", "product_type"] as const,
-  /** Manual picker + optional confirm-only suggestion (Apply). */
-  selection: "manual_with_confirm_suggestion" as const,
+  /** Title-only leaf apply · manual picker lock · Native canonical. */
+  selection: "title_only_leaf_apply_manual_lock" as const,
   forbidden: [
     "ai_category",
     "auto_category",

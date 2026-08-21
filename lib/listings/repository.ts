@@ -31,6 +31,11 @@ import type {
 
 const PAGE_SIZE = 8;
 
+/** Cookie session when present; service-role when Native Bearer has no RLS user. */
+async function listingMutationClient() {
+  return tryCreateAdminClient() ?? (await createClient());
+}
+
 function applyTextSearchFilter<T extends { ilike: (column: string, pattern: string) => T }>(
   query: T,
   term: string,
@@ -365,7 +370,7 @@ async function moveImageToProductFolder(
   }
 
   if (!image.storagePath.includes("/temp/")) {
-    const supabase = await createClient();
+    const supabase = await listingMutationClient();
     const exists = await storageObjectExists(supabase, image.storagePath);
     if (!exists) {
       console.error("[moveImageToProductFolder] final-path image missing in storage", {
@@ -387,7 +392,7 @@ async function moveImageToProductFolder(
     };
   }
 
-  const supabase = await createClient();
+  const supabase = await listingMutationClient();
   const filename = image.storagePath.split("/").pop()!;
   const newPath = buildProductImagePath(sellerId, productId, filename);
   const oldThumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
@@ -436,7 +441,7 @@ async function insertProductImages(
   sellerId: string,
   images: ListingImageInput[],
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = await listingMutationClient();
   const moved = await Promise.all(
     images.map((image) => moveImageToProductFolder(image, sellerId, productId)),
   );
@@ -573,7 +578,7 @@ export async function getSellerListingById(
 export async function createSellerListing(
   input: CreateListingInput,
 ): Promise<SellerListing> {
-  const supabase = await createClient();
+  const supabase = await listingMutationClient();
   const brandId = await resolveBrandId(input.brand);
   const slug = slugify(input.title);
   const status: ProductStatus = input.status ?? "published";
@@ -667,7 +672,7 @@ export async function createSellerListing(
       );
     }
   } catch (error) {
-    const supabaseRollback = await createClient();
+    const supabaseRollback = await listingMutationClient();
     await supabaseRollback
       .from("products")
       .update({ status: "deleted" })

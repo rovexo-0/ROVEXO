@@ -53,7 +53,7 @@ async function resolveVerifiedUser(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<User | null> {
   try {
-    const stamped = readMiddlewareVerifiedUserState(await headers());
+    const stamped = await readMiddlewareVerifiedUserState(await headers());
     if (stamped.kind === "anonymous") {
       return null;
     }

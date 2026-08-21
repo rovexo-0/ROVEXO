@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
+import { requireCookieOrBearerListingRole } from "@/lib/saved/saved-api-auth-v1";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl, validateUploadFile } from "@/lib/storage/upload";
 import { createClient } from "@/lib/supabase/server";
@@ -11,11 +12,8 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "listings-upload", 30, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth(request);
+  const auth = await requireCookieOrBearerListingRole(request);
   if (auth instanceof NextResponse) return auth;
-
-  const roleCheck = await requireApiListingRole(request);
-  if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {
     const formData = await request.formData();
@@ -36,7 +34,7 @@ export async function POST(request: Request) {
     validateUploadFile("products", thumbnail);
 
     if (productId) {
-      const supabase = await createClient();
+      const supabase = tryCreateAdminClient() ?? (await createClient());
       const { data: product } = await supabase
         .from("products")
         .select("seller_id")
@@ -75,7 +73,7 @@ export async function POST(request: Request) {
 
     const thumbPath = fullPath.replace(/\.jpg$/, "-thumb.jpg");
 
-    const supabase = await createClient();
+    const supabase = tryCreateAdminClient() ?? (await createClient());
 
     // Product image filenames are unique + immutable (timestamp + random id), so
     // they can be cached aggressively by the CDN and browsers for a year.
@@ -131,11 +129,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerListingRole(request);
   if (auth instanceof NextResponse) return auth;
-
-  const roleCheck = await requireApiListingRole();
-  if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {
     const { storagePath, thumbnailStoragePath } = (await request.json()) as {
@@ -147,7 +142,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const supabase = await createClient();
+    const supabase = tryCreateAdminClient() ?? (await createClient());
     const paths = [storagePath, thumbnailStoragePath].filter(Boolean) as string[];
     await supabase.storage.from("products").remove(paths);
 

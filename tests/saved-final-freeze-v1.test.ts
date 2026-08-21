@@ -118,6 +118,7 @@ describe("ROVEXO v1.0 — Saved PRODUCTION LOCK (FREEZE YES)", () => {
     expect(api).toContain("saveItem");
     expect(api).toContain("removeSavedItems");
     expect(api).toContain("{ saved: true }");
+    expect(api).toContain("requireSavedApiAuth");
     expect(api).not.toContain("publishSavedLive");
     expect(api).not.toContain("verified");
   });

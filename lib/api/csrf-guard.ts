@@ -101,6 +101,13 @@ export function validateMutationOrigin(request: Request): NextResponse | null {
     return null;
   }
 
+  // Native OkHttp (and other Bearer clients) do not send browser Origin.
+  // Cookie-only browser mutations still require Origin/Referer match.
+  const authorization = request.headers.get("authorization");
+  if (authorization && /^Bearer\s+\S+/i.test(authorization)) {
+    return null;
+  }
+
   const originHost = hostFromHeader(request.headers.get("origin"));
   if (originHost && hosts.has(originHost)) {
     return null;

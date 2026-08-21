@@ -1,4 +1,4 @@
-import { createEmptyDraft, type SellListingDraft } from "@/features/sell/types";
+import { createEmptyDraft, inferCategoryManual, type SellListingDraft } from "@/features/sell/types";
 import { loadSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 import {
   clearSellDraft,
@@ -74,6 +74,7 @@ export async function loadLocalDraftForRestore(): Promise<{
     parcelSize: stored?.parcelSize ?? null,
     photos: photos.length > 0 ? photos : [],
     userModified: inferUserModifiedFromDraft(stored ?? {}),
+    categoryManual: inferCategoryManual(stored ?? {}),
   };
 
   return { draft: merged, uploadSessionId: sessionId ?? undefined };

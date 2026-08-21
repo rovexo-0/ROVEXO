@@ -1,12 +1,15 @@
 /**
  * Same-request verified-user stamp from edge middleware → route handlers.
  *
- * Middleware ALWAYS overwrites this header (empty when anonymous).
- * Clients cannot spoof it. Routes must still load profile authorization
- * (account_status / role) and fail closed on suspended/deleted.
+ * Incoming client `x-rovexo-verified-user` is never trusted.
+ * Middleware deletes it, authenticates Cookie or Bearer via getUser(),
+ * then writes a server HMAC-signed stamp. Unsigned / forged stamps fail closed.
  *
- * This is NOT a substitute for getUser() when the stamp is missing.
+ * Routes must still load profile authorization (account_status / role)
+ * and fail closed on suspended/deleted.
  */
+
+import { tryGetSupabaseServiceRoleKey } from "@/lib/supabase/env";
 
 export const ROVEXO_VERIFIED_USER_HEADER = "x-rovexo-verified-user";
 
@@ -64,27 +67,79 @@ function decodeJson(raw: string): StampPayload | null {
   }
 }
 
-export function encodeMiddlewareVerifiedUser(user: {
+function timingSafeEqual(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < left.length; i += 1) {
+    mismatch |= left.charCodeAt(i) ^ right.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+function stampSecret(): string | null {
+  const dedicated = process.env.INTERNAL_REQUEST_STAMP_SECRET?.trim();
+  if (dedicated && dedicated.length >= 16) return dedicated;
+  return tryGetSupabaseServiceRoleKey() ?? null;
+}
+
+async function hmacSha256Base64Url(secret: string, message: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return toBase64Url(new Uint8Array(signature));
+}
+
+/** Drop any client-supplied trust header before writing the server stamp. */
+export function stripIncomingVerifiedUserHeader(headers: Headers): void {
+  headers.delete(ROVEXO_VERIFIED_USER_HEADER);
+}
+
+export async function encodeMiddlewareVerifiedUser(user: {
   id: string;
   email?: string | null;
   email_confirmed_at?: string | null;
-} | null): string {
+} | null): Promise<string> {
   if (!user?.id || !UUID_RE.test(user.id)) return "";
-  return encodeJson({
+  const secret = stampSecret();
+  if (!secret) return "";
+  const payload = encodeJson({
     id: user.id,
     email: user.email ?? null,
     emailConfirmedAt: user.email_confirmed_at ?? null,
   });
+  const signature = await hmacSha256Base64Url(secret, payload);
+  return `${payload}.${signature}`;
 }
 
-export function readMiddlewareVerifiedUserState(
+export async function readMiddlewareVerifiedUserState(
   headerList: Headers,
-): MiddlewareVerifiedUserState {
+): Promise<MiddlewareVerifiedUserState> {
   const raw = headerList.get(ROVEXO_VERIFIED_USER_HEADER);
   if (raw === null) return { kind: "missing" };
   if (raw.trim() === "") return { kind: "anonymous" };
 
-  const parsed = decodeJson(raw.trim());
+  const trimmed = raw.trim();
+  const separator = trimmed.lastIndexOf(".");
+  if (separator <= 0 || separator === trimmed.length - 1) {
+    return { kind: "missing" };
+  }
+
+  const payload = trimmed.slice(0, separator);
+  const signature = trimmed.slice(separator + 1);
+  const secret = stampSecret();
+  if (!secret || !signature) return { kind: "missing" };
+
+  const expected = await hmacSha256Base64Url(secret, payload);
+  if (!timingSafeEqual(signature, expected)) {
+    return { kind: "missing" };
+  }
+
+  const parsed = decodeJson(payload);
   if (!parsed?.id || !UUID_RE.test(parsed.id)) {
     return { kind: "missing" };
   }

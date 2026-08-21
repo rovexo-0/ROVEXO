@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiListingRole } from "@/lib/auth/session";
+import { requireCookieOrBearerListingRole } from "@/lib/saved/saved-api-auth-v1";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import { resolveTransactionModeFromCategoryPathPayload } from "@/lib/transaction-mode/resolver";
@@ -38,9 +38,7 @@ const FILTERS: ListingFilter[] = [  "all",
 ];
 
 export async function GET(request: Request) {
-  // requireApiRole authenticates and authorizes in a single pass, so we avoid a
-  // second getUser()/profile round-trip that a separate requireApiAuth would add.
-  const auth = await requireApiListingRole();
+  const auth = await requireCookieOrBearerListingRole(request);
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = new URL(request.url);
@@ -54,7 +52,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiListingRole(request);
+  const auth = await requireCookieOrBearerListingRole(request);
   if (auth instanceof NextResponse) return auth;
 
   const limited = await enforceRateLimitForUser(auth.user.id, "listings-publish", 20, 60_000);
