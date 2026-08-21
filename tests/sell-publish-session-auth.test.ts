@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
 }
 
 describe("sell publish auth path — session-scoped (no false service-role dependency)", () => {
-  it("profile completion uses authenticated session client, not admin", () => {
+  it("profile completion prefers cookie session and allows Native Bearer mutation fallback", () => {
     const shared = readSource("lib/account/profile-completion.ts");
     expect(shared).not.toContain("createAdminClient");
     expect(shared).not.toContain("createClient");
@@ -15,9 +15,11 @@ describe("sell publish auth path — session-scoped (no false service-role depen
     const server = readSource("lib/account/profile-completion.server.ts");
     expect(server).toContain('from "@/lib/supabase/server"');
     expect(server).toContain("createClient");
-    expect(server).not.toContain("createAdminClient");
+    expect(server).toContain("tryCreateAdminClient");
+    expect(server.replaceAll("tryCreateAdminClient", "")).not.toContain("createAdminClient");
     expect(server).toContain("auth.getUser()");
     expect(server).toContain('import "server-only"');
+    expect(server).toContain("if (user?.id === userId)");
   });
 
   it("listing image upload uses seller session storage (RLS), not admin", () => {
@@ -27,14 +29,15 @@ describe("sell publish auth path — session-scoped (no false service-role depen
     expect(source).not.toContain("createAdminClient");
   });
 
-  it("temp-to-product image move uses seller session storage, not admin", () => {
+  it("temp-to-product image move uses listingMutationClient with seller ownership prefix", () => {
     const source = readSource("lib/listings/repository.ts");
     const start = source.indexOf("async function moveImageToProductFolder");
     expect(start).toBeGreaterThanOrEqual(0);
     const end = source.indexOf("\nasync function", start + 1);
     const slice = source.slice(start, end > 0 ? end : undefined);
-    expect(slice).toContain("createClient()");
-    expect(slice).not.toContain("createAdminClient");
+    expect(slice).toContain("listingMutationClient()");
+    expect(slice).toContain("startsWith(`${sellerId}/`)");
+    expect(slice.replaceAll("tryCreateAdminClient", "")).not.toContain("createAdminClient");
   });
 
   it("temp-to-product image move never persists dangling -thumb URLs", () => {

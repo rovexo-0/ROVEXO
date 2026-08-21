@@ -539,11 +539,14 @@ export async function getSellerListingById(
   sellerId: string,
   productId: string,
 ): Promise<SellerListing | null> {
-  const supabase = await createClient();
+  const session = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await session.auth.getUser();
   const ownerId = user?.id ?? sellerId;
+  // Native Bearer has no cookies; create uses listingMutationClient for insert.
+  // Cookie session still owns the Web RLS read when the seller is present.
+  const supabase = user?.id === ownerId ? session : await listingMutationClient();
 
   const { data, error } = await supabase
     .from("products")
