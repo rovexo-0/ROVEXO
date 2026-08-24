@@ -37,14 +37,30 @@ describe("P10.3 dual Storage consumer — draft must not move temp", () => {
     );
   });
 
-  it("published materialization still owns copy + temp delete", () => {
+  it("published request path attaches existing objects; copy is post-response without deleting returned temps", () => {
     const source = readRepo();
-    const start = source.indexOf("async function moveImageToProductFolder");
-    const end = source.indexOf("\nasync function insertProductImages", start);
-    const slice = source.slice(start, end > start ? end : undefined);
+    const insertStart = source.indexOf("async function insertProductImages");
+    const insertEnd = source.indexOf("export async function reconcileTempListingImagesToProductFolder", insertStart);
+    const insertSlice = source.slice(insertStart, insertEnd > insertStart ? insertEnd : undefined);
 
-    expect(slice).toContain(".copy(");
-    expect(slice).toContain(".remove([image.storagePath, oldThumbPath])");
+    expect(insertSlice).toContain("attachOwnedExistingImage");
+    expect(insertSlice).not.toContain(".copy(");
+    expect(insertSlice).not.toContain(".remove(");
+    expect(insertSlice).not.toContain("moveImageToProductFolder");
+
+    const moveStart = source.indexOf("async function moveImageToProductFolder");
+    const moveEnd = source.indexOf("\nasync function insertProductImages", moveStart);
+    const moveSlice = source.slice(moveStart, moveEnd > moveStart ? moveEnd : undefined);
+    expect(moveSlice).toContain(".copy(");
+    expect(moveSlice).toContain(".remove([image.storagePath, oldThumbPath])");
+    expect(moveSlice).toContain("if (options?.deleteTemp)");
+
+    const reconStart = source.indexOf("export async function reconcileTempListingImagesToProductFolder");
+    expect(reconStart).toBeGreaterThanOrEqual(0);
+    const reconEnd = source.indexOf("\nasync function insertDraftProductImageRefs", reconStart);
+    const reconSlice = source.slice(reconStart, reconEnd > reconStart ? reconEnd : undefined);
+    expect(reconSlice).toContain("moveImageToProductFolder");
+    expect(reconSlice).toContain("{ deleteTemp: false }");
   });
 
   it("draft API create still uses createSellerListing with draft status (contract preserved)", () => {
