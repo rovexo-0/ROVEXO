@@ -35,6 +35,24 @@ export async function verifyBearerAccessToken(accessToken: string): Promise<User
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data, error } = await supabase.auth.getUser(accessToken);
-  if (error || !data.user?.id) return null;
+  if (error || !data.user?.id) {
+    const err =
+      error && typeof error === "object" ? (error as unknown as Record<string, unknown>) : null;
+    const safe = (key: string): string => {
+      const value = err?.[key];
+      if (value === undefined || value === null || value === "") return "NOT_AVAILABLE";
+      if (typeof value === "number" || typeof value === "boolean") return String(value);
+      if (typeof value === "string") return value.replace(/\s+/g, " ").trim().slice(0, 300);
+      return "NOT_AVAILABLE";
+    };
+    console.error(
+      "[NATIVE_BEARER_GETUSER_DIAGNOSTIC]",
+      `errorName=${safe("name")}`,
+      `errorCode=${safe("code")}`,
+      `errorStatus=${safe("status")}`,
+      `errorMessage=${safe("message")}`,
+    );
+    return null;
+  }
   return data.user;
 }
