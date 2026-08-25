@@ -37,14 +37,26 @@ describe("P10.3 dual Storage consumer — draft must not move temp", () => {
     );
   });
 
-  it("published materialization still owns copy + temp delete", () => {
+  it("published request path attaches owned URLs; copy happens after the HTTP response", () => {
     const source = readRepo();
-    const start = source.indexOf("async function moveImageToProductFolder");
-    const end = source.indexOf("\nasync function insertProductImages", start);
-    const slice = source.slice(start, end > start ? end : undefined);
+    const insertStart = source.indexOf("async function insertProductImages");
+    const insertEnd = source.indexOf("export async function reconcileTempListingImagesToProductFolder", insertStart);
+    const insert = source.slice(insertStart, insertEnd > insertStart ? insertEnd : undefined);
+    expect(insert).toContain("attachOwnedExistingImage");
+    expect(insert).not.toContain(".copy(");
+    expect(insert).not.toContain(".remove(");
 
-    expect(slice).toContain(".copy(");
-    expect(slice).toContain(".remove([image.storagePath, oldThumbPath])");
+    const moveStart = source.indexOf("async function moveImageToProductFolder");
+    const moveEnd = source.indexOf("\nasync function insertProductImages", moveStart);
+    const move = source.slice(moveStart, moveEnd > moveStart ? moveEnd : undefined);
+    expect(move).toContain(".copy(");
+    expect(move).toContain("if (options?.deleteTemp)");
+    expect(move).toContain(".remove([image.storagePath, oldThumbPath])");
+
+    const reconStart = source.indexOf("export async function reconcileTempListingImagesToProductFolder");
+    const reconEnd = source.indexOf("async function insertDraftProductImageRefs", reconStart);
+    const recon = source.slice(reconStart, reconEnd > reconStart ? reconEnd : undefined);
+    expect(recon).toContain("{ deleteTemp: false }");
   });
 
   it("draft API create still uses createSellerListing with draft status (contract preserved)", () => {

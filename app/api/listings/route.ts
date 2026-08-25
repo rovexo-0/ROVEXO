@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { requireCookieOrBearerListingRole } from "@/lib/saved/saved-api-auth-v1";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
@@ -8,6 +8,7 @@ import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import {
   createSellerListing,
   getSellerListings,
+  reconcileTempListingImagesToProductFolder,
 } from "@/lib/listings/repository";
 import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
 import { buildPublishSuccessPayload } from "@/lib/sell/publish-success";
@@ -21,6 +22,7 @@ import {
 import { validateManualCategorySlugs, validateListingAgainstProhibitedEngine } from "@/lib/sell/category-engine-v1";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
+import { publishPerfLog } from "@/lib/listings/publish-route-perf-v1";
 import {
   processFollowNotificationEvent,
   resolveFollowNotificationActor,
@@ -52,8 +54,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  publishPerfLog("PUBLISH_ROUTE_START");
   const auth = await requireCookieOrBearerListingRole(request);
   if (auth instanceof NextResponse) return auth;
+  publishPerfLog("AUTH_END");
 
   const limited = await enforceRateLimitForUser(auth.user.id, "listings-publish", 20, 60_000);
   if (limited) return limited;
@@ -183,7 +187,7 @@ export async function POST(request: Request) {
       );
     }
 
-    revalidatePublishedListing(listing.slug);
+    publishPerfLog("CREATE_RESULT_READY");
 
     if (listing.status === "published") {
       void (async () => {
@@ -206,6 +210,40 @@ export async function POST(request: Request) {
 
     const origin = getAppUrl().replace(/\/$/, "");
     const publish = buildPublishSuccessPayload(listing, auth.user.id, origin);
+
+    publishPerfLog("RESPONSE_START");
+    try {
+      after(async () => {
+        publishPerfLog("ISR_START");
+        try {
+          revalidatePublishedListing(listing.slug);
+        } catch (error) {
+          console.error("[publish-after] ISR failed", {
+            listingId: listing.id,
+            message: error instanceof Error ? error.message : "unknown",
+          });
+        }
+        publishPerfLog("ISR_END");
+
+        if (publishStatus === "published" && listing.status === "published") {
+          try {
+            await reconcileTempListingImagesToProductFolder(listing.id, auth.user.id);
+            revalidatePublishedListing(listing.slug);
+          } catch (error) {
+            console.error("[publish-after] storage reconcile failed", {
+              listingId: listing.id,
+              message: error instanceof Error ? error.message : "unknown",
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error("[publish-after] after() registration failed", {
+        listingId: listing.id,
+        message: error instanceof Error ? error.message : "unknown",
+      });
+    }
+    publishPerfLog("RESPONSE_END");
 
     return NextResponse.json({ listing, publish });
   } catch (error) {

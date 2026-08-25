@@ -354,6 +354,39 @@ async function storageObjectExists(
 }
 
 /**
+ * Publish request path: persist a reference to an already-uploaded object.
+ * Temp objects live in the public `products` bucket, so the returned HTTPS URL
+ * is immediately usable. Copy to `{sellerId}/{productId}/` happens after the
+ * HTTP response via `reconcileTempListingImagesToProductFolder`.
+ */
+async function attachOwnedExistingImage(
+  image: ListingImageInput,
+  sellerId: string,
+  index: number,
+): Promise<ListingImageInput> {
+  if (!image.storagePath.startsWith(`${sellerId}/`)) {
+    throw new Error("Invalid image storage path.");
+  }
+
+  const supabase = await listingMutationClient();
+  const exists = await storageObjectExists(supabase, image.storagePath);
+  if (!exists) {
+    throw new Error("Unable to save listing images. Please re-upload your photos and try again.");
+  }
+
+  const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
+  const thumbnailUrl = image.thumbnailUrl?.trim() || publicUrl;
+
+  return {
+    ...image,
+    url: publicUrl,
+    thumbnailUrl,
+    sortOrder: image.sortOrder ?? index,
+    isPrimary: image.isPrimary ?? index === 0,
+  };
+}
+
+/**
  * Materializes a listing image at its final product-folder path. Returns null
  * (rather than a dangling reference) when the image cannot be placed there, so
  * the caller never persists a product_images row that points at a missing
@@ -364,6 +397,7 @@ async function moveImageToProductFolder(
   image: ListingImageInput,
   sellerId: string,
   productId: string,
+  options?: { deleteTemp?: boolean },
 ): Promise<ListingImageInput | null> {
   if (!image.storagePath.startsWith(`${sellerId}/`)) {
     throw new Error("Invalid image storage path.");
@@ -418,8 +452,9 @@ async function moveImageToProductFolder(
   // Thumbnail is best-effort; a missing thumbnail must not break publishing.
   await supabase.storage.from("products").copy(oldThumbPath, newThumbPath).catch(() => undefined);
 
-  // Only remove the temp sources now that the destination is confirmed present.
-  await supabase.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
+  if (options?.deleteTemp) {
+    await supabase.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
+  }
 
   // Never persist a dangling -thumb URL when the thumb object was not created
   // (e.g. API/e2e uploads that only provide the full JPEG). Cards must point
@@ -442,19 +477,18 @@ async function insertProductImages(
   images: ListingImageInput[],
 ): Promise<void> {
   const supabase = await listingMutationClient();
-  const moved = await Promise.all(
-    images.map((image) => moveImageToProductFolder(image, sellerId, productId)),
+  const attached = await Promise.all(
+    images.map((image, index) => attachOwnedExistingImage(image, sellerId, index)),
   );
-  const normalized = moved.filter((image): image is ListingImageInput => image !== null);
 
-  if (normalized.length === 0) {
+  if (attached.length === 0) {
     throw new Error("Unable to save listing images. Please re-upload your photos and try again.");
   }
 
   const { error } = await supabase
     .from("product_images")
     .insert(
-      normalized.map((image, index) => ({
+      attached.map((image, index) => ({
         product_id: productId,
         url: image.url,
         thumbnail_url: image.thumbnailUrl ?? image.url,
@@ -471,11 +505,80 @@ async function insertProductImages(
 }
 
 /**
+ * Post-response temp → `{sellerId}/{productId}/` copy. Leaves temp objects in
+ * place so Publish response URLs stay valid. Never converts a published listing
+ * into a failure — copy/update errors are logged and skipped.
+ */
+export async function reconcileTempListingImagesToProductFolder(
+  productId: string,
+  sellerId: string,
+): Promise<void> {
+  const supabase = await listingMutationClient();
+  const { data: rows, error } = await supabase
+    .from("product_images")
+    .select("id, url, thumbnail_url, storage_path, sort_order, is_primary")
+    .eq("product_id", productId);
+
+  if (error) {
+    console.error("[reconcileTempListingImagesToProductFolder] load failed", {
+      productId,
+      message: error.message,
+    });
+    return;
+  }
+
+  await Promise.all(
+    (rows ?? []).map(async (row) => {
+      const storagePath = row.storage_path ?? "";
+      if (!storagePath.includes("/temp/")) return;
+
+      const moved = await moveImageToProductFolder(
+        {
+          url: row.url ?? "",
+          thumbnailUrl: row.thumbnail_url ?? undefined,
+          storagePath,
+          sortOrder: row.sort_order,
+          isPrimary: row.is_primary,
+        },
+        sellerId,
+        productId,
+        { deleteTemp: false },
+      );
+      if (!moved) {
+        console.error("[reconcileTempListingImagesToProductFolder] copy skipped", {
+          productId,
+          storagePath,
+        });
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from("product_images")
+        .update({
+          url: moved.url,
+          thumbnail_url: moved.thumbnailUrl ?? moved.url,
+          storage_path: moved.storagePath,
+        })
+        .eq("id", row.id)
+        .eq("product_id", productId);
+
+      if (updateError) {
+        console.error("[reconcileTempListingImagesToProductFolder] update failed", {
+          productId,
+          id: row.id,
+          message: updateError.message,
+        });
+      }
+    }),
+  );
+}
+
+/**
  * P10.3 — Draft SSOT image attach (NO Storage materialization).
  *
- * Publish owns the sole temp→final copy+delete via `insertProductImages` /
- * `moveImageToProductFolder`. Draft must never call those — concurrent draft
- * create after publish was deleting the same temp twice → Object not found → 500.
+ * Publish attaches existing owned objects on the request path, then copies
+ * temp → product folder after the HTTP response. Draft must never copy or
+ * remove — concurrent draft create after publish must not touch the same temp twice.
  *
  * Behaviour: reference existing owned objects only; skip missing (already
  * consumed by Publish); never copy; never remove; never throw when all temps gone.
