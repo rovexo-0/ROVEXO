@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { requireCookieOrBearerListingRole } from "@/lib/saved/saved-api-auth-v1";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-images";
@@ -52,16 +52,11 @@ export async function POST(request: Request) {
       thumbnail.arrayBuffer().then((data) => Buffer.from(data)),
     ]);
 
-    const { enhanceListingImage } = await import("@/lib/media/enhance-listing-image");
     const { assertValidJpegBuffer } = await import(
       "@/lib/product-integration/photo-system-integration-foundation-v1"
     );
-    const [enhancedFull, enhancedThumb] = await Promise.all([
-      enhanceListingImage(fullRaw),
-      enhanceListingImage(thumbnailRaw),
-    ]);
-    const fullBuffer = enhancedFull.buffer;
-    const thumbnailBuffer = enhancedThumb.buffer;
+    const fullBuffer = fullRaw;
+    const thumbnailBuffer = thumbnailRaw;
     assertValidJpegBuffer(fullBuffer, "listing full image");
     assertValidJpegBuffer(thumbnailBuffer, "listing thumbnail");
     const contentType = "image/jpeg" as const;
@@ -82,19 +77,24 @@ export async function POST(request: Request) {
     // CRITICAL: upload as Blob (FormData multipart), never raw Node Buffer as the
     // fetch body. Buffer-as-body has produced UTF-8-corrupted objects in Production
     // (SOI FF D8 FF → EF BF BD) which pass storage HTTP 200 but fail /_next/image.
+    //
+    // RAW persist uses cacheControl "0" so the first GET cannot pin unenhanced
+    // bytes for a year. after() enhance overwrites the SAME paths with the
+    // existing one-year cacheControl.
     const cacheControl = "31536000";
+    const rawCacheControl = "0";
     const fullBlob = new Blob([new Uint8Array(fullBuffer)], { type: contentType });
     const thumbBlob = new Blob([new Uint8Array(thumbnailBuffer)], { type: contentType });
     const [fullUpload, thumbUpload] = await Promise.all([
       supabase.storage.from("products").upload(fullPath, fullBlob, {
         contentType,
         upsert: true,
-        cacheControl,
+        cacheControl: rawCacheControl,
       }),
       supabase.storage.from("products").upload(thumbPath, thumbBlob, {
         contentType,
         upsert: true,
-        cacheControl,
+        cacheControl: rawCacheControl,
       }),
     ]);
 
@@ -112,6 +112,43 @@ export async function POST(request: Request) {
         source: "image_upload",
         result: imageResult,
         payload: { storagePath: fullPath },
+      });
+    }
+
+    try {
+      after(async () => {
+        try {
+          const { enhanceListingImage } = await import("@/lib/media/enhance-listing-image");
+          const enhancedClient = tryCreateAdminClient() ?? (await createClient());
+          const enhancedFull = await enhanceListingImage(fullRaw);
+          assertValidJpegBuffer(enhancedFull.buffer, "listing full image");
+          const enhancedFullBlob = new Blob([new Uint8Array(enhancedFull.buffer)], {
+            type: contentType,
+          });
+          await enhancedClient.storage.from("products").upload(fullPath, enhancedFullBlob, {
+            contentType,
+            upsert: true,
+            cacheControl,
+          });
+          const enhancedThumb = await enhanceListingImage(thumbnailRaw);
+          assertValidJpegBuffer(enhancedThumb.buffer, "listing thumbnail");
+          const enhancedThumbBlob = new Blob([new Uint8Array(enhancedThumb.buffer)], {
+            type: contentType,
+          });
+          await enhancedClient.storage.from("products").upload(thumbPath, enhancedThumbBlob, {
+            contentType,
+            upsert: true,
+            cacheControl,
+          });
+        } catch (error) {
+          console.error("[upload-after] enhance failed", {
+            message: error instanceof Error ? error.message : "unknown",
+          });
+        }
+      });
+    } catch (error) {
+      console.error("[upload-after] after() registration failed", {
+        message: error instanceof Error ? error.message : "unknown",
       });
     }
 
