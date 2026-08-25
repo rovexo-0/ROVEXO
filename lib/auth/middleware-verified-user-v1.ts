@@ -109,6 +109,7 @@ export function shouldSkipMfaNetworkWork(pathname: string, method: string): bool
     return true;
   }
   if (normalized === "/listing" || normalized.startsWith("/listing/")) return true;
+  if (normalized === "/api/listing" || normalized.startsWith("/api/listing/")) return true;
   if (normalized.startsWith("/user/") || normalized.startsWith("/@")) return true;
   if (normalized === "/api/homepage/feed" || normalized.startsWith("/api/homepage/")) {
     return true;
