@@ -16,6 +16,9 @@ import {
 } from "@/lib/seo/sitemaps/generators";
 import { getAppUrl } from "@/lib/supabase/env";
 
+/** Child sitemaps (products/images/sellers) stay valid; ISR avoids crawler regen every hit. */
+export const revalidate = 3600;
+
 export async function generateSitemaps() {
   return [
     { id: "static" },

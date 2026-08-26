@@ -1,14 +1,9 @@
-import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { getDescendantCategoryIds } from "@/lib/categories/server";
+import { cache } from "react";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getDescendantCategoryIds, loadAllCategories } from "@/lib/categories/server";
 import { resolveTransactionModeForRootSlug } from "@/lib/transaction-mode/defaults";
-import { resolveTransactionModeFromDbValue } from "@/lib/transaction-mode/resolver";
 import type { TransactionMode } from "@/lib/transaction-mode/types";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
-
-type CategoryReader = {
-  from: ReturnType<typeof createAdminClient>["from"];
-};
 
 function resolveModeFromProjection(
   categoryId: string,
@@ -43,9 +38,7 @@ function resolveModeFromProjection(
 }
 
 export async function resolveTransactionModeForCategoryId(categoryId: string): Promise<TransactionMode> {
-  // PUBLIC taxonomy — prefer cookie-free admin; fallback only when service role absent.
-  const supabase = tryCreateAdminClient() ?? (await createClient());
-  const categories = await loadCategoryModeProjection(supabase);
+  const categories = await loadCategoryModeProjection();
   const byId = new Map(categories.map((row) => [row.id, row]));
   return resolveModeFromProjection(categoryId, byId);
 }
@@ -57,9 +50,7 @@ export async function resolveTransactionModeMapForCategoryIds(
   const map = new Map<string, TransactionMode>();
   if (!unique.length) return map;
 
-  // PUBLIC taxonomy — prefer cookie-free admin; fallback only when service role absent.
-  const supabase = tryCreateAdminClient() ?? (await createClient());
-  const categories = await loadCategoryModeProjection(supabase);
+  const categories = await loadCategoryModeProjection();
   const byId = new Map(categories.map((row) => [row.id, row]));
 
   for (const id of unique) {
@@ -76,39 +67,17 @@ type CategoryModeRow = {
   transactionMode: TransactionMode | null;
 };
 
-async function loadCategoryModeProjection(client: CategoryReader): Promise<CategoryModeRow[]> {
-  const withMode = await client.from("categories").select("id, slug, parent_id, transaction_mode");
-
-  if (!withMode.error && withMode.data) {
-    return (
-      withMode.data as Array<{
-        id: string;
-        slug: string;
-        parent_id: string | null;
-        transaction_mode: string | null;
-      }>
-    ).map((row) => ({
-      id: row.id,
-      slug: row.slug,
-      parentId: row.parent_id,
-      transactionMode: row.transaction_mode
-        ? resolveTransactionModeFromDbValue(row.transaction_mode)
-        : null,
-    }));
-  }
-
-  const fallback = await client.from("categories").select("id, slug, parent_id");
-  return ((fallback.data ?? []) as Array<{
-    id: string;
-    slug: string;
-    parent_id: string | null;
-  }>).map((row) => ({
+const loadCategoryModeProjection = cache(async function loadCategoryModeProjection(): Promise<
+  CategoryModeRow[]
+> {
+  const categories = await loadAllCategories();
+  return categories.map((row) => ({
     id: row.id,
     slug: row.slug,
-    parentId: row.parent_id,
-    transactionMode: null,
+    parentId: row.parentId,
+    transactionMode: row.transactionMode,
   }));
-}
+});
 
 export async function updateCategoryTransactionModeCascade(
   categoryId: string,

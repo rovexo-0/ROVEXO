@@ -59,6 +59,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
+  // resolveCategoryPage is React.cache'd by slug path — generateMetadata + page share one resolve.
   const category = await resolveCategoryPage(slug);
 
   if (!category || !category.isActive) {

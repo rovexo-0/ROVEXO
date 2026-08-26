@@ -85,6 +85,34 @@ export async function updateSession(request: NextRequest) {
   }
 
   try {
+    const pathname = request.nextUrl.pathname;
+    const hasAuthCookie = request.cookies.getAll().some((cookie) =>
+      cookie.name.includes("-auth-token"),
+    );
+    const isApiRouteEarly = pathname.startsWith("/api/");
+    const isProtectedEarly = AUTH_PROTECTED_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    );
+    const isSplashOrWelcome =
+      pathname === "/splash" ||
+      pathname.startsWith("/splash/") ||
+      pathname === "/welcome" ||
+      pathname.startsWith("/welcome/");
+    const isAuctionChild = pathname.startsWith("/auctions/") && pathname !== "/auctions";
+
+    // Public catalogue GET: no auth cookie → no Supabase client, no getUser, no MFA.
+    // Protected routes, APIs, splash/welcome, and auction child redirects still run.
+    if (
+      !hasAuthCookie &&
+      request.method === "GET" &&
+      !isApiRouteEarly &&
+      !isProtectedEarly &&
+      !isSplashOrWelcome &&
+      !isAuctionChild
+    ) {
+      return nextWithPathname(request);
+    }
+
     let user: User | null = null;
     const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
       cookies: {
@@ -107,10 +135,6 @@ export async function updateSession(request: NextRequest) {
     try {
       // Anonymous fast-path: no Supabase auth cookie → skip getUser() network RTT.
       // Auth is unchanged when cookies exist (refresh, MFA, protected gates still run).
-      const hasAuthCookie = request.cookies.getAll().some((cookie) =>
-        cookie.name.includes("-auth-token"),
-      );
-
       let userError: { message?: string } | null = null;
       if (hasAuthCookie) {
         const result = await supabase.auth.getUser();
@@ -146,8 +170,6 @@ export async function updateSession(request: NextRequest) {
       }
       return cachedRole;
     };
-
-    const pathname = request.nextUrl.pathname;
 
     // P11.2 — API perimeter: sensitive rate limits + CSRF Origin (webhooks/cron exempt).
     if (pathname.startsWith("/api/")) {

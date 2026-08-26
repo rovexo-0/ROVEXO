@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import {
@@ -59,7 +60,7 @@ function mapRow(row: CategoryRow): DbCategory {
   };
 }
 
-export async function loadAllCategories(): Promise<DbCategory[]> {
+export const loadAllCategories = cache(async function loadAllCategories(): Promise<DbCategory[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("categories")
@@ -67,7 +68,7 @@ export async function loadAllCategories(): Promise<DbCategory[]> {
     .order("sort_order", { ascending: true });
 
   return ((data as CategoryRow[] | null) ?? []).map(mapRow);
-}
+});
 
 export async function resolveCategoryIdBySlugPath(slugs: string[]): Promise<string | null> {
   if (!slugs.length) return null;
@@ -217,6 +218,12 @@ export async function resolveOrCreateCategoryIdBySlugPath(
 }
 
 export async function getDescendantCategoryIds(rootId: string): Promise<string[]> {
+  return getDescendantCategoryIdsCached(rootId);
+}
+
+const getDescendantCategoryIdsCached = cache(async function getDescendantCategoryIdsCached(
+  rootId: string,
+): Promise<string[]> {
   const categories = await loadAllCategories();
   const ids = new Set<string>([rootId]);
   let changed = true;
@@ -232,9 +239,16 @@ export async function getDescendantCategoryIds(rootId: string): Promise<string[]
   }
 
   return [...ids];
-}
+});
 
 export async function resolveCategoryPage(slugs: string[]): Promise<CategoryPageData | null> {
+  return resolveCategoryPageCached(slugs.join("/"));
+}
+
+const resolveCategoryPageCached = cache(async function resolveCategoryPageCached(
+  pathKey: string,
+): Promise<CategoryPageData | null> {
+  const slugs = pathKey ? pathKey.split("/") : [];
   const path = findNodeBySlugPath(categoryTree, slugs);
   if (!path?.length) return null;
 
@@ -275,7 +289,7 @@ export async function resolveCategoryPage(slugs: string[]): Promise<CategoryPage
     seoDescription,
     isActive,
   };
-}
+});
 
 export async function getTopLevelCategoryCounts(): Promise<
   { id: string; name: string; slug: string; itemCount: number; imageUrl: string }[]

@@ -4,7 +4,7 @@
  */
 import { getAppUrl } from "@/lib/supabase/env";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const SITEMAP_IDS = [
   "static",

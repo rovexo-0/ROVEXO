@@ -20,6 +20,8 @@ type ListingPageProps = {
 };
 
 export const dynamic = "force-dynamic";
+// force-dynamic retained: sold/reserved inventory, Demand, and checkout TTL
+// must not be served from a stale static HTML snapshot. Self-heal is non-blocking.
 
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
   const { slug } = await params;

@@ -666,12 +666,28 @@ export type CheckoutSessionExpireAllResult = {
 };
 
 /**
+ * Concurrent callers (listing + Buy Now + cron) share one sweep.
+ * Does not skip work: the in-flight result is awaited by commerce paths.
+ */
+let expireAllInFlight: Promise<CheckoutSessionExpireAllResult> | null = null;
+
+/**
  * Expire ALL open sessions past expires_at, then heal orphan reserved listings.
  * Crash recovery / abandon / TTL / duplicate workers → published once.
  *
  * Cod Sânge: expired/restored increment ONLY after DB persistence (affected rows > 0).
  */
 export async function CHECKOUT_SESSION_ENGINE_expireAll(): Promise<CheckoutSessionExpireAllResult> {
+  if (expireAllInFlight) {
+    return expireAllInFlight;
+  }
+  expireAllInFlight = CHECKOUT_SESSION_ENGINE_expireAllUncached().finally(() => {
+    expireAllInFlight = null;
+  });
+  return expireAllInFlight;
+}
+
+async function CHECKOUT_SESSION_ENGINE_expireAllUncached(): Promise<CheckoutSessionExpireAllResult> {
   const admin = createAdminClient();
   const now = new Date().toISOString();
 

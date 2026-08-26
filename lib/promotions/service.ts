@@ -30,15 +30,22 @@ type ApplyPromotionInput = {
   activateScheduled?: boolean;
 };
 
-// Wrapped in React's request-scoped `cache` so that when several data loaders
-// (e.g. the four homepage sections) call this within one server render, the
-// maintenance RPC runs a single time instead of once per caller. Behaviour is
-// unchanged — it still refreshes once per request — but redundant blocking
-// round-trips are eliminated.
+let lastPromotionRefreshStartedMs = 0;
+const PROMOTION_REFRESH_MIN_INTERVAL_MS = 60_000;
+
+// Wrapped in React's request-scoped `cache` so several loaders in one render
+// share one RPC. Isolate min-interval avoids repeating the RPC on every
+// search/category request in the same Fluid isolate. Cron still refreshes daily.
 export const refreshExpiredPromotions = cache(async function refreshExpiredPromotions(): Promise<void> {
   if (!isSupabaseAdminConfigured()) {
     return;
   }
+
+  const now = Date.now();
+  if (now - lastPromotionRefreshStartedMs < PROMOTION_REFRESH_MIN_INTERVAL_MS) {
+    return;
+  }
+  lastPromotionRefreshStartedMs = now;
 
   try {
     const admin = createAdminClient();

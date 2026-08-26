@@ -67,7 +67,7 @@ describe("sell publish auth path — session-scoped (no false service-role depen
     expect(start).toBeGreaterThanOrEqual(0);
     const end = source.indexOf("export async function updateCategoryTransactionModeCascade");
     const slice = source.slice(start, end > 0 ? end : undefined);
-    expect(slice).toContain("createClient()");
+    expect(slice).toContain("loadAllCategories");
     expect(slice).not.toContain("createAdminClient");
   });
 
