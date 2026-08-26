@@ -51,6 +51,29 @@ export function ShareIcon({ className, ...props }: FeatureIconProps) {
 }
 
 export const ShieldIcon = createLineFeatureIcon(ShieldLineIcon);
+
+/** Listing Detail inclusive-fee shield — one prominent green mark with check. */
+export function RovexoFeeShieldIcon({ className, ...props }: FeatureIconProps) {
+  const size = resolvePixelSize(props, 24);
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={className}
+      aria-hidden
+    >
+      <path
+        fill="#22C55E"
+        d="M12 2.4 20 5.3v6.1c0 5.5-3.5 9-8 10.6C7.5 20.4 4 16.9 4 11.4V5.3L12 2.4Z"
+      />
+      <path
+        fill="#fff"
+        d="M10.15 15.35 7.4 12.6l1.45-1.45 1.3 1.3 4.7-4.7 1.45 1.45-6.15 6.15Z"
+      />
+    </svg>
+  );
+}
 export const ChevronRightIcon = createLineFeatureIcon(ChevronRightLineIcon);
 export const VerifiedIcon = createLineFeatureIcon(ShieldLineIcon);
 

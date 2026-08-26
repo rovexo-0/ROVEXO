@@ -29,6 +29,52 @@ export function formatListingPriceIncl(
   return `${formatListingPrice(totals.total)} incl.`;
 }
 
+/**
+ * Listing Detail buyer-facing inclusive total — same totals as `formatListingPriceIncl`.
+ * Display copy only; fee math is unchanged.
+ */
+export function formatListingPriceInclRovexoFee(
+  amount: number,
+  shipping: number | null | undefined = 0,
+): string {
+  const delivery =
+    shipping != null && Number.isFinite(shipping) && shipping >= 0 ? Number(shipping) : 0;
+  const totals = calculateOrderTotals(amount, delivery);
+  return `${formatListingPrice(totals.total)} Incl. Rovexo fee`;
+}
+
+/** Colour + material subtitle for Listing Detail — real listing fields only. */
+export function formatListingSubtitle(input: {
+  colour?: string | null;
+  material?: string | null;
+}): string | null {
+  const parts = [input.colour, input.material]
+    .map((value) => value?.replace(/\s+/g, " ").trim())
+    .filter((value): value is string => Boolean(value));
+  return parts.length > 0 ? parts.join(" ") : null;
+}
+
+/**
+ * Dispatch column — shipping engine default is 2 days (`dispatchDays ?? 2`).
+ * 1–2 days when the seller dispatches within that window.
+ */
+export function formatListingDispatchLabel(dispatchTimeDays?: number | null): string {
+  const days =
+    dispatchTimeDays != null && Number.isFinite(dispatchTimeDays) && dispatchTimeDays > 0
+      ? Math.round(dispatchTimeDays)
+      : 2;
+  if (days <= 2) return "1–2 days";
+  return `${days} days`;
+}
+
+export function isFastDispatch(dispatchTimeDays?: number | null): boolean {
+  const days =
+    dispatchTimeDays != null && Number.isFinite(dispatchTimeDays) && dispatchTimeDays > 0
+      ? Math.round(dispatchTimeDays)
+      : 2;
+  return days <= 2;
+}
+
 /** Homepage listing card — buyer-facing Platform Fee line only. */
 export function formatPlatformFeeLine(itemPrice: number): string {
   return `${formatListingPrice(calculatePlatformFee(itemPrice))} Platform Fee`;

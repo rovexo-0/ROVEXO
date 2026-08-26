@@ -9,12 +9,16 @@ type ProductGalleryV1Props = {
   title: string;
   /** Percent off when originalPrice > price (e.g. 12 → "-12%"). */
   discountPercent?: number | null;
+  isFeatured?: boolean;
+  showFastDispatch?: boolean;
 };
 
 export const ProductGalleryV1 = memo(function ProductGalleryV1({
   images: rawImages,
   title,
   discountPercent = null,
+  isFeatured = false,
+  showFastDispatch = false,
 }: ProductGalleryV1Props) {
   const images = useMemo(() => rawImages.filter(isRenderableImageSrc), [rawImages]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -112,8 +116,29 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
               </button>
             ))}
           </div>
+          <div className="pd-v1__gallery-badges">
+            {isFeatured ? (
+              <span className="pd-v1__gallery-badge pd-v1__gallery-badge--featured">
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    fill="currentColor"
+                    d="m12 3.4 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.7 7.2 18.3l.9-5.4-3.9-3.8 5.4-.8L12 3.4Z"
+                  />
+                </svg>
+                FEATURED
+              </span>
+            ) : null}
+            {showFastDispatch ? (
+              <span className="pd-v1__gallery-badge pd-v1__gallery-badge--dispatch">
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path fill="currentColor" d="M13 2 4 14h7l-1 8 10-14h-7l1-6Z" />
+                </svg>
+                FAST DISPATCH
+              </span>
+            ) : null}
+          </div>
           <span className="pd-v1__gallery-counter" aria-live="polite">
-            {activeIndex + 1}/{images.length}
+            {activeIndex + 1} / {images.length}
           </span>
           {discountPercent != null && discountPercent > 0 ? (
             <span className="pd-v1__gallery-discount" aria-label={`${discountPercent} percent off`}>
@@ -123,7 +148,7 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
         </div>
 
         {images.length > 1 ? (
-          <div className="pd-v1__thumbs" role="tablist" aria-label="Product thumbnails">
+          <div className="pd-v1__gallery-dots" role="tablist" aria-label="Product photos">
             {images.map((image, index) => (
               <button
                 key={`${image}-${index}`}
@@ -131,15 +156,13 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
                 role="tab"
                 aria-selected={index === activeIndex}
                 aria-label={`Show photo ${index + 1}`}
-                className="pd-v1__thumb"
+                className="pd-v1__gallery-dot"
                 data-active={index === activeIndex ? "true" : "false"}
                 onClick={() => {
                   selectImage(index);
                   scrollMainTo(index);
                 }}
-              >
-                <SafeImage src={image} alt="" fill loading="lazy" sizes="64px" className="object-cover" />
-              </button>
+              />
             ))}
           </div>
         ) : null}
