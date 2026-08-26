@@ -161,7 +161,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const csrf = validateMutationOrigin(request);
+  const csrf = await validateMutationOrigin(request);
   if (csrf) return csrf;
 
   const { user } = await requireAuthContext();

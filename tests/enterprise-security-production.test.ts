@@ -51,7 +51,7 @@ describe("production environment validation", () => {
 });
 
 describe("csrf origin guard", () => {
-  it("allows same-origin POST requests in development", () => {
+  it("allows same-origin POST requests in development", async () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
@@ -60,11 +60,11 @@ describe("csrf origin guard", () => {
       headers: { origin: "http://localhost:3000" },
     });
 
-    expect(validateMutationOrigin(request)).toBeNull();
+    expect(await validateMutationOrigin(request)).toBeNull();
     vi.unstubAllEnvs();
   });
 
-  it("blocks cross-origin POST requests in production", () => {
+  it("blocks cross-origin POST requests in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
@@ -73,12 +73,12 @@ describe("csrf origin guard", () => {
       headers: { origin: "https://evil.example" },
     });
 
-    const blocked = validateMutationOrigin(request);
+    const blocked = await validateMutationOrigin(request);
     expect(blocked?.status).toBe(403);
     vi.unstubAllEnvs();
   });
 
-  it("allows production Origin against canonical www.rovexo.co.uk", () => {
+  it("allows production Origin against canonical www.rovexo.co.uk", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
@@ -87,11 +87,11 @@ describe("csrf origin guard", () => {
       headers: { origin: "https://www.rovexo.co.uk" },
     });
 
-    expect(validateMutationOrigin(request)).toBeNull();
+    expect(await validateMutationOrigin(request)).toBeNull();
     vi.unstubAllEnvs();
   });
 
-  it("does not trust loopback APP_URL for production CSRF allowlist", () => {
+  it("does not trust loopback APP_URL for production CSRF allowlist", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
@@ -104,7 +104,7 @@ describe("csrf origin guard", () => {
         origin: "http://localhost:3000",
       },
     });
-    expect(validateMutationOrigin(cross)?.status).toBe(403);
+    expect((await validateMutationOrigin(cross))?.status).toBe(403);
 
     // Real production Origin still passes via request host + canonical DEFAULT.
     const ok = new Request("https://www.rovexo.co.uk/api/shipping/labels", {
@@ -114,16 +114,16 @@ describe("csrf origin guard", () => {
         origin: "https://www.rovexo.co.uk",
       },
     });
-    expect(validateMutationOrigin(ok)).toBeNull();
+    expect(await validateMutationOrigin(ok)).toBeNull();
     vi.unstubAllEnvs();
   });
 
-  it("preserves localhost development Origin allow", () => {
+  it("preserves localhost development Origin allow", async () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
     expect(
-      validateMutationOrigin(
+      await validateMutationOrigin(
         new Request("http://127.0.0.1:3000/api/shipping/labels", {
           method: "POST",
           headers: { origin: "http://127.0.0.1:3000" },

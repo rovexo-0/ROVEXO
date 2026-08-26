@@ -120,7 +120,7 @@ export async function requireApiAuth(
 
   // P11.1 H-02 — Origin CSRF guard on cookie-auth mutations when Request is supplied.
   if (request) {
-    const blocked = validateMutationOrigin(request);
+    const blocked = await validateMutationOrigin(request);
     if (blocked) return blocked;
   }
 
