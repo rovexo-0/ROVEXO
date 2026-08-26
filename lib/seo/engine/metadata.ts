@@ -67,6 +67,11 @@ export function sellerPageMetadata(input: {
   rating?: number | null;
   reviewCount?: number;
   followersCount?: number;
+  soldCount?: number;
+  category?: string | null;
+  location?: string | null;
+  coverImageUrl?: string | null;
+  featuredListings?: Array<{ title: string; price: number | null; imageUrl: string | null }>;
   storeDescription?: string | null;
 }): Metadata {
   const listingsKnown = input.listingCount != null;
@@ -79,6 +84,11 @@ export function sellerPageMetadata(input: {
     reviewCount: input.reviewCount,
     activeListingsCount: input.listingCount ?? 0,
     followersCount: input.followersCount,
+    soldCount: input.soldCount,
+    category: input.category,
+    location: input.location,
+    coverImageUrl: input.coverImageUrl,
+    featuredListings: input.featuredListings,
     storeDescription: input.storeDescription,
   });
   const meta = buildStoreShareMetadata(share, { listingsKnown });

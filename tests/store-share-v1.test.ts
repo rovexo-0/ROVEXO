@@ -282,9 +282,12 @@ describe("Store Sharing Engine v1", () => {
     expect(meta.ogImagePath).toContain("kind=store");
     expect(meta.ogImageUrl).toBe(buildStoreOgImageUrl(ratedSeller()));
     const og = readSource("app/api/seo/og/route.ts");
+    const hero = readSource("lib/store-sharing/store-hero-share-card-v1.ts");
     expect(og).toContain('kind === "store"');
-    expect(og).toContain("VIEW STORE");
-    expect(og).toContain("STORE_SHARE_COPY.promoLine");
+    expect(og).toContain("renderStoreHeroShareCardSvg");
+    expect(og).not.toContain("VIEW STORE");
+    expect(hero).toContain("STORE_SHARE_COPY.promoLine");
+    expect(hero).not.toContain("VIEW STORE");
     expect(readSource("lib/store-sharing/store-share-v1.ts")).toContain("Buy • Sell • Grow on ROVEXO");
     expect(og).toContain("image/png");
     expect(og).toContain("X-ROVEXO-OG-Store");

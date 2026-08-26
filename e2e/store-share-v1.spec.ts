@@ -58,4 +58,16 @@ test.describe("Store Sharing v1", () => {
     await sheet.getByRole("button", { name: "QR Code" }).click();
     await expect(sheet.getByRole("img", { name: /QR code for .* ROVEXO store/i })).toBeVisible();
   });
+
+  test("canonical store OG image is PNG 1200x630", async ({ request }) => {
+    const response = await request.get(
+      "/api/seo/og?kind=store&username=mishuu&name=mishuu&verified=0&reviews=0&followers=0&listings=0&sold=0&description=Discover%20unique%20items%20from%20independent%20sellers.",
+    );
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toBe("image/png");
+    const body = await response.body();
+    expect(body.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(
+      true,
+    );
+  });
 });

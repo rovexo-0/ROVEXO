@@ -1,0 +1,65 @@
+---
+description: Store Hero Card v1.0 SHARE/OG ONLY HARD FREEZE — do not redesign OG renderer, URLs, metadata, or in-app Store surfaces
+alwaysApply: true
+---
+
+# Store Hero Card Freeze v1.0 — SHARE / OG ONLY
+
+**STATUS: FROZEN · HARD FREEZE · ACTIVE.**  
+SSOT: `lib/store-sharing/store-hero-share-card-freeze-v1.ts`  
+Renderer: `lib/store-sharing/store-hero-share-card-v1.ts`
+
+`STORE_HERO_SHARE_CARD_FREEZE = ACTIVE` · `MODIFICATIONS = BLOCKED`
+
+## Responsibility
+
+Store Hero is **EXTERNAL SHARE / OG ONLY**.  
+It MUST NOT become an in-app Store component.  
+It MUST NOT replace Seller Shop, Visit Store, or `StoreShareCard`.
+
+## Canonical owners (do not duplicate)
+
+- Renderer: `lib/store-sharing/store-hero-share-card-v1.ts`
+- Store Share SSOT: `lib/store-sharing/store-share-v1.ts`
+- OG endpoint: `app/api/seo/og/route.ts`
+- Metadata: `lib/seo/engine/metadata.ts`
+
+## Frozen
+
+Visual composition · 1200×630 · typography · spacing · layout · identity / avatar / cover / rating / stats / trust / featured placement · branding · image + OG pipeline · public-data model · security · fallbacks · cache · URL · metadata
+
+Seller **data** may change. **Structure** must not. Business / Individual / Verified / New / Top Rated use the same structure.
+
+## Forbidden duplicates
+
+`StoreHeroShareCardV2` · `StoreHeroShareCardNew` · `PremiumStoreHeroCard` · `BusinessStoreHeroCard` · `VerifiedStoreHeroCard` · `SocialStoreCard` · `WhatsAppStoreCard` · `FacebookStoreCard` · `XStoreCard`
+
+Platform-specific preview components are forbidden. All platforms consume the same OG representation.
+
+## URL freeze
+
+- Web / OG: `https://www.rovexo.co.uk/@username`
+- Native Shop Share: `https://www.rovexo.co.uk/store/<handle>`
+
+Do not unify, rename, redirect, or change routing without a separate Owner decision.
+
+## Unlock
+
+If a task would modify this freeze:
+
+```
+STOP
+FREEZE_BLOCKED
+```
+
+Continue only when the Owner explicitly says:
+
+```
+END STORE HERO FREEZE
+```
+
+Do not treat improve / make better / update / fix design / make WOW as unlock.
+
+Bug fix exception: functional, security, data-integrity, crash, or broken production only — and never a structural redesign.
+
+No commit, push, or deploy from freeze work unless the Owner explicitly orders it.

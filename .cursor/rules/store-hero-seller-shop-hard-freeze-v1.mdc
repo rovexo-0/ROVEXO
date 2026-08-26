@@ -1,0 +1,41 @@
+---
+description: Combined Store Hero OG + Native Seller Shop HARD FREEZE — two frozen surfaces; neither may replace the other
+alwaysApply: true
+---
+
+# Store Hero + Seller Shop Hard Freeze v1.0
+
+**STATUS: HARD FREEZE ACTIVE.**  
+SSOT: `lib/store-sharing/store-hero-seller-shop-hard-freeze-v1.ts`
+
+```
+ROVEXO STORE HERO + SELLER SHOP — HARD FREEZE ACTIVE
+```
+
+## Two surfaces
+
+| Surface | Role | Canonical |
+|---|---|---|
+| Store Hero Card | External Share / OG only | `store-hero-share-card-v1.ts` |
+| Seller Shop | Native Shop experience | `SellerShopScreen` + `NativeAndroidSellerShopV1` |
+| Visit Store | Web `/store/[slug]` | `StoreVisitPageV2` |
+| StoreShareCard | In-app share sheet | `features/store-sharing/StoreShareCard.tsx` |
+
+Neither Store Hero nor Seller Shop may replace the other.  
+Do not import Store Hero into Shop. Do not redesign Shop around OG.
+
+## Unlock phrases (independent)
+
+- Store Hero: `END STORE HERO FREEZE`
+- Seller Shop: `END SELLER SHOP FREEZE`
+- Both: both phrases
+
+Without the matching phrase: `FREEZE_BLOCKED`.
+
+## Protected from Store Hero / Shop work
+
+Native: `SellerShopScreen` · `NativeAndroidSellerShopV1`  
+Web: `/store/[slug]` · `StoreVisitPageV2`  
+Share: `StoreShareCard` · Store Share SSOT · Store Hero OG renderer  
+Homepage: `components/home/stores/StoreCard.tsx`  
+Listing Detail: `ListingSellerRow` · `ProductStoreSection` · `ListingCard` · `HomeListingCard`

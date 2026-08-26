@@ -3,16 +3,16 @@ import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { safeFetch } from "@/lib/security/ssrf-guard-v1";
 import {
-  STORE_SHARE_COPY,
-  formatStoreSharePublicHost,
-  formatStoreShareStatusLabel,
-  resolveStoreShareCardDescription,
-  truncateStoreShareCardText,
-} from "@/lib/store-sharing/store-share-v1";
+  STORE_HERO_FEATURED_SLOT_COUNT,
+  STORE_HERO_SHARE_CARD_SIZE,
+  parseStoreHeroShareCardFromSearchParams,
+  publicStoreHeroImageParam,
+  renderStoreHeroShareCardSvg,
+} from "@/lib/store-sharing/store-hero-share-card-v1";
 
-const OG_WIDTH = 1200;
-const OG_HEIGHT = 630;
-const MAX_AVATAR_BYTES = 1_200_000;
+const OG_WIDTH = STORE_HERO_SHARE_CARD_SIZE.width;
+const OG_HEIGHT = STORE_HERO_SHARE_CARD_SIZE.height;
+const MAX_IMAGE_BYTES = 1_200_000;
 
 let cachedBrandMark: string | null | undefined;
 
@@ -36,38 +36,20 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function isPublicHttpsAvatar(url: string): boolean {
-  if (!url.startsWith("https://")) return false;
+async function embedPublicImage(imageUrl: string | null): Promise<string | null> {
+  const url = publicStoreHeroImageParam(imageUrl);
+  if (!url) return null;
   try {
-    const host = new URL(url).hostname.toLowerCase();
-    if (
-      host === "localhost" ||
-      host === "127.0.0.1" ||
-      host.endsWith(".localhost") ||
-      host.startsWith("192.168.") ||
-      host.startsWith("10.")
-    ) {
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function embedPublicAvatar(avatarUrl: string | null): Promise<string | null> {
-  if (!avatarUrl || !isPublicHttpsAvatar(avatarUrl)) return null;
-  try {
-    const response = await safeFetch(avatarUrl, {
+    const response = await safeFetch(url, {
       method: "GET",
-      signal: AbortSignal.timeout(2500),
+      signal: AbortSignal.timeout(2000),
       headers: { Accept: "image/*" },
     });
     if (!response.ok) return null;
     const contentType = (response.headers.get("content-type") ?? "").split(";")[0]?.trim() ?? "";
     if (!contentType.startsWith("image/")) return null;
     const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.length === 0 || buffer.length > MAX_AVATAR_BYTES) return null;
+    if (buffer.length === 0 || buffer.length > MAX_IMAGE_BYTES) return null;
     return `data:${contentType};base64,${buffer.toString("base64")}`;
   } catch {
     return null;
@@ -94,76 +76,29 @@ function renderDefaultOgSvg(searchParams: URLSearchParams): string {
 </svg>`;
 }
 
-function renderStoreOgSvg(
-  searchParams: URLSearchParams,
-  avatarDataUri: string | null,
-): string {
-  const username = truncateStoreShareCardText((searchParams.get("username") ?? "").trim(), 24);
-  const rawName = (searchParams.get("name") ?? "").trim() || username || "ROVEXO Store";
-  const name = truncateStoreShareCardText(rawName, 22);
-  const verified = searchParams.get("verified") === "1";
-  const reviews = Math.max(0, Number(searchParams.get("reviews") ?? 0) || 0);
-  const rating = searchParams.get("rating");
-  const followers = Math.max(0, Number(searchParams.get("followers") ?? 0) || 0);
-  const listings = Math.max(0, Number(searchParams.get("listings") ?? 0) || 0);
-  const description = resolveStoreShareCardDescription(searchParams.get("description"));
-  const status = formatStoreShareStatusLabel({
-    rating: rating && reviews > 0 ? Number(rating) : null,
-    reviewCount: reviews,
-  });
-  const handle = username ? `@${username}` : "";
-  const hostUrl = username
-    ? truncateStoreShareCardText(formatStoreSharePublicHost(username), 36)
-    : "rovexo.co.uk";
-  const initial = escapeXml((name.trim()[0] || "R").toUpperCase());
-  const brand = brandMarkDataUri();
-  const avatarMarkup = avatarDataUri
-    ? `<defs><clipPath id="store-avatar"><circle cx="156" cy="236" r="72"/></clipPath></defs>
-  <circle cx="156" cy="236" r="78" fill="#f3e8ff"/>
-  <circle cx="156" cy="236" r="74" fill="#ffffff"/>
-  <image href="${escapeXml(avatarDataUri)}" x="84" y="164" width="144" height="144" preserveAspectRatio="xMidYMid slice" clip-path="url(#store-avatar)"/>`
-    : `<circle cx="156" cy="236" r="78" fill="#f3e8ff"/>
-  <text x="156" y="254" text-anchor="middle" fill="#7c3aed" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700">${initial}</text>`;
-  const verifiedBadge = verified
-    ? `<circle cx="210" cy="292" r="16" fill="#9333ea"/>
-  <path d="M203 292 l5 5 10-11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`
-    : "";
-  const brandVisual = brand
-    ? `<image href="${escapeXml(brand)}" x="930" y="168" width="196" height="196" preserveAspectRatio="xMidYMid meet"/>`
-    : `<text x="1028" y="290" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">RX</text>`;
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}">
-  <rect width="${OG_WIDTH}" height="${OG_HEIGHT}" fill="#ffffff"/>
-  <rect x="0" y="0" width="${OG_WIDTH}" height="10" fill="#9333ea"/>
-  <circle cx="1088" cy="318" r="248" fill="#f3e8ff"/>
-  <circle cx="1088" cy="318" r="188" fill="#9333ea"/>
-  ${brandVisual}
-  <text x="64" y="72" fill="#9333ea" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">ROVEXO</text>
-  ${avatarMarkup}
-  ${verifiedBadge}
-  <text x="268" y="214" fill="#111111" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">${escapeXml(name)}</text>
-  <text x="268" y="258" fill="#6b7280" font-family="Arial, Helvetica, sans-serif" font-size="26">${escapeXml(handle)}</text>
-  <text x="268" y="300" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="22">${escapeXml(status)}</text>
-  <text x="64" y="390" fill="#111111" font-family="Arial, Helvetica, sans-serif" font-size="24">${followers} Followers · ${listings} Listings</text>
-  <text x="64" y="452" fill="#9333ea" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">${escapeXml(STORE_SHARE_COPY.promoLine)}</text>
-  <text x="64" y="496" fill="#6b7280" font-family="Arial, Helvetica, sans-serif" font-size="22">${escapeXml(description)}</text>
-  <rect x="64" y="528" width="420" height="56" rx="28" fill="#9333ea"/>
-  <text x="274" y="564" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">${escapeXml(hostUrl)}</text>
-  <text x="980" y="560" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">VIEW STORE</text>
-</svg>`;
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const kind = (searchParams.get("kind") ?? "").trim();
   const username = (searchParams.get("username") ?? "").trim();
-  const avatarParam = (searchParams.get("avatar") ?? "").trim();
 
-  const svg =
-    kind === "store"
-      ? renderStoreOgSvg(searchParams, await embedPublicAvatar(avatarParam || null))
-      : renderDefaultOgSvg(searchParams);
+  let svg = renderDefaultOgSvg(searchParams);
+  if (kind === "store") {
+    const model = parseStoreHeroShareCardFromSearchParams(searchParams);
+    const listingUrls = Array.from({ length: STORE_HERO_FEATURED_SLOT_COUNT }, (_, index) => {
+      return model.featuredListings[index]?.imageUrl ?? null;
+    });
+    const [avatarDataUri, coverDataUri, ...listingImageDataUris] = await Promise.all([
+      embedPublicImage(model.avatarUrl),
+      embedPublicImage(model.coverImageUrl),
+      ...listingUrls.map((url) => embedPublicImage(url)),
+    ]);
+    svg = renderStoreHeroShareCardSvg(model, {
+      brandMarkDataUri: brandMarkDataUri(),
+      avatarDataUri,
+      coverDataUri,
+      listingImageDataUris,
+    });
+  }
 
   const cacheControl =
     kind === "store"

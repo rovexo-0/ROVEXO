@@ -12,6 +12,7 @@ import { failClosedPublicTrustSummary, getPublicTrustSummary } from "@/lib/trust
 import { getAuthContext } from "@/lib/auth/session";
 import { sellerPageMetadata, sellerProfilePageJsonLd } from "@/lib/seo/engine";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { isValidStoreUsername } from "@/lib/store-sharing/store-share-v1";
 import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 import {
@@ -237,6 +238,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const followCounts = await getFollowCounts(profile.id).catch(() => null);
 
+    const featuredListings = profile.listings.slice(0, 5).map((listing) => ({
+      title: listing.title,
+      price: listing.price,
+      imageUrl:
+        typeof listing.imageUrl === "string" &&
+        listing.imageUrl.startsWith("https://") &&
+        isRenderableImageSrc(listing.imageUrl)
+          ? listing.imageUrl
+          : null,
+    }));
+    const category = profile.listings[0]?.categoryBreadcrumbs?.[0]?.name?.trim() || null;
+
     return sellerPageMetadata({
       username: profile.username,
       displayName: profile.username,
@@ -246,6 +259,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       rating: profile.rating,
       reviewCount: profile.reviewCount,
       followersCount: followCounts?.followerCount ?? profile.followerCount,
+      soldCount: profile.salesCount,
+      category,
+      location: profile.country,
+      coverImageUrl: profile.coverUrl,
+      featuredListings,
       storeDescription: profile.bio,
     });
   } catch {

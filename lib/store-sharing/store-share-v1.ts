@@ -39,6 +39,12 @@ const STORE_SHARE_FORBIDDEN_HOST_MARKERS = [
 
 export const STORE_HANDLE_PATTERN = /^[A-Za-z0-9._-]{1,64}$/;
 
+export type StoreHeroFeaturedListingShare = {
+  title: string;
+  price: number | null;
+  imageUrl: string | null;
+};
+
 export type StoreShareData = {
   displayName: string;
   username: string;
@@ -49,6 +55,14 @@ export type StoreShareData = {
   followersCount: number;
   followingCount: number;
   activeListingsCount: number;
+  /** Public completed sales count. Never a private financial total. */
+  soldCount: number;
+  /** Public catalog label when already known. Never invented. */
+  category: string | null;
+  /** Public location label when already known. Never invented. */
+  location: string | null;
+  coverImageUrl: string | null;
+  featuredListings: StoreHeroFeaturedListingShare[];
   /** Public store bio only. Never email / phone / address. */
   storeDescription: string | null;
   storeUrl: string;
@@ -378,15 +392,41 @@ export function buildStoreOgImagePath(data: StoreShareData): string {
     reviews: String(Math.max(0, data.reviewCount)),
     followers: String(Math.max(0, data.followersCount)),
     listings: String(Math.max(0, data.activeListingsCount)),
+    sold: String(Math.max(0, data.soldCount)),
     description: resolveStoreShareCardDescription(data.storeDescription),
   });
   if (data.rating != null && data.reviewCount > 0 && data.rating > 0) {
     params.set("rating", data.rating.toFixed(1));
   }
+  const category = data.category?.replace(/\s+/g, " ").trim();
+  if (category) {
+    params.set("cat", truncateStoreShareCardText(category, 18));
+  }
+  const location = data.location?.replace(/\s+/g, " ").trim();
+  if (location) {
+    params.set("loc", truncateStoreShareCardText(location, 16));
+  }
   const avatar = publicStoreAvatarParam(data.avatarUrl);
   if (avatar) {
     params.set("avatar", avatar);
   }
+  const cover = publicStoreAvatarParam(data.coverImageUrl);
+  if (cover) {
+    params.set("cover", cover);
+  }
+  (data.featuredListings ?? []).slice(0, 5).forEach((listing, index) => {
+    const title = listing.title.replace(/\s+/g, " ").trim();
+    if (title) {
+      params.set(`n${index}`, truncateStoreShareCardText(title, 16));
+    }
+    if (listing.price != null && Number.isFinite(listing.price) && listing.price >= 0) {
+      params.set(`p${index}`, listing.price.toFixed(2));
+    }
+    const image = publicStoreAvatarParam(listing.imageUrl);
+    if (image) {
+      params.set(`i${index}`, image);
+    }
+  });
   return `/api/seo/og?${params.toString()}`;
 }
 
@@ -445,6 +485,11 @@ export function toStoreShareData(input: {
   followersCount?: number;
   followingCount?: number;
   activeListingsCount?: number;
+  soldCount?: number;
+  category?: string | null;
+  location?: string | null;
+  coverImageUrl?: string | null;
+  featuredListings?: StoreHeroFeaturedListingShare[];
   storeDescription?: string | null;
 }): StoreShareData {
   const username = normalizeStoreUsername(input.username);
@@ -453,6 +498,10 @@ export function toStoreShareData(input: {
     reviewCount > 0 && input.rating != null && input.rating > 0 ? input.rating : null;
   const rawDescription =
     typeof input.storeDescription === "string" ? input.storeDescription.replace(/\s+/g, " ").trim() : "";
+  const category =
+    typeof input.category === "string" ? input.category.replace(/\s+/g, " ").trim() : "";
+  const location =
+    typeof input.location === "string" ? input.location.replace(/\s+/g, " ").trim() : "";
   return {
     displayName: (input.displayName ?? username).trim() || username,
     username,
@@ -463,6 +512,18 @@ export function toStoreShareData(input: {
     followersCount: Math.max(0, input.followersCount ?? 0),
     followingCount: Math.max(0, input.followingCount ?? 0),
     activeListingsCount: Math.max(0, input.activeListingsCount ?? 0),
+    soldCount: Math.max(0, input.soldCount ?? 0),
+    category: category || null,
+    location: location || null,
+    coverImageUrl: input.coverImageUrl ?? null,
+    featuredListings: (input.featuredListings ?? []).slice(0, 5).map((listing) => ({
+      title: listing.title.replace(/\s+/g, " ").trim(),
+      price:
+        listing.price != null && Number.isFinite(listing.price) && listing.price >= 0
+          ? listing.price
+          : null,
+      imageUrl: listing.imageUrl ?? null,
+    })),
     storeDescription: rawDescription || null,
     storeUrl: buildStoreUrl(username),
   };
