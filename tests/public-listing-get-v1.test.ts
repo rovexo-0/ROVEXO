@@ -15,12 +15,17 @@ import {
 } from "@/lib/products/public-listing-get-v1";
 import type { ProductDetail } from "@/lib/products/types";
 
-const { getProductBySlug } = vi.hoisted(() => ({
+const { getProductBySlug, resolveListingDemand } = vi.hoisted(() => ({
   getProductBySlug: vi.fn(),
+  resolveListingDemand: vi.fn(),
 }));
 
 vi.mock("@/lib/products/catalog", () => ({
   getProductBySlug,
+}));
+
+vi.mock("@/lib/demand/demand-engine-resolve-v1", () => ({
+  resolveListingDemand,
 }));
 
 import { GET } from "@/app/api/listing/[slug]/route";
@@ -101,6 +106,11 @@ async function getListing(slug: string, headers?: HeadersInit) {
 describe("GET /api/listing/[slug] — public listing foundation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resolveListingDemand.mockResolvedValue({
+      state: "NOT_IN_DEMAND",
+      productId: "11111111-1111-4111-8111-111111111111",
+      badge: null,
+    });
   });
 
   it("valid public slug → 200 with canonical listing data", async () => {
