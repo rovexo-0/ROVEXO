@@ -6,16 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
-import { ProductViewsLive } from "@/features/product-detail/ProductViewsLive";
 import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
 import { ProductDescriptionV1 } from "@/features/product-detail/ProductDescriptionV1";
 import { ProductGalleryV1 } from "@/features/product-detail/ProductGalleryV1";
-import { ProductInformationRows } from "@/features/product-detail/ProductInformationRows";
+import { ProductListingAttributeColumns } from "@/features/product-detail/ProductListingAttributeColumns";
 import { ProductPageChrome } from "@/features/product-detail/ProductPageChrome";
 import { ProductQuantityStepper } from "@/features/product-detail/ProductQuantityStepper";
-import { ProductStockStatus } from "@/features/product-detail/ProductStockStatus";
 import { ProductStoreSection } from "@/features/product-detail/ProductStoreSection";
-import { buildProductInformationRows } from "@/features/product-detail/build-product-information-rows";
+import { RovexoFeeShieldIcon } from "@/features/product-detail/icons";
 import { useProductOfferNegotiation } from "@/features/product-detail/use-product-offer-negotiation";
 import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
 import { resolveProductOfferActionView } from "@/lib/transaction-hub/dynamic-offer-action-engine-v1";
@@ -23,7 +21,9 @@ import { OfferComposerSheet } from "@/features/transaction-hub/OfferComposerShee
 import { BuyNowPublicErrorDialog } from "@/features/checkout/components/BuyNowPublicErrorDialog";
 import {
   formatListingPrice,
-  formatListingPriceIncl,
+  formatListingPriceInclRovexoFee,
+  formatListingSubtitle,
+  isFastDispatch,
   resolveListingShippingForIncl,
 } from "@/lib/listing-card/format";
 import type { ProductDetail } from "@/lib/products/types";
@@ -40,13 +40,15 @@ import { clampStockLevel } from "@/lib/sell/inventory";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
+  /** Server-resolved Demand Engine V1.0 copy. UI must not calculate demand. */
+  demandBadge?: { title: string; body: string } | null;
 };
 
 /**
  * ROVEXO View Item v2.0 — Owner-approved mockup (pixel UI).
  * PDP actions: Buy Now · Make Offer only (Add to Bundle removed — Store is create surface).
  */
-export function ProductDetailPage({ product }: ProductDetailPageProps) {
+export function ProductDetailPage({ product, demandBadge = null }: ProductDetailPageProps) {
   const router = useRouter();
   const { pushToast } = useToast();
   const { executeBuyNow } = useBuyNowNavigation();
@@ -80,7 +82,11 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
     shippingPrice: product.shippingPrice,
   });
   const displayPrice = amount;
-  const inclLabel = formatListingPriceIncl(displayPrice, shippingForIncl);
+  const inclLabel = formatListingPriceInclRovexoFee(displayPrice, shippingForIncl);
+  const subtitle = formatListingSubtitle({
+    colour: product.colour,
+    material: product.material,
+  });
   const discountPercent = useMemo(() => {
     const original = product.originalPrice;
     if (original == null || !Number.isFinite(original) || original <= displayPrice || displayPrice <= 0) {
@@ -88,8 +94,6 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
     }
     return Math.max(1, Math.round(((original - displayPrice) / original) * 100));
   }, [displayPrice, product.originalPrice]);
-
-  const infoRows = useMemo(() => buildProductInformationRows(product), [product]);
 
   const offerProduct = useMemo(
     () => ({
@@ -227,21 +231,23 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
       {!isSold ? <RecordProductViewBeacon productSlug={product.slug} /> : null}
 
       <div className="pd-v1__shell">
+        <ProductPageChrome
+          productId={product.id}
+          productSlug={product.slug}
+          productTitle={product.title}
+          productStatus={product.status ?? "published"}
+          sellerId={product.sellerId}
+          sellerName={product.sellerName}
+          sellerUsername={product.sellerUsername ?? null}
+          isOwner={isOwnListing}
+        />
         <div className="pd-v1__hero">
-          <ProductPageChrome
-            productId={product.id}
-            productSlug={product.slug}
-            productTitle={product.title}
-            productStatus={product.status ?? "published"}
-            sellerId={product.sellerId}
-            sellerName={product.sellerName}
-            sellerUsername={product.sellerUsername ?? null}
-            isOwner={isOwnListing}
-          />
           <ProductGalleryV1
             images={product.images}
             title={product.title}
             discountPercent={discountPercent}
+            isFeatured={product.isFeatured === true}
+            showFastDispatch={isFastDispatch(null)}
           />
         </div>
 
@@ -259,28 +265,38 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
             <h1 id="pd-product-title" className="pd-v1__title">
               {product.title}
             </h1>
+            {demandBadge ? (
+              <p
+                className="pd-v1__subtitle"
+                data-demand-badge="in-demand"
+              >
+                {demandBadge.title}
+                <br />
+                {demandBadge.body}
+              </p>
+            ) : null}
+            {subtitle ? <p className="pd-v1__subtitle">{subtitle}</p> : null}
             <div className="pd-v1__price-row">
               <div className="pd-v1__price-col">
                 <p className="pd-v1__price">{formatListingPrice(amount)}</p>
                 {capabilities.buyNow && !isSold ? (
                   <p className="pd-v1__price-incl">
                     <span>{inclLabel}</span>
+                    <RovexoFeeShieldIcon className="pd-v1__price-incl-shield" />
                   </p>
                 ) : null}
               </div>
-              <ProductViewsLive slug={product.slug} initialViews={product.views ?? 0} />
             </div>
           </section>
 
+          <ProductListingAttributeColumns
+            condition={product.condition}
+            brand={product.brand}
+          />
+
           <ProductStoreSection product={product} />
 
-          {!isSold ? (
-            <ProductStockStatus stock={product.stock} availability={product.availability} />
-          ) : null}
-
           <ProductDescriptionV1 description={product.description} />
-
-          <ProductInformationRows rows={infoRows} />
 
           {!isSold && !outOfStock && stockQty > 1 ? (
             <ProductQuantityStepper max={stockQty} value={quantity} onChange={setQuantity} />

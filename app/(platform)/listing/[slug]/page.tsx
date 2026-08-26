@@ -12,6 +12,8 @@ import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1"
 import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
+import { resolveListingDemand } from "@/lib/demand/demand-engine-resolve-v1";
+import { demandBadgeLabelFromResult } from "@/lib/demand/demand-badge-label-v1";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -70,11 +72,20 @@ export default async function ListingPage({ params }: ListingPageProps) {
   // Forbidden: server auto-increment / Homepage / Search / Saved / refresh automatic +1
 
   const structuredData = productJsonLd(product, breadcrumbs);
+  const demand = await resolveListingDemand({ productId: product.id });
+  const demandBadgeLabel = demandBadgeLabelFromResult(demand);
+  const demandBadge =
+    demandBadgeLabel && demand.badge
+      ? { title: demand.badge.detailTitle, body: demand.badge.detailBody }
+      : null;
 
   return (
     <BetaAppShell bottomNavTab="search">
       <JsonLdScript id="jsonld-app-(platform)-listing-slug-page-tsx" data={structuredData} />
-      <ProductDetailPage product={{ ...product, categoryBreadcrumbs: breadcrumbs }} />
+      <ProductDetailPage
+        product={{ ...product, categoryBreadcrumbs: breadcrumbs }}
+        demandBadge={demandBadge}
+      />
     </BetaAppShell>
   );
 }
