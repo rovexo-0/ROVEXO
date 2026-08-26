@@ -98,6 +98,11 @@ export interface ListingCardProps {
   favoriteMode?: "watchlist" | "controlled";
   isFavorite?: boolean;
   onFavorite?: () => void;
+  /**
+   * Precomputed Demand Engine V1.0 card copy. UI must not calculate demand.
+   * UNKNOWN / NOT_IN_DEMAND → omit. Promo and In demand may display together.
+   */
+  demandBadgeLabel?: string | null;
 }
 
 function promotionSurface(surface: ListingCardSurface): PromotionSurface {
@@ -145,12 +150,18 @@ function IconStar() {
 function ListingPromotionBadge({
   label,
   tone,
+  demand = false,
 }: {
   label: string;
   tone: string;
+  demand?: boolean;
 }) {
   return (
-    <span className={css.badge} data-tone={tone}>
+    <span
+      className={css.badge}
+      data-tone={tone}
+      {...(demand ? { "data-demand-badge": "in-demand" as const } : {})}
+    >
       {label}
     </span>
   );
@@ -180,6 +191,7 @@ export const ListingCard = memo(function ListingCard({
   favoriteMode = "watchlist",
   isFavorite: isFavoriteProp,
   onFavorite,
+  demandBadgeLabel = null,
 }: ListingCardProps) {
   void variant;
   void showPlatformFee;
@@ -262,6 +274,7 @@ export const ListingCard = memo(function ListingCard({
       : showStatusBadge && statusBadgeLabel
         ? { label: statusBadgeLabel, tone: soldBadge ? ("sold" as const) : ("featured" as const) }
         : null;
+  const demandOverlayLabel = demandBadgeLabel?.trim() ? demandBadgeLabel : null;
 
   return (
     <article
@@ -292,8 +305,22 @@ export const ListingCard = memo(function ListingCard({
             unoptimized={cardImageUnoptimized}
             onError={onCardImageError}
           />
-          {promotionBadge ? (
-            <ListingPromotionBadge label={promotionBadge.label} tone={promotionBadge.tone} />
+          {promotionBadge || demandOverlayLabel ? (
+            <div className={css.badgeStack}>
+              {promotionBadge ? (
+                <ListingPromotionBadge
+                  label={promotionBadge.label}
+                  tone={promotionBadge.tone}
+                />
+              ) : null}
+              {demandOverlayLabel ? (
+                <ListingPromotionBadge
+                  label={demandOverlayLabel}
+                  tone="featured"
+                  demand
+                />
+              ) : null}
+            </div>
           ) : null}
         </figure>
 

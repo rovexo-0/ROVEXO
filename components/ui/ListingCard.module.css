@@ -91,6 +91,25 @@
   color: var(--ds-color-danger);
 }
 
+.badgeStack {
+  position: absolute;
+  top: var(--rx-listing-save-inset, var(--ds-space-3));
+  left: var(--rx-listing-save-inset, var(--ds-space-3));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ds-space-1, 4px);
+  max-width: calc(100% - 48px);
+}
+
+.badgeStack .badge {
+  position: static;
+  top: auto;
+  left: auto;
+  max-width: 100%;
+}
+
 .badge {
   position: absolute;
   top: var(--rx-listing-save-inset, var(--ds-space-3));

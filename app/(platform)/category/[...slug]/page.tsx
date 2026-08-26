@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryPageView } from "@/features/categories/components/CategoryPageView";
+import { resolveDemandBadgeLabels } from "@/lib/demand/demand-engine-resolve-v1";
 import { resolveCategoryPage } from "@/lib/categories/server";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
@@ -89,10 +90,19 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     jsonLd.push(faqJsonLd(editorial.faqItems));
   }
 
+  const demandBadgeLabels = await resolveDemandBadgeLabels(
+    results.items.map((item) => item.id),
+  );
+
   return (
     <BetaAppShell bottomNavTab="search">
       <JsonLdScript id="jsonld-app-(platform)-category----slug-page-tsx" data={jsonLd} />
-      <CategoryPageView category={category} products={results.items} total={results.total} />
+      <CategoryPageView
+        category={category}
+        products={results.items}
+        total={results.total}
+        demandBadgeLabels={demandBadgeLabels}
+      />
     </BetaAppShell>
   );
 }

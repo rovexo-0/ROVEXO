@@ -12,6 +12,7 @@ type CategoryPageViewProps = {
   category: CategoryPageData;
   products: Product[];
   total: number;
+  demandBadgeLabels?: Readonly<Record<string, string | null>>;
 };
 
 /**
@@ -19,7 +20,12 @@ type CategoryPageViewProps = {
  * Listings only · RX Bear empty state frozen · no editorial below.
  * SSOT: lib/categories/category-results-v1-freeze.ts
  */
-export function CategoryPageView({ category, products, total }: CategoryPageViewProps) {
+export function CategoryPageView({
+  category,
+  products,
+  total,
+  demandBadgeLabels,
+}: CategoryPageViewProps) {
   const { node } = category;
   const freezeAttrs = {
     "data-category-results-freeze": CATEGORY_RESULTS_V1_FREEZE.canonicalVersion,
@@ -88,6 +94,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
               product={product}
               variant="grid"
               {...HP_CANONICAL_LISTING_PROPS}
+              demandBadgeLabel={demandBadgeLabels?.[product.id] ?? null}
             />
           ))}
         </div>
