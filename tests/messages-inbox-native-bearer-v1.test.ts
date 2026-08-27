@@ -257,6 +257,8 @@ describe("Messages / Inbox Native Bearer source contract", () => {
     const notificationStore = readFileSync(join(process.cwd(), "lib/notifications/store.ts"), "utf8");
     expect(messages).toContain("listConversations(auth.user.id, auth.supabase)");
     expect(detail).toContain("getConversationById(id, auth.user.id, auth.supabase)");
+    expect(detail).toContain("client: auth.supabase");
+    expect(detail).toContain("senderId: auth.user.id");
     expect(notifications).toContain("listNotifications(auth.user.id, auth.supabase)");
     expect(store).toContain("const supabase = client ?? (await createClient());");
     expect(notificationStore).toContain("const supabase = client ?? (await createClient());");
@@ -406,12 +408,14 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
       detailContext,
     );
     expect(response.status).toBe(200);
+    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_ID, expect.anything());
     expect(appendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: CONV_ID,
         senderId: USER_ID,
         content: "Hello",
         kind: "text",
+        client: expect.anything(),
       }),
     );
   });

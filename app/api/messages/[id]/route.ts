@@ -58,7 +58,7 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Invalid message payload." }, { status: 400 });
     }
 
-    const existing = await getConversationById(id, auth.user.id);
+    const existing = await getConversationById(id, auth.user.id, auth.supabase);
     if (!existing) {
       return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
     }
@@ -75,13 +75,14 @@ export async function POST(request: Request, context: RouteContext) {
       content: body.content.trim(),
       replyToId: body.replyToId,
       kind,
+      client: auth.supabase,
     });
 
     if (!result.message) {
       return NextResponse.json({ error: result.error ?? "Unable to send message." }, { status: 400 });
     }
 
-    const conversation = await getConversationById(id, auth.user.id);
+    const conversation = await getConversationById(id, auth.user.id, auth.supabase);
     return NextResponse.json({ conversation, warning: result.warning ?? null });
   } catch {
     return NextResponse.json({ error: "Unable to send message." }, { status: 500 });

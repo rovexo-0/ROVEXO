@@ -258,6 +258,7 @@ export async function appendMessage(input: {
   content: string;
   kind?: "text" | "photo" | "emoji";
   replyToId?: string;
+  client?: DataClient;
 }): Promise<{ message: ChatMessage | null; error?: string; warning?: string | null }> {
   const kind = input.kind ?? "text";
   const security =
@@ -270,7 +271,7 @@ export async function appendMessage(input: {
 
   const previewText = kind === "photo" ? MESSAGE_PHOTO_PREVIEW_LABEL : input.content;
 
-  const supabase = await createClient();
+  const supabase = input.client ?? (await createClient());
   const { data, error } = await supabase
     .from("messages")
     .insert({
