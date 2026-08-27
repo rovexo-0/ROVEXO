@@ -227,6 +227,20 @@ describe("Messages / Inbox Native Bearer source contract", () => {
     }
   });
 
+  it("forces authenticated Inbox GET routes dynamic and private no-store", () => {
+    const files = [
+      "app/api/messages/route.ts",
+      "app/api/messages/[id]/route.ts",
+      "app/api/notifications/route.ts",
+      "app/api/inbox/badge/route.ts",
+    ];
+    for (const relative of files) {
+      const src = readFileSync(join(process.cwd(), relative), "utf8");
+      expect(src).toContain('export const dynamic = "force-dynamic"');
+      expect(src).toContain("withPrivateNoStore");
+    }
+  });
+
   it("does not change Message Safety SSOT", () => {
     const store = readFileSync(join(process.cwd(), "lib/messages/store.ts"), "utf8");
     const security = readFileSync(join(process.cwd(), "lib/messages/security.ts"), "utf8");
@@ -332,6 +346,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     verifyBearerAccessToken.mockResolvedValue(nativeUser());
     const response = await getMessages(bearerRequest(MESSAGES_URL, "GET", "valid-native-jwt"));
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(requireApiAuth).not.toHaveBeenCalled();
     expect(listConversations).toHaveBeenCalledWith(USER_ID);
   });
@@ -340,12 +355,14 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     requireApiAuth.mockResolvedValue(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     const response = await getMessages(new Request(MESSAGES_URL, { method: "GET" }));
     expect(response.status).toBe(401);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 
   it("GET /api/messages invalid Bearer is 401 and does not fall through to cookies", async () => {
     verifyBearerAccessToken.mockResolvedValue(null);
     const response = await getMessages(bearerRequest(MESSAGES_URL, "GET", "expired-native-jwt"));
     expect(response.status).toBe(401);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(requireApiAuth).not.toHaveBeenCalled();
     expect(listConversations).not.toHaveBeenCalled();
   });

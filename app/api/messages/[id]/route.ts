@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
+import {
+  requireCookieOrBearerApiAuth,
+  withPrivateNoStore,
+} from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import {
   appendMessage,
@@ -18,17 +21,21 @@ import {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request, context: RouteContext) {
   const auth = await requireCookieOrBearerApiAuth(request);
-  if (auth instanceof NextResponse) return auth;
+  if (auth instanceof NextResponse) return withPrivateNoStore(auth);
 
   const { id } = await context.params;
   const conversation = await getConversationById(id, auth.user.id);
   if (!conversation) {
-    return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
+    return withPrivateNoStore(
+      NextResponse.json({ error: "Conversation not found." }, { status: 404 }),
+    );
   }
 
-  return NextResponse.json({ conversation });
+  return withPrivateNoStore(NextResponse.json({ conversation }));
 }
 
 export async function POST(request: Request, context: RouteContext) {

@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
-import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
+import {
+  requireCookieOrBearerApiAuth,
+  withPrivateNoStore,
+} from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimit, enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { findOrCreateConversation } from "@/lib/messages/conversations";
 import { listConversations } from "@/lib/messages/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
-    return auth;
+    return withPrivateNoStore(auth);
   }
 
   const conversations = await listConversations(auth.user.id);
-  return NextResponse.json({ conversations });
+  return withPrivateNoStore(NextResponse.json({ conversations }));
 }
 
 export async function POST(request: Request) {

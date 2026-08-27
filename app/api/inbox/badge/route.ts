@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
+import {
+  requireCookieOrBearerApiAuth,
+  withPrivateNoStore,
+} from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import type { AuthContext } from "@/lib/auth/session";
 import { getUnreadNotificationCount } from "@/lib/notifications/badge-counts-server";
 
@@ -50,9 +53,11 @@ async function sumUnreadColumn(
  * Lightweight Inbox badge SSOT (DEFECT #004 / #007).
  * Avoids loading full conversation/notification payloads for bottom-nav.
  */
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const auth = await requireCookieOrBearerApiAuth(request);
-  if (auth instanceof NextResponse) return auth;
+  if (auth instanceof NextResponse) return withPrivateNoStore(auth);
 
   const supabase = auth.supabase;
   const userId = auth.user.id;
@@ -77,9 +82,11 @@ export async function GET(request: Request) {
 
   const messages = buyerUnread + sellerUnread;
 
-  return NextResponse.json({
-    messages,
-    notifications,
-    inboxBadge: messages + notifications,
-  });
+  return withPrivateNoStore(
+    NextResponse.json({
+      messages,
+      notifications,
+      inboxBadge: messages + notifications,
+    }),
+  );
 }

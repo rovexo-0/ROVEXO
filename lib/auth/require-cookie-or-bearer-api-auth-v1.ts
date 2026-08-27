@@ -19,8 +19,16 @@ import type { UserRole } from "@/lib/supabase/types/database";
  * One verifier: verifyBearerAccessToken. AuthContext is never service-role.
  */
 
+/** Inbox GET/401 must never be publicly cached. Does not change auth decisions. */
+export function withPrivateNoStore(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 function unauthorized(): NextResponse {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return withPrivateNoStore(
+    NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+  );
 }
 
 async function authContextFromVerifiedBearerUser(

@@ -6,7 +6,10 @@ import {
   markAllNotificationsRead,
   markNotificationsRead,
 } from "@/lib/notifications/store";
-import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
+import {
+  requireCookieOrBearerApiAuth,
+  withPrivateNoStore,
+} from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 120;
@@ -24,18 +27,22 @@ function checkRateLimit(userId: string): boolean {
   return true;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
-    return auth;
+    return withPrivateNoStore(auth);
   }
 
   if (!checkRateLimit(auth.user.id)) {
-    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+    return withPrivateNoStore(
+      NextResponse.json({ error: "Too many requests." }, { status: 429 }),
+    );
   }
 
   const notifications = await listNotifications(auth.user.id);
-  return NextResponse.json({ notifications });
+  return withPrivateNoStore(NextResponse.json({ notifications }));
 }
 
 export async function PATCH(request: Request) {
