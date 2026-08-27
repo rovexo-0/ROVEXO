@@ -28,7 +28,7 @@ export async function GET(request: Request, context: RouteContext) {
   if (auth instanceof NextResponse) return withPrivateNoStore(auth);
 
   const { id } = await context.params;
-  const conversation = await getConversationById(id, auth.user.id);
+  const conversation = await getConversationById(id, auth.user.id, auth.supabase);
   if (!conversation) {
     return withPrivateNoStore(
       NextResponse.json({ error: "Conversation not found." }, { status: 404 }),

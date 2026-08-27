@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const notifications = await listNotifications(auth.user.id);
+  const notifications = await listNotifications(auth.user.id, auth.supabase);
   return withPrivateNoStore(NextResponse.json({ notifications }));
 }
 

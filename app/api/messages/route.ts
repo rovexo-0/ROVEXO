@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     return withPrivateNoStore(auth);
   }
 
-  const conversations = await listConversations(auth.user.id);
+  const conversations = await listConversations(auth.user.id, auth.supabase);
   return withPrivateNoStore(NextResponse.json({ conversations }));
 }
 

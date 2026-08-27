@@ -248,6 +248,21 @@ describe("Messages / Inbox Native Bearer source contract", () => {
     expect(security).toContain("analyzeMessageContent");
     expect(security).toContain("export function inspectMessageContent");
   });
+
+  it("GET Inbox list/detail reuse authenticated auth.supabase like badge", () => {
+    const messages = readFileSync(join(process.cwd(), "app/api/messages/route.ts"), "utf8");
+    const detail = readFileSync(join(process.cwd(), "app/api/messages/[id]/route.ts"), "utf8");
+    const notifications = readFileSync(join(process.cwd(), "app/api/notifications/route.ts"), "utf8");
+    const store = readFileSync(join(process.cwd(), "lib/messages/store.ts"), "utf8");
+    const notificationStore = readFileSync(join(process.cwd(), "lib/notifications/store.ts"), "utf8");
+    expect(messages).toContain("listConversations(auth.user.id, auth.supabase)");
+    expect(detail).toContain("getConversationById(id, auth.user.id, auth.supabase)");
+    expect(notifications).toContain("listNotifications(auth.user.id, auth.supabase)");
+    expect(store).toContain("const supabase = client ?? (await createClient());");
+    expect(notificationStore).toContain("const supabase = client ?? (await createClient());");
+    expect(store).not.toContain("createVerifiedBearerUserClient");
+    expect(notificationStore).not.toContain("createVerifiedBearerUserClient");
+  });
 });
 
 describe("Messages CSRF cookie vs Bearer", () => {
@@ -337,7 +352,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     expect(response.status).toBe(200);
     expect(requireApiAuth).toHaveBeenCalled();
     expect(verifyBearerAccessToken).not.toHaveBeenCalled();
-    expect(listConversations).toHaveBeenCalledWith(USER_ID);
+    expect(listConversations).toHaveBeenCalledWith(USER_ID, expect.anything());
     const body = await response.json();
     expect(body.conversations).toEqual([{ id: CONV_ID }]);
   });
@@ -348,7 +363,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(requireApiAuth).not.toHaveBeenCalled();
-    expect(listConversations).toHaveBeenCalledWith(USER_ID);
+    expect(listConversations).toHaveBeenCalledWith(USER_ID, expect.anything());
   });
 
   it("GET /api/messages without auth is 401", async () => {
@@ -371,7 +386,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     verifyBearerAccessToken.mockResolvedValue(nativeUser());
     const response = await getDetail(bearerRequest(DETAIL_URL, "GET", "valid-native-jwt"), detailContext);
     expect(response.status).toBe(200);
-    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_ID);
+    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_ID, expect.anything());
     const body = await response.json();
     expect(body.conversation.id).toBe(CONV_ID);
   });
@@ -381,7 +396,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     createVerifiedBearerUserClient.mockReturnValue(badgeClient());
     const response = await getDetail(bearerRequest(DETAIL_URL, "GET", "other-user-jwt"), detailContext);
     expect(response.status).toBe(404);
-    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_B);
+    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_B, expect.anything());
   });
 
   it("POST /api/messages/{id} valid Bearer sends with existing store behaviour", async () => {
@@ -415,7 +430,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     verifyBearerAccessToken.mockResolvedValue(nativeUser());
     const response = await getNotifications(bearerRequest(NOTIFICATIONS_URL, "GET", "valid-native-jwt"));
     expect(response.status).toBe(200);
-    expect(listNotifications).toHaveBeenCalledWith(USER_ID);
+    expect(listNotifications).toHaveBeenCalledWith(USER_ID, expect.anything());
     expect(listNotifications).not.toHaveBeenCalledWith(USER_B);
   });
 

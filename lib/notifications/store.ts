@@ -99,8 +99,11 @@ function resolveEngineFromRow(row: Tables<"notification_settings"> | null): Noti
   return parseNotificationEngineState(row.engine_v1);
 }
 
-export async function listNotifications(userId: string): Promise<Notification[]> {
-  const supabase = await createClient();
+export async function listNotifications(
+  userId: string,
+  client?: Awaited<ReturnType<typeof createClient>>,
+): Promise<Notification[]> {
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("notifications")
     .select("*")

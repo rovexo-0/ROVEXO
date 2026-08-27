@@ -195,8 +195,13 @@ const conversationSelect = `
   messages ( * )
 `;
 
-export async function listConversations(viewerId: string): Promise<Conversation[]> {
-  const supabase = await createClient();
+type DataClient = Awaited<ReturnType<typeof createClient>>;
+
+export async function listConversations(
+  viewerId: string,
+  client?: DataClient,
+): Promise<Conversation[]> {
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("conversations")
     .select(conversationSelect)
@@ -221,8 +226,12 @@ export async function listConversations(viewerId: string): Promise<Conversation[
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
 
-export async function getConversationById(id: string, viewerId: string): Promise<Conversation | null> {
-  const supabase = await createClient();
+export async function getConversationById(
+  id: string,
+  viewerId: string,
+  client?: DataClient,
+): Promise<Conversation | null> {
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("conversations")
     .select(conversationSelect)
