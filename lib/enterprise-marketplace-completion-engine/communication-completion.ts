@@ -170,7 +170,12 @@ function scanSecurity(scan: MarketplaceCompletionScanResult): CompletionValidati
   const messagesApi = readSource("app/api/messages/route.ts");
 
   return [
-    createCheck("communication-security", "message-auth", messagesApi.includes("requireApiAuth"), "Message auth PASS"),
+    createCheck(
+      "communication-security",
+      "message-auth",
+      messagesApi.includes("requireCookieOrBearerApiAuth"),
+      "Message auth PASS",
+    ),
     createCheck("communication-security", "message-security", fileExists("lib/messages/security.ts"), "Message security PASS"),
     createCheck("communication-security", "notification-preferences", fileExists("app/api/notifications/preferences/route.ts"), "Notification preferences PASS"),
     createCheck("communication-security", "middleware-protection", fileExists("middleware.ts"), "Middleware protection PASS"),

@@ -34,7 +34,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
   void COUNTER_OFFER_ENGINE_V1.bloodLaw;
-  const csrf = validateMutationOrigin(request);
+  const csrf = await validateMutationOrigin(request);
   if (csrf) return csrf;
 
   const { user } = await requireAuthContext();

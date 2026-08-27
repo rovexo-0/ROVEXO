@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth, type AuthContext } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
+import type { AuthContext } from "@/lib/auth/session";
 import { getUnreadNotificationCount } from "@/lib/notifications/badge-counts-server";
 
 type ConversationClient = AuthContext["supabase"];
@@ -49,8 +50,8 @@ async function sumUnreadColumn(
  * Lightweight Inbox badge SSOT (DEFECT #004 / #007).
  * Avoids loading full conversation/notification payloads for bottom-nav.
  */
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const supabase = auth.supabase;

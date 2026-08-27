@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import {
+  readBearerAccessToken,
+  verifyBearerAccessToken,
+} from "@/lib/auth/verify-bearer-access-token-v1";
 import { DEFAULT_APP_URL, getAppUrl, isLoopbackAppOrigin } from "@/lib/supabase/env";
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -91,7 +95,9 @@ function hostFromHeader(value: string | null): string | null {
 }
 
 /** Blocks cross-site mutation requests when Origin/Referer do not match the app host. */
-export function validateMutationOrigin(request: Request): NextResponse | null {
+export async function validateMutationOrigin(
+  request: Request,
+): Promise<NextResponse | null> {
   if (!MUTATION_METHODS.has(request.method.toUpperCase())) {
     return null;
   }
@@ -99,6 +105,18 @@ export function validateMutationOrigin(request: Request): NextResponse | null {
   const hosts = allowedHostsForRequest(request);
   if (hosts.size === 0) {
     return null;
+  }
+
+  const token = readBearerAccessToken(request);
+  if (token) {
+    try {
+      const bearerUser = await verifyBearerAccessToken(token);
+      if (bearerUser?.id) {
+        return null;
+      }
+    } catch {
+      // Verification failure is not a CSRF exemption.
+    }
   }
 
   const originHost = hostFromHeader(request.headers.get("origin"));

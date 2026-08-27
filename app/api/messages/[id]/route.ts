@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import {
   appendMessage,
@@ -18,8 +18,8 @@ import {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+export async function GET(request: Request, context: RouteContext) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;
@@ -32,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const userLimited = await enforceRateLimitForUser(auth.user.id, "messages-send", 60, 60_000);
@@ -82,7 +82,7 @@ export async function POST(request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;
@@ -172,8 +172,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json({ conversation });
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+export async function DELETE(request: Request, context: RouteContext) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;

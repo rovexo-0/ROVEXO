@@ -6,7 +6,7 @@ import {
   markAllNotificationsRead,
   markNotificationsRead,
 } from "@/lib/notifications/store";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 120;
@@ -24,8 +24,8 @@ function checkRateLimit(userId: string): boolean {
   return true;
 }
 
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -39,7 +39,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -74,7 +74,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimit, enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { findOrCreateConversation } from "@/lib/messages/conversations";
 import { listConversations } from "@/lib/messages/store";
 
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "messages", 30, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }

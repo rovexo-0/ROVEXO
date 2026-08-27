@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { createContentReport } from "@/lib/moderation/service";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { z } from "zod";
@@ -12,7 +12,7 @@ const reportSchema = z.object({
 });
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   try {
