@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthContext } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { validateMutationOrigin } from "@/lib/api/csrf-guard";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
-import { createClient } from "@/lib/supabase/server";
 import { detectSelfOffer } from "@/lib/trust/anti-fraud";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 import { emitSmartNotification } from "@/lib/notifications/events";
@@ -47,11 +46,12 @@ const bundleOfferSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const { user } = await requireAuthContext();
+  const auth = await requireCookieOrBearerApiAuth(request);
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
   const url = new URL(request.url);
   const productSlug = url.searchParams.get("productSlug");
   const role = url.searchParams.get("role");
-  const supabase = await createClient();
 
   if (!productSlug && (role === "buyer" || role === "seller" || role === null)) {
     const column = role === "seller" ? "seller_id" : role === "buyer" ? "buyer_id" : null;
@@ -164,7 +164,9 @@ export async function POST(request: Request) {
   const csrf = await validateMutationOrigin(request);
   if (csrf) return csrf;
 
-  const { user } = await requireAuthContext();
+  const auth = await requireCookieOrBearerApiAuth(request);
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
   const limited = await enforceRateLimitForUser(user.id, "offers-create", 30, 60_000);
   if (limited) return limited;
 
@@ -205,7 +207,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Invalid offer." }, { status: 400 });
   }
 
-  const supabase = await createClient();
   const { data: product } = await supabase
     .from("products")
     .select(
@@ -234,13 +235,6 @@ export async function POST(request: Request) {
   const fraud = await detectSelfOffer({ buyerId: user.id, sellerId: product.seller_id });
   if (fraud.blocked) {
     return NextResponse.json({ success: false, error: "Offer not allowed." }, { status: 403 });
-  }
-
-  if (parsed.data.amount >= Number(product.price)) {
-    return NextResponse.json(
-      { success: false, error: "Offer must be below the listing price." },
-      { status: 400 },
-    );
   }
 
   const { data: offer, error } = await supabase

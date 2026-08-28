@@ -64,7 +64,7 @@ export async function PATCH(request: Request) {
     };
 
     if (body.markAllRead) {
-      await markAllNotificationsRead(auth.user.id);
+      await markAllNotificationsRead(auth.user.id, auth.supabase);
     } else if (!body.ids?.length) {
       return NextResponse.json({ error: "No notifications selected." }, { status: 400 });
     } else if (body.delete) {
@@ -73,7 +73,7 @@ export async function PATCH(request: Request) {
       await markNotificationsRead(auth.user.id, body.ids);
     }
 
-    const notifications = await listNotifications(auth.user.id);
+    const notifications = await listNotifications(auth.user.id, auth.supabase);
     return NextResponse.json({ notifications });
   } catch {
     return NextResponse.json({ error: "Unable to update notifications." }, { status: 500 });

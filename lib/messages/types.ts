@@ -31,6 +31,7 @@ export type ConversationProduct = {
   price: number;
   condition: string;
   imageUrl: string;
+  imageUrls?: string[];
   status: ProductListingStatus;
   listingType: ConversationListingType;
   acceptOffers: boolean;

@@ -45,9 +45,10 @@ export async function uploadStorageObject(input: {
   file: File | Blob;
   upsert?: boolean;
   contentType?: string;
+  client?: Awaited<ReturnType<typeof createClient>>;
 }) {
   validateUploadFile(input.bucket, input.file as File);
-  const supabase = await createClient();
+  const supabase = input.client ?? (await createClient());
 
   const { data, error } = await supabase.storage.from(input.bucket).upload(input.path, input.file, {
     upsert: input.upsert ?? false,
@@ -170,10 +171,14 @@ export async function uploadProductImage(input: {
 }
 
 /** Conversation photo — path `{conversationId}/{uuid}.{ext}` in private `messages` bucket. */
-export async function uploadMessageImage(conversationId: string, file: File) {
+export async function uploadMessageImage(
+  conversationId: string,
+  file: File,
+  client?: Awaited<ReturnType<typeof createClient>>,
+) {
   validateUploadFile("messages", file);
   const rawExt = (file.type.split("/")[1] ?? "jpg").toLowerCase();
   const extension = rawExt === "jpeg" ? "jpg" : rawExt;
   const path = `${conversationId}/${crypto.randomUUID()}.${extension}`;
-  return uploadStorageObject({ bucket: "messages", path, file });
+  return uploadStorageObject({ bucket: "messages", path, file, client });
 }

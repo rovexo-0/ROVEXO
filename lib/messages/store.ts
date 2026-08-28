@@ -57,13 +57,19 @@ async function hydrateConversationProduct(row: ConversationRow): Promise<Convers
   return { ...row, products: product as NonNullable<ConversationRow["products"]> };
 }
 
-function productImage(
+function productImages(
   images: NonNullable<ConversationRow["products"]>["product_images"],
-): string {
+): string[] {
   const sorted = [...(images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  return sorted[0]?.url ?? "";
+  return sorted.map((image) => image.url).filter((url) => url.trim().length > 0);
+}
+
+function productImage(
+  images: NonNullable<ConversationRow["products"]>["product_images"],
+): string {
+  return productImages(images)[0] ?? "";
 }
 
 function mapMessage(row: Tables<"messages">): ChatMessage {
@@ -166,6 +172,7 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
       price: Number(product.price),
       condition: product.condition,
       imageUrl: productImage(product.product_images),
+      imageUrls: productImages(product.product_images),
       status: product.status as ProductListingStatus,
       listingType: product.listing_type === "auction" ? "auction" : "fixed",
       acceptOffers: Boolean(product.accept_offers),

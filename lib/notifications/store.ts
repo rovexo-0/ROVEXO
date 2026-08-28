@@ -151,8 +151,11 @@ export async function deleteNotifications(userId: string, ids: string[]): Promis
   await supabase.from("notifications").delete().eq("user_id", userId).in("id", ids);
 }
 
-export async function markAllNotificationsRead(userId: string): Promise<void> {
-  const supabase = await createClient();
+export async function markAllNotificationsRead(
+  userId: string,
+  client?: Awaited<ReturnType<typeof createClient>>,
+): Promise<void> {
+  const supabase = client ?? (await createClient());
   await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
 }
 

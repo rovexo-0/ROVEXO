@@ -103,7 +103,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     source?: InboxSyncOpenSource;
   };
 
-  const existing = await getConversationById(id, auth.user.id);
+  const existing = await getConversationById(id, auth.user.id, auth.supabase);
   if (!existing) {
     return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
   }
@@ -121,7 +121,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         { status: sync.httpStatus },
       );
     }
-    const conversation = await getConversationById(id, auth.user.id);
+    const conversation = await getConversationById(id, auth.user.id, auth.supabase);
     return NextResponse.json({
       success: true,
       bloodLaw: "XLIII",

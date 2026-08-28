@@ -10,6 +10,7 @@ const CONV_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const MESSAGES_URL = "https://www.rovexo.co.uk/api/messages";
 const DETAIL_URL = `https://www.rovexo.co.uk/api/messages/${CONV_ID}`;
 const REPORT_URL = `https://www.rovexo.co.uk/api/messages/${CONV_ID}/report`;
+const PHOTO_URL = `https://www.rovexo.co.uk/api/messages/${CONV_ID}/photo`;
 const NOTIFICATIONS_URL = "https://www.rovexo.co.uk/api/notifications";
 const BADGE_URL = "https://www.rovexo.co.uk/api/inbox/badge";
 
@@ -30,6 +31,7 @@ const {
   createAdminClient,
   enforceRateLimit,
   enforceRateLimitForUser,
+  uploadMessageImage,
 } = vi.hoisted(() => ({
   verifyBearerAccessToken: vi.fn(),
   createVerifiedBearerUserClient: vi.fn(),
@@ -47,6 +49,7 @@ const {
   createAdminClient: vi.fn(),
   enforceRateLimit: vi.fn(),
   enforceRateLimitForUser: vi.fn(),
+  uploadMessageImage: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/verify-bearer-access-token-v1", async (importOriginal) => {
@@ -119,7 +122,15 @@ vi.mock("@/lib/api/rate-limit", async (importOriginal) => {
   };
 });
 
-import { GET as getMessages, POST as postMessages } from "@/app/api/messages/route";
+vi.mock("@/lib/storage/upload", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/storage/upload")>();
+  return {
+    ...actual,
+    uploadMessageImage,
+  };
+});
+
+import { GET as getMessages, PATCH as patchMessages, POST as postMessages } from "@/app/api/messages/route";
 import {
   GET as getDetail,
   POST as postDetail,
@@ -127,6 +138,7 @@ import {
   DELETE as deleteDetail,
 } from "@/app/api/messages/[id]/route";
 import { POST as postReport } from "@/app/api/messages/[id]/report/route";
+import { POST as postPhoto } from "@/app/api/messages/[id]/photo/route";
 import { GET as getNotifications, PATCH as patchNotifications } from "@/app/api/notifications/route";
 import { GET as getBadge } from "@/app/api/inbox/badge/route";
 
@@ -216,6 +228,7 @@ describe("Messages / Inbox Native Bearer source contract", () => {
       "app/api/messages/route.ts",
       "app/api/messages/[id]/route.ts",
       "app/api/messages/[id]/report/route.ts",
+      "app/api/messages/[id]/photo/route.ts",
       "app/api/notifications/route.ts",
       "app/api/inbox/badge/route.ts",
     ];
@@ -256,6 +269,8 @@ describe("Messages / Inbox Native Bearer source contract", () => {
     const store = readFileSync(join(process.cwd(), "lib/messages/store.ts"), "utf8");
     const notificationStore = readFileSync(join(process.cwd(), "lib/notifications/store.ts"), "utf8");
     expect(messages).toContain("listConversations(auth.user.id, auth.supabase)");
+    expect(messages).toContain("syncConversationOpen");
+    expect(messages).toContain('source: "messages_tab"');
     expect(detail).toContain("getConversationById(id, auth.user.id, auth.supabase)");
     expect(detail).toContain("client: auth.supabase");
     expect(detail).toContain("senderId: auth.user.id");
@@ -264,6 +279,17 @@ describe("Messages / Inbox Native Bearer source contract", () => {
     expect(notificationStore).toContain("const supabase = client ?? (await createClient());");
     expect(store).not.toContain("createVerifiedBearerUserClient");
     expect(notificationStore).not.toContain("createVerifiedBearerUserClient");
+    const patch = readFileSync(join(process.cwd(), "app/api/messages/[id]/route.ts"), "utf8")
+      .split("export async function PATCH")[1]
+      ?.split("export async function DELETE")[0];
+    expect(patch).toContain("getConversationById(id, auth.user.id, auth.supabase)");
+    const photo = readFileSync(join(process.cwd(), "app/api/messages/[id]/photo/route.ts"), "utf8");
+    expect(photo).toContain("client: auth.supabase");
+    expect(photo).toContain("getViewerRole");
+    expect(photo).toContain("uploadMessageImage(id, file, auth.supabase)");
+    const offers = readFileSync(join(process.cwd(), "app/api/offers/route.ts"), "utf8");
+    expect(offers).toContain("requireCookieOrBearerApiAuth");
+    expect(offers).not.toContain("Offer must be below the listing price.");
   });
 });
 
@@ -310,6 +336,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     createAdminClient.mockReset();
     enforceRateLimit.mockReset();
     enforceRateLimitForUser.mockReset();
+    uploadMessageImage.mockReset();
     createVerifiedBearerUserClient.mockReturnValue(badgeClient());
     requireApiAuth.mockResolvedValue(cookieAuth());
     enforceRateLimit.mockResolvedValue(null);
@@ -322,6 +349,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     appendMessage.mockResolvedValue({ message: { id: "msg-1" }, warning: null });
     updateConversationPreferences.mockResolvedValue(undefined);
     syncConversationOpen.mockResolvedValue({ ok: true });
+    uploadMessageImage.mockResolvedValue({ path: `${CONV_ID}/photo.jpg`, publicUrl: "https://cdn.example/photo.jpg" });
     listNotifications.mockImplementation(async (userId: string) =>
       userId === USER_ID ? [{ id: "n1", userId: USER_ID }] : [{ id: "n-other", userId }],
     );
@@ -495,6 +523,92 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     );
     expect(response.status).toBe(403);
     expect(createContentReport).not.toHaveBeenCalled();
+  });
+
+  it("PATCH /api/messages markAllRead valid Bearer uses Inbox Event Engine", async () => {
+    verifyBearerAccessToken.mockResolvedValue(nativeUser());
+    listConversations
+      .mockResolvedValueOnce([{ id: CONV_ID, unreadCount: 2 }])
+      .mockResolvedValueOnce([{ id: CONV_ID, unreadCount: 0 }]);
+    syncConversationOpen.mockResolvedValue({ ok: true });
+    const response = await patchMessages(
+      bearerRequest(MESSAGES_URL, "PATCH", "valid-native-jwt", { markAllRead: true }),
+    );
+    expect(response.status).toBe(200);
+    expect(syncConversationOpen).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: CONV_ID, viewerId: USER_ID, source: "messages_tab" }),
+    );
+  });
+
+  it("PATCH /api/messages/{id} read valid Bearer uses auth.supabase", async () => {
+    verifyBearerAccessToken.mockResolvedValue(nativeUser());
+    const response = await patchDetail(
+      bearerRequest(DETAIL_URL, "PATCH", "valid-native-jwt", { action: "read", source: "hub_mount" }),
+      detailContext,
+    );
+    expect(response.status).toBe(200);
+    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_ID, expect.anything());
+    expect(syncConversationOpen).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: CONV_ID, viewerId: USER_ID }),
+    );
+  });
+
+  it("POST /api/messages/{id}/photo valid Bearer uploads via existing store", async () => {
+    verifyBearerAccessToken.mockResolvedValue(nativeUser());
+    const form = new FormData();
+    form.append("file", new File([new Uint8Array([0xff, 0xd8, 0xff])], "message.jpg", { type: "image/jpeg" }));
+    const response = await postPhoto(
+      new Request(PHOTO_URL, {
+        method: "POST",
+        headers: {
+          host: "www.rovexo.co.uk",
+          authorization: "Bearer valid-native-jwt",
+        },
+        body: form,
+      }),
+      detailContext,
+    );
+    expect(response.status).toBe(200);
+    expect(uploadMessageImage).toHaveBeenCalledWith(CONV_ID, expect.any(File), expect.anything());
+    expect(appendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: CONV_ID,
+        senderId: USER_ID,
+        kind: "photo",
+        client: expect.anything(),
+      }),
+    );
+    expect(getConversationById).toHaveBeenCalledWith(CONV_ID, USER_ID, expect.anything());
+  });
+
+  it("POST /api/messages/{id}/photo ignores spoofed senderRole and uses viewer role", async () => {
+    verifyBearerAccessToken.mockResolvedValue(nativeUser());
+    const form = new FormData();
+    form.append("file", new File([new Uint8Array([0xff, 0xd8, 0xff])], "message.jpg", { type: "image/jpeg" }));
+    form.append("senderRole", "seller");
+    const response = await postPhoto(
+      new Request(PHOTO_URL, {
+        method: "POST",
+        headers: {
+          host: "www.rovexo.co.uk",
+          authorization: "Bearer valid-native-jwt",
+        },
+        body: form,
+      }),
+      detailContext,
+    );
+    expect(response.status).toBe(200);
+    expect(appendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: CONV_ID,
+        senderId: USER_ID,
+        senderRole: "buyer",
+        kind: "photo",
+        client: expect.anything(),
+      }),
+    );
+    const photo = readFileSync(join(process.cwd(), "app/api/messages/[id]/photo/route.ts"), "utf8");
+    expect(photo).not.toMatch(/formData\.get\(\s*["']senderRole["']/);
   });
 
   it("PATCH block valid Bearer updates preferences for authenticated viewer", async () => {
