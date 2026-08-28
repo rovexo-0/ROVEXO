@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { fetchCheckoutCarrierQuotes } from "@/lib/checkout/shipping-quotes.server";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const body = await request.json().catch(() => null);

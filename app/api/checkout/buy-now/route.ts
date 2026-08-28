@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { BUY_NOW_ENGINE } from "@/lib/checkout/engines/buy-now-engine-v1";
 import { BUNDLE_BUY_NOW_ENGINE } from "@/lib/bundle/bundle-buy-now-engine-v1";
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "checkout-buy-now", 20, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth(request);
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     FINANCIAL_LOGGER("BUYER FAILED");
     return NextResponse.json(

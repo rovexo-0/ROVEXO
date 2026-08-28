@@ -21,8 +21,12 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "_wip/**",
     "next-env.d.ts",
-    // P3.2 diagnostic probes (CommonJS) — not app runtime.
+    // P3.2 diagnostic probes (CommonJS) — not app source.
     "scripts/p32-*.cjs",
+    // Local Supabase CLI generated edge runtime (not app source).
+    "supabase/.temp/**",
+    // Linked git worktrees and their generated Next caches.
+    ".worktrees/**",
   ]),
   // Conversation Hub — allow known intentional resume-checkout effect.
   {

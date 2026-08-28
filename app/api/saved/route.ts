@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
+import { requireSavedApiAuth } from "@/lib/saved/saved-api-auth-v1";
 import { listSavedItems, removeSavedItems, saveItem } from "@/lib/saved/store";
 
 /**
  * LIVE production Saved API — extracted from origin/main|develop.
  * POST → { saved: true } · DELETE → { items } · GET ?slug= → { saved }
+ * Auth: cookie session (web) or Authorization Bearer (native).
  */
 
 export async function GET(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireSavedApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireSavedApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -42,7 +43,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Product slug is required." }, { status: 400 });
     }
 
-    await saveItem(auth.user.id, body.productSlug);
+    const saved = await saveItem(auth.user.id, body.productSlug);
+    if (!saved) {
+      return NextResponse.json({ error: "Unable to save item." }, { status: 500 });
+    }
     return NextResponse.json({ saved: true });
   } catch {
     return NextResponse.json({ error: "Unable to save item." }, { status: 500 });
@@ -50,7 +54,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireSavedApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }

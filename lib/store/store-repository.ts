@@ -42,6 +42,10 @@ export type StoreRecord = {
   holidayModeEnabled: boolean;
   listings: Product[];
   soldListings: Product[];
+  businessName: string | null;
+  businessType: string | null;
+  businessVerified: boolean;
+  businessDescription: string | null;
 };
 
 export { isStoreId, isStoreSlug, resolveStoreHrefFromSeller } from "@/lib/store/store-href";
@@ -120,7 +124,7 @@ async function loadStoreFromProfile(profile: {
       }).catch(() => ({ items: [] as Product[], total: 0, page: 1, pageSize: 24 })),
       supabase
         .from("business_accounts")
-        .select("business_name, website")
+        .select("business_name, website, company_type, verified_business, description")
         .eq("id", profile.id)
         .maybeSingle(),
       supabase
@@ -173,6 +177,13 @@ async function loadStoreFromProfile(profile: {
     holidayModeEnabled: Boolean(holidayModeEnabled),
     listings,
     soldListings,
+    businessName:
+      typeof business?.business_name === "string" ? business.business_name.trim() || null : null,
+    businessType:
+      typeof business?.company_type === "string" ? business.company_type.trim() || null : null,
+    businessVerified: Boolean(business?.verified_business),
+    businessDescription:
+      typeof business?.description === "string" ? business.description.trim() || null : null,
   };
 }
 

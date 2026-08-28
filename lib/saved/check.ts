@@ -3,28 +3,16 @@
  * Database is the absolute authority for ♡ / ❤️.
  */
 
-import { createClient } from "@/lib/supabase/server";
-import { tryCreateAdminClient } from "@/lib/supabase/admin";
+import { savedIdentityDb } from "@/lib/saved/saved-identity-db-v1";
 
 export async function resolveProductIdBySlug(productSlug: string): Promise<string | null> {
-  const supabase = await createClient();
+  const supabase = await savedIdentityDb();
   const { data: product } = await supabase
     .from("products")
     .select("id")
     .eq("slug", productSlug)
     .maybeSingle();
-  if (product?.id) return product.id;
-
-  // Sold PDP / Saved: public sold rows may still be RLS-gated until migration lands.
-  const admin = tryCreateAdminClient();
-  if (!admin) return null;
-  const { data: sold } = await admin
-    .from("products")
-    .select("id")
-    .eq("slug", productSlug)
-    .eq("status", "sold")
-    .maybeSingle();
-  return sold?.id ?? null;
+  return product?.id ?? null;
 }
 
 export async function isProductSaved(userId: string, productSlug: string): Promise<boolean> {
@@ -34,7 +22,7 @@ export async function isProductSaved(userId: string, productSlug: string): Promi
 }
 
 export async function isProductIdSaved(userId: string, productId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const supabase = await savedIdentityDb();
   const { data } = await supabase
     .from("saved_items")
     .select("product_id")
@@ -52,7 +40,7 @@ export async function assertSavedRowsAbsent(
 ): Promise<{ ok: true } | { ok: false; stillSavedProductIds: string[] }> {
   if (!productIds.length) return { ok: true };
 
-  const supabase = await createClient();
+  const supabase = await savedIdentityDb();
   const { data, error } = await supabase
     .from("saved_items")
     .select("product_id")
@@ -77,7 +65,7 @@ export async function assertSavedRowsPresent(
 ): Promise<{ ok: true } | { ok: false; missingProductIds: string[] }> {
   if (!productIds.length) return { ok: false, missingProductIds: [] };
 
-  const supabase = await createClient();
+  const supabase = await savedIdentityDb();
   const { data, error } = await supabase
     .from("saved_items")
     .select("product_id")
