@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { getProfileDetails, updateProfileDetails } from "@/lib/profile/service";
 import { profileUpdateSchema } from "@/lib/account/schemas";
 
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
