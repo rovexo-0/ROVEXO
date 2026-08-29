@@ -1,11 +1,14 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function findOrCreateConversation(input: {
   buyerId: string;
   productSlug: string;
+  /** Cookie or verified Native Bearer user client — required for RLS-safe reads/writes. */
+  supabase?: SupabaseClient;
 }): Promise<{ conversationId: string } | { error: string }> {
-  const supabase = await createClient();
+  const supabase = input.supabase ?? (await createClient());
   const admin = createAdminClient();
 
   const { data: product } = await admin

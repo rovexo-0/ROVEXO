@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth } from "@/lib/auth/session";
+import {
+  optionalCookieOrBearerApiAuth,
+  requireCookieOrBearerApiAuth,
+} from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import {
   followUser,
@@ -37,8 +40,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "userId is required." }, { status: 400 });
   }
 
-  const auth = await requireApiAuth();
-  const viewerId = auth instanceof NextResponse ? null : auth.user.id;
+  const auth = await optionalCookieOrBearerApiAuth(request);
+  const viewerId = auth?.user.id ?? null;
 
   if (check) {
     if (!viewerId) {
@@ -77,7 +80,7 @@ export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "follows", 30, 60_000);
   if (limited) return limited;
 
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   try {

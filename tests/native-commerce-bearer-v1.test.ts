@@ -19,6 +19,30 @@ describe("Native commerce cookie+Bearer (existing APIs only)", () => {
     expect(route).not.toContain("amount >= Number(product.price)");
   });
 
+  it("POST /api/follows accepts cookie or Native Bearer without a second follow API", () => {
+    const route = read("app/api/follows/route.ts");
+    expect(route).toContain("requireCookieOrBearerApiAuth");
+    expect(route).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).toContain("optionalCookieOrBearerApiAuth");
+    expect(route).not.toContain("requireApiAuth()");
+    expect(route).not.toContain("requireAuthContext");
+  });
+
+  it("POST /api/bundle accepts cookie or Native Bearer without a second bundle API", () => {
+    const route = read("app/api/bundle/route.ts");
+    expect(route).toContain("requireCookieOrBearerApiAuth");
+    expect(route).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).not.toContain("requireAuthContext");
+  });
+
+  it("POST /api/messages passes verified supabase into findOrCreateConversation", () => {
+    const route = read("app/api/messages/route.ts");
+    const conversations = read("lib/messages/conversations.ts");
+    expect(route).toContain("supabase: auth.supabase");
+    expect(conversations).toContain("supabase?: SupabaseClient");
+    expect(conversations).toContain("input.supabase ?? (await createClient())");
+  });
+
   it("GET /api/store/[slug] is public and returns kind ok without a second store engine", () => {
     const route = read("app/api/store/[slug]/route.ts");
     expect(route).toContain("optionalCookieOrBearerApiAuth");

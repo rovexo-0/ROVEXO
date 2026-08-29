@@ -645,6 +645,7 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
     expect(findOrCreateConversation).toHaveBeenCalledWith({
       buyerId: USER_ID,
       productSlug: "navy-coat",
+      supabase: expect.anything(),
     });
   });
 });

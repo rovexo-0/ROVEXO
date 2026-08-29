@@ -40,6 +40,7 @@ export async function POST(request: Request) {
   const result = await findOrCreateConversation({
     buyerId: auth.user.id,
     productSlug: body.productSlug.trim(),
+    supabase: auth.supabase,
   });
 
   if ("error" in result) {

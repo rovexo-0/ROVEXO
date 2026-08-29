@@ -231,7 +231,9 @@ describe("Bundle Certification — API surface", () => {
   it("bundle API supports revalidate + ownership via auth", () => {
     const route = read("app/api/bundle/route.ts");
     expect(route).toContain('action: z.literal("revalidate")');
-    expect(route).toContain("requireAuthContext");
+    expect(route).toContain("requireCookieOrBearerApiAuth");
+    expect(route).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).not.toContain("requireAuthContext");
     expect(route).toContain("revalidateBundleForCheckout");
   });
 

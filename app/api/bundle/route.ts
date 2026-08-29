@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthContext } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import {
   addLineToActiveBundle,
   discardActiveBundle,
@@ -50,19 +50,22 @@ const bodySchema = z.discriminatedUnion("action", [
   revalidateSchema,
 ]);
 
-export async function GET() {
-  try {
-    const { user } = await requireAuthContext();
-    const bundle = await getActiveBundleForBuyer(user.id);
-    return NextResponse.json({ ok: true, bundle });
-  } catch {
+export async function GET(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
+  if (auth instanceof NextResponse) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
+  const bundle = await getActiveBundleForBuyer(auth.user.id);
+  return NextResponse.json({ ok: true, bundle });
 }
 
 export async function POST(request: Request) {
+  const auth = await requireCookieOrBearerApiAuth(request);
+  if (auth instanceof NextResponse) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
-    const { user } = await requireAuthContext();
+    const user = auth.user;
     const json = await request.json();
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {
@@ -154,6 +157,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: false, error: "Invalid action." }, { status: 400 });
   } catch {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ ok: false, error: "Unable to update bundle." }, { status: 500 });
   }
 }
