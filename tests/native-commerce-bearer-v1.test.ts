@@ -43,6 +43,23 @@ describe("Native commerce cookie+Bearer (existing APIs only)", () => {
     expect(conversations).toContain("input.supabase ?? (await createClient())");
   });
 
+  it("bundle offer path passes verified supabase into createBundleOffer and findOrCreateConversation", () => {
+    const route = read("app/api/offers/route.ts");
+    const engine = read("lib/bundle/bundle-offer-engine-v1.ts");
+    const conversations = read("lib/messages/conversations.ts");
+    expect(route).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).toContain("const { user, supabase } = auth");
+    expect(route).toContain("supabase,");
+    expect(route).toMatch(/createBundleOffer\(\{[\s\S]*supabase,/);
+    expect(engine).toContain("supabase: SupabaseClient");
+    expect(engine).toContain("const { supabase } = input");
+    expect(engine).toContain("supabase,");
+    expect(engine).toMatch(/findOrCreateConversation\(\{[\s\S]*supabase,/);
+    expect(engine).not.toContain('from "@/lib/supabase/server"');
+    expect(engine).not.toContain("await createClient()");
+    expect(conversations).toContain("input.supabase ?? (await createClient())");
+  });
+
   it("GET /api/store/[slug] is public and returns kind ok without a second store engine", () => {
     const route = read("app/api/store/[slug]/route.ts");
     expect(route).toContain("optionalCookieOrBearerApiAuth");

@@ -282,8 +282,13 @@ describe("Bundle Certification — Singularity / no duplicates", () => {
 
   it("offer engine creates one conversation for bundle", () => {
     const offer = read("lib/bundle/bundle-offer-engine-v1.ts");
+    const route = read("app/api/offers/route.ts");
     expect(offer).toContain("findOrCreateConversation");
     expect(offer).toContain("createBundleOffer");
+    expect(offer).toContain("supabase: SupabaseClient");
+    expect(offer).toMatch(/findOrCreateConversation\(\{[\s\S]*supabase,/);
+    expect(offer).not.toContain("await createClient()");
+    expect(route).toMatch(/createBundleOffer\(\{[\s\S]*supabase,/);
   });
 });
 

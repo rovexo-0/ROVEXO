@@ -181,6 +181,7 @@ export async function POST(request: Request) {
   if (bundleParsed.success) {
     const result = await createBundleOffer({
       buyerId: user.id,
+      supabase,
       amount: bundleParsed.data.amount,
       message: bundleParsed.data.message,
       sellerId: bundleParsed.data.bundle.sellerId,

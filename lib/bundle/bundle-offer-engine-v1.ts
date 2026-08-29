@@ -5,8 +5,8 @@
 
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { detectSelfOffer } from "@/lib/trust/anti-fraud";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 import { emitSmartNotification } from "@/lib/notifications/events";
@@ -26,6 +26,8 @@ export type CreateBundleOfferInput = {
   buyerId: string;
   amount: number;
   message?: string | null;
+  /** Cookie or verified Native Bearer user client — required for RLS-safe offer + conversation writes. */
+  supabase: SupabaseClient;
   /** Client hints — never trusted for lines/seller; server bundle is SSOT. */
   sellerId?: string;
   sellerName?: string;
@@ -153,7 +155,7 @@ export async function createBundleOffer(
   const primary = refreshed.lines[0]!;
   const primaryProduct = products.find((row) => row.id === primary.productId)!;
 
-  const supabase = await createClient();
+  const { supabase } = input;
   const message = encodeBundleMessageMeta(refreshed, input.message ?? null);
 
   const { data: offer, error } = await supabase
@@ -190,6 +192,7 @@ export async function createBundleOffer(
   const conversation = await findOrCreateConversation({
     buyerId: input.buyerId,
     productSlug: primary.slug,
+    supabase,
   });
 
   if ("error" in conversation) {
