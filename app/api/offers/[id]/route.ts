@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthContext } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { validateMutationOrigin } from "@/lib/api/csrf-guard";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
-import { createClient } from "@/lib/supabase/server";
 import { emitSmartNotification } from "@/lib/notifications/events";
 import { transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
 import {
@@ -37,7 +36,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   const csrf = await validateMutationOrigin(request);
   if (csrf) return csrf;
 
-  const { user } = await requireAuthContext();
+  // Same cookie + Native Bearer auth as POST /api/offers (cookie-only session auth is insufficient for Native).
+  const auth = await requireCookieOrBearerApiAuth(request);
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
   const limited = await enforceRateLimitForUser(user.id, "offers-mutate", 60, 60_000);
   if (limited) return limited;
   const { id } = await context.params;
@@ -58,7 +60,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  const supabase = await createClient();
   const { data: offer } = await supabase
     .from("offers")
     .select("id, product_id, buyer_id, seller_id, amount, status, message")

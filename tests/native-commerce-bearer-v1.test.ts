@@ -83,4 +83,27 @@ describe("Native commerce cookie+Bearer (existing APIs only)", () => {
     expect(route).toContain("requireCookieOrBearerApiAuth(request)");
     expect(route).not.toContain("requireApiAuth");
   });
+
+  it("PATCH /api/offers/[id] accepts cookie or Native Bearer like POST /api/offers", () => {
+    const route = read("app/api/offers/[id]/route.ts");
+    const create = read("app/api/offers/route.ts");
+    expect(create).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).toContain("requireCookieOrBearerApiAuth");
+    expect(route).toContain("requireCookieOrBearerApiAuth(request)");
+    expect(route).toContain("const { user, supabase } = auth");
+    expect(route).not.toContain("requireAuthContext");
+    expect(route).not.toContain('from "@/lib/supabase/server"');
+    expect(route).not.toContain("await createClient()");
+    // Preserve Production seller action + bundle accept engines (auth-only change).
+    expect(route).toContain('action: z.enum(["accept", "decline", "counter", "cancel"])');
+    expect(route).toContain("expectedStatus");
+    expect(route).toContain("resolveOfferFromRole");
+    expect(route).toContain("executeCounterOffer");
+    expect(route).toContain('parsed.data.action === "accept"');
+    expect(route).toContain('parsed.data.action === "decline"');
+    expect(route).toContain('parsed.data.action === "counter"');
+    expect(route).toContain("BUNDLE_BUY_NOW_ENGINE");
+    expect(route).toContain('status: "accepted"');
+    expect(route).toContain('status: "rejected"');
+  });
 });
