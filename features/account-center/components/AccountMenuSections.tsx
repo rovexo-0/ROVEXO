@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   ACCOUNT_LOGOUT_MENU_ITEM,
   buildAccountMenuSections,
@@ -21,6 +22,7 @@ import type { UserProfile } from "@/lib/profile/types";
 import { CanonicalMenuRow } from "@/src/components/canonical";
 import { CanonicalConfirmDialog } from "@/src/components/canonical/dialogs/CanonicalConfirmDialog";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import { prefetchRouteOnIntent } from "@/lib/navigation/viewport-route-prefetch-v1";
 
 /** Re-export for Balance module inheritance (Profile Icon System v1.0). */
 export { PROFILE_BALANCE_ICON };
@@ -63,6 +65,19 @@ export function AccountMenuSections({
     availableBalanceLabel,
     activeListingCount,
   });
+  const router = useRouter();
+  const warmHrefs = sections
+    .flatMap((section) => section.items.map((item) => item.href))
+    .filter((href): href is string => Boolean(href))
+    .join("|");
+
+  /* P0.3 — warm deterministic Account destinations once hub mounts (deduped). */
+  useEffect(() => {
+    if (!warmHrefs) return;
+    for (const href of warmHrefs.split("|")) {
+      prefetchRouteOnIntent(router, href);
+    }
+  }, [router, warmHrefs]);
 
   return (
     <nav className="ac-canonical__menu" aria-label={tx("Profile")} data-master-menu="profile-v1" data-profile-icons="v1.0">

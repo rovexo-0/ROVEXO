@@ -44,7 +44,7 @@ describe("Master Menu Design — Profile main", () => {
     const items = buildAccountMenuSections(profile).flatMap((s) => s.items);
     expect(items.find((i) => i.id === "favourites")?.href).toBe("/saved");
     expect(items.find((i) => i.id === "my-orders")?.href).toBe("/orders");
-    expect(items.find((i) => i.id === "settings")?.href).toBe("/settings");
+    expect(items.find((i) => i.id === "settings")?.href).toBe("/account/settings");
   });
 });
 

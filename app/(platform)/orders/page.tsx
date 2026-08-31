@@ -14,7 +14,7 @@ function OrdersFallback() {
 }
 
 export default async function OrdersRoute() {
-  await awaitCheckoutSessionSelfHeal("orders");
+  void awaitCheckoutSessionSelfHeal("orders");
   const profile = await getProfile();
   const [boughtOrders, soldOrders] = await Promise.all([
     fetchOrdersForUser(profile.id, "buyer"),

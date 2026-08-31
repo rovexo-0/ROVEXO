@@ -40,11 +40,11 @@ describe("P0 Mobile Instant Interaction — viewport route prefetch", () => {
     expect(link).toContain("useViewportRoutePrefetch");
   });
 
-  it("Account Balance points at canonical /wallet; Settings left on /settings redirect stub", () => {
+  it("Account Balance points at /wallet; Settings at /account/settings", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
     expect(menu).toContain('href: "/wallet"');
     expect(menu).toContain('title: "Balance"');
-    expect(menu).toContain('href: "/settings"');
+    expect(menu).toContain('href: "/account/settings"');
   });
 
   it("Bottom nav Phase A1 warms /wallet", () => {

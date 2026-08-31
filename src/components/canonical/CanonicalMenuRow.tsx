@@ -2,10 +2,12 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import { prefetchRouteOnIntent } from "@/lib/navigation/viewport-route-prefetch-v1";
 
 export type CanonicalMenuRowProps = {
   title: string;
@@ -101,6 +103,7 @@ export function CanonicalMenuRow({
   prefetch = false,
 }: CanonicalMenuRowProps) {
   const { tx } = useTranslation();
+  const router = useRouter();
   const chevronVisible = showChevron && !hideChevron;
 
   const content = (
@@ -125,6 +128,10 @@ export function CanonicalMenuRow({
     className,
   );
 
+  const onIntent = () => {
+    if (prefetch && href) prefetchRouteOnIntent(router, href);
+  };
+
   if (href) {
     return (
       <Link
@@ -133,6 +140,8 @@ export function CanonicalMenuRow({
         id={id}
         className={rowClassName}
         aria-label={ariaLabel}
+        onPointerDown={prefetch ? onIntent : undefined}
+        onTouchStart={prefetch ? onIntent : undefined}
       >
         {content}
       </Link>

@@ -17,7 +17,7 @@ type WalletRouteProps = {
  */
 export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   void SUPREME_BLOOD_CODE_XIII_V1.officialRoute;
-  await awaitCheckoutSessionSelfHeal("wallet");
+  void awaitCheckoutSessionSelfHeal("wallet");
   const profile = await fetchProfile();
 
   if (!profile) {

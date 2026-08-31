@@ -105,7 +105,7 @@ export function buildAccountMenuSections(
     {
       id: "settings",
       title: "Settings",
-      href: "/settings",
+      href: "/account/settings",
       icon: "settings",
     },
     {

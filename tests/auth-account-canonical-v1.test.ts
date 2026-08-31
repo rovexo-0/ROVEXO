@@ -77,7 +77,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(titles).toContain("Settings");
     expect(titles.filter((title) => title === "Settings")).toHaveLength(1);
     expect(sections.flatMap((s) => s.items).find((i) => i.id === "settings")?.href).toBe(
-      "/settings",
+      "/account/settings",
     );
   });
 

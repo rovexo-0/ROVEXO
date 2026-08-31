@@ -17,7 +17,7 @@ import {
 } from "@/lib/inbox/demo/owner-demo-mode-v1";
 import { fetchConversationById } from "@/lib/messages/queries";
 import { fetchOrderForUser } from "@/lib/orders/queries";
-import { getProfile } from "@/lib/profile/data";
+import { getAuthContext } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -44,15 +44,15 @@ export default async function InboxConversationRoute({
   const isDemoCandidate =
     isConversationMockupDemoId(conversationId) || isMessagesLifecycleDemoId(conversationId);
 
-  /* Demo gate needs profile; production path parallelizes profile + conversation. */
+  /* Demo gate: light cached auth only — never heavy getProfile fan-out. */
   if (isDemoCandidate) {
-    const profile = await getProfile();
+    const auth = await getAuthContext();
     const ownerDemoModeEnabled = parseOwnerDemoModeFlag(
       cookieStore.get(OWNER_DEMO_MODE_V1.cookieName)?.value,
     );
     const ownerDemoAllowed = shouldShowOwnerDemoInboxRows({
-      authenticated: Boolean(profile?.id),
-      role: profile?.role ?? null,
+      authenticated: Boolean(auth?.user.id),
+      role: auth?.role ?? null,
       ownerDemoModeEnabled,
     });
 
@@ -90,10 +90,15 @@ export default async function InboxConversationRoute({
 
   const orderId = sp.order?.trim() || sp.order_id?.trim() || null;
 
-  /* P0.2 — parallel hydrate: auth profile + conversation (+ optional order). */
-  const [profile, conversation] = await Promise.all([
-    getProfile(),
-    fetchConversationById(conversationId),
+  /*
+   * P0.3 — conversation fetch already requireAuthContext (React.cache).
+   * Do NOT also await getProfile (unread scan + seller + business fan-out).
+   * Share getAuthContext only when order hydrate needs user id.
+   */
+  const conversationPromise = fetchConversationById(conversationId);
+  const [auth, conversation] = await Promise.all([
+    orderId ? getAuthContext() : Promise.resolve(null),
+    conversationPromise,
   ]);
 
   if (!conversation) {
@@ -101,8 +106,8 @@ export default async function InboxConversationRoute({
   }
 
   const initialOrder =
-    orderId && profile?.id
-      ? await fetchOrderForUser(orderId, profile.id)
+    orderId && auth?.user.id
+      ? await fetchOrderForUser(orderId, auth.user.id)
       : null;
 
   return (

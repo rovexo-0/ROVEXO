@@ -251,8 +251,12 @@ export async function getConversationById(
   if (!hydrated.products) return null;
 
   const conversation = mapConversation(hydrated, viewerId);
-  conversation.messages = await signPhotoMessageContents(conversation.messages);
-  const presence = await getPresence(conversation.participant.id);
+  /* P0.3 — photo sign + presence in parallel (was serial waterfall). */
+  const [signedMessages, presence] = await Promise.all([
+    signPhotoMessageContents(conversation.messages),
+    getPresence(conversation.participant.id),
+  ]);
+  conversation.messages = signedMessages;
   conversation.participant.online = presence?.online ?? false;
   conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;
   return conversation;

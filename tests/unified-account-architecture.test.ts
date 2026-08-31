@@ -176,7 +176,7 @@ describe("ROVEXO unified account architecture v1.0", () => {
     expect(menu).toContain('title: "Settings"');
     expect(menu).toContain('title: "Sign Out"');
     expect(menu).toContain('href: "/orders"');
-    expect(menu).toContain('href: "/settings"');
+    expect(menu).toContain('href: "/account/settings"');
     expect(menu).toContain('href: "/promote"');
     expect(menu).not.toContain("Become Seller");
     expect(menu).not.toContain('title: "Business"');
