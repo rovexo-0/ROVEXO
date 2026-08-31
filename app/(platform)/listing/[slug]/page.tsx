@@ -42,7 +42,8 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 }
 
 export default async function ListingPage({ params }: ListingPageProps) {
-  await awaitCheckoutSessionSelfHeal("listing-view");
+  /* Self-heal must not block Listing RSC / loading shell (P0.2 Mobile Instant Interaction). */
+  void awaitCheckoutSessionSelfHeal("listing-view");
   const { slug } = await params;
   // Similar Items are frozen off View Item — do not fetch unused similar products (P6 network).
   // getProductBySlug is React.cache'd — generateMetadata + page share one resolve per request.

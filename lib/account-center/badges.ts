@@ -17,7 +17,7 @@ export function sumBadgeKeys(
         messages: "/inbox",
         notifications: "/inbox?tab=notifications",
         saved: "/saved",
-        "wallet-payout": "/balance",
+        "wallet-payout": "/wallet",
       };
       const href = hrefKeys[key];
       if (href) return total + resolveHrefBadge(href, badgeCounts);

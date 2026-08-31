@@ -420,6 +420,7 @@
 @media (hover: none) {
   .root:active {
     transform: scale(0.985);
+    opacity: 0.92;
   }
 }
 

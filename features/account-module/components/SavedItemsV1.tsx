@@ -11,6 +11,8 @@ import { LISTING_CARD_HOMEPAGE_PROPS } from "@/lib/listing-card/defaults";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { CanonicalButtonLink, CanonicalInfoBlock } from "@/src/components/canonical";
 import type { SavedItem } from "@/lib/saved/types";
+/* P0.2-C — cards.css removed from platform megabundle; Saved owns mobile 2-col grid. */
+import "@/styles/rovexo/listing-grid-v1.css";
 
 const PAGE_SIZE = 20;
 
@@ -71,6 +73,7 @@ export function SavedItemsV1({ initialItems, items: itemsProp }: SavedItemsV1Pro
         <div
           className="rx-listing-grid w-full"
           data-saved-live="v1.0-production"
+          data-saved-grid="mobile-2col"
           data-saved-count={items.length}
         >
           {visibleItems.map((item) => {
@@ -80,6 +83,7 @@ export function SavedItemsV1({ initialItems, items: itemsProp }: SavedItemsV1Pro
                 key={item.productSlug}
                 product={item.product}
                 {...LISTING_CARD_HOMEPAGE_PROPS}
+                surface="saved"
                 showStatusBadge={isSold}
                 statusBadgeLabel="SOLD"
                 /* Sold stays in Saved; hide purchase-implying protection line. */

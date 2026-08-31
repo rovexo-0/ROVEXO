@@ -35,61 +35,75 @@ export default async function InboxConversationRoute({
   params,
   searchParams,
 }: ConversationRouteProps) {
-  const { conversationId } = await params;
-  const sp = await searchParams;
-  const profile = await getProfile();
-  const cookieStore = await cookies();
-  const ownerDemoModeEnabled = parseOwnerDemoModeFlag(
-    cookieStore.get(OWNER_DEMO_MODE_V1.cookieName)?.value,
-  );
-  const ownerDemoAllowed = shouldShowOwnerDemoInboxRows({
-    authenticated: Boolean(profile?.id),
-    role: profile?.role ?? null,
-    ownerDemoModeEnabled,
-  });
+  const [{ conversationId }, sp, cookieStore] = await Promise.all([
+    params,
+    searchParams,
+    cookies(),
+  ]);
 
-  if (ownerDemoAllowed && isConversationMockupDemoId(conversationId)) {
-    const demo = getConversationMockupDemoBundle();
-    return (
-      <Suspense fallback={null}>
-        <ConversationHub
-          initialConversation={demo.conversation}
-          initialOffers={demo.offers}
-          demoMode
-        />
-      </Suspense>
-    );
-  }
+  const isDemoCandidate =
+    isConversationMockupDemoId(conversationId) || isMessagesLifecycleDemoId(conversationId);
 
-  if (ownerDemoAllowed && isMessagesLifecycleDemoId(conversationId)) {
-    const demo = getMessagesLifecycleDemoBundle(conversationId);
-    if (!demo) notFound();
-    return (
-      <Suspense fallback={null}>
-        <ConversationHub
-          initialConversation={demo.conversation}
-          initialOffers={demo.offers}
-          initialOrder={demo.order}
-          initialDispute={demo.dispute}
-          initialHasShippingLabel={demo.hasShippingLabel}
-          initialCheckoutResume={demo.key === "buyer-checkout-ready"}
-          demoMode
-        />
-      </Suspense>
+  /* Demo gate needs profile; production path parallelizes profile + conversation. */
+  if (isDemoCandidate) {
+    const profile = await getProfile();
+    const ownerDemoModeEnabled = parseOwnerDemoModeFlag(
+      cookieStore.get(OWNER_DEMO_MODE_V1.cookieName)?.value,
     );
+    const ownerDemoAllowed = shouldShowOwnerDemoInboxRows({
+      authenticated: Boolean(profile?.id),
+      role: profile?.role ?? null,
+      ownerDemoModeEnabled,
+    });
+
+    if (ownerDemoAllowed && isConversationMockupDemoId(conversationId)) {
+      const demo = getConversationMockupDemoBundle();
+      return (
+        <Suspense fallback={null}>
+          <ConversationHub
+            initialConversation={demo.conversation}
+            initialOffers={demo.offers}
+            demoMode
+          />
+        </Suspense>
+      );
+    }
+
+    if (ownerDemoAllowed && isMessagesLifecycleDemoId(conversationId)) {
+      const demo = getMessagesLifecycleDemoBundle(conversationId);
+      if (!demo) notFound();
+      return (
+        <Suspense fallback={null}>
+          <ConversationHub
+            initialConversation={demo.conversation}
+            initialOffers={demo.offers}
+            initialOrder={demo.order}
+            initialDispute={demo.dispute}
+            initialHasShippingLabel={demo.hasShippingLabel}
+            initialCheckoutResume={demo.key === "buyer-checkout-ready"}
+            demoMode
+          />
+        </Suspense>
+      );
+    }
   }
 
   const orderId = sp.order?.trim() || sp.order_id?.trim() || null;
 
-  /* Phase A1 — parallel hydrate: conversation + optional order in one server round. */
-  const [conversation, initialOrder] = await Promise.all([
+  /* P0.2 — parallel hydrate: auth profile + conversation (+ optional order). */
+  const [profile, conversation] = await Promise.all([
+    getProfile(),
     fetchConversationById(conversationId),
-    orderId ? fetchOrderForUser(orderId, profile.id) : Promise.resolve(null),
   ]);
 
   if (!conversation) {
     notFound();
   }
+
+  const initialOrder =
+    orderId && profile?.id
+      ? await fetchOrderForUser(orderId, profile.id)
+      : null;
 
   return (
     <Suspense fallback={null}>

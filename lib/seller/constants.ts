@@ -29,7 +29,7 @@ export function buildSellerQuickActions(counts: {
     {
       id: "wallet",
       title: "Balance",
-      href: "/balance",
+      href: "/wallet",
       icon: RovexoIcons.seller.wallet,
     },
     {
@@ -50,7 +50,7 @@ export function buildSellerQuickActions(counts: {
 
 export const SELLER_SETTINGS_LINKS: SellerSettingsLink[] = [
   { id: "store", label: "Store", href: "/account/profile", icon: RovexoIcons.dashboard.listings },
-  { id: "payments", label: "Balance", href: "/balance", icon: RovexoIcons.seller.wallet },
+  { id: "payments", label: "Balance", href: "/wallet", icon: RovexoIcons.seller.wallet },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
   { id: "privacy", label: "Privacy", href: "/account/privacy", icon: RovexoIcons.security.shield },
 ];

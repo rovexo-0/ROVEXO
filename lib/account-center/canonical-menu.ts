@@ -70,7 +70,7 @@ export function buildAccountMenuSections(
     {
       id: "balance",
       title: "Balance",
-      href: "/balance",
+      href: "/wallet",
       icon: "wallet",
       badgeKeys: ["wallet-payout"],
       value: options?.availableBalanceLabel,

@@ -234,7 +234,8 @@ export function consumePendingNotificationDeepLink(): string | null {
 
 /**
  * Canonical click handler — push + Notification Center.
- * Mark-as-read is best-effort; navigation still proceeds if mark fails.
+ * Navigation starts immediately; mark-as-read is best-effort in parallel.
+ * Deep-link href must already be resolved by the caller before invoke.
  */
 export async function handleNotificationDeepLinkClick(input: {
   href: string;
@@ -246,18 +247,18 @@ export async function handleNotificationDeepLinkClick(input: {
   const target = resolveNotificationDeepLinkHref(input.href, { type: input.type ?? undefined });
   stashPendingNotificationDeepLink(target);
 
+  /* Navigate first — do not wait on mark-read (unread optimistic update is caller-owned). */
+  input.navigate(target);
+
   if (input.markAsRead && input.notificationId) {
-    try {
-      await fetch("/api/notifications", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [input.notificationId], read: true }),
-      });
-    } catch {
-      /* keep notification; still navigate */
-    }
+    void fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [input.notificationId], read: true }),
+    }).catch(() => {
+      /* keep notification; navigation already proceeded */
+    });
   }
 
-  input.navigate(target);
   return target;
 }

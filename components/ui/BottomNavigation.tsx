@@ -164,7 +164,7 @@ export function BottomNavigation({
 
   /* Phase A1 — warm primary destinations once bottom nav mounts. */
   useEffect(() => {
-    const targets = ["/", "/browse", "/search", "/inbox", "/account", "/orders", "/sell", "/balance"];
+    const targets = ["/", "/browse", "/search", "/inbox", "/account", "/orders", "/sell", "/wallet"];
     for (const href of targets) {
       router.prefetch(href);
     }

@@ -157,7 +157,7 @@ describe("COD SÂNGE — Notification product thumbnails", () => {
 
   it("thumbnail does not change notification destination / unread", () => {
     const hub = readSource("features/inbox/components/InboxPage.tsx");
-    expect(hub).toContain("resolveNotificationOpenHref");
+    expect(hub).toContain("resolveNotificationOpenHrefSync");
     expect(hub).toContain("handleNotificationDeepLinkClick");
     expect(hub).toContain("resolveNotificationListingImageSrc");
     expect(hub).toContain("data-inbox-notif-thumb=\"listing\"");

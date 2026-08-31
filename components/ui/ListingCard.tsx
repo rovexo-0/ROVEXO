@@ -39,6 +39,11 @@ import { getActiveMarket } from "@/lib/seo/markets";
 import { useLiveProductViews } from "@/lib/views/use-live-product-views";
 import { cn } from "@/lib/cn";
 import type { Product } from "@/lib/products/types";
+import {
+  LISTING_CARD_VIEWPORT_PREFETCH_BUCKET,
+  LISTING_CARD_VIEWPORT_PREFETCH_CAP,
+  useViewportRoutePrefetch,
+} from "@/lib/navigation/viewport-route-prefetch-v1";
 import css from "@/components/ui/ListingCard.module.css";
 
 export type ListingCardVariant = "grid" | "carousel";
@@ -53,6 +58,13 @@ export type ListingCardSurface =
   | "saved"
   | "similar"
   | "recently-viewed";
+
+/** Surfaces where capped viewport RSC prefetch is safe (P0 Mobile Instant Interaction). */
+const LISTING_CARD_PREFETCH_SURFACES: ReadonlySet<ListingCardSurface> = new Set([
+  "homepage",
+  "store",
+  "saved",
+]);
 
 type PromotionSurface = "homepage" | "search" | "category" | "listing" | "seller";
 
@@ -185,6 +197,16 @@ export const ListingCard = memo(function ListingCard({
   void showPlatformFee;
 
   const url = hrefOverride ?? `/listing/${product.slug}`;
+  const prefetchEnabled = LISTING_CARD_PREFETCH_SURFACES.has(surface);
+  const {
+    ref: prefetchRef,
+    onPointerDown: onPrefetchIntent,
+    onTouchStart: onPrefetchTouch,
+  } = useViewportRoutePrefetch(url, {
+    enabled: prefetchEnabled,
+    bucket: LISTING_CARD_VIEWPORT_PREFETCH_BUCKET,
+    cap: LISTING_CARD_VIEWPORT_PREFETCH_CAP,
+  });
   const amount =
     product.listingType === "auction" && product.auctionCurrentBid != null
       ? product.auctionCurrentBid
@@ -273,8 +295,11 @@ export const ListingCard = memo(function ListingCard({
       data-listing-surface={surface}
     >
       <Link
+        ref={prefetchRef as (node: HTMLAnchorElement | null) => void}
         href={url}
         prefetch={false}
+        onPointerDown={prefetchEnabled ? onPrefetchIntent : undefined}
+        onTouchStart={prefetchEnabled ? onPrefetchTouch : undefined}
         className={cn(css.hitArea, isHomepageCard && css.hitAreaHomepage)}
         aria-label={product.title}
         onClick={go}

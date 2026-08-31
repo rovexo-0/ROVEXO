@@ -24,7 +24,7 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
   { href: "/seller/review-center", label: "Review Center", subtitle: "Listings under moderation" },
   { href: "/seller/orders", label: "Selling Orders", subtitle: "Fulfillment & shipping" },
-  { href: "/balance", label: "Balance", subtitle: "Balance & withdrawals" },
+  { href: "/wallet", label: "Balance", subtitle: "Balance & withdrawals" },
   { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
   { href: "/seller/performance", label: "Seller Performance", subtitle: "Reputation Engine & level" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },

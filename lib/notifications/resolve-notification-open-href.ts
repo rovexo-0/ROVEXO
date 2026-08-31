@@ -1,10 +1,12 @@
 /**
  * Notification open destination — one navigation only.
  * Funds Pending → Transaction Conversation (never Wallet / Balance).
+ *
+ * P0.2-F: Sync resolution for deterministic destinations (no dual API wait).
+ * Order refs without conversationId use `/inbox?order=` — Inbox recovers the Hub.
  */
 
 import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
-import type { Conversation } from "@/lib/messages/types";
 import type { Notification } from "@/lib/notifications/types";
 import {
   extractOrderIdFromNotificationHref,
@@ -13,21 +15,15 @@ import {
   isWalletHubNotificationHref,
   recoverNotificationHref,
 } from "@/lib/notifications/routing";
-import {
-  buildOrderConversationHref,
-  matchConversationIdForOrder,
-} from "@/lib/orders/order-conversation-href";
 import { getMessageHref } from "@/lib/orders/status";
-import type { Order } from "@/lib/orders/types";
 
 /**
- * Resolve the single href used when the user taps a notification.
- * Prefers a direct `/inbox/conversation/:id?order=` URL so Inbox never
- * performs a second hop — and Wallet/Balance never opens.
+ * Synchronous open href — never awaits network.
+ * Prefer direct `/inbox/conversation/:id` when already present on the notification.
  */
-export async function resolveNotificationOpenHref(
+export function resolveNotificationOpenHrefSync(
   notification: Notification,
-): Promise<string> {
+): string {
   const recovered = recoverNotificationHref(notification.href, {
     title: notification.title,
     subtitle: notification.subtitle,
@@ -54,8 +50,7 @@ export async function resolveNotificationOpenHref(
       : null);
 
   if (orderRef) {
-    const conversationHref = await resolveConversationHrefForOrderRef(orderRef);
-    if (conversationHref) return conversationHref;
+    /* Deterministic Inbox deep-link — Conversation Hub recovered client-side. */
     return getMessageHref(orderRef, "buyer");
   }
 
@@ -69,34 +64,12 @@ export async function resolveNotificationOpenHref(
   return recovered;
 }
 
-async function resolveConversationHrefForOrderRef(orderRef: string): Promise<string | null> {
-  try {
-    const [ordersRes, messagesRes] = await Promise.all([
-      fetch("/api/orders", { cache: "no-store" }),
-      fetch("/api/messages", { cache: "no-store" }),
-    ]);
-    if (!ordersRes.ok || !messagesRes.ok) return null;
-
-    const ordersPayload = (await ordersRes.json()) as { orders?: Order[] };
-    const messagesPayload = (await messagesRes.json()) as { conversations?: Conversation[] };
-    const order = (ordersPayload.orders ?? []).find(
-      (item) => item.id === orderRef || item.orderNumber === orderRef,
-    );
-    if (!order) return null;
-
-    const conversationId =
-      order.conversationId ??
-      matchConversationIdForOrder({
-        productId: order.product.id,
-        productSlug: order.product.slug,
-        conversations: messagesPayload.conversations ?? [],
-      });
-
-    return buildOrderConversationHref({
-      orderId: order.id,
-      conversationId,
-    });
-  } catch {
-    return null;
-  }
+/**
+ * Resolve the single href used when the user taps a notification.
+ * Sync-only (P0.2-F) — never blocks on /api/orders + /api/messages.
+ */
+export async function resolveNotificationOpenHref(
+  notification: Notification,
+): Promise<string> {
+  return resolveNotificationOpenHrefSync(notification);
 }

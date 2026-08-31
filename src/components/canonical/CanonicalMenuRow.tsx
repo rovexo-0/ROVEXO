@@ -27,6 +27,11 @@ export type CanonicalMenuRowProps = {
   className?: string;
   /** Optional accessible name when title alone is insufficient. */
   ariaLabel?: string;
+  /**
+   * When true, allow Next.js Link viewport prefetch (Account hub warm destinations).
+   * Default false — preserves prior no-prefetch behaviour on dense menus.
+   */
+  prefetch?: boolean;
 };
 
 function MenuRowContent({
@@ -93,6 +98,7 @@ export function CanonicalMenuRow({
   id,
   className,
   ariaLabel,
+  prefetch = false,
 }: CanonicalMenuRowProps) {
   const { tx } = useTranslation();
   const chevronVisible = showChevron && !hideChevron;
@@ -123,7 +129,7 @@ export function CanonicalMenuRow({
     return (
       <Link
         href={href}
-        prefetch={false}
+        prefetch={prefetch}
         id={id}
         className={rowClassName}
         aria-label={ariaLabel}

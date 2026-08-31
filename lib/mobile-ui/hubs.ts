@@ -64,7 +64,7 @@ export function getSellHubTiles(profile: UserProfile): MobileTile[] {
     tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Selling Orders", "Fulfillment & shipping", "orders"),
-    tile("/balance", "Balance", "Balance & withdrawals", "wallet-payout"),
+    tile("/wallet", "Balance", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Analytics", "Views, sales & trends"),
     tile("/sell/new", "Publish Listing", "Step-by-step listing"),
     tile("/seller/tax", "Tax", "VAT & registration"),

@@ -139,7 +139,7 @@ describe("COD SÂNGE — Notification Deep-Link Engine", () => {
     expect(consumePendingNotificationDeepLink()).toBeNull();
   });
 
-  it("handleNotificationDeepLinkClick marks read then navigates", async () => {
+  it("handleNotificationDeepLinkClick navigates immediately then marks read in parallel", async () => {
     const navigated: string[] = [];
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
@@ -151,9 +151,9 @@ describe("COD SÂNGE — Notification Deep-Link Engine", () => {
       navigate: (href) => navigated.push(href),
     });
 
+    expect(navigated[0]).toContain("/inbox/conversation/c-read");
     expect(fetchMock).toHaveBeenCalled();
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/api/notifications");
-    expect(navigated[0]).toContain("/inbox/conversation/c-read");
   });
 
   it("Does not create a second Notification Engine / no polling", () => {

@@ -93,6 +93,7 @@ export function AccountMenuSections({
                 value={item.value}
                 badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
                 icon={<ProfileMenuIcon id={item.id} />}
+                prefetch={Boolean(item.href)}
               />
             );
           })}

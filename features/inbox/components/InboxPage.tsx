@@ -62,7 +62,7 @@ import {
   resolveInboxNotificationAvatar,
 } from "@/lib/inbox/official-rovexo-avatar";
 import { isWalletHubNotificationHref } from "@/lib/notifications/routing";
-import { resolveNotificationOpenHref } from "@/lib/notifications/resolve-notification-open-href";
+import { resolveNotificationOpenHrefSync } from "@/lib/notifications/resolve-notification-open-href";
 import {
   handleNotificationDeepLinkClick,
   resolveNotificationDeepLinkHref,
@@ -75,6 +75,7 @@ import { shouldShowOwnerDemoInboxRows } from "@/lib/inbox/demo/owner-demo-mode-v
 import { useOwnerDemoMode } from "@/features/inbox/hooks/use-owner-demo-mode";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { shareInflightJson } from "@/lib/performance/fetch";
+import { InboxConversationPrefetchLink } from "@/features/inbox/components/InboxConversationPrefetchLink";
 import "@/styles/rovexo/inbox-hub-v1.css";
 
 const PAGE_SIZE = 20;
@@ -854,7 +855,8 @@ export function InboxPage() {
 
   const openNotification = useCallback(
     async (notification: Notification) => {
-      const resolved = await resolveNotificationOpenHref(notification);
+      /* P0.2-F — sync destination only; never await dual order/messages fetches. */
+      const resolved = resolveNotificationOpenHrefSync(notification);
       const href = resolveNotificationDeepLinkHref(
         isWalletHubNotificationHref(resolved) ? INBOX_ROUTES.hub : resolved,
         {
@@ -1005,11 +1007,10 @@ export function InboxPage() {
                 const isUnread = coerceUnreadCount(conversation.unreadCount, 0) > 0;
                 return (
                 <li key={conversation.id}>
-                  <Link
-                    href={INBOX_ROUTES.conversation(conversation.id)}
-                    prefetch={false}
+                  <InboxConversationPrefetchLink
+                    conversationId={conversation.id}
                     className={cn("inbox-hub__card", isUnread && "inbox-hub__card--unread")}
-                    data-inbox-unread={isUnread ? "true" : "false"}
+                    unread={isUnread}
                   >
                     <span className="inbox-hub__media">
                       {avatar.kind === "official-rx" ? (
@@ -1081,7 +1082,7 @@ export function InboxPage() {
                       ) : null}
                       <ChevronRightLineIcon className="inbox-hub__chevron" />
                     </span>
-                  </Link>
+                  </InboxConversationPrefetchLink>
                 </li>
                 );
               })}
