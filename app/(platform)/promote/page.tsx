@@ -5,7 +5,8 @@ import { resolvePromotionSuccessMessage } from "@/lib/promotions/success-copy";
 import { fetchSellerListings } from "@/lib/seller/listings-queries";
 import { getStoreShowcasePersistenceStatus } from "@/lib/promote/store-showcase-status";
 import { getAppSettings } from "@/lib/settings/store";
-import { fetchProfile } from "@/lib/profile/queries";
+import { getAuthContext } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = privatePageMetadata;
@@ -14,20 +15,33 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** Canonical Promote page — single SSOT route `/promote`. */
+/**
+ * Canonical Promote page — single SSOT route `/promote`.
+ * P0.4 — light cached auth (not heavy getProfile) + parallel independent fetches
+ * so loading.tsx shell is replaced as soon as possible (Balance/Orders pattern).
+ */
 export default async function PromotePage({ searchParams }: PageProps) {
-  const profile = await fetchProfile();
   const params = (await searchParams) ?? {};
   const promotion = typeof params.promotion === "string" ? params.promotion : null;
   const type = typeof params.type === "string" ? params.type : null;
   const initialSuccessMessage =
     promotion === "success" ? resolvePromotionSuccessMessage(type) : null;
 
-  const [catalog, listingsData, showcaseStatus, settings] = await Promise.all([
+  /* Auth + catalog + listings are independent — parallel like Orders buyer/seller lists. */
+  const [auth, catalog, listingsData] = await Promise.all([
+    getAuthContext(),
     getResolvedPromotionCatalog(),
     fetchSellerListings("published"),
-    getStoreShowcasePersistenceStatus(profile.id),
-    getAppSettings(profile.id).catch(() => null),
+  ]);
+
+  if (!auth?.user.id) {
+    redirect("/login?next=/promote");
+  }
+
+  const sellerId = auth.user.id;
+  const [showcaseStatus, settings] = await Promise.all([
+    getStoreShowcasePersistenceStatus(sellerId),
+    getAppSettings(sellerId).catch(() => null),
   ]);
 
   return (

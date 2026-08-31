@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MyAccountTemplate } from "@/features/account-canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
 import "@/styles/rovexo/rovexo-ideas-v1.css";
 import {
   ROVEXO_IDEAS_DOM,
@@ -573,6 +574,12 @@ export function RovexoIdeasPage() {
         </div>
 
         {error ? <p className="rx-ideas__error">{error}</p> : null}
+
+        {loading ? (
+          <div className="rx-ideas__list-skeleton" aria-busy="true" aria-label="Loading ideas">
+            <AccountModuleSkeleton />
+          </div>
+        ) : null}
 
         {isEmptyState ? (
           <section className="rx-ideas__empty rx-ideas__fade-in" aria-label="Empty ideas state">

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { RovexoIdeasPage } from "@/features/account-module/components/RovexoIdeasPage";
+import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = {
@@ -9,7 +10,7 @@ export const metadata = {
 };
 export default function AccountIdeasRoute() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<AccountModuleSkeleton />}>
       <RovexoIdeasPage />
     </Suspense>
   );
