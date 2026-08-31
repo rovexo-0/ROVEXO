@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { CanonicalPageHeader } from "./CanonicalPageHeader";
 import { CDS_VERSION } from "./tokens";
+/* OPT-HP-LCP-CSS: .cds-layout* — scoped off Homepage megabundle. */
+import "@/styles/rovexo/canonical-ds.css";
 
 export type CanonicalPageLayoutProps = {
   title: string;

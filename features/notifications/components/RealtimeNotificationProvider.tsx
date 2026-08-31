@@ -10,14 +10,8 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { subscribeToUserNotifications, removeNotificationChannel } from "@/lib/notifications/realtime";
-import {
-  subscribeToUserConversationUnread,
-  removeConversationUnreadChannels,
-} from "@/lib/inbox/conversation-unread-realtime";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { flushOfflineNotificationQueue } from "@/lib/notifications/offline-sync";
-import { createClient } from "@/lib/supabase/client";
 import { fetchDeduped } from "@/lib/performance/fetch";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import type { Notification } from "@/lib/notifications/types";
@@ -34,6 +28,13 @@ import {
   writeInboxBadgeModuleCache,
 } from "@/lib/notifications/inbox-badge-client-cache-v1";
 import { clearPrivateClientSessionCachesOnLogout, preparePrivateClientSessionCachesForAuthHydrate } from "@/lib/auth/private-client-session-cache-v1";
+
+type NotificationChannel = Awaited<
+  ReturnType<(typeof import("@/lib/notifications/realtime"))["subscribeToUserNotifications"]>
+>;
+type ConversationUnreadChannels = Awaited<
+  ReturnType<(typeof import("@/lib/inbox/conversation-unread-realtime"))["subscribeToUserConversationUnread"]>
+>;
 
 type RealtimeNotificationContextValue = {
   unreadCount: number;
@@ -248,21 +249,33 @@ export function RealtimeNotificationProvider({
 
   useEffect(() => {
     if (!enabled) return;
-    let channel: ReturnType<typeof subscribeToUserNotifications> | null = null;
-    let conversationChannels: ReturnType<typeof subscribeToUserConversationUnread> = {
+    // OPT-HP-PERF: guests never open Supabase realtime on Homepage LCP.
+    // Auth identity is owned by AuthProvider → /api/profile (same-origin).
+    if (sessionPhase === "pending" || sessionPhase === "guest") return;
+
+    let channel: NotificationChannel | null = null;
+    let conversationChannels: ConversationUnreadChannels = {
       buyer: null,
       seller: null,
     };
     let cancelled = false;
     let reconnectTimer: number | null = null;
     let reconnectAttempts = 0;
+    let removeNotificationChannel:
+      | ((typeof import("@/lib/notifications/realtime"))["removeNotificationChannel"])
+      | null = null;
+    let removeConversationUnreadChannels:
+      | ((typeof import("@/lib/inbox/conversation-unread-realtime"))["removeConversationUnreadChannels"])
+      | null = null;
 
     const disconnect = () => {
-      if (channel) {
+      if (channel && removeNotificationChannel) {
         removeNotificationChannel(channel);
         channel = null;
       }
-      removeConversationUnreadChannels(conversationChannels);
+      if (removeConversationUnreadChannels) {
+        removeConversationUnreadChannels(conversationChannels);
+      }
       conversationChannels = { buyer: null, seller: null };
       if (reconnectTimer !== null) {
         window.clearTimeout(reconnectTimer);
@@ -277,61 +290,69 @@ export function RealtimeNotificationProvider({
 
       let supabase;
       try {
+        /* Dynamic import keeps @supabase/ssr out of the guest Homepage main chunk. */
+        const [{ createClient }, realtime, unreadRt] = await Promise.all([
+          import("@/lib/supabase/client"),
+          import("@/lib/notifications/realtime"),
+          import("@/lib/inbox/conversation-unread-realtime"),
+        ]);
+        removeNotificationChannel = realtime.removeNotificationChannel;
+        removeConversationUnreadChannels = unreadRt.removeConversationUnreadChannels;
         supabase = createClient();
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user || cancelled || !isDocumentVisible()) return;
+
+        // Avoid duplicate channels: tear down before re-subscribe.
+        disconnect();
+
+        let lastInboxSyncAt = 0;
+        const onRealtimeChange = () => {
+          if (!isDocumentVisible()) return;
+          void refresh({ includeTray: true });
+          const now = Date.now();
+          // Debounced bridge so Inbox list refreshes when unread RT fires (no storm).
+          if (now - lastInboxSyncAt < 400) return;
+          lastInboxSyncAt = now;
+          window.dispatchEvent(new CustomEvent("rovexo:inbox-sync"));
+        };
+
+        channel = realtime.subscribeToUserNotifications(user.id, {
+          onChange: onRealtimeChange,
+          onStatus: (status) => {
+            if (status === "SUBSCRIBED") {
+              reconnectAttempts = 0;
+              try {
+                // eslint-disable-next-line no-console -- TEMP P0 live repair probe
+                console.info("[ROVEXO][PUSH_RT_FLOW]", "SUBSCRIBE_OK", {
+                  channel: "notifications",
+                });
+              } catch {
+                /* ignore */
+              }
+              triggerCheckoutSessionSelfHeal("realtime-subscribed");
+              return;
+            }
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+              if (cancelled || reconnectTimer !== null || !isDocumentVisible()) return;
+              const delay = Math.min(30_000, 1_000 * 2 ** reconnectAttempts);
+              reconnectAttempts += 1;
+              reconnectTimer = window.setTimeout(() => {
+                reconnectTimer = null;
+                void connect();
+              }, delay);
+            }
+          },
+        });
+
+        conversationChannels = unreadRt.subscribeToUserConversationUnread(user.id, {
+          onChange: onRealtimeChange,
+        });
       } catch {
         return;
       }
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user || cancelled || !isDocumentVisible()) return;
-
-      // Avoid duplicate channels: tear down before re-subscribe.
-      disconnect();
-
-      let lastInboxSyncAt = 0;
-      const onRealtimeChange = () => {
-        if (!isDocumentVisible()) return;
-        void refresh({ includeTray: true });
-        const now = Date.now();
-        // Debounced bridge so Inbox list refreshes when unread RT fires (no storm).
-        if (now - lastInboxSyncAt < 400) return;
-        lastInboxSyncAt = now;
-        window.dispatchEvent(new CustomEvent("rovexo:inbox-sync"));
-      };
-
-      channel = subscribeToUserNotifications(user.id, {
-        onChange: onRealtimeChange,
-        onStatus: (status) => {
-          if (status === "SUBSCRIBED") {
-            reconnectAttempts = 0;
-            try {
-              // eslint-disable-next-line no-console -- TEMP P0 live repair probe
-              console.info("[ROVEXO][PUSH_RT_FLOW]", "SUBSCRIBE_OK", {
-                channel: "notifications",
-              });
-            } catch {
-              /* ignore */
-            }
-            triggerCheckoutSessionSelfHeal("realtime-subscribed");
-            return;
-          }
-          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
-            if (cancelled || reconnectTimer !== null || !isDocumentVisible()) return;
-            const delay = Math.min(30_000, 1_000 * 2 ** reconnectAttempts);
-            reconnectAttempts += 1;
-            reconnectTimer = window.setTimeout(() => {
-              reconnectTimer = null;
-              void connect();
-            }, delay);
-          }
-        },
-      });
-
-      conversationChannels = subscribeToUserConversationUnread(user.id, {
-        onChange: onRealtimeChange,
-      });
     };
 
     const onVisibility = () => {
@@ -351,31 +372,35 @@ export function RealtimeNotificationProvider({
     };
 
     let authUnsub: (() => void) | null = null;
-    try {
-      const supabase = createClient();
-      const { data } = supabase.auth.onAuthStateChange((event) => {
+    void (async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
         if (cancelled) return;
-        if (event === "SIGNED_OUT") {
-          disconnect();
-          clearPrivateClientSessionCachesOnLogout();
-          resetBadgeUiToGuest();
-          return;
-        }
-        if (event === "SIGNED_IN") {
-          preparePrivateClientSessionCachesForAuthHydrate();
-          void connect();
-          void refresh({ includeTray: true });
-          return;
-        }
-        // After sleep/wake token refresh: only resubscribe if channels were dropped.
-        if (event === "TOKEN_REFRESHED" && !channel) {
-          void connect();
-        }
-      });
-      authUnsub = () => data.subscription.unsubscribe();
-    } catch {
-      authUnsub = null;
-    }
+        const supabase = createClient();
+        const { data } = supabase.auth.onAuthStateChange((event) => {
+          if (cancelled) return;
+          if (event === "SIGNED_OUT") {
+            disconnect();
+            clearPrivateClientSessionCachesOnLogout();
+            resetBadgeUiToGuest();
+            return;
+          }
+          if (event === "SIGNED_IN") {
+            preparePrivateClientSessionCachesForAuthHydrate();
+            void connect();
+            void refresh({ includeTray: true });
+            return;
+          }
+          // After sleep/wake token refresh: only resubscribe if channels were dropped.
+          if (event === "TOKEN_REFRESHED" && !channel) {
+            void connect();
+          }
+        });
+        authUnsub = () => data.subscription.unsubscribe();
+      } catch {
+        authUnsub = null;
+      }
+    })();
 
     window.addEventListener("online", onOnline);
     document.addEventListener("visibilitychange", onVisibility);
@@ -392,7 +417,7 @@ export function RealtimeNotificationProvider({
       authUnsub?.();
       disconnect();
     };
-  }, [enabled, refresh, resetBadgeUiToGuest]);
+  }, [enabled, refresh, resetBadgeUiToGuest, sessionPhase]);
 
   useEffect(() => {
     if (!enabled) return;

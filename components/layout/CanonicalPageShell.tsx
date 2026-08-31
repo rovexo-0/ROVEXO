@@ -6,6 +6,9 @@ import type { BottomNavTab } from "@/components/ui/BottomNavigation";
 import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { cn } from "@/lib/cn";
+/* OPT-HP-LCP-CSS: scoped off Homepage megabundle — .pcu-module + .cds-* chrome. */
+import "@/styles/rovexo/canonical-ds.css";
+import "@/styles/rovexo/platform-canonical-ui.css";
 
 export type CanonicalPageShellProps = {
   title: string;

@@ -34,9 +34,7 @@ const PROTECTED_IMPORT_ANCHORS = [
   "listing-card-official.css",
   "store-listing-card-premium-v1.css",
   "category-rail.css",
-  "primary-button-v1.css",
-  "platform-canonical-ui.css",
-  "canonical-ds.css",
+  "compact-premium-v1.css",
 ] as const;
 
 describe("OPT-P0-CSS-03 Auth CSS isolation", () => {

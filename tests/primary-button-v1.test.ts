@@ -57,7 +57,8 @@ describe("Global Button Recovery v1.0 — PrimaryButton functional geometry", ()
     expect(css).not.toContain("--rx-primary-height: 20px");
     expect(canonical).toContain('variant === "primary"');
     expect(canonical).toContain("PrimaryButton");
-    expect(index).toContain("primary-button-v1.css");
+    expect(ui).toContain("primary-button-v1.css");
+    expect(index).not.toContain('@import "./primary-button-v1.css"');
     expect(readSource("features/orders/components/OrdersPage.tsx")).toContain("PrimaryButtonLink");
   });
 

@@ -10,6 +10,8 @@ import { RovexoIcons } from "@/lib/icons";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
+/* OPT-HP-PERF: scoped off platform index — legacy Header only. */
+import "@/styles/rovexo/header-premium.css";
 
 export type HeaderProps = {
   isSeller?: boolean;

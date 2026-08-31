@@ -26,8 +26,7 @@ const HOMEPAGE_REQUIRED_INDEX = [
   "category-rail.css",
   "bottom-nav-premium.css",
   "full-width-engine-v1.css",
-  "canonical-ds.css",
-  "platform-canonical-ui.css",
+  "compact-premium-v1.css",
 ] as const;
 
 const PHASE_1_PROTECTED = [
@@ -58,6 +57,7 @@ describe("Performance Phase 2 homepage CSS", () => {
       expect(index).toContain(sheet);
     }
     expect(readSource("app/(platform)/page.tsx")).toContain("@/styles/homepage-canonical.css");
+    expect(readSource("app/(platform)/page.tsx")).toContain("@/styles/homepage-canonical-responsive.css");
     expect(readSource("app/(platform)/page.tsx")).toContain("@/styles/rovexo/header-v2.css");
   });
 

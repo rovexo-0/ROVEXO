@@ -9,6 +9,10 @@ import { MY_ACCOUNT_V1_DOM, MY_ACCOUNT_V1_MASTER_PAGE } from "@/lib/design-syste
 import { MASTER_FULL_WIDTH_CONTRACT_DOM } from "@/lib/master-engine/master-full-width-contract-v1";
 import { CDS_VERSION } from "@/src/components/canonical/tokens";
 import { useTranslation } from "@/lib/i18n/use-translation";
+/* OPT-HP-LCP: scoped off platform megabundle — Account surfaces only. */
+import "@/styles/rovexo/account-canonical-v2.css";
+import "@/styles/rovexo/canonical-ds.css";
+import "@/styles/rovexo/platform-canonical-ui.css";
 
 export type AccountCanonicalShellProps = {
   /** Retained for page-level semantics; not rendered in the Phase 1 back-only header. */

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/homepage-canonical.css";
 import "@/styles/homepage-canonical-responsive.css";
+/* header-v2: render-blocking for FOUC — RovexoHeaderV2 is dynamic(ssr:false). */
 import "@/styles/rovexo/header-v2.css";
 import { CanonicalHomepage } from "@/components/homepage/canonical";
 import { HomePageShell } from "@/components/home/HomePageShell";

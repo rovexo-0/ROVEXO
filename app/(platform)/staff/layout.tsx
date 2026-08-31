@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+/* OPT-HP-LCP-CSS: [data-universal-ui] rules — not on Canonical Homepage. */
+import "@/styles/rovexo/universal-ui-v1.css";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   return (

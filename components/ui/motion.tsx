@@ -1,5 +1,7 @@
 import { cn } from "@/lib/cn";
 import type { HTMLAttributes, ReactNode } from "react";
+/* OPT-HP-PERF: forms.css left platform index — MotionPress uses .rx-btn. */
+import "@/styles/rovexo/forms.css";
 
 type MotionProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;

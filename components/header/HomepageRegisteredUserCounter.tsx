@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   REGISTERED_USER_COUNT_V1,
   formatRegisteredUserCount,
 } from "@/lib/platform/registered-user-count-client-v1";
-import {
-  subscribeRegisteredUserCount,
-  unsubscribeRegisteredUserCount,
-} from "@/lib/platform/subscribe-registered-user-count-v1";
 
 /**
  * Homepage header registered-user counter — fail closed.
  * Renders nothing until a verified count is available.
  * Visible UI only: 👥 {compact} — no pill/border/badge/label text.
+ *
+ * OPT-HP-LCP: subscribe module + Supabase load only after idle, via dynamic import.
  */
 export function HomepageRegisteredUserCounter() {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    let channel: ReturnType<typeof subscribeRegisteredUserCount> = null;
+    let channel: RealtimeChannel | null = null;
+    let unsubscribe: ((ch: RealtimeChannel | null) => void) | null = null;
 
     const load = async () => {
       try {
@@ -43,9 +43,11 @@ export function HomepageRegisteredUserCounter() {
     };
 
     const start = () => {
-      void load().then(() => {
+      void load().then(async () => {
         if (cancelled) return;
-        channel = subscribeRegisteredUserCount({
+        const mod = await import("@/lib/platform/subscribe-registered-user-count-v1");
+        unsubscribe = mod.unsubscribeRegisteredUserCount;
+        channel = await mod.subscribeRegisteredUserCountAsync({
           onInsert: () => setCount((prev) => (prev == null ? prev : prev + 1)),
           onSoftDelete: () =>
             setCount((prev) => (prev == null ? prev : Math.max(0, prev - 1))),
@@ -70,7 +72,7 @@ export function HomepageRegisteredUserCounter() {
       if (timeoutId != null) {
         window.clearTimeout(timeoutId);
       }
-      unsubscribeRegisteredUserCount(channel);
+      unsubscribe?.(channel);
     };
   }, []);
 

@@ -58,9 +58,15 @@ const REQUIRED_IN_HOMEPAGE_INDEX = [
   "listing-card-official.css",
   "store-listing-card-premium-v1.css",
   "category-rail.css",
-  "primary-button-v1.css",
+  "compact-premium-v1.css",
+] as const;
+
+/** OPT-HP-LCP-CSS: deferred off Homepage megabundle — still retained + owned elsewhere. */
+const DEFERRED_FROM_HOMEPAGE_INDEX = [
   "platform-canonical-ui.css",
   "canonical-ds.css",
+  "primary-button-v1.css",
+  "universal-ui-v1.css",
 ] as const;
 
 /** CSS sheet files must still exist (not deleted). */
@@ -92,6 +98,22 @@ describe("OPT-P0-CSS-02 Homepage global CSS isolation", () => {
     for (const sheet of REQUIRED_IN_HOMEPAGE_INDEX) {
       expect(index, `${sheet} must remain in index.css`).toContain(sheet);
     }
+  });
+
+  it("B2: OPT-HP-LCP-CSS deferred sheets leave Homepage index with retained owners", () => {
+    const index = readSource("styles/rovexo/index.css");
+    for (const sheet of DEFERRED_FROM_HOMEPAGE_INDEX) {
+      expect(index, `${sheet} must leave index.css`).not.toContain(`@import "./${sheet}"`);
+      expect(existsSync(join(process.cwd(), `styles/rovexo/${sheet}`)), sheet).toBe(true);
+    }
+    expect(readSource("features/account-canonical/shell/AccountCanonicalShell.tsx")).toContain(
+      "canonical-ds.css",
+    );
+    expect(readSource("components/layout/CanonicalPageShell.tsx")).toContain(
+      "platform-canonical-ui.css",
+    );
+    expect(readSource("components/ui/PrimaryButton.tsx")).toContain("primary-button-v1.css");
+    expect(readSource("app/(platform)/staff/layout.tsx")).toContain("universal-ui-v1.css");
   });
 
   it("C+F: CSS sheet files themselves still exist (not deleted)", () => {

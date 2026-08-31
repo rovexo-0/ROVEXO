@@ -3,8 +3,10 @@
  */
 @import "../tokens.css";
 @import "./typography.css";
-@import "./forms.css";
-@import "./cards.css";
+/* OPT-HP-PERF: forms.css / cards.css — scoped to Input · CategoryChip · MotionPress · ProductGridSkeleton
+   (not Canonical Homepage above-fold). */
+/* OPT-HP-PERF: rovexo-header-standard-v1.css — owned by CanonicalPageHeader (Orders/Account chrome). */
+/* OPT-HP-PERF: header-premium.css — owned by legacy components/Header.tsx (not RovexoHeaderV2). */
 @import "./listing-card-official.css";
 @import "./store-listing-card-premium-v1.css";
 /* OPT-P0-CSS-02: promotion-cards-v1.css — page-scoped via PromotionToolsV1. */
@@ -14,11 +16,10 @@
    Enterprise/Admin → enterprise-admin-entry.css (P0-02). */
 /* OPT-P0-CSS-03: auth-v1.css — owned by app/(auth)/layout.tsx → auth-entry.css (not Homepage). */
 /* OPT-P0-CSS-02: account-hub-v1 / account-module-v1 — page-scoped or dead (not Homepage). */
-@import "./platform-canonical-ui.css";
-@import "./canonical-ds.css";
-@import "./rovexo-header-standard-v1.css";
+/* OPT-HP-LCP-CSS: platform-canonical-ui (.pcu-module) — CanonicalPageShell / AccountCanonicalShell. */
+/* OPT-HP-LCP-CSS: canonical-ds (.cds-*) — AccountCanonicalShell / CanonicalPageShell / CanonicalPageHeader. */
+/* OPT-HP-LCP-CSS: primary-button-v1 — owned by PrimaryButton.tsx (duplicate removed from megabundle). */
 @import "./full-width-engine-v1.css";
-@import "./primary-button-v1.css";
 /* OPT-P0-CSS-02: my-account-primary-button-v1.css — intentional no-op; primary-button-v1 owns CTAs. */
 /* OPT-P0-CSS-02: account-settings-v1 / account-settings-canonical — page-scoped at ProfileEdit / Settings. */
 /* OPT-P0-CSS-01: HMRC reporting CSS owned by ComplianceDashboard (page-scoped). */
@@ -29,7 +30,6 @@
 @import "./shell.css";
 @import "./utilities.css";
 @import "./layout.css";
-@import "./header-premium.css";
 @import "./bottom-nav-premium.css";
 /* OPT-P0-CSS-01: dashboard CSS is page-scoped via DashboardShell. */
 @import "./mobile-scroll-v1.css";
@@ -53,11 +53,12 @@
    and imported only from CommandCentreLayout (Admin + Super Admin). */
 /* OPT-P0-CSS-02: benefits-rail.css — archive Homepage only. */
 @import "./icon-standard-v1.css";
-@import "./universal-ui-v1.css";
+/* OPT-HP-LCP-CSS: universal-ui-v1 — only applies under [data-universal-ui]; Homepage uses
+   BetaAppShell data-compact-premium only. Owned by staff/seller/dashboard layouts. */
 @import "./compact-premium-v1.css";
 @import "./phone-width-v1-freeze.css";
-/* Global Button System v1.0 — primary CTA loaded once above.
+/* Global Button System v1.0 — PrimaryButton owns primary-button-v1.css (component-scoped).
    sell.css is page-scoped via SellPage (P0-01). */
-/* ROVEXO Theme Switch v1.0 — MUST load last so Black Underground wins page-scoped hardcodes. */
-@import "./black-underground-theme-v1.css";
+/* OPT-HP-PERF: black-underground-theme-v1.css — deferred via RovexoThemeProvider
+   (light Homepage LCP does not pay dark-theme CSS). Loaded before dark apply + idle prefetch. */
 

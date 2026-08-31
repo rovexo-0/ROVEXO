@@ -14,8 +14,16 @@ describe("platform canonical UI v1.0", () => {
     expect(css).toContain(".ac-canonical__row-subtitle");
   });
 
-  it("imports platform canonical UI in the design system entry", () => {
-    expect(readSource("styles/rovexo/index.css")).toContain("platform-canonical-ui.css");
+  it("imports platform canonical UI via Account / CanonicalPageShell (not Homepage index)", () => {
+    expect(readSource("styles/rovexo/index.css")).not.toContain(
+      '@import "./platform-canonical-ui.css"',
+    );
+    expect(readSource("components/layout/CanonicalPageShell.tsx")).toContain(
+      "platform-canonical-ui.css",
+    );
+    expect(readSource("features/account-canonical/shell/AccountCanonicalShell.tsx")).toContain(
+      "platform-canonical-ui.css",
+    );
   });
 
   it("exposes canonical section primitives", () => {

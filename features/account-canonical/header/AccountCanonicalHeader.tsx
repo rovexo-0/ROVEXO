@@ -9,6 +9,8 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { ROVEXO_HEADER_STANDARD_VERSION } from "@/lib/header/rovexo-header-standard-v1";
 import { CDS_VERSION } from "@/src/components/canonical/tokens";
+/* OPT-HP-PERF: scoped off platform index — Account chrome (not Homepage). */
+import "@/styles/rovexo/rovexo-header-standard-v1.css";
 
 export type AccountCanonicalHeaderProps = {
   className?: string;

@@ -34,8 +34,12 @@ describe("ROVEXO Canonical Design System v1.0", () => {
     expect(css).toContain(".cds-button--primary");
   });
 
-  it("imports canonical-ds.css in the design system entry", () => {
-    expect(readSource("styles/rovexo/index.css")).toContain("canonical-ds.css");
+  it("imports canonical-ds.css via Account / Canonical shells (not Homepage index)", () => {
+    expect(readSource("styles/rovexo/index.css")).not.toContain('@import "./canonical-ds.css"');
+    expect(readSource("features/account-canonical/shell/AccountCanonicalShell.tsx")).toContain(
+      "canonical-ds.css",
+    );
+    expect(readSource("components/layout/CanonicalPageShell.tsx")).toContain("canonical-ds.css");
   });
 
   it("exports all 12 canonical components from the barrel", () => {

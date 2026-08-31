@@ -24,9 +24,9 @@ describe("OPT-P0-PERF-05 Stripe preconnect isolation", () => {
     expect(root).not.toContain('href="https://js.stripe.com"');
     expect(root).not.toMatch(/rel=["']preconnect["'][^>]*js\.stripe\.com/);
     expect(root).toContain("OPT-P0-PERF-05");
-    /* Supabase preconnect must remain. */
-    expect(root).toContain("preconnect");
-    expect(root).toContain("supabaseOrigin");
+    /* OPT-HP-PERF: Supabase preconnect deferred to createClient (not root head). */
+    expect(root).not.toContain("supabaseOrigin");
+    expect(readSource("lib/supabase/client.ts")).toContain("ensureSupabasePreconnect");
   });
 
   it("2: Homepage / platform layout do not declare Stripe preconnect", () => {

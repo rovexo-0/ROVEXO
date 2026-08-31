@@ -2,6 +2,8 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
+/* OPT-HP-PERF: forms.css left platform index — chip uses .rx-btn. */
+import "@/styles/rovexo/forms.css";
 
 type CategoryChipBaseProps = {
   label: string;

@@ -45,10 +45,12 @@ describe("Theme architecture — single Profile Theme Switch (v1.0)", () => {
   it("keeps light tokens as default and Black Underground as dark", () => {
     const tokens = readSource("styles/tokens.css");
     const index = readSource("styles/rovexo/index.css");
+    const themeLoader = readSource("lib/theme/load-black-underground-theme-css-v1.ts");
     expect(tokens).toContain("--ds-color-background: #ffffff");
     expect(tokens).toContain("--ds-color-primary: #9333ea");
     expect(tokens).toMatch(/\[data-theme=["']dark["']\]/);
-    expect(index).toContain("black-underground-theme-v1.css");
+    expect(index).not.toContain('@import "./black-underground-theme-v1.css"');
+    expect(themeLoader).toContain("black-underground-theme-v1.css");
   });
 
   it("redirects legacy appearance route to settings", () => {

@@ -89,15 +89,16 @@ describe("ROVEXO Theme Switch v1.0", () => {
     expect(settingsMenu).not.toContain("Appearance");
   });
 
-  it("imports Black Underground CSS last and keeps light tokens", () => {
+  it("imports Black Underground CSS via theme provider (deferred from platform index)", () => {
     const index = readSource("styles/rovexo/index.css");
     const tokens = readSource("styles/tokens.css");
     const darkCss = readSource("styles/rovexo/black-underground-theme-v1.css");
+    const themeProvider = readSource("components/providers/RovexoThemeProvider.tsx");
+    const themeLoader = readSource("lib/theme/load-black-underground-theme-css-v1.ts");
 
-    expect(index).toContain("black-underground-theme-v1.css");
-    expect(index.lastIndexOf("black-underground-theme-v1.css")).toBeGreaterThan(
-      index.lastIndexOf("phone-width-v1-freeze.css"),
-    );
+    expect(index).not.toContain('@import "./black-underground-theme-v1.css"');
+    expect(themeLoader).toContain("black-underground-theme-v1.css");
+    expect(themeProvider).toContain("loadBlackUndergroundThemeCss");
     expect(tokens).toContain("--rvx-page:");
     expect(tokens).toContain("--ds-color-background: #ffffff");
     expect(tokens).toContain("--ds-color-primary: #9333ea");

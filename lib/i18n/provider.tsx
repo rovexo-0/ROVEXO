@@ -18,7 +18,6 @@ import {
 } from "@/lib/i18n/platform-language";
 import { UK_DEFAULT_CURRENCY } from "@/lib/i18n/uk-first";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
-import { tryCreateClient } from "@/lib/supabase/client";
 
 export type SetLocaleOptions = {
   persist?: boolean;
@@ -107,14 +106,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     void (async () => {
       try {
-        const client = tryCreateClient();
-        if (!client) return;
-        const {
-          data: { session },
-        } = await client.auth.getSession();
-        if (!session || cancelled) return;
-
-        const response = await fetch("/api/settings");
+        /* OPT-HP-LCP: same-origin settings API only — no Supabase browser client on Homepage. */
+        const response = await fetch("/api/settings", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
         if (!response.ok) return;
         const payload = (await response.json()) as { settings?: { localeCode?: LocaleCode } };
         const code = payload.settings?.localeCode;

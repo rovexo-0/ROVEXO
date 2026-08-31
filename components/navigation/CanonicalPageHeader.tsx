@@ -7,6 +7,10 @@ import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { ROVEXO_HEADER_STANDARD_VERSION } from "@/lib/header/rovexo-header-standard-v1";
+/* OPT-HP-PERF: scoped off platform index — Orders/Account chrome (not Homepage). */
+import "@/styles/rovexo/rovexo-header-standard-v1.css";
+/* OPT-HP-LCP-CSS: .cds-header__* — scoped off Homepage megabundle. */
+import "@/styles/rovexo/canonical-ds.css";
 
 export type CanonicalPageHeaderProps = {
   title: string;

@@ -1,5 +1,7 @@
 import { cn } from "@/lib/cn";
 import { forwardRef, type InputHTMLAttributes } from "react";
+/* OPT-HP-PERF: forms.css left platform index — load with form primitives. */
+import "@/styles/rovexo/forms.css";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 

@@ -4,10 +4,8 @@
  * Apply `.pcu-module` on module page bodies outside Homepage / My Account hub.
  */
 
-@import "./account-canonical-v2.css";
-@import "./account-settings-ui.css";
-/* PERF-P2: addresses-v1.css is exclusive to Addresses and already imported by
-   AddressesPage — do not load it on the Homepage / platform megabundle. */
+/* OPT-HP-LCP: account-canonical-v2 + account-settings-ui are NOT Homepage ATF.
+   Owned by AccountCanonicalShell / CanonicalSettingsSection — keep .pcu-module here. */
 
 :root {
   --pcu-card-radius: 14px;

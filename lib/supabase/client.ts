@@ -7,6 +7,7 @@ import {
   tryGetSupabaseAnonKey,
   tryGetSupabaseUrl,
 } from "@/lib/supabase/env";
+import { ensureSupabasePreconnect } from "@/lib/supabase/ensure-supabase-preconnect-v1";
 
 export { isSupabaseConfigured };
 
@@ -17,6 +18,12 @@ export function createClient() {
     throw new Error(
       "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
+  }
+
+  try {
+    ensureSupabasePreconnect(new URL(url).origin);
+  } catch {
+    /* ignore invalid URL — createBrowserClient will surface config errors */
   }
 
   return createBrowserClient<Database>(url, key);

@@ -9,7 +9,7 @@ const isProduction = process.env.NODE_ENV === "production";
  * - object-src tightened to `'none'` (was `'self' blob:`).
  * - upgrade-insecure-requests added in production CSP.
  */
-export const PRODUCTION_CSP = [
+const PRODUCTION_CSP_DIRECTIVES = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
   "style-src 'self' 'unsafe-inline'",
@@ -22,8 +22,22 @@ export const PRODUCTION_CSP = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "upgrade-insecure-requests",
-].join("; ");
+] as const;
 
+export const PRODUCTION_CSP = PRODUCTION_CSP_DIRECTIVES.join("; ");
+
+/**
+ * Loopback `next start` / Lighthouse: same CSP without upgrade-insecure-requests.
+ * Keeps production HTTPS hosts on the full PRODUCTION_CSP (incl. upgrade).
+ */
+export const PRODUCTION_CSP_LOOPBACK = PRODUCTION_CSP_DIRECTIVES.filter(
+  (directive) => directive !== "upgrade-insecure-requests",
+).join("; ");
+
+export function isLoopbackHost(host: string | null | undefined): boolean {
+  const bare = host?.split(":")[0]?.toLowerCase() ?? "";
+  return bare === "localhost" || bare === "127.0.0.1" || bare === "[::1]" || bare === "::1";
+}
 /** Documented residual CSP allowances (audit acceptance — P11.2). */
 export const CSP_RESIDUAL_JUSTIFICATIONS = {
   "script-src 'unsafe-inline'":
@@ -53,6 +67,24 @@ export function buildSecurityHeaders(production = isProduction): SecurityHeader[
       : []),
   ];
 }
+
+/**
+ * next.config static headers — omits CSP upgrade + HSTS (host-aware in middleware).
+ * next.config headers apply AFTER middleware and would otherwise clobber loopback fixes
+ * or strip upgrade from public hosts. Middleware owns CSP + HSTS in production.
+ */
+export function buildNextConfigSecurityHeaders(production = isProduction): SecurityHeader[] {
+  return [
+    { key: "X-Frame-Options", value: "DENY" },
+    { key: "X-Content-Type-Options", value: "nosniff" },
+    { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+    { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(self), web-share=(self)" },
+    { key: "X-DNS-Prefetch-Control", value: "off" },
+    ...(production ? [{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }] : []),
+  ];
+}
+
+export const HSTS_PRODUCTION_VALUE = "max-age=63072000; includeSubDomains; preload";
 
 export const REQUIRED_SECURITY_HEADER_KEYS = [
   "X-Frame-Options",

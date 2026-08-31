@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildPerformanceRouteHeaders } from "./lib/ops/performance-headers";
-import { buildSecurityHeaders } from "./lib/ops/security-headers";
+import { buildNextConfigSecurityHeaders } from "./lib/ops/security-headers";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +21,7 @@ function supabaseImageHostnames(): string[] {
 }
 
 const isProduction = process.env.NODE_ENV === "production";
-const securityHeaders = buildSecurityHeaders(isProduction);
+const securityHeaders = buildNextConfigSecurityHeaders(isProduction);
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,

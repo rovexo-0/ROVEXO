@@ -30,19 +30,6 @@ import { RovexoThemeProvider } from "@/components/providers/RovexoThemeProvider"
 const launchPrivateRobots = resolveLaunchPrivateModeRobots();
 const faviconV = withWhitePearlFaviconCacheBust;
 
-function resolveSupabaseOrigin(): string | null {
-  const configured =
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim();
-  if (!configured) return "https://pklotmwxtnnepaitedic.supabase.co";
-  try {
-    return new URL(configured).origin;
-  } catch {
-    return null;
-  }
-}
-
-const supabaseOrigin = resolveSupabaseOrigin();
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -163,7 +150,8 @@ export default function RootLayout({
         {/* P9 — early connection setup for marketplace media (delivery only). */}
         {/* OPT-P0-PERF-05: Stripe js.stripe.com preconnect is route-scoped to
             app/(platform)/wallet/payment-methods/layout.tsx (sole loadStripe owner). */}
-        {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
+        {/* OPT-HP-PERF: Supabase preconnect is deferred until createClient() —
+            guest Homepage does not hit supabase.co on initial load. */}
       </head>
       <body className="min-h-full flex flex-col bg-background text-text-primary">
         {/* Chunk recovery only — never mutate <html> attributes before hydration. */}

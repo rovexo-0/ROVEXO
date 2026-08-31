@@ -1,4 +1,10 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  HSTS_PRODUCTION_VALUE,
+  PRODUCTION_CSP,
+  PRODUCTION_CSP_LOOPBACK,
+  isLoopbackHost,
+} from "@/lib/ops/security-headers";
 import { applySeoRouting } from "@/lib/seo/engine/middleware-handler";
 import { updateSession } from "@/lib/supabase/middleware";
 
@@ -9,11 +15,30 @@ const STAFF_HOSTS = new Set(
     .filter(Boolean),
 );
 
-export async function middleware(request: NextRequest) {
-  const seoResponse = await applySeoRouting(request);
-  if (seoResponse) return seoResponse;
+const isProductionRuntime = process.env.NODE_ENV === "production";
 
+function applyHostAwareProductionSecurity(
+  response: NextResponse,
+  host: string | undefined,
+): void {
+  if (!isProductionRuntime) return;
+  if (isLoopbackHost(host)) {
+    response.headers.set("Content-Security-Policy", PRODUCTION_CSP_LOOPBACK);
+    response.headers.delete("Strict-Transport-Security");
+    return;
+  }
+  response.headers.set("Content-Security-Policy", PRODUCTION_CSP);
+  response.headers.set("Strict-Transport-Security", HSTS_PRODUCTION_VALUE);
+}
+
+export async function middleware(request: NextRequest) {
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
+
+  const seoResponse = await applySeoRouting(request);
+  if (seoResponse) {
+    applyHostAwareProductionSecurity(seoResponse, host);
+    return seoResponse;
+  }
 
   // Isolate draft visual preview onto a private force-dynamic route so `/` stays cookie-free ISR.
   // Browser URL remains `/?visualPreview=draft` (ThemeStudio links unchanged).
@@ -47,6 +72,14 @@ export async function middleware(request: NextRequest) {
       "public, s-maxage=60, stale-while-revalidate=300",
     );
   }
+
+  /*
+   * HTTPS upgrade + HSTS are host-aware (not in next.config static headers):
+   * - Production public hosts → full PRODUCTION_CSP + HSTS
+   * - Loopback (localhost / 127.0.0.1) → CSP without upgrade; no HSTS
+   * Prevents Lighthouse ERR_SSL_PROTOCOL_ERROR on http://localhost:3000/wallet prefetch.
+   */
+  applyHostAwareProductionSecurity(response, host);
 
   return response;
 }

@@ -4,6 +4,8 @@
  * Import order matches former platform index.css block — do not reorder.
  * Individual sheet contents are unchanged (no merge / rewrite / rename).
  */
+/* OPT-HP-PERF: forms left platform index — Admin panels use .rx-input directly. */
+@import "./forms.css";
 @import "./mission-control.css";
 @import "./mission-control-v2.css";
 @import "./command-center-v1.css";

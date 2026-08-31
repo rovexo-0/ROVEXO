@@ -16,6 +16,10 @@ import {
   type RovexoThemeMode,
   ROVEXO_THEME_DEFAULT,
 } from "@/lib/theme/rovexo-theme-v1";
+import {
+  loadBlackUndergroundThemeCss,
+  prefetchBlackUndergroundThemeCssIdle,
+} from "@/lib/theme/load-black-underground-theme-css-v1";
 
 const THEME_CHANGE_EVENT = "rovexo-theme-change";
 
@@ -49,6 +53,16 @@ function emitThemeChange(): void {
   window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
 }
 
+async function applyThemeWithCss(next: RovexoThemeMode): Promise<void> {
+  const normalized = normalizeRovexoTheme(next);
+  if (normalized === "dark") {
+    await loadBlackUndergroundThemeCss();
+  }
+  applyRovexoThemeToDocument(normalized);
+  persistRovexoTheme(normalized);
+  emitThemeChange();
+}
+
 function useDocumentThemeController(): RovexoThemeContextValue {
   const theme = useSyncExternalStore(
     subscribeTheme,
@@ -57,17 +71,12 @@ function useDocumentThemeController(): RovexoThemeContextValue {
   );
 
   const setTheme = useCallback((next: RovexoThemeMode) => {
-    const normalized = normalizeRovexoTheme(next);
-    applyRovexoThemeToDocument(normalized);
-    persistRovexoTheme(normalized);
-    emitThemeChange();
+    void applyThemeWithCss(next);
   }, []);
 
   const toggleTheme = useCallback(() => {
     const next = readDocumentTheme() === "dark" ? "light" : "dark";
-    applyRovexoThemeToDocument(next);
-    persistRovexoTheme(next);
-    emitThemeChange();
+    void applyThemeWithCss(next);
   }, []);
 
   return useMemo(
@@ -87,15 +96,28 @@ function useDocumentThemeController(): RovexoThemeContextValue {
  *
  * Hydration contract: SSR + first client render keep `data-theme="light"`.
  * Stored preference is applied only after mount (no beforeInteractive DOM mutation).
+ * OPT-HP-PERF: dark CSS loads only when needed (or idle-prefetch for light users).
  */
 export function RovexoThemeProvider({ children }: { children: ReactNode }) {
   const value = useDocumentThemeController();
 
   useEffect(() => {
-    const stored = readStoredRovexoTheme();
-    if (stored === readDocumentTheme()) return;
-    applyRovexoThemeToDocument(stored);
-    emitThemeChange();
+    let cancelled = false;
+    void (async () => {
+      const stored = readStoredRovexoTheme();
+      if (stored === "dark") {
+        await loadBlackUndergroundThemeCss();
+      } else {
+        prefetchBlackUndergroundThemeCssIdle();
+      }
+      if (cancelled) return;
+      if (stored === readDocumentTheme()) return;
+      applyRovexoThemeToDocument(stored);
+      emitThemeChange();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return <RovexoThemeContext.Provider value={value}>{children}</RovexoThemeContext.Provider>;
