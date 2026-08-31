@@ -3,23 +3,23 @@ import { z } from "zod";
 import { requireApiSuperAdmin } from "@/lib/auth/session";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import path from "node:path";
+import { repoPath } from "@/lib/ops/repo-path";
 import { getPremiumAssetInventory } from "@/lib/super-admin/premium-design/inventory";
 import { validateProductionAssets, formatValidationReport } from "@/lib/super-admin/production-assets/validator";
 
 export const dynamic = "force-dynamic";
 
 const execFileAsync = promisify(execFile);
-const ROOT = process.cwd();
 
 const actionSchema = z.object({
   action: z.enum(["validate", "import", "rebuild"]),
 });
 
 async function runNodeScript(scriptRelativePath: string) {
-  const scriptPath = path.join(ROOT, scriptRelativePath);
+  const scriptPath = repoPath(scriptRelativePath);
+  const root = repoPath();
   const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
-    cwd: ROOT,
+    cwd: root,
     maxBuffer: 12 * 1024 * 1024,
     env: { ...process.env, FORCE: "1" },
   });
