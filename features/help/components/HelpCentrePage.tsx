@@ -6,17 +6,32 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 
 import { HelpCentreCategoryGrid } from "@/features/help/components/HelpCentreCanonicalSection";
+import { useRefreshHelpOnSellerContextChange } from "@/features/help/hooks/use-refresh-help-on-seller-context-change";
 import { HELP_CENTRE_SUPPORT_ICONS } from "@/lib/help/help-centre-icons-v1";
+import {
+  canAccessHelpContent,
+  HELP_AUDIENCES_FOR_GUEST,
+  type HelpContentAudience,
+} from "@/lib/help/help-content-audience-v1";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
 
 type HelpCentrePageProps = {
   initialQuery?: string;
+  allowedAudiences?: readonly HelpContentAudience[];
 };
 
-export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
+export function HelpCentrePage({
+  initialQuery = "",
+  allowedAudiences = HELP_AUDIENCES_FOR_GUEST,
+}: HelpCentrePageProps) {
+  useRefreshHelpOnSellerContextChange();
   const [query, setQuery] = useState(initialQuery);
-  const results = useMemo(() => searchHelpCentre(query), [query]);
+  const showBusinessStore = canAccessHelpContent("business", allowedAudiences);
+  const results = useMemo(
+    () => searchHelpCentre(query, 16, { allowedAudiences }),
+    [query, allowedAudiences],
+  );
   const hasQuery = query.trim().length > 0;
 
   return (
@@ -43,11 +58,28 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
         ) : (
           <>
             <HelpCentreCategoryGrid />
+            {showBusinessStore ? (
+              <CanonicalSection title="Business">
+                <div className="fw-engine__group">
+                  <CanonicalMenuRow
+                    title="Business storefront"
+                    description="Present your public store using Business tools"
+                    icon={
+                      <MasterMenuIcon
+                        icon={HELP_CENTRE_SUPPORT_ICONS.businessStore.icon}
+                        color={HELP_CENTRE_SUPPORT_ICONS.businessStore.color}
+                      />
+                    }
+                    href="/help/business-storefront-tips"
+                  />
+                </div>
+              </CanonicalSection>
+            ) : null}
             <CanonicalSection title="Need support?">
               <div className="fw-engine__group">
                 <CanonicalMenuRow
                   title="Contact Support"
-                  description="Submit a support request (Help Centre entry point)"
+                  description="Submit a support request"
                   icon={
                     <MasterMenuIcon
                       icon={HELP_CENTRE_SUPPORT_ICONS.contactSupport.icon}
@@ -58,14 +90,47 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
                 />
                 <CanonicalMenuRow
                   title="Report a Problem"
-                  description="Report an issue with an order or listing"
+                  description="Report a user or listing issue"
                   icon={
                     <MasterMenuIcon
                       icon={HELP_CENTRE_SUPPORT_ICONS.reportProblem.icon}
                       color={HELP_CENTRE_SUPPORT_ICONS.reportProblem.color}
                     />
                   }
-                  href="/support?category=report"
+                  href="/support?category=report_user"
+                />
+                <CanonicalMenuRow
+                  title="FAQ"
+                  description="Short answers from official Help"
+                  icon={
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.faq.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.faq.color}
+                    />
+                  }
+                  href="/help/faq"
+                />
+                <CanonicalMenuRow
+                  title="Privacy Policy"
+                  description="How ROVEXO uses personal data"
+                  icon={
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.privacyPolicy.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.privacyPolicy.color}
+                    />
+                  }
+                  href="/legal/privacy-policy"
+                />
+                <CanonicalMenuRow
+                  title="Privacy Settings"
+                  description="Manage privacy controls on your account"
+                  icon={
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.privacySettings.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.privacySettings.color}
+                    />
+                  }
+                  href="/account/privacy"
                 />
                 <CanonicalMenuRow
                   title="Legal Centre"
@@ -77,6 +142,17 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
                     />
                   }
                   href="/legal"
+                />
+                <CanonicalMenuRow
+                  title="About ROVEXO"
+                  description="How the marketplace works"
+                  icon={
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.about.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.about.color}
+                    />
+                  }
+                  href="/about"
                 />
               </div>
             </CanonicalSection>
@@ -104,9 +180,12 @@ function HelpSearchResults({ results, query }: { results: HelpSearchResult[]; qu
         ))}
       </div>
       {results.length === 0 ? (
-        <CanonicalInfoBlock variant="description">
-          No matches found. Try a category below or contact support from a help article.
-        </CanonicalInfoBlock>
+        <>
+          <CanonicalInfoBlock variant="description">
+            No matches found. Browse a category or contact Support.
+          </CanonicalInfoBlock>
+          <HelpCentreCategoryGrid />
+        </>
       ) : null}
     </CanonicalSection>
   );

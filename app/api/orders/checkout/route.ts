@@ -7,6 +7,10 @@ import { mapOrderCheckoutErrorToRvx } from "@/lib/checkout/map-order-checkout-er
 import { formatBuyNowUserError, RVX_UNCLASSIFIED } from "@/lib/checkout/buy-now-guard-v1";
 import { RVX_LOG } from "@/lib/checkout/rvx-logger-v1";
 import {
+  isLocalDevelopmentAppOrigin,
+  normalizeAppOriginCandidate,
+} from "@/lib/business/business-connect-runtime-origin-v1";
+import {
   CHECKOUT_RACE_CONDITION_V1,
   isItemJustSoldError,
   itemJustSoldPayload,
@@ -34,6 +38,7 @@ export async function POST(request: Request) {
       idempotencyKey?: string | null;
       orderId?: string | null;
       checkoutSessionId?: string | null;
+      appBaseUrl?: string | null;
     };
 
     const headerIdempotency = request.headers.get("idempotency-key");
@@ -73,6 +78,12 @@ export async function POST(request: Request) {
       idempotencyKey: body.idempotencyKey ?? headerIdempotency,
       orderId: body.orderId ?? null,
       checkoutSessionId: body.checkoutSessionId ?? null,
+      appBaseUrl: (() => {
+        const candidate =
+          typeof body.appBaseUrl === "string" ? normalizeAppOriginCandidate(body.appBaseUrl) : null;
+        if (candidate && isLocalDevelopmentAppOrigin(candidate)) return candidate;
+        return undefined;
+      })(),
     });
 
     if ("error" in result) {
@@ -100,8 +111,13 @@ export async function POST(request: Request) {
       checkoutSessionId: result.checkoutSessionId ?? body.checkoutSessionId ?? null,
       order,
     });
-  } catch {
+  } catch (error) {
     RVX_LOG("STOP", RVX_UNCLASSIFIED);
+    // Local/loopback diagnostics only — never expose internal errors to clients.
+    if (process.env.NODE_ENV !== "production") {
+      const message = error instanceof Error ? error.message : "unknown";
+      console.error("[orders/checkout] unclassified:", message);
+    }
     return NextResponse.json(
       {
         success: false,

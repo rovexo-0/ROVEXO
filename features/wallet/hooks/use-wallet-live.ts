@@ -1,7 +1,7 @@
 /**
  * Wallet hub live balance — wallets + wallet_transactions (Realtime Certification v1.0).
  * Reuses account snapshot API (one SSOT) — no parallel wallet fetch system.
- * P8: wallet-only RT channels + equal-bail setData (no financial behaviour change).
+ * Phase 1F: sellerContext-scoped snapshot — Business never refreshes from Individual.
  */
 "use client";
 
@@ -12,12 +12,26 @@ import {
 } from "@/lib/account-center/realtime";
 import { fetchAccountSnapshotShared } from "@/lib/account-center/fetch-account-snapshot-shared";
 import { isDocumentVisible } from "@/lib/performance/visibility";
+import {
+  normalizeSellerContext,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { WalletData } from "@/lib/wallet/types";
 
-async function fetchWalletFromSnapshot(): Promise<WalletData | null> {
-  const payload = await fetchAccountSnapshotShared();
-  return payload.wallet ?? null;
+async function fetchWalletFromSnapshot(
+  sellerContext: SellerContext,
+): Promise<WalletData | null> {
+  const payload = await fetchAccountSnapshotShared(sellerContext);
+  if (payload.sellerContext !== sellerContext) {
+    return null;
+  }
+  const wallet = payload.wallet ?? null;
+  if (!wallet) return null;
+  if (wallet.walletContext && wallet.walletContext !== sellerContext) {
+    return null;
+  }
+  return wallet;
 }
 
 /** Compare hub-visible money fields — skip setState when RT refresh is identical. */
@@ -26,6 +40,7 @@ export function walletLiveFingerprint(data: WalletData): string {
     .map((row) => `${row.id}:${row.status}:${row.amount}:${row.createdAt}`)
     .join("|");
   return [
+    data.walletContext ?? "",
     data.availableBalance,
     data.pendingBalance,
     data.lockedBalance,
@@ -49,23 +64,29 @@ export type WalletLiveState = {
   rtTick: number;
 };
 
-export function useWalletLive(userId: string, initial: WalletData): WalletLiveState {
+export function useWalletLive(
+  userId: string,
+  initial: WalletData,
+  sellerContext: SellerContext | string = "individual",
+): WalletLiveState {
+  const context = normalizeSellerContext(sellerContext);
   const [data, setData] = useState(initial);
   const [rtTick, setRtTick] = useState(0);
   const timerRef = useRef<number | null>(null);
   const fingerprintRef = useRef(walletLiveFingerprint(initial));
+  const contextRef = useRef(context);
 
   const refresh = useCallback(async () => {
     if (!isDocumentVisible()) return;
     try {
-      const next = await fetchWalletFromSnapshot();
+      const next = await fetchWalletFromSnapshot(contextRef.current);
       if (!next) return;
       const nextFp = walletLiveFingerprint(next);
       if (nextFp === fingerprintRef.current) return;
       fingerprintRef.current = nextFp;
       setData(next);
     } catch {
-      // ignore transient
+      // ignore transient — keep last known in-context data (never cross-context)
     }
   }, []);
 
@@ -85,6 +106,14 @@ export function useWalletLive(userId: string, initial: WalletData): WalletLiveSt
     setData(initial);
   }
 
+  // Context switch (Individual ↔ Business): reset to server initial; never keep other hub data.
+  useEffect(() => {
+    if (contextRef.current === context) return;
+    contextRef.current = context;
+    setData(initial);
+    fingerprintRef.current = walletLiveFingerprint(initial);
+  }, [context, initial]);
+
   useEffect(() => {
     fingerprintRef.current = walletLiveFingerprint(data);
   }, [data]);
@@ -100,7 +129,7 @@ export function useWalletLive(userId: string, initial: WalletData): WalletLiveSt
       if (timerRef.current !== null) window.clearTimeout(timerRef.current);
       if (channel) removeAccountHubChannel(channel);
     };
-  }, [userId, schedule]);
+  }, [userId, schedule, context]);
 
   return { data, rtTick };
 }

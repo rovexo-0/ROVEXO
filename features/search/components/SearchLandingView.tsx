@@ -21,7 +21,9 @@ import { SEARCH_MIN_CHARS } from "@/features/search/types";
 import { isInvalidSearchSentinel } from "@/features/search/utils/sanitize-search-query";
 import { SUPREME_BLOOD_CODE_XXVII_V1 } from "@/lib/supreme-blood-code-xxvii-v1";
 import { closeSearchAndReturnHome } from "@/lib/navigation/homepage-scroll-restore";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import "@/styles/rovexo/search-landing-v1.css";
 import "@/styles/rovexo/category-rail.css";
@@ -46,29 +48,15 @@ const EMPTY_CATEGORY_COUNTS: SearchLandingCategoryCount[] = [];
 const EMPTY_TRENDING: string[] = [];
 
 function ClockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 8v4.5l3 1.5" strokeLinecap="round" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.recent} size={14} />;
 }
 
 function TrendIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
-      <path d="M4 16l5-5 4 4 7-8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M15 7h5v5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <PlatformEmoji emoji="📈" size={14} />;
 }
 
 function ChipCloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.close} size={12} />;
 }
 
 /**

@@ -1,5 +1,4 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { processAutomaticSellerPayouts } from "@/lib/stripe/payouts";
 import { calculatePlatformFee } from "@/lib/orders/pricing";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { isWalletMoneyEnvReady, MISSING_REQUIRED_SECRET } from "@/lib/wallet/env-validation";
@@ -17,10 +16,14 @@ import {
   roundWalletMoney,
 } from "@/lib/wallet/security";
 
-import { DELIVERED_RELEASE_HOURS } from "@/lib/commerce-engine/escrow-constants";
+import { INDIVIDUAL_PROTECTION_HOURS } from "@/lib/commerce-engine/escrow-constants";
+import {
+  normalizeSellerContext,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 
-/** @deprecated Use DELIVERED_RELEASE_HOURS from commerce-engine/escrow-constants (24h). */
-export const PENDING_HOLD_HOURS = DELIVERED_RELEASE_HOURS;
+/** @deprecated Use INDIVIDUAL_PROTECTION_HOURS / protectionHoursForSellerContext (48h / 14d). */
+export const PENDING_HOLD_HOURS = INDIVIDUAL_PROTECTION_HOURS;
 
 /**
  * Single platform fee model: the seller receives the full item price. The only
@@ -37,27 +40,145 @@ export function calculateSellerNetAmount(itemPrice: number): {
   return { platformFee, sellerAmount };
 }
 
-async function ensureWallet(userId: string) {
+export async function ensureWallet(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+) {
+  const context = normalizeSellerContext(sellerContext);
   const admin = createAdminClient();
   let { data: wallet } = await admin
     .from("wallets")
-    .select("id, pending_balance, available_balance")
+    .select("id, pending_balance, available_balance, locked_balance, wallet_context")
     .eq("user_id", userId)
+    .eq("wallet_context", context)
     .maybeSingle();
+
+  /* Back-compat: pre-migration rows may lack wallet_context filter match. */
+  if (!wallet && context === "individual") {
+    const legacy = await admin
+      .from("wallets")
+      .select("id, pending_balance, available_balance, locked_balance, wallet_context")
+      .eq("user_id", userId)
+      .maybeSingle();
+    wallet = legacy.data;
+  }
 
   if (!wallet) {
     const { data: created, error: createError } = await admin
       .from("wallets")
-      .insert({ user_id: userId })
-      .select("id, pending_balance, available_balance")
+      .insert({ user_id: userId, wallet_context: context })
+      .select("id, pending_balance, available_balance, locked_balance, wallet_context")
       .single();
     if (createError) {
+      /* Race: unique (user_id, wallet_context) — re-select */
+      const again = await admin
+        .from("wallets")
+        .select("id, pending_balance, available_balance, locked_balance, wallet_context")
+        .eq("user_id", userId)
+        .eq("wallet_context", context)
+        .maybeSingle();
+      if (again.data) return again.data;
       throw new Error(createError.message || "Seller wallet create failed");
     }
     wallet = created;
   }
 
   return wallet;
+}
+
+/**
+ * P0-C — Release Pending sale funds to Available (NO Stripe Transfer).
+ * Idempotent: already non-pending sale with no transfer required returns success.
+ */
+export async function releaseSaleToAvailable(input: {
+  saleTransactionId: string;
+  userId: string;
+  orderId: string;
+  orderNumber: string;
+  amount: number;
+  sellerContext: SellerContext;
+}): Promise<{ success: true } | { success: false; error: string; retryable: boolean }> {
+  if (!isWalletMoneyEnvReady("sale_payout")) {
+    return { success: false, error: MISSING_REQUIRED_SECRET, retryable: false };
+  }
+  const admin = createAdminClient();
+  const context = normalizeSellerContext(input.sellerContext);
+  const amount = roundWalletMoney(input.amount);
+  if (!(amount > 0)) {
+    return { success: false, error: "Invalid release amount.", retryable: false };
+  }
+
+  const { data: saleTx } = await admin
+    .from("wallet_transactions")
+    .select("id, wallet_id, amount, status, stripe_transfer_id, description")
+    .eq("id", input.saleTransactionId)
+    .maybeSingle();
+
+  if (!saleTx) {
+    return { success: false, error: "Sale transaction not found.", retryable: false };
+  }
+  if (saleTx.status === "refunded") {
+    return { success: false, error: "sale_refunded", retryable: false };
+  }
+  /* Already released to Available (canonical) or legacy-transferred */
+  if (saleTx.status === "completed") {
+    return { success: true };
+  }
+  if (saleTx.stripe_transfer_id) {
+    return { success: true };
+  }
+
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("id, pending_balance, available_balance")
+    .eq("id", saleTx.wallet_id)
+    .maybeSingle();
+
+  if (!wallet) {
+    return { success: false, error: "Wallet not found.", retryable: false };
+  }
+
+  const sellerAmount = roundWalletMoney(Number(saleTx.amount));
+  const nextPending = Math.max(0, roundWalletMoney(Number(wallet.pending_balance) - sellerAmount));
+  const nextAvailable = roundWalletMoney(Number(wallet.available_balance) + sellerAmount);
+
+  const { data: moved, error: walletError } = await admin
+    .from("wallets")
+    .update({
+      pending_balance: nextPending,
+      available_balance: nextAvailable,
+    })
+    .eq("id", wallet.id)
+    .gte("pending_balance", sellerAmount)
+    .select("id");
+
+  if (walletError || !moved?.length) {
+    return { success: false, error: "Unable to move funds to available.", retryable: true };
+  }
+
+  const { error: txError } = await admin
+    .from("wallet_transactions")
+    .update({
+      status: "completed",
+      seller_context: context,
+      description: `order:${input.orderId}|released_available`,
+    } as never)
+    .eq("id", input.saleTransactionId)
+    .eq("status", "pending")
+    .is("stripe_transfer_id", null);
+
+  if (txError) {
+    await admin
+      .from("wallets")
+      .update({
+        pending_balance: Number(wallet.pending_balance),
+        available_balance: Number(wallet.available_balance),
+      })
+      .eq("id", wallet.id);
+    return { success: false, error: "Unable to record release.", retryable: true };
+  }
+
+  return { success: true };
 }
 
 export async function creditSellerForOrder(input: {
@@ -68,11 +189,13 @@ export async function creditSellerForOrder(input: {
   productImageUrl: string;
   itemPrice: number;
   stripePaymentIntentId?: string | null;
+  sellerContext?: SellerContext | string | null;
 }): Promise<void> {
   if (!isWalletMoneyEnvReady("sale_payout")) {
     throw new Error(MISSING_REQUIRED_SECRET);
   }
   const admin = createAdminClient();
+  const context = normalizeSellerContext(input.sellerContext);
   const saleKey = buildSaleIdempotencyKey(input.orderNumber, input.sellerId);
 
   const { data: existing } = await admin
@@ -90,7 +213,7 @@ export async function creditSellerForOrder(input: {
     return;
   }
 
-  const wallet = await ensureWallet(input.sellerId);
+  const wallet = await ensureWallet(input.sellerId, context);
   if (!wallet) {
     throw new Error(`Seller wallet unavailable for user ${input.sellerId}.`);
   }
@@ -124,6 +247,7 @@ export async function creditSellerForOrder(input: {
     fee_amount: 0,
     status: "pending" as const,
     type: "sale" as const,
+    seller_context: context,
     payout_available_at: payoutAvailableAt,
     description: `order:${input.orderId}${piSuffix}`,
   };
@@ -131,11 +255,11 @@ export async function creditSellerForOrder(input: {
   let { error: insertError } = await admin.from("wallet_transactions").insert({
     ...baseRow,
     idempotency_key: saleKey,
-  });
+  } as never);
 
   // Schema lag: migration 20260719120000 not applied — still credit with app-level idempotency.
   if (insertError && /idempotency_key/i.test(insertError.message)) {
-    ({ error: insertError } = await admin.from("wallet_transactions").insert(baseRow));
+    ({ error: insertError } = await admin.from("wallet_transactions").insert(baseRow as never));
   }
 
   if (insertError) {
@@ -160,11 +284,13 @@ export async function creditSellerForOrder(input: {
 }
 
 /**
- * Runs automatic Connect transfers for sales past the hold period, then returns the count transferred.
- * Preserves the legacy function name used by cron maintenance.
+ * Canonical Release worker entry (legacy name preserved).
+ * Release → Available only. Never creates a sale Connect Transfer.
+ * Cron uses CommerceEngine.releaseEligiblePendingBalances (same settlement path).
  */
 export async function releaseSellerPendingBalances(): Promise<number> {
-  return processAutomaticSellerPayouts();
+  const { releaseEligibleOrders } = await import("@/lib/commerce-engine/settlement");
+  return releaseEligibleOrders();
 }
 
 /**
@@ -204,7 +330,7 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
 
   const { data: order } = await admin
     .from("orders")
-    .select("order_number, item_price")
+    .select("order_number, item_price, seller_context")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -212,12 +338,15 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
     return;
   }
 
+  const sellerContext = normalizeSellerContext(order.seller_context);
+
   const { data: saleTx } = await admin
     .from("wallet_transactions")
     .select("*")
     .eq("user_id", sellerId)
     .eq("order_number", order.order_number)
     .eq("type", "sale")
+    .eq("seller_context", sellerContext)
     .maybeSingle();
 
   if (saleTx?.status === "refunded") {
@@ -225,11 +354,65 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
   }
 
   if (!saleTx) {
+    /* Legacy sale rows may omit seller_context — Individual only fallback. */
+    if (sellerContext !== "individual") {
+      return;
+    }
+    const { data: legacySale } = await admin
+      .from("wallet_transactions")
+      .select("*")
+      .eq("user_id", sellerId)
+      .eq("order_number", order.order_number)
+      .eq("type", "sale")
+      .maybeSingle();
+    if (!legacySale || legacySale.status === "refunded") {
+      return;
+    }
+    await clawbackSellerSale({
+      admin,
+      orderId,
+      sellerId,
+      orderNumber: order.order_number,
+      itemPrice: Number(order.item_price),
+      saleTx: legacySale,
+      sellerContext,
+      refundKey,
+      refundDescription,
+    });
     return;
   }
 
-  const { sellerAmount } = calculateSellerNetAmount(Number(order.item_price));
-  const wallet = await ensureWallet(sellerId);
+  await clawbackSellerSale({
+    admin,
+    orderId,
+    sellerId,
+    orderNumber: order.order_number,
+    itemPrice: Number(order.item_price),
+    saleTx,
+    sellerContext,
+    refundKey,
+    refundDescription,
+  });
+}
+
+async function clawbackSellerSale(input: {
+  admin: ReturnType<typeof createAdminClient>;
+  orderId: string;
+  sellerId: string;
+  orderNumber: string;
+  itemPrice: number;
+  saleTx: {
+    id: string;
+    status: string;
+    stripe_transfer_id: string | null;
+  };
+  sellerContext: SellerContext;
+  refundKey: string;
+  refundDescription: string;
+}): Promise<void> {
+  const { admin, orderId, sellerId, saleTx, sellerContext, refundKey, refundDescription } = input;
+  const { sellerAmount } = calculateSellerNetAmount(input.itemPrice);
+  const wallet = await ensureWallet(sellerId, sellerContext);
   if (!wallet) {
     return;
   }
@@ -286,12 +469,13 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
   const refundRow = {
     wallet_id: wallet.id,
     user_id: sellerId,
-    order_number: order.order_number,
-    product_title: `Refund — ${order.order_number}`,
+    order_number: input.orderNumber,
+    product_title: `Refund — ${input.orderNumber}`,
     amount: -sellerAmount,
     status: "completed" as const,
     type: "refund" as const,
     description: refundDescription,
+    seller_context: sellerContext,
   };
 
   let { error: insertError } = await admin.from("wallet_transactions").insert({
@@ -353,17 +537,6 @@ export async function creditBuyerWalletForConfirmedRefund(
     .eq("idempotency_key", refundKey)
     .maybeSingle();
   if (byIdem) {
-    return;
-  }
-
-  const { data: existingRefund } = await admin
-    .from("wallet_transactions")
-    .select("id")
-    .eq("user_id", input.buyerId)
-    .eq("order_number", input.orderNumber)
-    .eq("type", "refund")
-    .maybeSingle();
-  if (existingRefund) {
     return;
   }
 
@@ -441,6 +614,44 @@ export type DebitBuyerWalletForCheckoutResult =
  * Production ROVEXO Balance debit for Confirm & Pay.
  * Debits the locked payable total only. No Stripe. No Full Demo seed.
  */
+/**
+ * Buyer Checkout always debits the Personal (individual) ROVEXO Wallet.
+ * Never seller Stripe Connect. Never Business Wallet.
+ * seller_context on the ledger stamp is individual = buyer wallet ownership.
+ */
+async function loadBuyerCheckoutWallet(buyerId: string): Promise<{
+  id: string;
+  available_balance: number;
+} | null> {
+  const admin = createAdminClient();
+  let { data: wallet } = await admin
+    .from("wallets")
+    .select("id, available_balance, wallet_context")
+    .eq("user_id", buyerId)
+    .eq("wallet_context", "individual")
+    .maybeSingle();
+
+  if (!wallet) {
+    const legacy = await admin
+      .from("wallets")
+      .select("id, available_balance, wallet_context")
+      .eq("user_id", buyerId)
+      .maybeSingle();
+    if (
+      legacy.data &&
+      (legacy.data.wallet_context == null ||
+        legacy.data.wallet_context === "" ||
+        legacy.data.wallet_context === "individual")
+    ) {
+      wallet = legacy.data;
+    }
+  }
+
+  return wallet
+    ? { id: wallet.id, available_balance: Number(wallet.available_balance ?? 0) }
+    : null;
+}
+
 export async function readBuyerWalletCheckoutEligibility(input: {
   buyerId: string;
   amount: number;
@@ -453,13 +664,7 @@ export async function readBuyerWalletCheckoutEligibility(input: {
     return { ok: false, error: "Invalid wallet payment amount." };
   }
 
-  const admin = createAdminClient();
-  const { data: wallet } = await admin
-    .from("wallets")
-    .select("id, available_balance")
-    .eq("user_id", input.buyerId)
-    .maybeSingle();
-
+  const wallet = await loadBuyerCheckoutWallet(input.buyerId);
   const available = roundWalletMoney(Number(wallet?.available_balance ?? 0));
   const remaining = remainingAfterWalletCheckoutDebit(available, amount);
   if (remaining === null || !canDebitAvailable(available, amount)) {
@@ -495,11 +700,7 @@ export async function debitBuyerWalletForCheckout(
   if (existing) {
     const existingAmount = roundWalletMoney(Math.abs(Number(existing.amount)));
     if (existing.status === "completed" && existingAmount === amount) {
-      const { data: wallet } = await admin
-        .from("wallets")
-        .select("available_balance")
-        .eq("user_id", input.buyerId)
-        .maybeSingle();
+      const wallet = await loadBuyerCheckoutWallet(input.buyerId);
       return {
         ok: true,
         sessionId,
@@ -518,12 +719,7 @@ export async function debitBuyerWalletForCheckout(
     return eligible;
   }
 
-  const { data: wallet } = await admin
-    .from("wallets")
-    .select("id, available_balance")
-    .eq("user_id", input.buyerId)
-    .maybeSingle();
-
+  const wallet = await loadBuyerCheckoutWallet(input.buyerId);
   if (!wallet) {
     return { ok: false, error: "Insufficient wallet balance." };
   }
@@ -560,6 +756,7 @@ export async function debitBuyerWalletForCheckout(
     amount: -amount,
     status: "completed",
     type: "fee",
+    seller_context: "individual",
     idempotency_key: idempotencyKey,
     description,
   });

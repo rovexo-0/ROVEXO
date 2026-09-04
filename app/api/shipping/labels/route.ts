@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { requireApiAuth } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { assertOrderShippingSeller } from "@/lib/shipping/assert-order-shipping-access.server";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
@@ -15,6 +15,8 @@ import {
   isDemoShippingTrackingNumber,
 } from "@/lib/shipping/pricing/demo-adapter";
 import { activeProviders } from "@/lib/shipping/pricing/service.server";
+import { listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
+import { selectCurrentOrderParcels } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,9 +30,11 @@ const bodySchema = z.object({
  * Canonical shipping label API — provider-agnostic.
  * Routes through ShippingEngine (Sendcloud).
  * GET label documents are SELLER-ONLY (fail closed 404).
+ * Without parcelId: returns the current/active shipment label only
+ * (never a superseded historical parcel merely because it was updated last).
  */
 export async function GET(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const limited = await enforceRateLimit(request, "shipping-labels", 30, 60_000);
@@ -38,7 +42,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const orderId = searchParams.get("orderId");
-  const parcelId = searchParams.get("parcelId");
+  const parcelIdParam = searchParams.get("parcelId");
   if (!orderId) {
     return NextResponse.json({ error: "orderId is required." }, { status: 400 });
   }
@@ -60,6 +64,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Shipping record not found." }, { status: 404 });
   }
 
+  let resolvedParcelId = parcelIdParam?.trim() || null;
+  if (!resolvedParcelId) {
+    const parcels = await listShipmentParcelsForOrder(access.orderId);
+    const current = selectCurrentOrderParcels(parcels);
+    const withReady = current.find((parcel) => parcel.label?.status === "ready");
+    resolvedParcelId = (withReady ?? current[0])?.id ?? null;
+  }
+
   let labelQuery = admin
     .from("shipping_labels_v1")
     .select(
@@ -69,8 +81,8 @@ export async function GET(request: Request) {
     .order("updated_at", { ascending: false })
     .limit(1);
 
-  if (parcelId) {
-    labelQuery = labelQuery.eq("shipment_parcel_id", parcelId);
+  if (resolvedParcelId) {
+    labelQuery = labelQuery.eq("shipment_parcel_id", resolvedParcelId);
   }
 
   const { data: labelRows } = await labelQuery;
@@ -143,7 +155,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
   const limited = await enforceRateLimit(request, "shipping-labels", 10, 60_000);

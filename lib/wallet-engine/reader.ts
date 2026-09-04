@@ -40,7 +40,11 @@ export async function getWalletEngineContext(
   userId: string,
   walletType: WalletEngineWalletType = "seller",
 ): Promise<WalletEngineContext> {
-  const [data, config] = await Promise.all([getWalletData(userId), readLiveWalletEngineDocument()]);
+  const sellerContext = walletType === "business" ? "business" : "individual";
+  const [data, config] = await Promise.all([
+    getWalletData(userId, sellerContext),
+    readLiveWalletEngineDocument(),
+  ]);
   const currency = config.currency;
 
   return {
@@ -57,9 +61,10 @@ export async function getWalletEngineContext(
 export async function getWalletEngineTransactionContext(
   userId: string,
   transactionId: string,
+  sellerContext: "individual" | "business" = "individual",
 ): Promise<WalletEngineTransactionContext | null> {
   const [tx, config] = await Promise.all([
-    getWalletTransactionById(userId, transactionId),
+    getWalletTransactionById(userId, transactionId, sellerContext),
     readLiveWalletEngineDocument(),
   ]);
   if (!tx) return null;
@@ -83,9 +88,13 @@ export async function getWalletEngineTransactionContext(
 
 export async function listWalletEngineSummaries(
   userId: string,
-  options?: { filter?: WalletEngineFilterId; query?: string },
+  options?: { filter?: WalletEngineFilterId; query?: string; sellerContext?: "individual" | "business" },
 ) {
-  const [transactions, config] = await Promise.all([listWalletTransactions(userId), readLiveWalletEngineDocument()]);
+  const sellerContext = options?.sellerContext === "business" ? "business" : "individual";
+  const [transactions, config] = await Promise.all([
+    listWalletTransactions(userId, sellerContext),
+    readLiveWalletEngineDocument(),
+  ]);
 
   return transactions
     .map((tx) => mapTransactionToSummary(tx, config.currency))
@@ -124,6 +133,6 @@ export function computeWalletAnalytics(data: WalletData, configHoldHours = PENDI
 }
 
 export async function getWalletEngineAnalyticsForUser(userId: string): Promise<WalletEngineAnalytics> {
-  const [data, config] = await Promise.all([getWalletData(userId), readLiveWalletEngineDocument()]);
+  const [data, config] = await Promise.all([getWalletData(userId, "individual"), readLiveWalletEngineDocument()]);
   return computeWalletAnalytics(data, config.holdPeriodHours);
 }

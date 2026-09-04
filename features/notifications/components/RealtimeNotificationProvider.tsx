@@ -405,6 +405,7 @@ export function RealtimeNotificationProvider({
     window.addEventListener("online", onOnline);
     document.addEventListener("visibilitychange", onVisibility);
     const onInboxSync = () => {
+      clearInboxBadgeModuleCache();
       void refresh({ includeTray: true });
     };
     window.addEventListener("rovexo:inbox-sync", onInboxSync);

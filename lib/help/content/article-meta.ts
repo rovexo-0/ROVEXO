@@ -1,3 +1,4 @@
+import { isBusinessOnlyHelpArticleSlug } from "@/lib/help/help-content-audience-v1";
 import type { HelpArticle, HelpCategory, HelpTopicSlug } from "@/lib/help/types";
 import { PHASE_C3_SETTINGS_IA_V1 } from "@/lib/settings/phase-c3-settings-information-architecture-v1";
 
@@ -10,7 +11,7 @@ const CATEGORY_TO_TOPIC: Record<HelpCategory, HelpTopicSlug> = {
   payments: "payments",
   delivery: "shipping",
   chat: "chat-messages",
-  "pro-seller": "promoted-listings",
+  "pro-seller": "seller",
   "business-accounts": "business-accounts",
   safety: "safety",
   "ai-moderation": "reports",
@@ -21,7 +22,7 @@ const CATEGORY_TO_TOPIC: Record<HelpCategory, HelpTopicSlug> = {
   terms: "policies",
 };
 
-const RELATED_BY_SLUG: Record<string, string[]> = {
+export const RELATED_BY_SLUG: Record<string, string[]> = {
   "account-overview": ["reset-password", "account-notifications", "account-delete"],
   "buying-how-to-buy": ["buying-total-buyer-pays", "buying-make-offer", "buying-buyer-protection", "payments-checkout"],
   "buying-total-buyer-pays": ["buying-how-to-buy", "payments-platform-fee", "payments-checkout"],
@@ -34,7 +35,7 @@ const RELATED_BY_SLUG: Record<string, string[]> = {
   "shipping-labels": ["delivery-shipping", "delivery-tracking", "selling-parcels"],
   "payments-refunds": ["buying-buyer-protection", "returns-buyer-steps", "delivery-tracking"],
   "returns-buyer-steps": ["returns-seller-steps", "payments-refunds", "buying-buyer-protection"],
-  "safety-scam-red-flags": ["safety-marketplace", "buying-buyer-protection", "community-reporting"],
+  "safety-scam-red-flags": ["safety-tips", "buying-buyer-protection", "community-reporting"],
   "community-reviews": ["trust-and-safety", "buying-how-to-buy", "selling-get-started"],
   "uk-buying-secondhand": ["buying-first-purchase", "uk-selling-locally", "buying-condition-guide"],
   "guide-womens-fashion": ["buying-condition-guide", "selling-listing-quality", "guide-mens-fashion"],
@@ -80,10 +81,11 @@ A: Go to **Settings → Help Centre**.
 A: Go to **Settings → Legal Information**, or open a specific policy from the Legal section in Settings.
 
 **Q: How do I contact Support?**  
-A: Go to **Settings → Contact Support**.
+A: Open **Help Centre → Contact Support**, or go to /support.
 
 ## Related Articles
 ${(RELATED_BY_SLUG[article.slug] ?? [])
+  .filter((slug) => !isBusinessOnlyHelpArticleSlug(slug))
   .map((slug) => `- [/help/${slug}](/help/${slug})`)
   .join("\n") || "- [/help](/help) — Help Centre home"}
 - [/account/settings](/account/settings) — Settings (Account Control Centre)
@@ -109,34 +111,6 @@ export function enrichHelpArticle(article: HelpArticle): HelpArticle {
     relatedPolicyHrefs: article.relatedPolicyHrefs ?? [
       { label: "Legal Information", href: "/legal" },
       { label: "Privacy Policy", href: "/legal/privacy-policy" },
-    ],
-  };
-}
-
-export function getArticleSections(article: HelpArticle) {
-  if (article.sections) return article.sections;
-
-  const lines = article.content.split("\n").filter(Boolean);
-  const steps = lines.filter((line) => /^\d+\./.test(line.trim()) || line.trim().startsWith("- "));
-  return {
-    overview: article.summary,
-    steps: steps.slice(0, 8).map((line) => line.replace(/^[-\d.]+\s*/, "")),
-    requirements: ["ROVEXO account where applicable"],
-    processingTime: "Instant self-service",
-    commonMistakes: [
-      "Looking for Help or Legal on Profile instead of Settings",
-      "Skipping verification or setup steps",
-    ],
-    troubleshooting: [
-      "Use the interactive help guide for this topic if the article does not resolve your issue",
-      "Open Settings → Contact Support if you still need help",
-    ],
-    faqs: [
-      {
-        question: "Where is Help Centre?",
-        answer: "Settings → Help Centre.",
-      },
-      { question: article.title, answer: article.summary },
     ],
   };
 }

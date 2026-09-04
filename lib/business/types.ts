@@ -32,4 +32,6 @@ export type BusinessInventoryData = {
   profile: UserProfile;
   company: Pick<BusinessCompanyInfo, "companyName">;
   items: InventoryItem[];
+  /** Real listing count for the active Business seller — never hard-coded. */
+  productCount: number;
 };

@@ -4,6 +4,14 @@ import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { validateBankAccountInput } from "@/lib/wallet/bank-account";
 import { getBankAccountDisplaySummary, removeBankAccount, saveBankAccount } from "@/lib/wallet/store";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
+import { normalizeSellerContext } from "@/lib/seller-context/seller-context-v1";
+
+function sellerContextFromRequest(request: Request, body?: Record<string, unknown>) {
+  const url = new URL(request.url);
+  return normalizeSellerContext(
+    body?.sellerContext ?? body?.seller_context ?? url.searchParams.get("sellerContext"),
+  );
+}
 
 export async function GET(request: Request) {
   const auth = await requireApiAuth(request);
@@ -14,9 +22,11 @@ export async function GET(request: Request) {
   const limited = await enforceRateLimitForUser(auth.user.id, "wallet-bank-account", 20, 60_000);
   if (limited) return limited;
 
-  const summary = await getBankAccountDisplaySummary(auth.user.id);
+  const sellerContext = sellerContextFromRequest(request);
+  const summary = await getBankAccountDisplaySummary(auth.user.id, sellerContext);
   return NextResponse.json({
     success: true,
+    sellerContext,
     summary: summary
       ? {
           connected: summary.connected,
@@ -45,6 +55,7 @@ export async function POST(request: Request) {
   }
 
   const input = (body ?? {}) as Record<string, unknown>;
+  const sellerContext = sellerContextFromRequest(request, input);
   const validation = validateBankAccountInput({
     accountHolderName: String(input.accountHolderName ?? ""),
     sortCode: String(input.sortCode ?? ""),
@@ -61,6 +72,7 @@ export async function POST(request: Request) {
     accountHolderName: validation.normalized.accountHolderName,
     sortCode: validation.normalized.sortCode,
     accountNumber: validation.normalized.accountNumber,
+    sellerContext,
   });
 
   if (!method) {
@@ -72,7 +84,7 @@ export async function POST(request: Request) {
 
   await syncAutoVerifiedProfile(auth.user.id);
 
-  return NextResponse.json({ success: true, method });
+  return NextResponse.json({ success: true, method, sellerContext });
 }
 
 export async function DELETE(request: Request) {
@@ -84,7 +96,8 @@ export async function DELETE(request: Request) {
   const limited = await enforceRateLimitForUser(auth.user.id, "wallet-bank-account", 20, 60_000);
   if (limited) return limited;
 
-  const removed = await removeBankAccount(auth.user.id);
+  const sellerContext = sellerContextFromRequest(request);
+  const removed = await removeBankAccount(auth.user.id, sellerContext);
   if (!removed) {
     return NextResponse.json(
       { success: false, error: "Could not remove your bank account. Please try again." },
@@ -94,5 +107,5 @@ export async function DELETE(request: Request) {
 
   await syncAutoVerifiedProfile(auth.user.id);
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, sellerContext });
 }

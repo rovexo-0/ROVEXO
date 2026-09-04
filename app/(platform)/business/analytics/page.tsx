@@ -1,10 +1,17 @@
+import { redirect } from "next/navigation";
 import { BusinessAnalyticsPage } from "@/features/analytics/components/BusinessAnalyticsPage";
 import { fetchBusinessAnalytics } from "@/lib/analytics/queries";
-import { getBusinessProfile } from "@/lib/profile/data";
+import { loadPwaBusinessSession } from "@/lib/business/pwa-business-session";
 
-/** Business Analytics — unverified users stay in Business Verification (never My Account). */
+/** Business Analytics v1 — Stripe + Business context required. */
 export default async function BusinessAnalyticsRoute() {
-  await getBusinessProfile();
+  const { status } = await loadPwaBusinessSession();
+  if (!status.stripe.verified) {
+    redirect(status.hasBusinessProfile ? "/business/connect" : "/business/information");
+  }
+  if (status.activeSellerContext !== "business") {
+    redirect("/account");
+  }
   const data = await fetchBusinessAnalytics("30d");
-  return <BusinessAnalyticsPage initialData={data} />;
+  return <BusinessAnalyticsPage initialData={data} backHref="/business/menu" />;
 }

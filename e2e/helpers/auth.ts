@@ -103,8 +103,9 @@ export async function signInWithSessionCookies(
   const { hostname } = new URL(input.baseURL);
 
   const normalizeSameSite = (value: CookieOptions["sameSite"]): "Lax" | "Strict" | "None" => {
-    if (value === "strict" || value === "Strict") return "Strict";
-    if (value === "none" || value === "None") return "None";
+    const normalized = String(value ?? "lax").toLowerCase();
+    if (normalized === "strict") return "Strict";
+    if (normalized === "none") return "None";
     return "Lax";
   };
 

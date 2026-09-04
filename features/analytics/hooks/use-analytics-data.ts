@@ -1,18 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type {
-  AnalyticsDateRange,
-  BusinessAnalyticsData,
-  SellerAnalyticsData,
-} from "@/lib/analytics/types";
+import type { AnalyticsDateRange, SellerAnalyticsData } from "@/lib/analytics/types";
 
-export function useAnalyticsData<T extends SellerAnalyticsData | BusinessAnalyticsData>(
-  type: "seller" | "business",
-  initialData: T,
-) {
+export function useAnalyticsData(type: "seller", initialData: SellerAnalyticsData) {
   const [range, setRange] = useState<AnalyticsDateRange>(initialData.range);
-  const [data, setData] = useState<T>(initialData);
+  const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
 
   const changeRange = useCallback(
@@ -24,7 +17,7 @@ export function useAnalyticsData<T extends SellerAnalyticsData | BusinessAnalyti
 
       try {
         const response = await fetch(`/api/analytics?type=${type}&range=${nextRange}`);
-        const payload = (await response.json()) as { data: T };
+        const payload = (await response.json()) as { data: SellerAnalyticsData };
         setData(payload.data);
       } catch {
         setRange(range);

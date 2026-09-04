@@ -80,17 +80,37 @@ export type SellerCommerceSummary = {
 };
 
 /** Seller wallet summary (spec §11): Pending / Available / Paid / Shipping Reserved. */
-export async function getSellerCommerceSummary(sellerId: string): Promise<SellerCommerceSummary> {
+export async function getSellerCommerceSummary(
+  sellerId: string,
+  sellerContext: import("@/lib/seller-context/seller-context-v1").SellerContext = "individual",
+): Promise<SellerCommerceSummary> {
+  const { normalizeSellerContext } = await import("@/lib/seller-context/seller-context-v1");
+  const context = normalizeSellerContext(sellerContext);
   const admin = createAdminClient();
   const commerce = createCommerceAdminClient();
 
-  const [{ data: wallet }, { data: sales }, { data: reserves }, { data: holds }] = await Promise.all([
-    admin.from("wallets").select("pending_balance, available_balance").eq("user_id", sellerId).maybeSingle(),
+  let { data: wallet } = await admin
+    .from("wallets")
+    .select("pending_balance, available_balance")
+    .eq("user_id", sellerId)
+    .eq("wallet_context", context)
+    .maybeSingle();
+  if (!wallet && context === "individual") {
+    const legacy = await admin
+      .from("wallets")
+      .select("pending_balance, available_balance")
+      .eq("user_id", sellerId)
+      .maybeSingle();
+    wallet = legacy.data;
+  }
+
+  const [{ data: sales }, { data: reserves }, { data: holds }] = await Promise.all([
     admin
       .from("wallet_transactions")
-      .select("amount, stripe_transfer_id, status")
+      .select("amount, stripe_transfer_id, status, seller_context")
       .eq("user_id", sellerId)
-      .eq("type", "sale"),
+      .eq("type", "sale")
+      .or(`seller_context.eq.${context},seller_context.is.null`),
     commerce.from("shipping_reserve").select("reserved_amount, spent_amount, status").eq("seller_id", sellerId),
     commerce
       .from("escrow_events")
@@ -100,10 +120,9 @@ export async function getSellerCommerceSummary(sellerId: string): Promise<Seller
   ]);
 
   const salesRows = (sales as Array<{ amount: number; stripe_transfer_id: string | null; status: string }> | null) ?? [];
+  /* Paid Out = completed withdrawals conceptually; sale "completed" now means Available. */
   const paid = round(
-    salesRows
-      .filter((s) => s.stripe_transfer_id && s.status === "completed")
-      .reduce((sum, s) => sum + Number(s.amount), 0),
+    salesRows.filter((s) => s.status === "completed").reduce((sum, s) => sum + Number(s.amount), 0),
   );
 
   const reserveRows =

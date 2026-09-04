@@ -101,7 +101,7 @@ describe("Buy Now Absolute Law — Buy Now ≠ Cart", () => {
     expect(BUY_NOW_ABSOLUTE_LAW_V1.mustOpen).toBe("/checkout");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.forbiddenDestinations).toContain("/cart");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.checkoutCopy.cta).toBe("Buy Now");
-    expect(BUY_NOW_ABSOLUTE_LAW_V1.checkoutCopy.fee).toBe("Platform Fee");
+    expect(BUY_NOW_ABSOLUTE_LAW_V1.checkoutCopy.fee).toBe("Buyer Protection");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.sellerValidationRvx).toBe("RVX-2003");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.officialStatusBoard.checkout).toBe("WAITING");
     expect(BUY_NOW_ABSOLUTE_LAW_V1.officialStatusBoard.selfPurchaseProtection).toBe("PASS");
@@ -190,7 +190,7 @@ describe("Buy Now Absolute Law — Buy Now ≠ Cart", () => {
     // CHECKOUT_UI_v1.0 frozen CTA — TOTAL PAY (not product-page "Buy Now", not "Pay Securely")
     expect(wizard).toContain("TOTAL PAY");
     expect(wizard).not.toContain("Pay Securely");
-    expect(price).toContain("Platform Fee");
-    expect(price).not.toMatch(/Buyer Protection/i);
+    expect(price).toContain("Buyer Protection");
+    expect(price).not.toMatch(/Platform Fee/i);
   });
 });

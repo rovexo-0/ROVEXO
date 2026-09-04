@@ -106,12 +106,15 @@ describe("Wallet Security Certification v1.0 — primitives", () => {
     expect(store).toContain("idempotency_key");
     expect(store).toContain("isStripeConfigured");
     expect(store).toContain("confirmWithdrawalCompleted");
+    expect(store).toContain("markWithdrawalTransferAwaitingPayout");
+    expect(store).toContain("confirmWithdrawalBankCompleted");
     expect(store).toContain("rollbackWithdrawal");
     expect(store).toContain("initiateWithdrawalPayout");
     expect(store).toContain("assertWithdrawalRailReady");
 
     const rail = readFileSync(join(process.cwd(), "lib/stripe/withdraw-payout.ts"), "utf8");
     expect(rail).toContain("walletTransactionId");
+    expect(rail).toContain("sellerContext");
     expect(rail).toContain("reverseWithdrawalTransfer");
 
     const sales = readFileSync(join(process.cwd(), "lib/wallet/sales.ts"), "utf8");
@@ -125,10 +128,10 @@ describe("Wallet Security Certification v1.0 — primitives", () => {
     const webhook = readFileSync(join(process.cwd(), "lib/stripe/webhook-handler.ts"), "utf8");
     expect(webhook).toContain("stripe_webhook_events");
     expect(webhook).toContain("23505");
-    expect(webhook).toContain("confirmWithdrawalCompleted");
-    expect(webhook).toContain("rollbackWithdrawal");
+    expect(webhook).toContain("confirmWithdrawalBankCompleted");
+    expect(webhook).toContain("markWithdrawalPayoutFailed");
     expect(webhook).toContain("walletTransactionId");
-    expect(webhook).toContain("missing walletTransactionId/userId metadata");
+    expect(webhook).toContain("not uniquely attributable");
 
     const hub = readFileSync(
       join(process.cwd(), "features/wallet/components/WalletHubV1.tsx"),
@@ -141,7 +144,7 @@ describe("Wallet Security Certification v1.0 — primitives", () => {
     expect(hub).toContain('title="Processing"');
     expect(hub).toContain('title="Paid Out"');
     expect(hub).toContain("Withdraw");
-    expect(hub).toContain("WALLET_ROUTES.withdraw");
+    expect(hub).toContain("withdrawRouteForSellerContext");
     expect(hub).not.toMatch(/title=\"[^\"]*(Escrow|Protected)[^\"]*\"/);
 
     const money = readFileSync(join(process.cwd(), "lib/wallet/money-states.ts"), "utf8");

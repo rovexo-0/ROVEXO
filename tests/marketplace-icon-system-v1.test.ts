@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { listMarketplaceIconKeys, MARKETPLACE_ICON_STROKE } from "@/lib/icons/marketplace-line-catalog";
+import { listMarketplaceIconKeys } from "@/lib/icons/marketplace-line-catalog";
 
 const root = process.cwd();
 function read(path: string) {
@@ -9,13 +9,15 @@ function read(path: string) {
 }
 
 describe("Canonical marketplace icon system v1", () => {
-  it("freezes stroke weight and line-only AccountIcons", () => {
+  it("freezes AccountIcons as platform emoji for every catalog key", () => {
     const icons = read("components/account/AccountIcons.tsx");
-    expect(icons).toContain(`strokeWidth: ${MARKETPLACE_ICON_STROKE}`);
+    const map = read("lib/icons/platform-emoji-v1.ts");
+    expect(icons).toContain("PlatformEmoji");
+    expect(icons).not.toContain("<svg");
     expect(icons).not.toContain("fluency-3d");
     expect(icons).not.toContain("/icons/premium/");
     for (const key of listMarketplaceIconKeys()) {
-      expect(icons).toContain(`| "${key}"`);
+      expect(map).toContain(`${key}:`);
     }
   });
 
@@ -24,7 +26,8 @@ describe("Canonical marketplace icon system v1", () => {
     expect(read("lib/account-center/buying-menu.ts")).toContain('icon: "refunds"');
     expect(read("lib/account-center/buying-menu.ts")).toContain('icon: "disputes"');
     expect(read("lib/account-center/messages-menu.ts")).toContain('icon: "inbox"');
-    expect(read("lib/account-center/business-menu.ts")).toContain('icon: "directory"');
+    expect(read("lib/account-center/business-menu.ts")).toContain("PWA_BUSINESS_ACTION_EMOJI.promote");
+    expect(read("lib/account-center/business-menu.ts")).not.toContain('icon: "directory"');
     expect(read("lib/account-center/canonical-menu.ts")).toContain('icon: "saved"');
     expect(read("lib/account-center/canonical-menu.ts")).toContain('icon: "settings"');
     expect(read("lib/account-center/settings-menu.ts")).toContain('icon: "document"');

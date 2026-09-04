@@ -79,6 +79,7 @@ describe("ROVEXO v1.0 — Saved PRODUCTION LOCK (FREEZE YES)", () => {
     // Batch hydrate (one GET /api/saved list) — same Saved SSOT, zero N+1 slug waterfalls
     expect(hook).toContain('fetch("/api/saved"');
     expect(hook).toContain("loadSavedSlugSet");
+    expect(hook).toContain("if (isPending) return");
     expect(hook).not.toContain("useRouter");
     expect(hook).not.toContain("router.refresh");
     expect(hook).not.toContain("publishSavedLive");

@@ -3,6 +3,7 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AccountCenterHome } from "@/features/account-center/components/AccountCenterHome";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
+import type { ProfileBusinessStatusInput } from "@/lib/business/business-onboarding-contract-v1";
 import type { UserProfile } from "@/lib/profile/types";
 import type { WalletData } from "@/lib/wallet/types";
 
@@ -12,6 +13,7 @@ type AccountCenterPageProps = {
   wallet?: WalletData | null;
   sellerPerformance: AccountSellerPerformanceSummary;
   holidayModeEnabled?: boolean;
+  businessStatus?: ProfileBusinessStatusInput | null;
 };
 
 export function AccountCenterPage({
@@ -20,6 +22,7 @@ export function AccountCenterPage({
   wallet = null,
   sellerPerformance,
   holidayModeEnabled = false,
+  businessStatus = null,
 }: AccountCenterPageProps) {
   return (
     <AccountCanonicalShell
@@ -34,6 +37,7 @@ export function AccountCenterPage({
         wallet={wallet}
         sellerPerformance={sellerPerformance}
         holidayModeEnabled={holidayModeEnabled}
+        businessStatus={businessStatus}
       />
     </AccountCanonicalShell>
   );

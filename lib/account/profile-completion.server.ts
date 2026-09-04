@@ -24,7 +24,7 @@ export async function getProfileCompletionStatus(userId: string): Promise<Profil
     throw new Error("Profile completion requires an authenticated session for this user.");
   }
 
-  const [addresses, payments, bank, purchases, listings] = await Promise.all([
+  const [addresses, payments, bank, connectMethod, purchases, listings] = await Promise.all([
     supabase
       .from("shipping_addresses")
       .select("id", { count: "exact", head: true })
@@ -40,6 +40,12 @@ export async function getProfileCompletionStatus(userId: string): Promise<Profil
       .eq("provider", "bank_account")
       .eq("connected", true),
     supabase
+      .from("withdraw_methods")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("provider", "stripe_connect")
+      .eq("connected", true),
+    supabase
       .from("orders")
       .select("id", { count: "exact", head: true })
       .eq("buyer_id", userId)
@@ -53,7 +59,8 @@ export async function getProfileCompletionStatus(userId: string): Promise<Profil
 
   const hasAddress = (addresses.count ?? 0) > 0;
   const hasPaymentMethod = (payments.count ?? 0) > 0;
-  const hasBankAccount = (bank.count ?? 0) > 0;
+  /** Payout readiness = legacy ROVEXO bank row OR Stripe Connect method (canonical). */
+  const hasBankAccount = (bank.count ?? 0) > 0 || (connectMethod.count ?? 0) > 0;
   const hasCompletedPurchase = (purchases.count ?? 0) > 0;
   const hasPublishedListing = (listings.count ?? 0) > 0;
 

@@ -55,13 +55,18 @@ export {
   CANONICAL_PARCEL_SIZES_V1,
   OWNER_APPROVED_PARCEL_BANDS_V1,
   PARCEL_SIZE_CANONICAL_V1,
+  PARCEL_WEIGHT_ABSOLUTE_MAX_KG,
   resolveCanonicalParcelSize,
+  resolveParcelWeightBandId,
+  assertParcelWeightKgAllowed,
+  isParcelWeightInBand,
   canonicalParcelMeasurements,
   formatCanonicalParcelSummary,
   formatCanonicalMaxDimensionsLine,
   formatCanonicalMaxWeightLine,
   getV1_0ParcelShippingDetailsBlocks,
 } from "@/lib/shipping/canonical-parcel-size-v1";
+export type { ParcelWeightBandId } from "@/lib/shipping/canonical-parcel-size-v1";
 
 export {
   SHIPPING_STATUS_LABELS,
@@ -105,10 +110,15 @@ export {
   BUYER_SHIPPING_MARGIN_PENCE,
   BUYER_SHIPPING_PRICE_V1,
   toBuyerShippingPricePence,
+  toRovexoShippingMarginPence,
+  separateShippingPricesPence,
+  deriveProviderShippingCostPenceFromBuyer,
+  resolveAuthoritativeProviderShippingCostPence,
   penceToGbpMajor,
   gbpMajorToPence,
   toBuyerShippingGbpFromProviderPence,
 } from "@/lib/shipping/pricing/buyer-shipping-price-v1";
+export type { SeparatedShippingPricesPence } from "@/lib/shipping/pricing/buyer-shipping-price-v1";
 
 export {
   CARRIER_ICON_REGISTRY_V1,
@@ -116,3 +126,8 @@ export {
 } from "@/lib/shipping/carrier-icons-v1";
 
 export { getOrderShipment, createOrderShipment, updateShipmentStatus } from "@/lib/shipping/service";
+export {
+  SHIPPING_RECORDS_SSOT_V1,
+  SHIPPING_SSOT_CANONICAL_WRITE_OWNERS,
+  SHIPPING_SSOT_LEGACY_ORDER_SHIPMENTS_POLICY,
+} from "@/lib/shipping/shipping-records-ssot-v1";

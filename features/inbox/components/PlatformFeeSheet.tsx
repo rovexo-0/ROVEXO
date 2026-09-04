@@ -75,13 +75,13 @@ export function PlatformFeeSheet({
       aria-modal="true"
       aria-labelledby="conv-hub-fee-title"
     >
-      <button type="button" className="conv-hub__fee-backdrop" aria-label="Close Platform Fee" onClick={onClose} />
+      <button type="button" className="conv-hub__fee-backdrop" aria-label="Close Buyer Protection" onClick={onClose} />
       <div className="conv-hub__fee-panel">
         <h2 id="conv-hub-fee-title" className="conv-hub__fee-title">
-          PLATFORM FEE
+          BUYER PROTECTION
         </h2>
         <p className="conv-hub__fee-lead">
-          The Platform Fee helps us maintain and improve ROVEXO and supports the services that make
+          Buyer Protection helps us maintain and improve ROVEXO and supports the services that make
           transactions safer, faster and more reliable.
         </p>
         <p className="conv-hub__fee-lead">Your contribution supports</p>
@@ -100,7 +100,7 @@ export function PlatformFeeSheet({
             <span>{shipping == null ? "At checkout" : formatListingPrice(shipping)}</span>
           </div>
           <div className="conv-hub__fee-row">
-            <span>Platform fee</span>
+            <span>Buyer Protection</span>
             <span>{formatListingPrice(platformFee)}</span>
           </div>
           <div className="conv-hub__fee-row conv-hub__fee-row--total">

@@ -65,6 +65,7 @@ describe("Homepage performance architecture — public document / user-state spl
     expect(client).toContain('import "server-only"');
     expect(client).toContain("tryCreateAdminClient");
     expect(client).toContain("PUBLIC catalogue");
+    expect(client).toContain("getSupabaseAnonKey");
   });
 
   it("anonymous middleware skips getUser when no auth cookie", () => {

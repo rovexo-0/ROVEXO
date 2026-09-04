@@ -2,8 +2,20 @@ import "server-only";
 
 import { nextAppendParcelNumber } from "@/lib/shipping/append-shipment-parcel-without-renumber-v1";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
+import {
+  decideLabelGenerationClaim,
+  isRecoveryParcelAttemptAuthorized,
+  type LabelGenerationClaimOutcome,
+} from "@/lib/shipping/label-generation-idempotency-v1";
+// decideLabelGenerationClaim + claimLabelGenerationAttempt enforce MEDIUM #7
 import { ensureShippingRecord } from "@/lib/shipping/store";
 import type { ShipmentParcel, ShipmentParcelLabel, ShippingStatus, ParcelOperation } from "@/lib/shipping/types";
+
+function isUniqueViolation(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  if (error.code === "23505") return true;
+  return /duplicate key|unique constraint/i.test(error.message ?? "");
+}
 
 type ParcelRow = {
   id: string;
@@ -130,6 +142,33 @@ export async function listShipmentParcelsForOrder(orderId: string): Promise<Ship
   return parcelRows.map((row) => mapParcelRow(row, labels.get(row.id) ?? null));
 }
 
+export async function findOrderIdByParcelTrackingNumber(
+  trackingNumber: string,
+): Promise<string | null> {
+  const trimmed = trackingNumber.trim();
+  if (!trimmed) return null;
+
+  const admin = createShippingAdminClient();
+  const { data } = await admin
+    .from("shipment_parcels")
+    .select("shipping_record_id")
+    .eq("tracking_number", trimmed)
+    .order("parcel_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const recordId = (data as { shipping_record_id?: string } | null)?.shipping_record_id;
+  if (!recordId) return null;
+
+  const { data: record } = await admin
+    .from("shipping_records")
+    .select("order_id")
+    .eq("id", recordId)
+    .maybeSingle();
+
+  return (record as { order_id?: string } | null)?.order_id ?? null;
+}
+
 export async function getShipmentParcelById(parcelId: string): Promise<ShipmentParcel | null> {
   const admin = createShippingAdminClient();
   const { data: row } = await admin.from("shipment_parcels").select("*").eq("id", parcelId).maybeSingle();
@@ -154,6 +193,138 @@ export async function getProviderParcelIdForShipmentParcel(
   if (!raw) return null;
   const parsed = Number.parseInt(String(raw).trim(), 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+type LabelClaimRow = {
+  id: string;
+  label_status: string | null;
+  tracking_number: string | null;
+  pdf_storage_path: string | null;
+  label_storage_path: string | null;
+  label_url: string | null;
+  provider_parcel_id: string | null;
+};
+
+function mapClaimRowToOutcome(
+  row: LabelClaimRow,
+  claimedByThisRequest: boolean,
+): LabelGenerationClaimOutcome {
+  const pdfUrl =
+    row.pdf_storage_path?.trim() ||
+    row.label_storage_path?.trim() ||
+    row.label_url?.trim() ||
+    null;
+  const providerParcelId = parseProviderParcelId(row.provider_parcel_id);
+  const decision = decideLabelGenerationClaim({
+    labelStatus: row.label_status,
+    trackingNumber: row.tracking_number,
+    pdfUrl,
+    providerParcelId,
+    claimedByThisRequest,
+  });
+
+  if (decision.action === "return_ready" && row.tracking_number && pdfUrl) {
+    return {
+      outcome: "reuse_ready",
+      trackingNumber: row.tracking_number,
+      pdfUrl,
+      labelStatus: "ready",
+      providerParcelId,
+    };
+  }
+  if (decision.action === "reuse_provider") {
+    return {
+      outcome: "reuse_provider",
+      providerParcelId: decision.providerParcelId,
+    };
+  }
+  if (decision.action === "wait_in_flight") {
+    return { outcome: "in_flight" };
+  }
+  return { outcome: "claimed" };
+}
+
+/**
+ * MEDIUM #7 — server-side claim before Sendcloud announce.
+ * Uses unique(shipping_labels_v1.shipment_parcel_id) so concurrent POSTs
+ * cannot both open a new provider label for the same parcel.
+ */
+export async function claimLabelGenerationAttempt(input: {
+  shippingRecordId: string;
+  parcelId: string;
+  parcelNumber: number;
+  totalParcels: number;
+  carrier?: string | null;
+}): Promise<LabelGenerationClaimOutcome> {
+  const admin = createShippingAdminClient();
+
+  const { data: existing } = await admin
+    .from("shipping_labels_v1")
+    .select(
+      "id, label_status, tracking_number, pdf_storage_path, label_storage_path, label_url, provider_parcel_id",
+    )
+    .eq("shipment_parcel_id", input.parcelId)
+    .maybeSingle();
+
+  if (existing) {
+    const mapped = mapClaimRowToOutcome(existing as LabelClaimRow, false);
+    if (mapped.outcome !== "claimed") {
+      return mapped;
+    }
+    // void / reclaimable → flip to pending for this attempt
+    const { error: reclaimError } = await admin
+      .from("shipping_labels_v1")
+      .update({
+        label_status: "pending",
+        carrier: input.carrier?.trim() || "pending",
+        parcel_number: input.parcelNumber,
+        total_parcels: input.totalParcels,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", (existing as LabelClaimRow).id)
+      .eq("shipment_parcel_id", input.parcelId);
+    if (reclaimError) {
+      const { data: raced } = await admin
+        .from("shipping_labels_v1")
+        .select(
+          "id, label_status, tracking_number, pdf_storage_path, label_storage_path, label_url, provider_parcel_id",
+        )
+        .eq("shipment_parcel_id", input.parcelId)
+        .maybeSingle();
+      if (raced) return mapClaimRowToOutcome(raced as LabelClaimRow, false);
+      return { outcome: "in_flight" };
+    }
+    return { outcome: "claimed" };
+  }
+
+  const { error: insertError } = await admin.from("shipping_labels_v1").insert({
+    shipping_record_id: input.shippingRecordId,
+    shipment_parcel_id: input.parcelId,
+    provider: "sendcloud",
+    parcel_number: input.parcelNumber,
+    total_parcels: input.totalParcels,
+    carrier: input.carrier?.trim() || "pending",
+    label_status: "pending",
+    updated_at: new Date().toISOString(),
+  });
+
+  if (!insertError) {
+    return { outcome: "claimed" };
+  }
+
+  // Unique race — peer won the claim; interpret their row.
+  const { data: raced } = await admin
+    .from("shipping_labels_v1")
+    .select(
+      "id, label_status, tracking_number, pdf_storage_path, label_storage_path, label_url, provider_parcel_id",
+    )
+    .eq("shipment_parcel_id", input.parcelId)
+    .maybeSingle();
+
+  if (!raced) {
+    return { outcome: "in_flight" };
+  }
+  return mapClaimRowToOutcome(raced as LabelClaimRow, false);
 }
 
 async function renumberParcels(shippingRecordId: string): Promise<void> {
@@ -229,7 +400,19 @@ export async function createShipmentParcel(input: {
     .select("*")
     .single();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    // MEDIUM #7 — concurrent first-create: unique(shipping_record_id, parcel_number)
+    // → re-read the winner instead of returning null (no duplicate parcel).
+    if (isUniqueViolation(error)) {
+      const raced = await listShipmentParcelsForOrder(input.orderId);
+      const exact = raced.find((parcel) => parcel.parcelNumber === nextNumber);
+      if (exact) return exact;
+      if (raced.length === 1) return raced[0]!;
+      const preparing = raced.find((parcel) => parcel.status === "preparing");
+      return preparing ?? raced[0] ?? null;
+    }
+    return null;
+  }
 
   await renumberParcels(record.id);
   return getShipmentParcelById((data as ParcelRow).id);
@@ -238,9 +421,14 @@ export async function createShipmentParcel(input: {
 /**
  * Append one parcel. next = max(parcel_number)+1.
  * Never calls renumberParcels. Never updates existing parcel rows.
+ *
+ * MEDIUM #7 — recovery / multi-carrier only. Requires explicit authorization.
+ * Simple label retries must never call this.
  */
 export async function appendShipmentParcelWithoutRenumbering(input: {
   orderId: string;
+  /** Must be true — recovery / multi-carrier only. Retries must not set this. */
+  authorizeRecoveryParcelAttempt: true;
   productItemIds?: string[];
   weightKg?: number | null;
   lengthCm?: number | null;
@@ -251,6 +439,10 @@ export async function appendShipmentParcelWithoutRenumbering(input: {
   insuranceEnabled?: boolean;
   insuranceValueGbp?: number | null;
 }): Promise<ShipmentParcel | null> {
+  if (!isRecoveryParcelAttemptAuthorized(input.authorizeRecoveryParcelAttempt)) {
+    return null;
+  }
+
   const record = await ensureShippingRecord({ orderId: input.orderId });
   if (!record) return null;
 

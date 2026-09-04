@@ -24,9 +24,9 @@ describe("Sell Parcel Size UX v1.0", () => {
   });
 
   it("6–9. exact weight lines (no carrier / Sendcloud copy)", () => {
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1 kg");
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: 1–2 kg");
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "large")?.description).toBe("Weight: 2–15 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1.00 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: >1.00–2.00 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "large")?.description).toBe("Weight: >2.00–15.00 kg");
 
     for (const def of CANONICAL_PARCEL_SIZES_V1) {
       expect(def.sellWeightLine).toBe(PARCEL_SIZE_OPTIONS.find((o) => o.id === def.id)!.description);

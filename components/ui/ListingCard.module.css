@@ -91,6 +91,27 @@
   color: var(--ds-color-danger);
 }
 
+.saveStore {
+  width: auto;
+  min-width: 44px;
+  min-height: 28px;
+  height: auto;
+  padding: 4px 8px;
+  gap: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 1px 4px rgb(15 23 42 / 0.12);
+  color: #111111;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.saveStore[data-active="true"] {
+  color: #111111;
+}
+
 .badge {
   position: absolute;
   top: var(--rx-listing-save-inset, var(--ds-space-3));

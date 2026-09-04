@@ -4,6 +4,7 @@ import { OrdersPage, OrdersPageSkeleton } from "@/features/orders/components/Ord
 import { fetchOrdersForUser } from "@/lib/orders/queries";
 import { getProfile } from "@/lib/profile/data";
 import { awaitCheckoutSessionSelfHeal } from "@/lib/checkout/checkout-session-self-heal-server-v1";
+import { loadActiveSellerContext } from "@/lib/business/business-onboarding-v1";
 
 function OrdersFallback() {
   return (
@@ -16,9 +17,10 @@ function OrdersFallback() {
 export default async function OrdersRoute() {
   void awaitCheckoutSessionSelfHeal("orders");
   const profile = await getProfile();
+  const sellerContext = await loadActiveSellerContext(profile.id);
   const [boughtOrders, soldOrders] = await Promise.all([
     fetchOrdersForUser(profile.id, "buyer"),
-    fetchOrdersForUser(profile.id, "seller"),
+    fetchOrdersForUser(profile.id, "seller", sellerContext),
   ]);
 
   return (

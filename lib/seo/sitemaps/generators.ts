@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { flattenCategoryPaths } from "@/lib/categories/queries";
-import { getAllHelpArticles } from "@/lib/help/content/articles";
+import { listHelpArticlesForAudience } from "@/lib/help/content/articles";
+import { HELP_AUDIENCES_FOR_GUEST } from "@/lib/help/help-content-audience-v1";
 import { getAllCollectionSlugs } from "@/lib/seo/engine/collections";
 import { getStaticDiscoverySlugs } from "@/lib/seo/engine/discovery";
 import { getLocationCategoryStaticParams } from "@/lib/seo/engine/routing";
@@ -14,7 +15,7 @@ import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace
 const baseUrl = () => getAppUrl();
 
 export function buildStaticSitemapEntries(): MetadataRoute.Sitemap {
-  const helpRoutes = getAllHelpArticles().map((article) => ({
+  const helpRoutes = listHelpArticlesForAudience(HELP_AUDIENCES_FOR_GUEST).map((article) => ({
     url: `${baseUrl()}/help/${article.slug}`,
     changeFrequency: "monthly" as const,
     priority: 0.6,
@@ -140,7 +141,7 @@ export async function buildBusinessSitemapEntries(limit = 500): Promise<Metadata
 
 export function buildBlogSitemapEntries(): MetadataRoute.Sitemap {
   return filterSitemapEntries(
-    getAllHelpArticles().map((article) => ({
+    listHelpArticlesForAudience(HELP_AUDIENCES_FOR_GUEST).map((article) => ({
       url: `${baseUrl()}/help/${article.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.6,

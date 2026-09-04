@@ -41,12 +41,14 @@ function parcel(id: "small" | "medium" | "large") {
 describe("Buyer shipping markup v2 + internal label fee removed", () => {
   it("1–3. Sendcloud £X → buyer £X + £0.15 exactly once · £0.10 gone", () => {
     expect(BUYER_SHIPPING_MARGIN_PENCE).toBe(15);
+    // Margin is per label — never multiplies by item quantity.
     expect(toBuyerShippingPricePence(305)).toBe(320);
     expect(toBuyerShippingPricePence(304)).toBe(319);
     expect(toBuyerShippingPricePence(toBuyerShippingPricePence(305) - 15)).toBe(320);
 
     const src = readFileSync("lib/shipping/pricing/buyer-shipping-price-v1.ts", "utf8");
     expect(src).toContain("BUYER_SHIPPING_MARGIN_PENCE = 15");
+    expect(src).toContain("per_label_not_per_item");
     expect(src).not.toMatch(/BUYER_SHIPPING_MARGIN_PENCE\s*=\s*10\b/);
   });
 

@@ -3,11 +3,14 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 
 /**
- * Load key/value pairs from .env.local (and optional .env) into process.env
- * without overwriting values that are already set.
+ * Load key/value pairs into process.env without overwriting values already set.
+ *
+ * Matches Next.js development precedence so local scripts use the same stack as
+ * `npm run dev`: `.env.development.local` (local Supabase) wins over a shared
+ * cloud `.env.local` symlink. Never invent secrets. Never print values.
  */
 export function loadDotEnvFiles(cwd = process.cwd()) {
-  for (const filename of [".env.local", ".env"]) {
+  for (const filename of [".env.development.local", ".env.local", ".env"]) {
     const filePath = path.join(cwd, filename);
     if (!fs.existsSync(filePath)) continue;
 

@@ -52,7 +52,7 @@ describe("Canonical Commerce UI — Absolute Final", () => {
     const totals = read("features/commerce-ui/components/OrderSummaryTotals.tsx");
     expect(totals).toContain('label="Products"');
     expect(totals).toContain('label="Shipping"');
-    expect(totals).toContain('label="Platform Fee"');
-    expect(totals).not.toMatch(/Buyer Protection/i);
+    expect(totals).toContain('label="Buyer Protection"');
+    expect(totals).not.toMatch(/Platform Fee/i);
   });
 });

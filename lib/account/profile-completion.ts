@@ -37,5 +37,8 @@ export function buildProfileCompletionRedirect(
 ): string {
   const safeReturn = sanitizeReturnToPath(returnTo);
   const params = new URLSearchParams({ [PROFILE_RETURN_TO_PARAM]: safeReturn });
+  if (gap === "bank" && safeReturn.startsWith("/business/")) {
+    params.set("sellerContext", "business");
+  }
   return `${SETTINGS_PATHS[gap]}?${params.toString()}`;
 }

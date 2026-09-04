@@ -22,7 +22,7 @@ describe("Phase 1 — View Profile opens Public Profile", () => {
     const store = readSource("lib/store/store-repository.ts");
     const publicLoader = readSource("lib/profile/public.ts");
     expect(store).toContain(
-      '"id, full_name, username, avatar_url, verified, role, created_at, account_status, deleted_at, suspended_at"',
+      '"id, full_name, username, avatar_url, cover_url, verified, role, created_at, account_status, deleted_at, suspended_at"',
     );
     expect(store).not.toMatch(/PROFILE_SELECT[\s\S]*follower_count/);
     expect(publicLoader).not.toContain("follower_count, following_count");

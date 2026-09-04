@@ -8,7 +8,7 @@ import type { Product } from "@/lib/products/types";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { toPublicProductDocuments } from "@/lib/products/public-product-contract-v1";
 
@@ -89,7 +89,7 @@ export async function getPublicSellerProfile(
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, full_name, username, role, avatar_url, verified, created_at, updated_at")
+    .select("id, full_name, username, role, avatar_url, cover_url, verified, created_at, updated_at")
     .eq("username", normalized)
     .maybeSingle();
 
@@ -131,7 +131,7 @@ export async function getPublicSellerProfile(
       supabase
         .from("products")
         .select(
-          "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary ), brands ( name )",
+          "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary, storage_path ), brands ( name )",
         )
         .eq("seller_id", profile.id)
         .eq("status", "sold")
@@ -153,6 +153,9 @@ export async function getPublicSellerProfile(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
     );
     const primary = images[0];
+    const cardImages = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+      storagePath: (primary as { storage_path?: string | null } | undefined)?.storage_path ?? "",
+    });
     return {
       id: row.id,
       slug: row.slug,
@@ -167,7 +170,8 @@ export async function getPublicSellerProfile(
       views: row.views,
       likes: row.likes,
       brand: row.brands?.name,
-      imageUrl: primary?.thumbnail_url ?? primary?.url ?? PRODUCT_IMAGE_FALLBACK,
+      imageUrl: cardImages.imageUrl,
+      imageFullUrl: cardImages.imageFullUrl,
       sections: [],
       createdAt: row.created_at ?? null,
     };
@@ -178,7 +182,7 @@ export async function getPublicSellerProfile(
     id: profile.id,
     username: profile.username,
     avatarUrl: normalizeAvatarUrl(profile.avatar_url),
-    coverUrl: null,
+    coverUrl: normalizeAvatarUrl(profile.cover_url ?? null),
     rating: Number(sellerProfile?.rating ?? 0),
     reviewCount: sellerProfile?.review_count ?? 0,
     listingCount: sellerProfile?.listing_count ?? listings.length,
@@ -211,7 +215,7 @@ export async function fetchSellerDraftListings(
     const { data: draftRows } = await supabase
       .from("products")
       .select(
-        "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary ), brands ( name )",
+        "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary, storage_path ), brands ( name )",
       )
       .eq("seller_id", sellerId)
       .eq("status", "draft")
@@ -223,6 +227,9 @@ export async function fetchSellerDraftListings(
         (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
       );
       const primary = images[0];
+      const cardImages = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+        storagePath: (primary as { storage_path?: string | null } | undefined)?.storage_path ?? "",
+      });
       return {
         id: row.id,
         slug: row.slug,
@@ -237,7 +244,8 @@ export async function fetchSellerDraftListings(
         views: row.views,
         likes: row.likes,
         brand: row.brands?.name,
-        imageUrl: primary?.thumbnail_url ?? primary?.url ?? PRODUCT_IMAGE_FALLBACK,
+        imageUrl: cardImages.imageUrl,
+        imageFullUrl: cardImages.imageFullUrl,
         sections: [],
         createdAt: row.created_at ?? null,
       };

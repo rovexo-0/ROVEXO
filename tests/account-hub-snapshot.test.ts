@@ -46,11 +46,30 @@ describe("Account hub live profile stats", () => {
 
     expect(route).toContain("fetchAccountHubSnapshot");
     expect(route).toContain("getWalletData");
+    expect(route).toContain("sellerContext");
+    expect(route).toContain("normalizeSellerContext");
     expect(hook).toContain("subscribeToAccountHubStats");
     expect(hook).toContain("fetchAccountSnapshotShared");
+    expect(hook).toContain('"individual"');
     expect(home).toContain("useAccountHubLive");
     expect(realtime).toContain("saved_items");
     expect(realtime).not.toContain("seller_follows");
     expect(realtime).toContain("wallet_transactions");
+  });
+});
+
+describe("Account snapshot Phase 1F — sellerContext isolation", () => {
+  it("shared fetch uses distinct Individual vs Business keys", () => {
+    const shared = readSource("lib/account-center/fetch-account-snapshot-shared.ts");
+    expect(shared).toContain("accountSnapshotCacheKey");
+    expect(shared).toContain("sellerContext");
+    expect(shared).toContain("/api/account/snapshot?sellerContext=");
+  });
+
+  it("wallet live refresh is sellerContext-scoped", () => {
+    const live = readSource("features/wallet/hooks/use-wallet-live.ts");
+    expect(live).toContain("fetchAccountSnapshotShared(sellerContext)");
+    expect(live).toContain("wallet.walletContext !== sellerContext");
+    expect(live).toContain("contextRef");
   });
 });

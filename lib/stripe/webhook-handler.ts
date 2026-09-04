@@ -10,16 +10,21 @@ import {
   syncSubscriptionFromStripe,
 } from "@/lib/monetization/stripe";
 import { recordPlatformAnalyticsEvent } from "@/lib/platform-analytics/events";
-import { syncConnectAccountFromStripe } from "@/lib/stripe/connect";
+import {
+  extractConnectAccountIdFromEvent,
+  syncConnectAccountFromStripeAccountId,
+} from "@/lib/stripe/connect";
 import {
   reverseFailedStripeTransfer,
   syncStripeRefundFromCharge,
 } from "@/lib/stripe/webhook-sync";
 import { syncChargebackTrustFromDispute } from "@/lib/trust/chargeback";
 import {
-  confirmWithdrawalCompleted,
-  rollbackWithdrawal,
+  confirmWithdrawalBankCompleted,
+  markWithdrawalPayoutFailed,
 } from "@/lib/wallet/store";
+import { isStripePayoutId } from "@/lib/stripe/stripe-object-ids-v1";
+import { roundWalletMoney } from "@/lib/wallet/security";
 
 function paymentIntentIdFrom(
   value: string | Stripe.PaymentIntent | null | undefined,
@@ -28,52 +33,163 @@ function paymentIntentIdFrom(
   return typeof value === "string" ? value : value.id;
 }
 
+type WithdrawalCorrelation = {
+  userId: string;
+  transactionId: string;
+  method: "metadata" | "connect_amount_unique";
+};
+
 /**
- * Fail-closed: only settle wallet withdrawals when Stripe metadata uniquely
- * identifies the pending row. Uncertain payouts stay pending (never auto-complete).
+ * Safe correlation for Express automatic payouts.
+ * Prefer Transfer metadata on the payout when present.
+ * Else: connected account + exact amount/currency + single awaiting pending row.
+ * Never correlate on amount alone. Never fabricate multi-match.
+ */
+async function resolveWithdrawalForPayout(
+  payout: Stripe.Payout,
+  connectedAccountId: string | null | undefined,
+): Promise<WithdrawalCorrelation | null> {
+  const metaUserId = payout.metadata?.userId?.trim() || null;
+  const metaTxId = payout.metadata?.walletTransactionId?.trim() || null;
+  if (metaUserId && metaTxId) {
+    return {
+      userId: metaUserId,
+      transactionId: metaTxId,
+      method: "metadata",
+    };
+  }
+
+  if (!connectedAccountId) {
+    logStripeWebhookEvent(
+      "Payout correlation skipped — no Connect account on event and no metadata",
+      { payoutId: payout.id },
+      "warn",
+    );
+    return null;
+  }
+
+  const admin = createAdminClient();
+  const { data: sellers } = await admin
+    .from("seller_profiles")
+    .select(
+      "id, stripe_connect_account_id, stripe_connect_account_id_individual, stripe_connect_account_id_business",
+    )
+    .or(
+      [
+        `stripe_connect_account_id.eq.${connectedAccountId}`,
+        `stripe_connect_account_id_individual.eq.${connectedAccountId}`,
+        `stripe_connect_account_id_business.eq.${connectedAccountId}`,
+      ].join(","),
+    )
+    .limit(2);
+
+  if (!sellers?.length || sellers.length > 1) {
+    logStripeWebhookEvent(
+      "Payout correlation skipped — Connect account seller unresolved",
+      {
+        payoutId: payout.id,
+        connectedAccountId,
+        sellerMatches: sellers?.length ?? 0,
+      },
+      "warn",
+    );
+    return null;
+  }
+
+  const userId = sellers[0].id;
+  const amountGbp = roundWalletMoney(Math.abs(payout.amount) / 100);
+  const currency = (payout.currency ?? "").toLowerCase();
+  if (currency !== "gbp") {
+    logStripeWebhookEvent(
+      "Payout correlation skipped — non-GBP",
+      { payoutId: payout.id, currency },
+      "warn",
+    );
+    return null;
+  }
+
+  const { data: candidates } = await admin
+    .from("wallet_transactions")
+    .select("id, amount, status, type, stripe_transfer_id, stripe_payout_id, description")
+    .eq("user_id", userId)
+    .eq("type", "withdrawal")
+    .eq("status", "pending")
+    .not("stripe_transfer_id", "is", null)
+    .is("stripe_payout_id", null);
+
+  const matches = (candidates ?? []).filter((row) => {
+    const rowAmt = roundWalletMoney(Math.abs(Number(row.amount)));
+    return rowAmt === amountGbp;
+  });
+
+  if (matches.length !== 1) {
+    logStripeWebhookEvent(
+      "Payout correlation skipped — not uniquely attributable (Express auto-payout limitation)",
+      {
+        payoutId: payout.id,
+        connectedAccountId,
+        amountGbp,
+        candidateCount: matches.length,
+      },
+      "warn",
+    );
+    return null;
+  }
+
+  return {
+    userId,
+    transactionId: matches[0].id,
+    method: "connect_amount_unique",
+  };
+}
+
+/**
+ * Fail-closed wallet sync from Express payout webhooks.
+ * Transfer id and payout id stay separate. Transfer success ≠ bank paid.
  */
 async function syncWalletWithdrawalFromPayout(
   eventType: "payout.paid" | "payout.failed",
   payout: Stripe.Payout,
+  connectedAccountId: string | null | undefined,
 ): Promise<void> {
-  const userId = payout.metadata?.userId?.trim() || null;
-  const transactionId = payout.metadata?.walletTransactionId?.trim() || null;
-
-  if (!userId || !transactionId) {
-    logStripeWebhookEvent(
-      "Payout event ignored — missing walletTransactionId/userId metadata",
-      { eventType, payoutId: payout.id },
-      "warn",
-    );
+  if (!isStripePayoutId(payout.id)) {
     return;
   }
 
+  const correlated = await resolveWithdrawalForPayout(payout, connectedAccountId);
+  if (!correlated) {
+    return;
+  }
+
+  const { userId, transactionId, method } = correlated;
+
   if (eventType === "payout.paid") {
-    // Idempotent confirm — may already be completed after transfer.create confirmation.
-    const ok = await confirmWithdrawalCompleted({
+    const ok = await confirmWithdrawalBankCompleted({
       userId,
       transactionId,
-      stripeTransferId: payout.id,
+      stripePayoutId: payout.id,
     });
-    logStripeWebhookEvent("Withdrawal confirm from payout.paid", {
+    logStripeWebhookEvent("Withdrawal bank confirm from payout.paid", {
       payoutId: payout.id,
       transactionId,
+      correlation: method,
       confirmed: ok,
     });
     return;
   }
 
-  // payout.failed: only roll back while still pending. If already completed,
-  // funds may sit on Connect — never invent Available credit (uncertainty rule).
-  const ok = await rollbackWithdrawal({
+  // payout.failed: mark failure accurately; never invent Available credit / reverse Transfer.
+  const ok = await markWithdrawalPayoutFailed({
     userId,
     transactionId,
-    reason: `payout_failed:${payout.id}:${payout.failure_code ?? "unknown"}`,
+    stripePayoutId: payout.id,
+    failureCode: payout.failure_code ?? "unknown",
   });
-  logStripeWebhookEvent("Withdrawal rollback from payout.failed", {
+  logStripeWebhookEvent("Withdrawal payout.failed recorded (no Available restore)", {
     payoutId: payout.id,
     transactionId,
-    rolledBack: ok,
+    correlation: method,
+    recorded: ok,
   });
 }
 
@@ -177,10 +293,14 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
   }
 
   try {
-    await dispatchStripeWebhookEvent(event);
+    const handling = await dispatchStripeWebhookEvent(event);
     await admin
       .from("stripe_webhook_events")
-      .update({ status: "completed", processed_at: new Date().toISOString() })
+      .update({
+        status: "completed",
+        handling_result: handling,
+        processed_at: new Date().toISOString(),
+      })
       .eq("event_id", event.id);
   } catch (error) {
     // Release claim so Stripe retries can re-process (safe failure + recoverable).
@@ -189,7 +309,9 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
   }
 }
 
-async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
+async function dispatchStripeWebhookEvent(
+  event: Stripe.Event,
+): Promise<"handled" | "ignored_unhandled_type"> {
   switch (event.type) {
     case "checkout.session.completed": {
       await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
@@ -384,20 +506,28 @@ async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
       break;
     }
     case "account.updated": {
-      await syncConnectAccountFromStripe(event.data.object as Stripe.Account);
+      // Accounts V2: never trust V1 snapshot fields on the event object.
+      // Identify account id → v2.core.accounts.retrieve(+includes) → map → persist.
+      const accountId = extractConnectAccountIdFromEvent(event);
+      if (accountId) {
+        await syncConnectAccountFromStripeAccountId(accountId);
+      }
       break;
     }
     case "payout.paid":
     case "payout.failed": {
       const payout = event.data.object as Stripe.Payout;
+      const connectedAccountId =
+        typeof event.account === "string" ? event.account : null;
       logStripeWebhookEvent(`Connect payout ${event.type}`, {
         payoutId: payout.id,
         amount: payout.amount,
         currency: payout.currency,
         status: payout.status,
         destination: payout.destination,
+        connectedAccountId,
       });
-      await syncWalletWithdrawalFromPayout(event.type, payout);
+      await syncWalletWithdrawalFromPayout(event.type, payout, connectedAccountId);
       break;
     }
     case "transfer.created": {
@@ -433,8 +563,9 @@ async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
     }
     default:
       logStripeWebhookEvent("Unhandled Stripe event type", { eventType: event.type }, "warn");
-      break;
+      return "ignored_unhandled_type";
   }
+  return "handled";
 }
 
 export async function handleStripeWebhookEvent(event: Stripe.Event): Promise<void> {

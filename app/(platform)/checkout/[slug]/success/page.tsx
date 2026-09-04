@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSuccessView";
-import { loadCheckoutPageProps } from "@/features/checkout/lib/load-checkout-page";
 import { evaluateDoneReadinessGate } from "@/lib/checkout/done-readiness-gate-v1";
 import { confirmOrderCheckoutSession } from "@/lib/orders/checkout";
 import { getOrderById } from "@/lib/orders/store";
@@ -41,7 +40,7 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
     if (!auth) {
       redirect(`/login?next=${encodeURIComponent(`/checkout/${slug}/success?visual=absolute-law`)}`);
     }
-    await loadCheckoutPageProps(slug, { enforceBuyNowGuard: false });
+    // Dev visual chrome only — never run checkout profile-completion gates here.
     const admin = createAdminClient();
     const { data: product } = await admin
       .from("products")
@@ -75,8 +74,12 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
     );
   }
 
-  await loadCheckoutPageProps(slug, { enforceBuyNowGuard: false });
-
+  /**
+   * Absolute Law — Payment return must confirm Stripe → order.
+   * Do NOT call loadCheckoutPageProps: that enforces pre-checkout profile
+   * completion (saved payment method) and redirects first-time Stripe Checkout
+   * buyers to /wallet/payment-methods before confirmOrderCheckoutSession runs.
+   */
   const auth = await getAuthContext();
   if (!auth) {
     redirect(`/login?next=${encodeURIComponent(`/checkout/${slug}/success`)}`);

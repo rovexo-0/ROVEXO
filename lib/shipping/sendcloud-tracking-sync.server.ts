@@ -19,6 +19,7 @@ type ActiveRecord = {
 /**
  * Cron fallback: poll Sendcloud tracking for active shipments that have
  * not been synced recently (or never synced via webhook).
+ * Unrecognized carrier statuses do not advance lifecycle (fail closed).
  */
 export async function syncSendcloudTrackingBatch(): Promise<{
   scanned: number;
@@ -55,13 +56,20 @@ export async function syncSendcloudTrackingBatch(): Promise<{
 
     try {
       const tracking = await SendcloudService.getTracking(trackingNumber);
-      await updateShippingRecordStatus({
-        orderId: record.order_id,
-        status: tracking.status,
-        title: `Tracking sync: ${tracking.status.replace(/_/g, " ")}`,
-        description: tracking.events.at(-1)?.statusDetails ?? undefined,
-      });
-      await onShippingRecordStatusChanged({ orderId: record.order_id, status: tracking.status as ShippingStatus });
+
+      // Fail closed: unknown / unrecognized → keep previous status; do not invent in_transit.
+      if (tracking.status != null) {
+        await updateShippingRecordStatus({
+          orderId: record.order_id,
+          status: tracking.status,
+          title: `Tracking sync: ${tracking.status.replace(/_/g, " ")}`,
+          description: tracking.events.at(-1)?.statusDetails ?? undefined,
+        });
+        await onShippingRecordStatusChanged({
+          orderId: record.order_id,
+          status: tracking.status as ShippingStatus,
+        });
+      }
 
       await admin
         .from("shipping_records")

@@ -59,6 +59,7 @@ const SKIP_PATH_PARTS = [
   "/super-admin/",
   "styles/rovexo/super-admin-premium.css",
   "features/commerce-ui/preview/",
+  "features/dev/",
   "features/search/components/SearchInputActions.tsx",
   "components/sell/PublishingOverlay.tsx",
 ];

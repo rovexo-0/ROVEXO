@@ -167,8 +167,27 @@ describe("Sendcloud webhook idempotency v1.0 — atomic claim + side-effect gate
     vi.doMock("@/lib/supabase/admin", () => ({
       createAdminClient: () => ({
         from: (table: string) => {
-          if (table !== "sendcloud_webhook_events") {
+          if (
+            table !== "sendcloud_webhook_events" &&
+            table !== "shipping_records" &&
+            table !== "shipment_parcels" &&
+            table !== "shipping_labels_v1"
+          ) {
             throw new Error(`unexpected table ${table}`);
+          }
+          if (table !== "sendcloud_webhook_events") {
+            const chain: Record<string, unknown> = {};
+            const self = () => chain;
+            chain.select = self;
+            chain.eq = self;
+            chain.in = self;
+            chain.order = self;
+            chain.limit = self;
+            chain.maybeSingle = async () => ({ data: null, error: null });
+            chain.single = async () => ({ data: null, error: null });
+            chain.update = () => ({ eq: self, in: self });
+            chain.insert = async () => ({ data: null, error: null });
+            return chain;
           }
           return {
             insert: async (row: { webhook_event_id: string }) => {
@@ -244,8 +263,27 @@ describe("Sendcloud webhook idempotency v1.0 — atomic claim + side-effect gate
     vi.doMock("@/lib/supabase/admin", () => ({
       createAdminClient: () => ({
         from: (table: string) => {
-          if (table !== "sendcloud_webhook_events") {
+          if (
+            table !== "sendcloud_webhook_events" &&
+            table !== "shipping_records" &&
+            table !== "shipment_parcels" &&
+            table !== "shipping_labels_v1"
+          ) {
             throw new Error(`unexpected table ${table}`);
+          }
+          if (table !== "sendcloud_webhook_events") {
+            const chain: Record<string, unknown> = {};
+            const self = () => chain;
+            chain.select = self;
+            chain.eq = self;
+            chain.in = self;
+            chain.order = self;
+            chain.limit = self;
+            chain.maybeSingle = async () => ({ data: null, error: null });
+            chain.single = async () => ({ data: null, error: null });
+            chain.update = () => ({ eq: self, in: self });
+            chain.insert = async () => ({ data: null, error: null });
+            return chain;
           }
           return {
             insert: async (row: { webhook_event_id: string }) => {

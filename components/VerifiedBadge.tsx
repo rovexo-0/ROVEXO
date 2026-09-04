@@ -1,15 +1,16 @@
 /**
- * ROVEXO VERIFIED badge — single platform badge (Facebook-style).
- * Size: 7px · SVG only · retina · dark-mode ready · lightweight.
+ * ROVEXO VERIFIED badge — single platform badge.
+ * Functional verification mark (emoji) · dark-mode ready · lightweight.
  */
 
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
 import {
   ROVEXO_VERIFIED_BADGE_NAME,
   ROVEXO_VERIFIED_BADGE_SIZE_PX,
   ROVEXO_VERIFIED_BLUE,
-  ROVEXO_VERIFIED_BLUE_DARK,
 } from "@/lib/verified/constants";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 export type VerifiedBadgeProps = {
   className?: string;
@@ -27,43 +28,23 @@ export function VerifiedBadge({
   size = ROVEXO_VERIFIED_BADGE_SIZE_PX,
   title = ROVEXO_VERIFIED_BADGE_NAME,
 }: VerifiedBadgeProps) {
-  const px = Math.max(1, size);
+  const px = Math.max(12, size);
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={px}
-      height={px}
-      viewBox="0 0 12 12"
+    <PlatformEmoji
+      emoji={PLATFORM_EMOJI.verified}
+      size={px}
       className={cn("rvx-verified-badge", className)}
       role="img"
+      aria-hidden={false}
       aria-label={title}
+      title={title}
       data-verified-badge="rovexo-v1"
       style={{
-        width: px,
-        height: px,
-        flexShrink: 0,
-        display: "inline-block",
-        verticalAlign: "middle",
         color: ROVEXO_VERIFIED_BLUE,
+        flexShrink: 0,
+        display: "inline-flex",
+        verticalAlign: "middle",
       }}
-    >
-      <title>{title}</title>
-      {/* Light mode fill */}
-      <circle cx="6" cy="6" r="6" fill="currentColor" className="rvx-verified-badge__disc" />
-      <path
-        d="M3.4 6.1 5.1 7.8 8.7 4.2"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <style>{`
-        .rvx-verified-badge { color: ${ROVEXO_VERIFIED_BLUE}; }
-        @media (prefers-color-scheme: dark) {
-          .rvx-verified-badge { color: ${ROVEXO_VERIFIED_BLUE_DARK}; }
-        }
-      `}</style>
-    </svg>
+    />
   );
 }

@@ -243,10 +243,11 @@ describe("Store Sharing Engine v1", () => {
     expect(actions).toContain("M12 2.163");
     expect(actions).toContain("M12 2C6.477 2 2 6.145");
     expect(actions).toContain("M11.944 0A12");
-    expect(actions).toContain('from "lucide-react"');
-    expect(actions).toContain("<Copy ");
-    expect(actions).toContain("<QrCode ");
-    expect(actions).toContain("<Share2 ");
+    expect(actions).toContain("PlatformEmoji");
+    expect(actions).toContain("PLATFORM_EMOJI.copy");
+    expect(actions).toContain("PLATFORM_EMOJI.qr");
+    expect(actions).toContain("PLATFORM_EMOJI.share");
+    expect(actions).not.toContain('from "lucide-react"');
   });
 
   it("PLACEHOLDER_LETTER_ICONS=NO", () => {

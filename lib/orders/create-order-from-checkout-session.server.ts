@@ -56,6 +56,36 @@ export async function createOrderFromPaidCheckoutSession(input: {
   }
 
   if (session.status === "paid" && session.order_id) {
+    // Backfill Stripe ids when payment_intent.succeeded raced ahead of
+    // checkout.session.completed / success-page confirm (may have inserted null).
+    if (input.stripeSessionId || input.stripePaymentIntentId) {
+      const admin = createAdminClient();
+      await admin
+        .from("orders")
+        .update({
+          ...(input.stripeSessionId
+            ? { stripe_session_id: input.stripeSessionId }
+            : {}),
+          ...(input.stripePaymentIntentId
+            ? { stripe_payment_intent_id: input.stripePaymentIntentId }
+            : {}),
+        })
+        .eq("id", session.order_id)
+        .is("stripe_session_id", null);
+      await admin
+        .from("checkout_sessions")
+        .update({
+          ...(input.stripeSessionId
+            ? { stripe_checkout_session_id: input.stripeSessionId }
+            : {}),
+          ...(input.stripePaymentIntentId
+            ? { stripe_payment_intent_id: input.stripePaymentIntentId }
+            : {}),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", session.id)
+        .is("stripe_checkout_session_id", null);
+    }
     if (shouldFulfill) {
       const fulfilled = await completePaidOrderFulfillment({
         orderId: session.order_id,
@@ -77,6 +107,34 @@ export async function createOrderFromPaidCheckoutSession(input: {
   }
 
   const admin = createAdminClient();
+
+  // Idempotency — success-page confirm + Stripe webhook may race on the same paid session.
+  // Never claim inventory twice for one stripe_session_id.
+  const stripeSessionId = input.stripeSessionId?.trim() || null;
+  if (stripeSessionId) {
+    const { data: existingByStripe } = await admin
+      .from("orders")
+      .select("id")
+      .eq("stripe_session_id", stripeSessionId)
+      .maybeSingle();
+    if (existingByStripe?.id) {
+      if (shouldFulfill) {
+        const fulfilled = await completePaidOrderFulfillment({
+          orderId: existingByStripe.id,
+          stripeSessionId,
+          stripePaymentIntentId:
+            input.stripePaymentIntentId ?? session.stripe_payment_intent_id,
+          inventoryAlreadyClaimed: true,
+          selectedShippingQuotePayload: input.selectedShippingQuotePayload ?? null,
+        });
+        if (!fulfilled.success) {
+          return { success: false, error: fulfilled.error ?? "Unable to fulfill paid order." };
+        }
+      }
+      return { success: true, orderId: existingByStripe.id };
+    }
+  }
+
   const bundleSnapshot: BundleCheckoutSnapshotV1 | null = isBundleCheckoutSnapshot(
     (session as CheckoutSessionRow).bundle_lines,
   )
@@ -130,12 +188,17 @@ export async function createOrderFromPaidCheckoutSession(input: {
   }
 
   const paidAt = new Date().toISOString();
+  const { normalizeSellerContext } = await import("@/lib/seller-context/seller-context-v1");
+  const sellerContext = normalizeSellerContext(
+    (session as { seller_context?: string | null }).seller_context,
+  );
   const { data: orderRow, error: orderError } = await admin
     .from("orders")
     .insert({
       order_number: resolvedOrderNumber,
       buyer_id: session.buyer_id,
       seller_id: session.seller_id,
+      seller_context: sellerContext,
       // Created only after payment verification — never Buy Now awaiting_payment.
       status: "awaiting_shipment",
       paid_at: paidAt,
@@ -163,6 +226,17 @@ export async function createOrderFromPaidCheckoutSession(input: {
         restoreProductInventoryClaim(line.productId, line.quantity),
       ),
     );
+    // Unique stripe_session_id race: peer already inserted — return that order.
+    if (stripeSessionId) {
+      const { data: raced } = await admin
+        .from("orders")
+        .select("id")
+        .eq("stripe_session_id", stripeSessionId)
+        .maybeSingle();
+      if (raced?.id) {
+        return { success: true, orderId: raced.id };
+      }
+    }
     return { success: false, error: "Unable to create order after payment." };
   }
 
@@ -222,12 +296,43 @@ export async function createOrderFromPaidCheckoutSession(input: {
   }
 
   if (shouldFulfill) {
-    await CHECKOUT_SESSION_ENGINE_markPaid({
+    const marked = await CHECKOUT_SESSION_ENGINE_markPaid({
       sessionId: session.id,
       orderId: orderRow.id,
       stripeSessionId: input.stripeSessionId,
       stripePaymentIntentId: input.stripePaymentIntentId,
     });
+
+    // Peer (webhook vs success confirm) already paid+attached — drop our duplicate.
+    if (!marked.attached) {
+      await admin.from("order_items").delete().eq("order_id", orderRow.id);
+      await admin.from("orders").delete().eq("id", orderRow.id);
+      await Promise.all(
+        claimLines.map((line) =>
+          restoreProductInventoryClaim(line.productId, line.quantity),
+        ),
+      );
+      const peer = await CHECKOUT_SESSION_ENGINE_getByPublicId(input.checkoutSessionPublicId);
+      if (peer?.order_id) {
+        const fulfilled = await completePaidOrderFulfillment({
+          orderId: peer.order_id,
+          stripeSessionId:
+            input.stripeSessionId ?? peer.stripe_checkout_session_id ?? null,
+          stripePaymentIntentId:
+            input.stripePaymentIntentId ?? peer.stripe_payment_intent_id ?? null,
+          inventoryAlreadyClaimed: true,
+          selectedShippingQuotePayload: input.selectedShippingQuotePayload ?? null,
+        });
+        if (!fulfilled.success) {
+          return {
+            success: false,
+            error: fulfilled.error ?? "Unable to fulfill paid order.",
+          };
+        }
+        return { success: true, orderId: peer.order_id };
+      }
+      return { success: false, error: "Unable to attach order to checkout session." };
+    }
 
     const fulfilled = await completePaidOrderFulfillment({
       orderId: orderRow.id,
@@ -242,7 +347,7 @@ export async function createOrderFromPaidCheckoutSession(input: {
     }
   } else {
     // Order created; session stays open until caller marks paid after money moves.
-    await admin
+    const { data: attachedOpen } = await admin
       .from("checkout_sessions")
       .update({
         order_id: orderRow.id,
@@ -251,7 +356,24 @@ export async function createOrderFromPaidCheckoutSession(input: {
         updated_at: new Date().toISOString(),
       })
       .eq("id", session.id)
-      .eq("status", "open");
+      .eq("status", "open")
+      .is("order_id", null)
+      .select("id")
+      .maybeSingle();
+    if (!attachedOpen?.id) {
+      await admin.from("order_items").delete().eq("order_id", orderRow.id);
+      await admin.from("orders").delete().eq("id", orderRow.id);
+      await Promise.all(
+        claimLines.map((line) =>
+          restoreProductInventoryClaim(line.productId, line.quantity),
+        ),
+      );
+      const peer = await CHECKOUT_SESSION_ENGINE_getByPublicId(input.checkoutSessionPublicId);
+      if (peer?.order_id) {
+        return { success: true, orderId: peer.order_id };
+      }
+      return { success: false, error: "Unable to attach order to checkout session." };
+    }
   }
 
   if (bundleSnapshot) {

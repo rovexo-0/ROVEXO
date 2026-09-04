@@ -57,6 +57,7 @@ describe("Account + Cart canonical UI v1", () => {
     expect(wallet).toContain("Withdraw");
     expect(wallet).not.toContain("Total earnings");
     expect(wallet).not.toContain("Platform Fee");
+    expect(wallet).not.toContain("Buyer Protection");
     expect(wallet).not.toContain("balance-v1__available");
     expect(wallet).not.toContain('title="Wallet"');
     expect(page).toContain("WalletHubV1");
@@ -68,7 +69,7 @@ describe("Account + Cart canonical UI v1", () => {
     const css = readSource("styles/rovexo/cart-v1.css");
 
     expect(cart).toContain('data-cart-version="v1.0"');
-    expect(cart).toContain("Platform Fee");
+    expect(cart).toContain("Buyer Protection");
     expect(cart).not.toContain("Buyer Protection Fee");
     expect(cart).toContain("Checkout");
     expect(cart).toContain("Cart (");
@@ -96,8 +97,8 @@ describe("Account + Cart canonical UI v1", () => {
     expect(wizard).toContain("Product");
     expect(wizard).toContain("Delivery option");
     expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
-    expect(price).toContain("Platform Fee");
-    expect(summary).toContain("Platform Fee");
+    expect(price).toContain("Buyer Protection");
+    expect(summary).toContain("Buyer Protection");
     expect(summary).not.toContain("Buyer Protection Fee");
     expect(css).toContain(".ckt-v1__header");
     expect(css).toContain("height: 64px");

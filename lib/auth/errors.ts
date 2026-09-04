@@ -1,5 +1,28 @@
-export function mapAuthErrorMessage(message: string): string {
-  const normalized = message.toLowerCase();
+/**
+ * Auth API clients (e.g. @supabase/auth-js `_getErrorMessage`) may set
+ * `error.message` to `JSON.stringify({})` → `"{}"` when GoTrue returns a
+ * body without msg/message fields. Those must never reach the UI.
+ */
+export function isUselessAuthErrorMessage(
+  message: string | null | undefined,
+): boolean {
+  if (message == null) return true;
+  const trimmed = message.trim();
+  if (!trimmed) return true;
+  if (trimmed === "{}") return true;
+  if (trimmed === "[object Object]") return true;
+  return false;
+}
+
+export function mapAuthErrorMessage(
+  message: string | null | undefined,
+): string {
+  if (message == null || isUselessAuthErrorMessage(message)) {
+    return "";
+  }
+
+  const usable: string = message.trim();
+  const normalized = usable.toLowerCase();
 
   if (normalized.includes("invalid login credentials")) {
     return "Incorrect email or password.";
@@ -36,5 +59,5 @@ export function mapAuthErrorMessage(message: string): string {
     return "Network error. Check your connection and try again.";
   }
 
-  return message;
+  return usable;
 }

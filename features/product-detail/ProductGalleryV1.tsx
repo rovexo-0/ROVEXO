@@ -2,6 +2,7 @@
 
 import { SafeImage, isRenderableImageSrc } from "@/components/ui/SafeImage";
 import { ProductFullscreenImageViewer } from "@/features/product-detail/ProductFullscreenImageViewer";
+import { resolveStoredAvifDerivativeUrl } from "@/lib/media/avif-image-pipeline-v1";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type ProductGalleryV1Props = {
@@ -138,7 +139,14 @@ export const ProductGalleryV1 = memo(function ProductGalleryV1({
                   scrollMainTo(index);
                 }}
               >
-                <SafeImage src={image} alt="" fill loading="lazy" sizes="64px" className="object-cover" />
+                <SafeImage
+                  src={resolveStoredAvifDerivativeUrl(image, "thumb") ?? image}
+                  alt=""
+                  fill
+                  loading="lazy"
+                  sizes="64px"
+                  className="object-cover"
+                />
               </button>
             ))}
           </div>

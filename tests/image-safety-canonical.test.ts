@@ -66,11 +66,21 @@ describe("ROVEXO canonical image safety (v1.0)", () => {
     expect(isRenderableImageSrc(PRODUCT_IMAGE_FALLBACK)).toBe(false);
     expect(isRenderableImageSrc("/placeholder-product.svg")).toBe(false);
     expect(isValidProductImageUrl(PRODUCT_IMAGE_FALLBACK)).toBe(false);
+    expect(
+      isRenderableImageSrc(
+        "https://pklotmwxtnnepaitedic.supabase.co/storage/v1/object/public/products/missing.jpg",
+      ),
+    ).toBe(false);
   });
 
   it("accepts real remote and local image URLs", () => {
     expect(isRenderableImageSrc("https://cdn.example.com/item.jpg")).toBe(true);
     expect(isRenderableImageSrc("/brand/logo.png")).toBe(true);
+    expect(
+      isRenderableImageSrc(
+        "/rovexo-local-storage/storage/v1/object/public/products/seller/listing/valid-a400.avif",
+      ),
+    ).toBe(true);
     expect(isValidProductImageUrl("https://storage.example.com/products/abc.webp")).toBe(true);
   });
 

@@ -45,7 +45,11 @@ export type SendcloudTrackingEvent = {
 };
 
 export type SendcloudTrackingResult = {
-  status: ShippingStatus;
+  /**
+   * Mapped ROVEXO lifecycle status, or `null` when the carrier message is
+   * unrecognized (fail closed — do not advance shipment/order state).
+   */
+  status: ShippingStatus | null;
   events: Array<{
     status: string;
     statusDetails: string | null;

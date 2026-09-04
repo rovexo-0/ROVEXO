@@ -32,6 +32,7 @@ describe("P11.2 security hardening", () => {
 
   it("blocks cross-origin mutations via perimeter CSRF", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
     // Path outside sensitive rate-limit prefixes so this asserts CSRF only.

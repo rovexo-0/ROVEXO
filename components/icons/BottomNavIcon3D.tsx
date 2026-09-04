@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import {
   ChatLineIcon,
   SearchLineIcon,
@@ -6,6 +7,7 @@ import {
 } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 export type { BottomNavIconType };
 
@@ -20,40 +22,7 @@ type BottomNavIcon3DProps = {
 const TAB_ICON_PX = 32;
 const SELL_ICON_PX = 34;
 
-function HomeLineIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
-    </svg>
-  );
-}
-
-function SellPlusIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-/** Absolute Final: RvxLineIcons only — no Fluency 3D assets. */
+/** Absolute Final: platform emoji — no Fluency 3D assets. */
 export function BottomNavIcon3D({ type, active, className, size = "tab" }: BottomNavIcon3DProps) {
   const px = size === "sell" ? SELL_ICON_PX : TAB_ICON_PX;
   const iconClass = cn(
@@ -65,22 +34,22 @@ export function BottomNavIcon3D({ type, active, className, size = "tab" }: Botto
   let icon: ReactNode;
   switch (type) {
     case "home":
-      icon = <HomeLineIcon className={iconClass} />;
+      icon = <PlatformEmoji emoji={PLATFORM_EMOJI.home} size={px} className={iconClass} />;
       break;
     case "search":
-      icon = <SearchLineIcon className={iconClass} />;
+      icon = <SearchLineIcon className={iconClass} width={px} height={px} />;
       break;
     case "sell":
-      icon = <SellPlusIcon className={iconClass} />;
+      icon = <PlatformEmoji emoji={PLATFORM_EMOJI.plus} size={px} className={iconClass} />;
       break;
     case "saved":
-      icon = <ChatLineIcon className={iconClass} />;
+      icon = <ChatLineIcon className={iconClass} width={px} height={px} />;
       break;
     case "account":
-      icon = <UserLineIcon className={iconClass} />;
+      icon = <UserLineIcon className={iconClass} width={px} height={px} />;
       break;
     default:
-      icon = <HomeLineIcon className={iconClass} />;
+      icon = <PlatformEmoji emoji={PLATFORM_EMOJI.home} size={px} className={iconClass} />;
   }
 
   return (

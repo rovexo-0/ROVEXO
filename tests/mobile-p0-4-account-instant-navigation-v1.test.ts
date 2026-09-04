@@ -18,21 +18,30 @@ const stubProfile = {
 
 describe("P0.4 Account instant navigation — reference parity", () => {
   it("enumerates canonical Account href destinations only", () => {
-    const hrefs = buildAccountMenuSections(stubProfile, { activeListingCount: 3 })
-      .flatMap((s) => s.items)
+    const items = buildAccountMenuSections(stubProfile, { activeListingCount: 3 }).flatMap(
+      (s) => s.items,
+    );
+    const hrefs = items
       .filter((i) => i.href)
       .map((i) => ({ id: i.id, href: i.href }));
+    const promote = items.find((i) => i.id === "promote");
 
     expect(hrefs).toEqual(
       expect.arrayContaining([
         { id: "favourites", href: "/saved" },
         { id: "balance", href: "/wallet" },
         { id: "my-orders", href: "/orders" },
-        { id: "promote", href: "/promote" },
         { id: "settings", href: "/account/settings" },
         { id: "ideas", href: "/account/ideas" },
       ]),
     );
+    expect(hrefs.find((h) => h.id === "promote")).toBeUndefined();
+    expect(promote).toMatchObject({
+      id: "promote",
+      value: "Coming Soon",
+      comingSoon: true,
+    });
+    expect(promote?.href).toBeUndefined();
     expect(hrefs.find((h) => h.id === "holiday-mode")).toBeUndefined();
     expect(hrefs.find((h) => h.id === "theme")).toBeUndefined();
   });

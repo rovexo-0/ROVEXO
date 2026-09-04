@@ -52,7 +52,10 @@ export async function executeAutomaticRefund(input: {
     return { success: true, refundId: order.stripe_refund_id };
   }
 
-  const refundResult = await createOrderStripeRefund(input.orderId);
+  const refundResult = await createOrderStripeRefund(input.orderId, {
+    // Resolution auto-refund retains Buyer Protection unless explicitly PLATFORM_ERROR.
+    reason: "OTHER",
+  });
   if ("error" in refundResult) {
     await recordAutomationLog({
       orderId: input.orderId,

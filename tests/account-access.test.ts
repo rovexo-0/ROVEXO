@@ -54,6 +54,22 @@ describe("auth error mapping", () => {
     expect(mapAuthErrorMessage("Invalid login credentials")).toBe("Incorrect email or password.");
     expect(mapAuthErrorMessage("Email not confirmed")).toContain("verify your email");
   });
+
+  it("does not surface useless Auth message serializations as user copy", () => {
+    expect(mapAuthErrorMessage("{}")).toBe("");
+    expect(mapAuthErrorMessage("   {}   ")).toBe("");
+    expect(mapAuthErrorMessage("")).toBe("");
+    expect(mapAuthErrorMessage("   ")).toBe("");
+    expect(mapAuthErrorMessage(null)).toBe("");
+    expect(mapAuthErrorMessage(undefined)).toBe("");
+    expect(mapAuthErrorMessage("[object Object]")).toBe("");
+  });
+
+  it("preserves useful unmapped Auth messages", () => {
+    expect(mapAuthErrorMessage("Custom provider outage for region eu-west")).toBe(
+      "Custom provider outage for region eu-west",
+    );
+  });
 });
 
 describe("remember me session cookies", () => {
@@ -88,11 +104,13 @@ describe("account access routes", () => {
     expect(actions.signOut).toBeTypeOf("function");
   });
 
-  it("keeps unverified business users inside Business Verification", async () => {
+  it("keeps unverified business users inside Stripe Connect onboarding", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile("lib/profile/data.ts", "utf8"),
     );
     expect(source).toContain("BUSINESS_VERIFICATION_ROUTE");
+    expect(source).toContain("loadBusinessStatus");
+    expect(source).not.toContain("hasBusinessVerification");
     expect(source).not.toContain('redirect("/account")');
     expect(source).not.toContain('throw new Error("Business account required")');
   });

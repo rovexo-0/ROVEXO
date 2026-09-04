@@ -1929,7 +1929,8 @@ a.pd-v1__action-btn {
   color: #16a34a;
 }
 
-.pd-v1__cart-toast-check svg {
+.pd-v1__cart-toast-check svg,
+.pd-v1__cart-toast-check .rx-platform-emoji {
   width: 14px;
   height: 14px;
 }

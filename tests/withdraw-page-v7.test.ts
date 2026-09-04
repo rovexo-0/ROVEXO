@@ -71,7 +71,8 @@ describe("Withdraw Page v7.0 FINAL FROZEN — Absolute Authority", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const page = readSource("features/wallet/components/withdraw/WithdrawPage.tsx");
     const css = readSource("styles/rovexo/withdraw-v7.css");
-    expect(hub).toContain("WALLET_ROUTES.withdraw");
+    expect(hub).toContain("withdrawRouteForSellerContext");
+    expect(hub).toContain("withdrawHref");
     expect(hub).toContain("Available to withdraw");
     expect(page).toContain('data-withdraw-freeze={WITHDRAW_PAGE_FREEZE}');
     expect(page).toContain("Available Balance");

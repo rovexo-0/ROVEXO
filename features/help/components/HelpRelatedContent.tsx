@@ -1,6 +1,7 @@
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import type { HelpSolution, HelpTopicSlug } from "@/lib/help/types";
 import { getHelpTopic } from "@/lib/help/content/topics";
+import { isLegacyHelpTopicSlug } from "@/lib/help/help-content-audience-v1";
 
 type HelpRelatedContentProps = {
   solution: HelpSolution;
@@ -9,9 +10,10 @@ type HelpRelatedContentProps = {
 
 export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentProps) {
   const topic = getHelpTopic(topicSlug);
-  const relatedTopics = solution.relatedTopics.length
+  const relatedTopics = (solution.relatedTopics.length
     ? solution.relatedTopics
-    : (topic?.relatedTopics ?? []);
+    : (topic?.relatedTopics ?? [])
+  ).filter((slug) => !isLegacyHelpTopicSlug(slug));
 
   return (
     <div className="flex flex-col gap-[var(--cds-space-section-gap,24px)]">

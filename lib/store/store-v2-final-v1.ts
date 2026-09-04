@@ -20,18 +20,21 @@ export const STORE_V2_ROUTES = {
 export const STORE_V2_UI = {
   header: {
     standard: "ROVEXO Header Standard v1.0",
-    layout: ["back", "title:Store", "close"] as const,
+    layout: ["back", "title:Store", "overflow"] as const,
     mustMatch: "Orders",
     component: "AccountCanonicalHeader",
   },
-  headerForbidden: ["extra menus", "header Follow", "···", "hidden title"] as const,
+  headerForbidden: ["header Follow", "header Close", "hidden title"] as const,
   tabs: ["listings", "reviews"] as const,
   tabSplit: "50/50",
   listings: {
     activeOnly: true,
     columns: 2,
     card: "ListingCard",
-    forbidden: ["Featured", "Search", "Filter", "categories"] as const,
+    price: "seller-set listing.price only",
+    saved: "♡/❤️ + products.likes on image",
+    views: "👁 products.views",
+    forbidden: ["Featured", "Search", "Filter", "categories", "incl.", "🛡"] as const,
     pagination: "infinite-scroll-or-load-more",
   },
   reviews: {

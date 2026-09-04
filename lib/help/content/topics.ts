@@ -8,7 +8,7 @@ export const TOPIC_SEEDS: TopicSeed[] = [
   { slug: "authentication", label: "Authentication", description: "Sign in, passwords, and verification codes", icon: "🔐", group: "Account & Security", keywords: ["login", "password", "sign in"] },
   { slug: "buyer", label: "Buyer", description: "Buying, checkout, and purchase protection", icon: "🛒", group: "Marketplace", keywords: ["buy", "purchase", "checkout"] },
   { slug: "seller", label: "Seller", description: "Selling, listings, and seller tools", icon: "🏷️", group: "Marketplace", keywords: ["sell", "listing", "seller"] },
-  { slug: "business-accounts", label: "Seller tax status", description: "Tax registration on your Personal Account", icon: "🏢", group: "Marketplace", keywords: ["tax", "company", "vat", "sole trader"] },
+  { slug: "business-accounts", label: "Seller tax status", description: "Tax registration on your ROVEXO account", icon: "🏢", group: "Marketplace", keywords: ["tax", "company", "vat", "sole trader"] },
   { slug: "wholesale", label: "Wholesale", description: "Bulk orders and trade (not active in v1.0 public)", icon: "📦", group: "Help", keywords: ["wholesale", "bulk", "moq", "rfq"] },
   { slug: "manufacturers", label: "Manufacturers", description: "Manufacturers help (not active in v1.0 public)", icon: "🏭", group: "Help", keywords: ["manufacturer", "production"] },
   { slug: "suppliers", label: "Suppliers", description: "Suppliers help (not active in v1.0 public)", icon: "🔗", group: "Help", keywords: ["supplier", "sourcing"] },

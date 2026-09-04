@@ -15,7 +15,7 @@ import {
 } from "@/lib/auth/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
-import { redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
+import { authCallbackUrl, redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { validateResetPasswordStrength } from "@/lib/auth/password-strength";
@@ -62,10 +62,6 @@ export type AuthActionState = {
   error?: string;
   success?: string;
 };
-
-function authCallbackUrl(next: string): string {
-  return `${getAppUrl()}/auth/callback?next=${encodeURIComponent(sanitizeNextPath(next))}`;
-}
 
 /** Email confirmation landing — branded `/verify-email` (never Supabase hosted UI). */
 function authEmailVerificationRedirectUrl(): string {
@@ -416,14 +412,20 @@ export async function requestPasswordReset(
   });
 
   if (error) {
-    const normalized = error.message.toLowerCase();
+    const rawMessage = typeof error.message === "string" ? error.message : "";
+    const normalized = rawMessage.toLowerCase();
     if (normalized.includes("not found") || normalized.includes("no user")) {
       return { error: "No account found for that email address." };
     }
     if (normalized.includes("rate limit")) {
       return { error: "Too many reset attempts. Please try again later." };
     }
-    return { error: mapAuthErrorMessage(error.message) || "Unable to send reset link. Please try again." };
+    // mapAuthErrorMessage returns "" for "{}" / empty / "[object Object]" so fallback always wins.
+    return {
+      error:
+        mapAuthErrorMessage(error.message) ||
+        "Unable to send reset link. Please try again.",
+    };
   }
 
   if (!data.properties?.action_link) {
@@ -516,7 +518,8 @@ export async function updatePassword(
   }
 
   await supabase.auth.signOut();
-  revalidatePath("/", "layout");
+  // Do not revalidatePath here: a layout refresh remounts /reset-password without a
+  // session and replaces the success UI with the "Invalid link" empty state.
 
   return {
     success: "Password updated successfully.",

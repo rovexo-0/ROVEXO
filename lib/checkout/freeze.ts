@@ -67,14 +67,15 @@ export const CHECKOUT_LOCKED_SECTIONS = [
 
 /**
  * CHECKOUT_UI_v1.0 — CTA presents TOTAL PAY £TOTAL (visual total lives on button).
- * Platform Fee label remains mandatory (buyer-visible).
+ * Buyer Protection label remains mandatory (buyer-visible).
  */
 export const CHECKOUT_MASTER_FREEZE_COPY = {
   cta: "TOTAL PAY",
-  feeLabel: "Platform Fee",
+  feeLabel: "Buyer Protection",
   forbiddenCta: ["Pay Securely", "Continue", "Proceed", "Checkout"] as const,
   forbiddenFee: [
-    "Buyer Protection",
+    "Platform Fee",
+    "Platform Fees",
     "Buyer Protection Fee",
     "Buyer Protection Included",
   ] as const,

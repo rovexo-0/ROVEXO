@@ -7,11 +7,12 @@
  * Social Follow permanently removed.
  */
 
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources, toBrowserReachableStorageUrl } from "@/lib/media/product-image";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import type { Product } from "@/lib/products/types";
 import { applyCanonicalSellerRatingsToProducts } from "@/lib/products/canonical-seller-rating-v1";
@@ -27,6 +28,7 @@ export type StoreRecord = {
   storeSlug: string;
   storeName: string;
   avatarUrl: string | null;
+  coverUrl: string | null;
   verified: boolean;
   role: string;
   memberSinceIso: string;
@@ -68,6 +70,11 @@ function mapSoldRows(
         Number(a.sort_order) - Number(b.sort_order),
     );
     const primary = images[0];
+    const cardImages = resolveCardImageSources(
+      primary?.thumbnail_url as string | undefined,
+      primary?.url as string | undefined,
+      { storagePath: (primary?.storage_path as string | undefined) ?? "" },
+    );
     const brands = row.brands as { name?: string } | null;
     return {
       id: String(row.id),
@@ -83,10 +90,8 @@ function mapSoldRows(
       views: Number(row.views ?? 0),
       likes: Number(row.likes ?? 0),
       brand: brands?.name,
-      imageUrl:
-        (primary?.thumbnail_url as string | undefined) ??
-        (primary?.url as string | undefined) ??
-        PRODUCT_IMAGE_FALLBACK,
+      imageUrl: cardImages.imageUrl,
+      imageFullUrl: cardImages.imageFullUrl,
       sections: [],
       createdAt: (row.created_at as string | null) ?? null,
     };
@@ -98,6 +103,7 @@ async function loadStoreFromProfile(profile: {
   full_name: string;
   username: string;
   avatar_url: string | null;
+  cover_url: string | null;
   verified: boolean;
   role: string;
   created_at: string;
@@ -130,7 +136,7 @@ async function loadStoreFromProfile(profile: {
       supabase
         .from("products")
         .select(
-          "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary ), brands ( name )",
+          "id, slug, title, price, condition, rating, review_count, views, likes, created_at, product_images ( url, thumbnail_url, sort_order, is_primary, storage_path ), brands ( name )",
         )
         .eq("seller_id", profile.id)
         .eq("status", "sold")
@@ -161,7 +167,12 @@ async function loadStoreFromProfile(profile: {
     sellerId: profile.id,
     storeSlug: profile.username,
     storeName,
-    avatarUrl: normalizeAvatarUrl(profile.avatar_url),
+    avatarUrl: profile.avatar_url
+      ? toBrowserReachableStorageUrl(normalizeAvatarUrl(profile.avatar_url) ?? profile.avatar_url)
+      : null,
+    coverUrl: profile.cover_url
+      ? toBrowserReachableStorageUrl(normalizeAvatarUrl(profile.cover_url) ?? profile.cover_url)
+      : null,
     verified: Boolean(profile.verified),
     role: profile.role,
     memberSinceIso: profile.created_at,
@@ -189,7 +200,7 @@ async function loadStoreFromProfile(profile: {
 
 /** Profiles columns required for public View Profile — never depend on optional follow cols. */
 const PROFILE_SELECT =
-  "id, full_name, username, avatar_url, verified, role, created_at, account_status, deleted_at, suspended_at";
+  "id, full_name, username, avatar_url, cover_url, verified, role, created_at, account_status, deleted_at, suspended_at";
 
 /** SSOT: PRODUCT.seller_id → STORE */
 export async function getStoreBySellerId(sellerId: string): Promise<StoreRecord | null> {
@@ -221,7 +232,7 @@ export async function getStoreBySlug(storeSlug: string): Promise<StoreRecord | n
  * Dynamic route param → STORE.
  * UUID ⇒ seller_id / store_id. Else ⇒ store_slug.
  */
-export async function resolveStoreByRouteParam(
+export const resolveStoreByRouteParam = cache(async function resolveStoreByRouteParam(
   param: string,
 ): Promise<StoreRecord | null> {
   const value = param?.trim() ?? "";
@@ -230,7 +241,7 @@ export async function resolveStoreByRouteParam(
     return getStoreBySellerId(value);
   }
   return getStoreBySlug(value);
-}
+});
 
 export function storeMemberSinceLabel(iso: string): string {
   return formatMemberSince(iso);

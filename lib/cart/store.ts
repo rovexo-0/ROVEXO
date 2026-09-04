@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isPurchasable } from "@/lib/inventory/service";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { PRODUCT_IMAGE_FALLBACK, resolveCardImageSources } from "@/lib/media/product-image";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 
 export type CartItem = {
@@ -40,7 +40,7 @@ const CART_SELECT = `
     condition,
     seller_id,
     profiles!products_seller_id_fkey ( full_name, username ),
-    product_images ( url, is_primary, sort_order )
+    product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )
   )
 `;
 
@@ -58,7 +58,13 @@ function mapCartRow(row: {
     seller_id: string;
     condition?: string | null;
     profiles?: { full_name: string | null; username: string | null } | null;
-    product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
+    product_images?: Array<{
+      url: string;
+      thumbnail_url?: string | null;
+      storage_path?: string | null;
+      is_primary: boolean;
+      sort_order: number;
+    }>;
   } | null;
 }): CartItem | null {
   if (!row.products) {
@@ -68,6 +74,11 @@ function mapCartRow(row: {
   const images = [...(row.products.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
+  const primary = images[0];
+  const cardImages = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+    storagePath: primary?.storage_path,
+    productStatus: row.products.status,
+  });
 
   const variation = row.products.condition?.replace(/[_-]+/g, " ").trim() || null;
   const sellerName =
@@ -82,7 +93,7 @@ function mapCartRow(row: {
     slug: row.products.slug,
     title: row.products.title,
     price: Number(row.products.price),
-    imageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
+    imageUrl: cardImages.imageUrl || PRODUCT_IMAGE_FALLBACK,
     quantity: row.quantity,
     stock: row.products.stock,
     available: isPurchasable(row.products.stock, row.products.status),

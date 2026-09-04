@@ -25,18 +25,86 @@ function required(label: string, value: string | undefined): string {
 }
 
 /**
+ * Invalid hostnames caused by an extra "n" when copying the project ref into Vercel.
+ * Correct ref: pklotmwxtnnepaitedic (see supabase/.temp/project-ref).
+ */
+const SUPABASE_HOSTNAME_CORRECTIONS: Record<string, string> = {
+  "pklotmwxtnnnepaitedic.supabase.co": "pklotmwxtnnepaitedic.supabase.co",
+};
+
+/** Verified local Supabase API port only (CLI default). Never Postgres 54322. */
+const LOCAL_SUPABASE_API_PORT = "54321";
+
+const LOCAL_SUPABASE_HOSTS = new Set(["127.0.0.1", "localhost"]);
+
+/**
+ * Explicit local E2E allowlist only:
+ * `http://127.0.0.1:54321` · `http://localhost:54321`
+ * Does not accept arbitrary HTTP hosts, HTTPS loopback, or other ports.
+ */
+function isAllowedLocalSupabaseUrl(url: URL): boolean {
+  if (url.protocol !== "http:") return false;
+  if (!LOCAL_SUPABASE_HOSTS.has(url.hostname.toLowerCase())) return false;
+  return url.port === LOCAL_SUPABASE_API_PORT;
+}
+
+/** Peek whether a raw env URL is the verified local API (before full normalize). */
+function looksLikeAllowedLocalSupabaseRaw(raw: string): boolean {
+  try {
+    const candidate = /^https?:\/\//i.test(raw) ? raw : `http://${raw}`;
+    return isAllowedLocalSupabaseUrl(new URL(candidate));
+  } catch {
+    return false;
+  }
+}
+
+function readLocalSupabaseUrlAliasRaw(): string | undefined {
+  const value = process.env.SUPABASE_URL?.trim();
+  if (value && !isUnusableSecret(value) && looksLikeAllowedLocalSupabaseRaw(value)) {
+    return value;
+  }
+  return undefined;
+}
+
+/**
  * Next.js only inlines NEXT_PUBLIC_* when accessed as static property paths.
  * Dynamic `process.env[name]` is undefined in the browser bundle → Realtime NO_CLIENT.
+ *
+ * Non-production exception: when SUPABASE_URL is the verified local API,
+ * prefer it over a shell-exported cloud NEXT_PUBLIC_SUPABASE_URL. Otherwise auth
+ * cookies mint as `sb-127-auth-token` while the app validates the cloud project ref → 401.
  */
 function readPublicSupabaseUrlRaw(): string | undefined {
   const fromPublic = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  if (fromPublic && !isUnusableSecret(fromPublic)) return fromPublic;
   const fromAlias = process.env.SUPABASE_URL?.trim();
+  const localAlias =
+    process.env.NODE_ENV !== "production" ? readLocalSupabaseUrlAliasRaw() : undefined;
+
+  if (localAlias) {
+    return localAlias;
+  }
+
+  if (fromPublic && !isUnusableSecret(fromPublic)) return fromPublic;
   if (fromAlias && !isUnusableSecret(fromAlias)) return fromAlias;
   return undefined;
 }
 
 function readPublicSupabaseAnonKeyRaw(): string | undefined {
+  const usingLocalUrl =
+    process.env.NODE_ENV !== "production" && Boolean(readLocalSupabaseUrlAliasRaw());
+
+  if (usingLocalUrl) {
+    // Pair local URL with local anon aliases (shell cloud NEXT_PUBLIC anon must not win).
+    for (const name of [
+      "SUPABASE_ANON_KEY",
+      "ANON_KEY",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    ] as const) {
+      const value = process.env[name]?.trim();
+      if (value && !isUnusableSecret(value)) return value;
+    }
+  }
+
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (anon && !isUnusableSecret(anon)) return anon;
   const publishable = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
@@ -47,20 +115,23 @@ function readPublicSupabaseAnonKeyRaw(): string | undefined {
 }
 
 function readServiceRoleKeyRaw(): string | undefined {
+  const usingLocalUrl =
+    process.env.NODE_ENV !== "production" && Boolean(readLocalSupabaseUrlAliasRaw());
+
+  if (usingLocalUrl) {
+    // Pair local URL with local service-role aliases (shell cloud service key must not win).
+    for (const name of ["SERVICE_ROLE_KEY", "SUPABASE_SERVICE_ROLE_KEY"] as const) {
+      const value = process.env[name]?.trim();
+      if (value && !isUnusableSecret(value)) return value;
+    }
+  }
+
   const primary = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (primary && !isUnusableSecret(primary)) return primary;
   const secret = process.env.SUPABASE_SECRET_KEY?.trim();
   if (secret && !isUnusableSecret(secret)) return secret;
   return undefined;
 }
-
-/**
- * Invalid hostnames caused by an extra "n" when copying the project ref into Vercel.
- * Correct ref: pklotmwxtnnepaitedic (see supabase/.temp/project-ref).
- */
-const SUPABASE_HOSTNAME_CORRECTIONS: Record<string, string> = {
-  "pklotmwxtnnnepaitedic.supabase.co": "pklotmwxtnnepaitedic.supabase.co",
-};
 
 export function normalizeSupabaseUrl(rawUrl: string): string {
   const trimmed = rawUrl.trim();
@@ -77,6 +148,23 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
     throw new Error(`Invalid Supabase URL: "${trimmed}" must use http or https.`);
   }
 
+  if (url.pathname !== "/" && url.pathname !== "") {
+    throw new Error("Invalid Supabase URL: use the project origin only (no path).");
+  }
+
+  // Local E2E: allow only the verified Supabase API origin (no cloud fallback).
+  if (isAllowedLocalSupabaseUrl(url)) {
+    return url.origin;
+  }
+
+  // Loopback / local-looking hosts that are not the verified API form stay rejected.
+  const host = url.hostname.toLowerCase();
+  if (LOCAL_SUPABASE_HOSTS.has(host) || host === "::1") {
+    throw new Error(
+      `Invalid local Supabase URL "${trimmed}". Expected http://127.0.0.1:${LOCAL_SUPABASE_API_PORT} or http://localhost:${LOCAL_SUPABASE_API_PORT}.`,
+    );
+  }
+
   if (!url.hostname.endsWith(".supabase.co")) {
     throw new Error(
       `Invalid Supabase URL hostname "${url.hostname}". Expected https://<project-ref>.supabase.co`,
@@ -89,13 +177,16 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
     );
   }
 
+  // Cloud Supabase is HTTPS-only (local E2E is the sole http: exception above).
+  if (url.protocol !== "https:") {
+    throw new Error(
+      `Invalid Supabase URL: cloud hosts must use https://<project-ref>.supabase.co`,
+    );
+  }
+
   const correctedHostname = SUPABASE_HOSTNAME_CORRECTIONS[url.hostname];
   if (correctedHostname) {
     url.hostname = correctedHostname;
-  }
-
-  if (url.pathname !== "/" && url.pathname !== "") {
-    throw new Error("Invalid Supabase URL: use the project origin only (no path).");
   }
 
   return url.origin;

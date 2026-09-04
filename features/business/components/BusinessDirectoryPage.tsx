@@ -17,7 +17,7 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
   return (
     <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
       <CanonicalSection
-        title="Directory"
+        title="🏢 Directory"
         intro="Verified companies, manufacturers, suppliers, and wholesale partners."
       >
         {companies.length ? (

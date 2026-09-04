@@ -67,7 +67,7 @@ describe("My Account canonical final — Master Menu v2.0", () => {
     expect(titles).not.toContain("Edit Profile");
   });
 
-  it("uses Owner Profile Icon System v1.0 line icons in menu rows", () => {
+  it("uses Owner Profile Icon System v1.0 emoji in menu rows", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
     const icons = readSource("features/account-center/components/ProfileMenuIcons.tsx");
     const colors = readSource("lib/account-center/profile-icon-system-v1.ts");
@@ -85,10 +85,9 @@ describe("My Account canonical final — Master Menu v2.0", () => {
     expect(menu).not.toContain("View Public Profile");
     expect(menu).not.toContain("Edit Profile");
 
-    expect(icons).toContain("function Heart");
-    expect(icons).toContain("function Wallet");
-    expect(icons).toContain("function Lightbulb");
-    expect(icons).toContain("function Logout");
+    expect(icons).toContain("PROFILE_ICON_EMOJI");
+    expect(icons).toContain("PlatformEmoji");
+    expect(icons).not.toContain("<svg");
     expect(colors).toContain("#FF5FA2");
     expect(colors).toContain("#06B6D4");
     expect(colors).toContain("#F59E0B");
@@ -100,5 +99,17 @@ describe("My Account canonical final — Master Menu v2.0", () => {
     expect(colors).toContain("#60A5FA");
     expect(colors).toContain("#9333EA");
     expect(colors).toContain("#DC2626");
+  });
+
+  it("refreshes canonical Business seller context when Account becomes active", () => {
+    const home = readSource("features/account-center/components/AccountCenterHome.tsx");
+    const card = readSource("features/business/onboarding/BusinessUpgradeCard.tsx");
+    expect(home).toContain("<BusinessUpgradeCard initialStatus={businessStatus} />");
+    expect(card).toContain('if (pathname !== "/account") return');
+    expect(card).toContain('fetch("/api/business/status"');
+    expect(card).toContain('addEventListener("pageshow"');
+    expect(card).toContain('addEventListener("visibilitychange"');
+    expect(card).toContain("applyConfirmedSellerContextHint");
+    expect(card).not.toContain("setInterval");
   });
 });

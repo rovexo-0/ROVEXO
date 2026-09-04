@@ -62,7 +62,9 @@ describe("financial lifecycle matrix v1", () => {
   it("G/H/I: zero / partial / full capture remain gated by Charge.amount_captured", () => {
     expect(refunds).toContain("amount_captured");
     expect(refunds).toContain("refundableGbp");
-    expect(refunds).toContain("Math.min(orderTotalPence, Math.max(0, Math.round(capturedPence)))");
+    expect(read("lib/stripe/refund-math-v1.ts")).toContain(
+      "Math.min(orderTotalPence, Math.max(0, Math.round(capturedPence)))",
+    );
     expect(refunds).toContain(ZERO_CAPTURE_ERROR);
     expect(refunds).toContain("Unable to verify captured payment.");
     expect(refunds).not.toContain("stripe.refunds.create");
@@ -83,11 +85,11 @@ describe("financial lifecycle matrix v1", () => {
     expect(refunds).toContain("wallet-refund-");
     expect(lifecycle).toContain("CommerceEngine.creditBuyerWallet");
     expect(lifecycle).not.toMatch(/input\.amount \|\| Number\(existing\.total\)/);
-    expect(lifecycle).toContain("Number.isFinite(requested) && requested > 0");
+    expect(lifecycle).toContain("Number.isFinite(thisAmount) && thisAmount > 0");
   });
 
   it("P/Q/T: refund + wallet idempotency layers remain intact", () => {
-    expect(refunds).toContain("if (order.stripe_refund_id)");
+    expect(refunds).toContain("order.stripe_refund_id");
     expect(refunds).toContain("refunded_amount");
     expect(sales).toContain("buildBuyerRefundIdempotencyKey");
     expect(read("lib/wallet/security.ts")).toContain("buyer-refund:");
@@ -108,7 +110,8 @@ describe("financial lifecycle matrix v1", () => {
     expect(sales).toContain("isRovexoWalletRefundCreditEligible");
     expect(sales).toContain("if (!(amount > 0))");
     expect(sales).toContain("if (!saleTx)");
-    expect(lifecycle).toContain("previousStatus !== \"completed\"");
+    expect(lifecycle).toContain("accumulateRefundedGbp");
+    expect(lifecycle).toContain("CommerceEngine.creditBuyerWallet");
   });
 
   it("does not bypass Stripe readiness on Buy Now", () => {

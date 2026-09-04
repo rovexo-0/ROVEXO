@@ -5,11 +5,21 @@ import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
 import { HelpQuickLinks } from "@/features/help/components/HelpQuickLinks";
+import { useRefreshHelpOnSellerContextChange } from "@/features/help/hooks/use-refresh-help-on-seller-context-change";
+import { HELP_AUDIENCES_FOR_GUEST, type HelpContentAudience } from "@/lib/help/help-content-audience-v1";
 import { listHelpFaqs, searchHelpFaqs } from "@/lib/help/faq";
 
-export function HelpFaqPage() {
+type HelpFaqPageProps = {
+  allowedAudiences?: readonly HelpContentAudience[];
+};
+
+export function HelpFaqPage({ allowedAudiences = HELP_AUDIENCES_FOR_GUEST }: HelpFaqPageProps) {
+  useRefreshHelpOnSellerContextChange();
   const [query, setQuery] = useState("");
-  const faqs = useMemo(() => (query.trim() ? searchHelpFaqs(query) : listHelpFaqs()), [query]);
+  const faqs = useMemo(
+    () => (query.trim() ? searchHelpFaqs(query, 24, allowedAudiences) : listHelpFaqs(200, allowedAudiences)),
+    [query, allowedAudiences],
+  );
 
   return (
     <AccountCanonicalShell title="FAQ" backHref="/help" backLabel="Help Centre" showHeaderTitle>
@@ -18,13 +28,14 @@ export function HelpFaqPage() {
       </CanonicalInfoBlock>
 
       <CanonicalSection title="Search">
-        <CanonicalInput
-          id="faq-search"
-          inputType="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search FAQs..."
-        />
+            <CanonicalInput
+              id="faq-search"
+              inputType="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search FAQs..."
+              aria-label="Search FAQs"
+            />
       </CanonicalSection>
 
       <HelpQuickLinks />

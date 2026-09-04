@@ -1,25 +1,16 @@
 "use client";
 
-import { memo, type SVGProps } from "react";
+import { memo } from "react";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type WalletInsightsProps = {
   sales: number;
   withdrawn: number;
   pending: number;
   pendingAvailableAt: string;
+  headingEmoji?: string | null;
 };
-
-type IconProps = SVGProps<SVGSVGElement>;
-
-function CalendarLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <rect x="3.5" y="5" width="17" height="15" rx="2" />
-      <path d="M8 3.5V7M16 3.5V7M3.5 10h17" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /** Balance Insights — This Month + Next Payout. Visual polish only. */
 export const WalletInsights = memo(function WalletInsights({
@@ -27,8 +18,10 @@ export const WalletInsights = memo(function WalletInsights({
   withdrawn,
   pending,
   pendingAvailableAt,
+  headingEmoji = PLATFORM_EMOJI.date,
 }: WalletInsightsProps) {
   const hasUpcoming = pending > 0 && Boolean(pendingAvailableAt);
+  const glyph = headingEmoji ?? PLATFORM_EMOJI.date;
 
   return (
     <section className="wallet-v2__section wallet-v2__section--insights" aria-labelledby="wallet-insights-title">
@@ -40,7 +33,7 @@ export const WalletInsights = memo(function WalletInsights({
         <article className="wallet-v2__insight-card">
           <h3 className="wallet-v2__insight-heading">
             <span className="wallet-v2__insight-heading-icon" aria-hidden>
-              <CalendarLineIcon />
+              {glyph}
             </span>
             This Month
           </h3>
@@ -63,7 +56,7 @@ export const WalletInsights = memo(function WalletInsights({
         <article className="wallet-v2__insight-card">
           <h3 className="wallet-v2__insight-heading">
             <span className="wallet-v2__insight-heading-icon" aria-hidden>
-              <CalendarLineIcon />
+              {glyph}
             </span>
             Next Payout
           </h3>

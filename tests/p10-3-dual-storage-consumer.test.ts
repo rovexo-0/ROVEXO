@@ -52,7 +52,7 @@ describe("P10.3 dual Storage consumer — draft must not move temp", () => {
     const moveEnd = source.indexOf("\nasync function insertProductImages", moveStart);
     const moveSlice = source.slice(moveStart, moveEnd > moveStart ? moveEnd : undefined);
     expect(moveSlice).toContain(".copy(");
-    expect(moveSlice).toContain(".remove([image.storagePath, oldThumbPath])");
+    expect(moveSlice).toContain(".remove([image.storagePath, oldThumbPath, ...oldAvifPaths])");
     expect(moveSlice).toContain("if (options?.deleteTemp)");
 
     const reconStart = source.indexOf("export async function reconcileTempListingImagesToProductFolder");

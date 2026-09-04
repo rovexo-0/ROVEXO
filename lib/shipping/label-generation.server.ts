@@ -5,9 +5,20 @@ import { generateOrderShippingLabel } from "@/lib/shipping/server";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
 import { resolveSellerCollectionAddress } from "@/lib/checkout/shipping-quotes.server";
 import {
+  applySelectedShippingQuotePayload,
+  buildLegacyBridgeShippingQuote,
+  resolveSelectedShippingQuoteForLabel,
+  selectedSendcloudQuoteNeedsV3Discovery,
+} from "@/lib/shipping/selected-shipping-quote-contract-v1";
+import { parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import { resolveAuthoritativeProviderShippingCostPence } from "@/lib/shipping/pricing/buyer-shipping-price-v1";
+import { coerceShippingQuotePayload } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
+import { createShippingAdminClient } from "@/lib/shipping/db-client";
+import {
   appendAndSelectShippingQuoteWithoutReplacing,
   ensureShippingRecord,
   getShippingRecord,
+  persistShippingRecordProviderCostPence,
   saveShippingQuotes,
   updateShippingQuotePayloadWithoutReplacing,
 } from "@/lib/shipping/store";
@@ -16,6 +27,8 @@ import {
   createShipmentParcel,
   listShipmentParcelsForOrder,
   updateShipmentParcel,
+  claimLabelGenerationAttempt,
+  getProviderParcelIdForShipmentParcel,
 } from "@/lib/shipping/parcels-repository";
 import {
   PARCEL_MEASUREMENTS_REQUIRED_FOR_LABEL,
@@ -25,12 +38,9 @@ import {
 } from "@/lib/shipping/parcels";
 import { resolveShipmentParcelForLabel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
 import {
-  applySelectedShippingQuotePayload,
-  buildLegacyBridgeShippingQuote,
-  resolveSelectedShippingQuoteForLabel,
-  selectedSendcloudQuoteNeedsV3Discovery,
-} from "@/lib/shipping/selected-shipping-quote-contract-v1";
-import { parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+  buildLabelGenerationIdempotencyKey,
+  LABEL_GENERATION_IN_PROGRESS_MESSAGE,
+} from "@/lib/shipping/label-generation-idempotency-v1";
 import {
   canonicalParcelMeasurements,
   getCanonicalParcelSizeByTier,
@@ -41,6 +51,15 @@ import {
 } from "@/lib/full-demo/security";
 import type { ShippingLabelProviderFailure } from "@/lib/shipping/pricing/provider";
 import { shippingLabelProviderFailure } from "@/lib/shipping/pricing/label-provider-failure-v1";
+import {
+  LOCAL_QUOTE_EXPIRED_LABEL_MESSAGE,
+  isShippingQuoteLocallyExpiredForLabel,
+} from "@/lib/shipping/shipping-quote-local-expiry-v1";
+import {
+  SELLER_SHIPPING_DEADLINE_EXPIRED_LABEL_MESSAGE,
+  SELLER_SHIPPING_DEADLINE_V1,
+  isSellerShippingDeadlineExpiredForLabel,
+} from "@/lib/shipping/seller-shipping-deadline-v1";
 import type { ShippingAddress, ShipmentParcel } from "@/lib/shipping/types";
 
 export type GenerateShippingLabelForOrderFailure = {
@@ -82,7 +101,7 @@ export async function generateShippingLabelForOrder(
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, order_number, seller_id, buyer_id, shipping_address_id, status, selected_shipping_quote_id, delivery_carrier, delivery_fee",
+      "id, order_number, seller_id, buyer_id, shipping_address_id, status, selected_shipping_quote_id, delivery_carrier, delivery_fee, paid_at, shipping_setup_status",
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -193,6 +212,43 @@ export async function generateShippingLabelForOrder(
     quoteId,
   );
   if (!selectedQuote?.id) {
+    // Fail closed: provider cost must come from shipping_quotes (Sendcloud), never delivery_fee.
+    let providerPricePence: number | null = null;
+    let recoveredPayload = null as ReturnType<typeof coerceShippingQuotePayload>;
+    if (record?.id) {
+      const shippingAdmin = createShippingAdminClient();
+      const { data: quoteRows } = await shippingAdmin
+        .from("shipping_quotes")
+        .select("price_pence, quote_payload, carrier, service_name")
+        .eq("shipping_record_id", record.id);
+      const match = (
+        (quoteRows ?? []) as Array<{
+          price_pence?: number;
+          quote_payload?: unknown;
+          carrier?: string;
+          service_name?: string;
+        }>
+      ).find((row) => {
+        const payload = coerceShippingQuotePayload(row.quote_payload ?? null);
+        return Boolean(
+          payload?.externalQuoteId &&
+            quoteId &&
+            payload.externalQuoteId === quoteId,
+        );
+      });
+      if (match) {
+        recoveredPayload = coerceShippingQuotePayload(match.quote_payload ?? null);
+        providerPricePence = resolveAuthoritativeProviderShippingCostPence({
+          providerShippingCostPence: recoveredPayload?.providerShippingCostPence,
+          quotePricePence: match.price_pence,
+        });
+      }
+    }
+    if (providerPricePence == null) {
+      return rovexoValidationFailure(
+        "Authoritative provider shipping cost is missing for the selected quote.",
+      );
+    }
     const checkoutIdentity = buildLegacyBridgeShippingQuote({
       quoteId,
       carrier:
@@ -203,7 +259,8 @@ export async function generateShippingLabelForOrder(
         (typeof order.delivery_carrier === "string" && order.delivery_carrier.trim()) ||
         record?.carrier ||
         undefined,
-      pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
+      pricePence: providerPricePence,
+      payload: recoveredPayload,
     });
     if (resolveSelectedShippingQuoteForLabel([checkoutIdentity], quoteId)?.id) {
       try {
@@ -225,6 +282,17 @@ export async function generateShippingLabelForOrder(
       "Selected shipping quote could not be resolved for this order.",
     );
   }
+
+  const providerCostPence = resolveAuthoritativeProviderShippingCostPence({
+    quotePricePence: selectedQuote.pricePence,
+  });
+  if (providerCostPence == null) {
+    return rovexoValidationFailure(
+      "Authoritative provider shipping cost is missing for the selected quote.",
+    );
+  }
+  // Ensure ShippingQuote.pricePence remains provider cost only.
+  selectedQuote = { ...selectedQuote, pricePence: providerCostPence };
   // Always announce with the hydrated external quote id (sendcloud:N), never a row UUID.
   quoteId = selectedQuote.id;
 
@@ -388,6 +456,18 @@ export async function generateShippingLabelForOrder(
           }
         : {}),
     });
+    // MEDIUM #7 — concurrent create race: re-resolve instead of failing closed on null.
+    if (!parcel) {
+      const racedParcels = await listShipmentParcelsForOrder(orderId);
+      const racedResolution = resolveShipmentParcelForLabel({
+        shippingRecordId: record.id,
+        loadedExplicitParcel: null,
+        orderParcels: racedParcels,
+      });
+      if (racedResolution.status === "use") {
+        parcel = racedResolution.parcel;
+      }
+    }
   }
 
   if (!parcel) {
@@ -489,10 +569,109 @@ export async function generateShippingLabelForOrder(
 
   let existingProviderParcelId: number | null = null;
   if (parcel?.id) {
-    const { getProviderParcelIdForShipmentParcel } = await import(
-      "@/lib/shipping/parcels-repository"
-    );
     existingProviderParcelId = await getProviderParcelIdForShipmentParcel(parcel.id);
+  }
+
+  // MEDIUM #6 — local expires_at fail-closed BEFORE any Sendcloud label call.
+  // Skip only when a provider parcel already exists (idempotent announce reuse).
+  // Missing expiresAt: do not invent — allow existing provider fail-safe.
+  // Never auto-replace selected quote / carrier / buyer price / provider cost.
+  const hasReusableProviderParcel =
+    existingProviderParcelId != null && existingProviderParcelId > 0;
+  if (
+    !hasReusableProviderParcel &&
+    isShippingQuoteLocallyExpiredForLabel({ expiresAt: selectedQuote?.expiresAt })
+  ) {
+    return rovexoValidationFailure(LOCAL_QUOTE_EXPIRED_LABEL_MESSAGE);
+  }
+
+  // MEDIUM #6 extension — ROVEXO seller deadline (3 calendar days from paid_at).
+  // Independent from Sendcloud expires_at. Both must PASS for a new provider call.
+  // Existing in-term labels (reusable provider parcel) remain valid — skip gate.
+  // On expiry: fail closed, route to shipping_setup_status=repair_required recovery.
+  // Never cancel order · never replace quote/carrier · never mutate buyer price.
+  if (
+    !hasReusableProviderParcel &&
+    isSellerShippingDeadlineExpiredForLabel({
+      paidAt: typeof order.paid_at === "string" ? order.paid_at : null,
+    })
+  ) {
+    try {
+      const currentSetup =
+        typeof order.shipping_setup_status === "string"
+          ? order.shipping_setup_status
+          : null;
+      if (currentSetup !== SELLER_SHIPPING_DEADLINE_V1.recoveryStatus) {
+        await admin
+          .from("orders")
+          .update({
+            shipping_setup_status: SELLER_SHIPPING_DEADLINE_V1.recoveryStatus,
+          })
+          .eq("id", orderId);
+      }
+    } catch {
+      // Status routing is best-effort; label must still fail closed.
+    }
+    return rovexoValidationFailure(SELLER_SHIPPING_DEADLINE_EXPIRED_LABEL_MESSAGE);
+  }
+
+  // MEDIUM #7 — claim before Sendcloud announce (DB unique on shipment_parcel_id).
+  // Concurrent POSTs / retries reuse ready label or existing provider parcel.
+  // Never opens a second Sendcloud label for the same active parcel attempt.
+  const labelClaim = await claimLabelGenerationAttempt({
+    shippingRecordId: record.id,
+    parcelId: parcel.id,
+    parcelNumber: parcel.parcelNumber,
+    totalParcels: parcel.totalParcels,
+    carrier: selectedQuote?.carrier ?? parcel.carrier ?? null,
+  });
+
+  if (labelClaim.outcome === "reuse_ready") {
+    const refreshed = await getShipmentParcelById(parcel.id);
+    return {
+      ok: true as const,
+      label:
+        refreshed?.label ??
+        ({
+          id: parcel.label?.id ?? parcel.id,
+          pdfUrl: labelClaim.pdfUrl,
+          labelUrl: labelClaim.pdfUrl,
+          status: "ready" as const,
+        } satisfies ShipmentParcel["label"]),
+      record,
+      parcel: refreshed ?? parcel,
+      idempotent: true as const,
+    };
+  }
+
+  if (labelClaim.outcome === "in_flight") {
+    const refreshed = await getShipmentParcelById(parcel.id);
+    if (
+      refreshed?.label?.status === "ready" &&
+      refreshed.trackingNumber &&
+      refreshed.label.pdfUrl
+    ) {
+      return {
+        ok: true as const,
+        label: refreshed.label,
+        record,
+        parcel: refreshed,
+        idempotent: true as const,
+      };
+    }
+    const inFlightProviderId =
+      refreshed?.providerParcelId && refreshed.providerParcelId > 0
+        ? refreshed.providerParcelId
+        : await getProviderParcelIdForShipmentParcel(parcel.id);
+    if (inFlightProviderId != null && inFlightProviderId > 0) {
+      existingProviderParcelId = inFlightProviderId;
+    } else {
+      return rovexoValidationFailure(LABEL_GENERATION_IN_PROGRESS_MESSAGE);
+    }
+  }
+
+  if (labelClaim.outcome === "reuse_provider") {
+    existingProviderParcelId = labelClaim.providerParcelId;
   }
 
   const { record: labelRecord, providerFailure } = await generateOrderShippingLabel(orderId, {
@@ -513,7 +692,7 @@ export async function generateShippingLabelForOrder(
         }
       : {}),
     labelSize: sellerSettings.defaultLabelSize,
-    idempotencyKey: `rovexo-order-${orderId}-parcel-${parcel.parcelNumber}`,
+    idempotencyKey: buildLabelGenerationIdempotencyKey(orderId, parcel.parcelNumber),
     forceDemoShipping,
     shippingOptionCode: selectedQuote?.shippingOptionCode ?? null,
     contractId: selectedQuote?.contractId ?? null,
@@ -527,15 +706,35 @@ export async function generateShippingLabelForOrder(
 
   let existingProviderAfterSave: number | null = null;
   if (parcel?.id) {
-    const { getProviderParcelIdForShipmentParcel } = await import(
-      "@/lib/shipping/parcels-repository"
-    );
     existingProviderAfterSave = await getProviderParcelIdForShipmentParcel(parcel.id);
   }
 
   // P8.6: successful announce persists provider parcel id even when tracking is async.
   const announcePersisted =
     existingProviderAfterSave != null && existingProviderAfterSave > 0;
+
+  // Ledger: keep provider Sendcloud cost separate from locked buyer shipping.
+  // Paid buyer price (orders.delivery_fee) must not be rewritten after payment.
+  if (selectedQuote && (announcePersisted || trackingNumber)) {
+    const labelCount = Math.max(1, Number(parcel.parcelNumber) || 1);
+    const lockedBuyerShippingPricePence = Math.round(
+      Math.max(0, Number(order.delivery_fee ?? 0)) * 100,
+    );
+    try {
+      await updateShippingQuotePayloadWithoutReplacing({
+        orderId,
+        quote: selectedQuote,
+        labelCount,
+        lockedBuyerShippingPricePence,
+      });
+      await persistShippingRecordProviderCostPence({
+        orderId,
+        providerShippingCostPence: selectedQuote.pricePence,
+      });
+    } catch {
+      // Non-fatal: label already created; pricing ledger best-effort.
+    }
+  }
 
   if (!trackingNumber && !announcePersisted) {
     const failure =

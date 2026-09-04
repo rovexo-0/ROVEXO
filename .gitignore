@@ -28,6 +28,25 @@
 .rovexo-backups/
 BACKUP_REPORT.md
 
+# Production → local data mirror artifacts (PII / object copies; never commit)
+.rovexo-local-mirror/
+
+# Local Supabase CLI temp / start-secrets — never commit
+supabase/.temp/
+supabase/.branches/
+
+# Nested worktrees — never part of web Production Deploy
+.worktrees/
+
+# Android local SDK user dirs / debug keystores
+apps/rovexo-android/.android-user/
+apps/rovexo-android/.android-user-as-home/
+
+# Local preview / Lighthouse dumps
+.cursor-preview-headers.txt
+/lighthouse-hp-lcp-*.json
+/lan-shipping-cert-probe.ts
+
 # misc
 .DS_Store
 *.pem

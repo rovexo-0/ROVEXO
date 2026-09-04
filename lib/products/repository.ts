@@ -12,6 +12,7 @@ import {
   type ShowcaseSellerSection,
 } from "@/lib/homepage/showcase-sellers";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
+import { isHomepageExcludedTestListing } from "@/lib/homepage/homepage-test-listing-exclusion-v1";
 import { collectEligibleHomepageFeedPage } from "@/lib/products/homepage-feed-eligible-pagination-v1";
 import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
 import { isSellerOnVacation } from "@/lib/settings/vacation";
@@ -25,7 +26,7 @@ import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonica
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveProductInformationValuesV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
-import { resolveCardImageSources } from "@/lib/media/product-image";
+import { resolveCardImageSources, toBrowserReachableStorageUrl } from "@/lib/media/product-image";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 import type {
   DeliveryCarrier,
@@ -45,7 +46,7 @@ type ProductRow = Tables<"products"> & {
   > | null;
   product_images: Pick<
     Tables<"product_images">,
-    "url" | "thumbnail_url" | "sort_order" | "is_primary"
+    "url" | "thumbnail_url" | "sort_order" | "is_primary" | "storage_path"
   >[];
   brands: Pick<Tables<"brands">, "name"> | null;
 };
@@ -53,7 +54,7 @@ type ProductRow = Tables<"products"> & {
 const PRODUCT_SELECT = `
   *,
   profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ),
-  product_images ( url, thumbnail_url, sort_order, is_primary ),
+  product_images ( url, thumbnail_url, sort_order, is_primary, storage_path ),
   brands ( name )
 `;
 
@@ -90,7 +91,7 @@ const HOMEPAGE_FEED_SELECT = `
   status,
   is_demo,
   profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ),
-  product_images ( url, thumbnail_url, sort_order, is_primary ),
+  product_images ( url, thumbnail_url, sort_order, is_primary, storage_path ),
   brands ( name )
 `;
 
@@ -103,13 +104,10 @@ function primaryCardImages(row: ProductRow) {
   const primary = sorted[0];
   const url = primary?.url ?? null;
   const rawThumb = primary?.thumbnail_url ?? null;
-  const thumbIsDerived =
-    Boolean(rawThumb?.trim()) &&
-    Boolean(url?.trim()) &&
-    rawThumb !== url &&
-    /-thumb\./i.test(rawThumb ?? "");
-  // Collapse invalid derived -thumb refs before resolve (avoids `/_next/image` 400).
-  return resolveCardImageSources(thumbIsDerived ? url : rawThumb, url);
+  return resolveCardImageSources(rawThumb, url, {
+    storagePath: primary?.storage_path ?? "",
+    productStatus: row.status,
+  });
 }
 
 function deriveTrustScore(rating: number, verified: boolean): number {
@@ -136,7 +134,9 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     sellerId: row.seller_id,
     sellerUsername: row.profiles?.username ?? null,
     sellerEmail: row.profiles?.email ?? null,
-    sellerAvatar: row.profiles?.avatar_url,
+    sellerAvatar: row.profiles?.avatar_url
+      ? toBrowserReachableStorageUrl(row.profiles.avatar_url)
+      : row.profiles?.avatar_url,
     sellerVerified: verified,
     sellerAccountStatus: row.profiles?.account_status ?? null,
     sellerRole: row.profiles?.role ?? null,
@@ -238,8 +238,21 @@ async function enrichProductsWithTrust(products: Product[]): Promise<Product[]> 
 }
 
 async function enrichMarketplaceListingProducts(products: Product[]): Promise<Product[]> {
-  const withTrust = await enrichProductsWithTrust(products);
-  return enrichProductsWithCanonicalSellerRating(withTrust);
+  // Trust + canonical rating hit independent tables — run in parallel.
+  const [withTrust, withRating] = await Promise.all([
+    enrichProductsWithTrust(products),
+    enrichProductsWithCanonicalSellerRating(products),
+  ]);
+  if (withTrust.length === 0) return withTrust;
+  return withTrust.map((product, index) => {
+    const rated = withRating[index];
+    if (!rated || rated.id !== product.id) return product;
+    return {
+      ...product,
+      rating: rated.rating,
+      reviewCount: rated.reviewCount,
+    };
+  });
 }
 
 function productAvailability(
@@ -255,7 +268,13 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
   const product = mapProductRow(row, transactionMode);
   const images = [...(row.product_images ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
-    .map((image) => image.url);
+    .map(
+      (image) =>
+        resolveCardImageSources(image.thumbnail_url, image.url, {
+          storagePath: image.storage_path ?? "",
+          productStatus: row.status,
+        }).imageFullUrl,
+    );
 
   const detail = toProductDetail(product);
   const isSold = row.status === "sold";
@@ -404,16 +423,21 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
 
   void refreshExpiredPromotions();
 
+  const t0 = performance.now();
   // PUBLIC catalogue — cookie-free service role with identical public filters.
   // USER-SPECIFIC identity must never enter this path (CDN/ISR document).
   const supabase = createPublicCatalogueClient();
   const pageSize = HOMEPAGE_FEED_PAGE_SIZE;
+  let holidayFilterMs = 0;
+  let scanCalls = 0;
   const { items: eligibleRows, hasMore: streamHasMore } = await collectEligibleHomepageFeedPage<ProductRow>({
     page,
     pageSize,
-    isEligible: (row) => HomepageEligibility.isRowEligible(row),
+    isEligible: (row) =>
+      HomepageEligibility.isRowEligible(row) && !isHomepageExcludedTestListing(row),
     getId: (row) => row.id,
     fetchScanWindow: async (fromInclusive, toInclusive) => {
+      scanCalls += 1;
       const { data, error } = await supabase
         .from("products")
         .select(HOMEPAGE_FEED_SELECT)
@@ -437,23 +461,62 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
       if (batch.length === 0) {
         return { rows: [], fetchedCount: 0 };
       }
+      const holidayStarted = performance.now();
       const visibleBatch = await applyHolidayModeVisibilityFilter(supabase, batch);
+      holidayFilterMs += performance.now() - holidayStarted;
       return { rows: visibleBatch, fetchedCount: batch.length };
     },
   });
+  const scanMs = Math.round(performance.now() - t0);
 
+  const mapStarted = performance.now();
   const mapped = eligibleRows.map((row) => mapProductRow(row));
-  const withModes = await attachTransactionModes(mapped);
-  const enriched = await enrichMarketplaceListingProducts(withModes);
+  // Modes + enrich are independent (enrich does not read transactionMode).
+  const parallelStarted = performance.now();
+  const [withModes, enrichedBase] = await Promise.all([
+    attachTransactionModes(mapped),
+    enrichMarketplaceListingProducts(mapped),
+  ]);
+  const modesMs = Math.round(performance.now() - parallelStarted);
+  const enrichMs = modesMs;
+  const modeById = new Map(withModes.map((product) => [product.id, product.transactionMode]));
+  const enriched = enrichedBase.map((product) => ({
+    ...product,
+    transactionMode: modeById.get(product.id) ?? product.transactionMode,
+  }));
   const items = HomepageEligibility.filterProducts(
     enriched.map((product) => ({
       ...product,
       homepagePriorityScore: computeHomepagePriorityScore(product),
     })),
   )
+    .filter((product) => !isHomepageExcludedTestListing(product))
     .sort(compareHomepageFeedProducts)
     // Eligibility already consumed sellerEmail server-side; redact before public document.
     .map(toPublicProductDocument);
+  const mapEnrichMs = Math.round(performance.now() - mapStarted);
+  const totalMs = Math.round(performance.now() - t0);
+
+  if (process.env.NODE_ENV !== "production") {
+    const payload = {
+      totalMs,
+      scanMs,
+      holidayFilterMs: Math.round(holidayFilterMs),
+      scanCalls,
+      modesMs,
+      enrichMs,
+      mapEnrichMs,
+      eligible: eligibleRows.length,
+      items: items.length,
+    };
+    console.info("[HP_FEED_PERF]", JSON.stringify(payload));
+    try {
+      const { appendFileSync } = await import("node:fs");
+      appendFileSync("/tmp/hp-feed-perf.jsonl", `${JSON.stringify(payload)}\n`);
+    } catch {
+      /* ignore local timing sink failures */
+    }
+  }
 
   if (items.length === 0) {
     return { items: [], page, hasMore: false };
@@ -512,7 +575,7 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
 
   const rows = HomepageEligibility.filterEligibleRows(
     await applyHolidayModeVisibilityFilter(supabase, data as ProductRow[]),
-  );
+  ).filter((row) => !isHomepageExcludedTestListing(row));
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const enriched = await enrichMarketplaceListingProducts(withModes);

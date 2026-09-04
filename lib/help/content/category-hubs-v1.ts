@@ -8,6 +8,7 @@ import {
   type DocLink,
   type FaqEntry,
 } from "@/lib/documentation/documentation-engine-v1";
+import type { HelpContentAudience } from "@/lib/help/types";
 import { PHASE_C3_SETTINGS_IA_V1 } from "@/lib/settings/phase-c3-settings-information-architecture-v1";
 
 const LAST_UPDATED = PHASE_C3_SETTINGS_IA_V1.helpLastUpdated;
@@ -31,6 +32,7 @@ export type HelpCategoryHub = {
   relatedHelp: DocLink[];
   relatedLegal: DocLink[];
   relatedFeatures: DocLink[];
+  audience?: HelpContentAudience;
 };
 
 export const HELP_CATEGORY_HUB_SLUGS: HelpCategoryHubSlug[] = [
@@ -107,11 +109,11 @@ const HUBS: Record<HelpCategoryHubSlug, HelpCategoryHub> = {
     ],
     {
       introduction:
-        "This handbook explains how buying works on ROVEXO from first browse to delivery, refunds and disputes. ROVEXO is a UK marketplace where every Personal Account can buy and sell. Payments use Stripe. Order progress stays in Orders and the Conversation Hub whenever possible.",
+        "This handbook explains how buying works on ROVEXO from first browse to delivery, refunds and disputes. ROVEXO is a UK marketplace where every account can buy and sell. Payments use Stripe. Order progress stays in Orders and the Conversation Hub whenever possible.",
       purpose:
         "Give first-time buyers a complete, accurate map of offers, Buy Now, Checkout, Platform Fee, Buyer Protection, shipping, tracking, refunds, returns, disputes, wallet activity and notifications — matching the live product.",
       whoApplies:
-        "Anyone with a ROVEXO Personal Account who wants to buy. Guests must sign in before Checkout. Sellers buying as customers follow the same buyer rules.",
+        "Anyone with a ROVEXO account who wants to buy. Guests must sign in before Checkout. Sellers buying as customers follow the same buyer rules.",
       definitions: `- **Buy Now** — purchase at the listed price through Checkout Guard checks.
 - **Make Offer / Counter Offer** — negotiate inside the Conversation Hub; accepted offers can proceed to payment.
 - **Platform Fee** — paid by the **buyer** and included in the Checkout total. Seller Fee is £0.
@@ -131,7 +133,7 @@ const HUBS: Record<HelpCategoryHubSlug, HelpCategoryHub> = {
 **After payment.** You receive order confirmation, notifications, and Conversation Hub updates. Tracking appears when the seller ships. Keep communication on ROVEXO.
 
 **Issues.** Use Conversation Hub actions and Reports flows. Refunds and disputes follow order status and Legal policies.`,
-      steps: `1. Create or sign in to your Personal Account.
+      steps: `1. Create or sign in to your ROVEXO account.
 2. Search or browse → open a listing.
 3. Save items you like in Saved (Favourites).
 4. Make an Offer or tap Buy Now.
@@ -152,7 +154,7 @@ const HUBS: Record<HelpCategoryHubSlug, HelpCategoryHub> = {
         { question: "Where do I track my order?", answer: "Orders and the related Inbox Conversation Hub. Tracking updates appear when shipping starts." },
         { question: "How do refunds work?", answer: "Refunds follow order status, dispute outcomes and payment rules. Keep evidence inside ROVEXO." },
         { question: "Are notifications important?", answer: "Yes. Enable them under Settings → Notifications for offers, payment, shipping and disputes." },
-        { question: "Can I buy without an account?", answer: "You need a signed-in Personal Account to complete Checkout." },
+        { question: "Can I buy without an account?", answer: "You need a signed-in ROVEXO account to complete Checkout." },
         { question: "What is Total Buyer Pays?", answer: "The full amount you pay at Checkout, including Platform Fee and applicable shipping — not the item price alone." },
       ],
     },
@@ -188,11 +190,11 @@ const HUBS: Record<HelpCategoryHubSlug, HelpCategoryHub> = {
     ],
     {
       introduction:
-        "Selling on ROVEXO uses the same Personal Account you use for buying. Buying and selling share one account — nothing to convert. **Seller Fee = £0**. The **Platform Fee is paid by the buyer** at Checkout.",
+        "Selling on ROVEXO uses the same account you use for buying. Buying and selling share one account — nothing to convert. **Seller Fee = £0**. The **Platform Fee is paid by the buyer** at Checkout.",
       purpose:
         "Explain listing, fees, order lifecycle, shipping, cancellations, disputes, wallet behaviour, and when money becomes available to withdraw — matching live ROVEXO behaviour.",
       whoApplies:
-        "Any verified-enough Personal Account that publishes a listing via /sell and fulfils orders under Seller Terms and the Prohibited & Restricted Items Policy.",
+        "Any ROVEXO account that publishes a listing via /sell and fulfils orders under Seller Terms and the Prohibited & Restricted Items Policy.",
       definitions: `- **Seller Fee = £0** — ROVEXO does not take a seller commission from your item price.
 - **Platform Fee** — paid by the buyer; do not invent a separate seller percentage for buyers.
 - **Balance / Wallet** — where sale proceeds appear and where you withdraw to your bank.
@@ -231,7 +233,7 @@ const HUBS: Record<HelpCategoryHubSlug, HelpCategoryHub> = {
         { question: "When is money released?", answer: "After payment, funds follow escrow/protection timing tied to delivery and confirmation. Available Balance is withdrawable." },
         { question: "Where do I manage payouts?", answer: "Balance (Wallet): transactions, payment methods, bank accounts and withdraw." },
         { question: "Can I edit or pause a listing?", answer: "Yes — manage listings from your selling surfaces; use Holiday Mode to pause visibility." },
-        { question: "Do I need a different account to sell?", answer: "No. One Personal Account buys and sells." },
+        { question: "Do I need a different account to sell?", answer: "No. One ROVEXO account buys and sells." },
       ],
     },
   ),
@@ -404,7 +406,7 @@ Cancellations are only available while the status allows them. Disputes use Comp
   account: hub(
     "account",
     "Your ROVEXO Account",
-    "Personal Account, Settings, privacy, security, addresses, notifications and Holiday Mode.",
+    "ROVEXO account, Settings, privacy, security, addresses, notifications and Holiday Mode.",
     ["account", "settings", "profile", "password", "privacy", "notifications", "addresses", "holiday mode"],
     [
       { title: "Safety", href: "/help/category/safety" },
@@ -428,10 +430,10 @@ Cancellations are only available while the status allows them. Disputes use Comp
     ],
     {
       introduction:
-        "ROVEXO uses one universal Personal Account. Email identifies the account. The same account can buy and sell. Settings is the control centre.",
+        "ROVEXO uses one account. Email identifies the account. The same account can buy and sell. Business tools are a switch and verified information on that account. Settings is the control centre.",
       purpose: "Explain profile, settings areas, notifications, addresses, Holiday Mode, and how Legal/Help connect from account surfaces.",
       whoApplies: "Every signed-in user.",
-      definitions: `- **Personal Account** — the only account product.
+      definitions: `- **ROVEXO account** — one account that can buy and sell. Business is verified information on the same account.
 - **Settings** — security, privacy, notifications, preferences.
 - **Holiday Mode** — temporarily hide listings.`,
       detailed: `From Profile you reach Favourites/Saved, Balance, Orders, Holiday Mode, Settings, Rovexo Ideas, Help Centre, Legal Information and Sign Out.
@@ -450,7 +452,7 @@ Legal Information is an index of canonical policies — each policy has one vers
       mistakes: `- Creating duplicate accounts to bypass limits.
 - Ignoring notification settings then missing shipping deadlines.`,
       faqs: [
-        { question: "Is selling a different account?", answer: "No. One Personal Account." },
+        { question: "Is selling a different account?", answer: "No. One ROVEXO account." },
         { question: "Where is Legal?", answer: "/legal — index only; open each policy for the canonical text." },
         { question: "Where is Help?", answer: "/help — category handbooks and search." },
       ],
@@ -573,4 +575,12 @@ export function getHelpCategoryHub(slug: string): HelpCategoryHub | null {
 
 export function listHelpCategoryHubs(): HelpCategoryHub[] {
   return HELP_CATEGORY_HUB_SLUGS.map((slug) => HUBS[slug]);
+}
+
+export function listHelpCategoryHubsForAudience(
+  allowedAudiences: readonly HelpContentAudience[],
+): HelpCategoryHub[] {
+  return listHelpCategoryHubs().filter((hub) =>
+    allowedAudiences.includes(hub.audience ?? "shared"),
+  );
 }

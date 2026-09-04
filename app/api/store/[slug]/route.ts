@@ -168,6 +168,7 @@ export async function GET(request: Request, context: RouteContext) {
       storeSlug: store.storeSlug,
       storeName: store.storeName,
       avatarUrl: store.avatarUrl,
+      coverUrl: store.coverUrl,
       verified: store.verified,
       bio: store.bio,
       rating: store.rating,

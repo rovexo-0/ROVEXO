@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { HelpArticlePage } from "@/features/help/components/HelpArticlePage";
-import { getHelpArticle } from "@/lib/help/content/articles";
+import { getHelpArticleForAudience } from "@/lib/help/content/articles";
+import { resolveViewerHelpAudiences } from "@/lib/help/help-content-audience-server-v1";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import {
   PRODUCT_DELIVERY_DETAILS_HREF,
   PRODUCT_DELIVERY_LEGACY_HELP_SLUGS,
 } from "@/lib/product-detail/delivery-details-route-v1";
+
+export const dynamic = "force-dynamic";
 
 /** Help policy summaries must never compete with Legal SSOT. */
 const HELP_TO_LEGAL: Record<string, string> = {
@@ -33,9 +36,16 @@ export async function generateMetadata({ params }: HelpArticleRouteProps): Promi
   if (HELP_DELIVERY_ALIASES[slug]) {
     return { title: "Delivery Details | ROVEXO Help" };
   }
-  const article = getHelpArticle(slug);
+  const allowedAudiences = await resolveViewerHelpAudiences();
+  const article = getHelpArticleForAudience(slug, allowedAudiences);
   if (!article) {
-    return { title: "Help | ROVEXO", robots: { index: false, follow: true } };
+    return buildPageMetadata({
+      title: "Help | ROVEXO",
+      description: "ROVEXO Help Centre.",
+      path: "/help",
+      noIndex: true,
+      omitCanonical: true,
+    });
   }
 
   return buildPageMetadata({
@@ -57,10 +67,21 @@ export default async function HelpArticleRoute({ params }: HelpArticleRouteProps
     redirect(deliveryHref);
   }
 
-  const article = getHelpArticle(slug);
+  const allowedAudiences = await resolveViewerHelpAudiences();
+  const article = getHelpArticleForAudience(slug, allowedAudiences);
   if (!article) {
     notFound();
   }
 
-  return <HelpArticlePage article={article} />;
+  return (
+    <HelpArticlePage
+      article={{
+        ...article,
+        relatedArticleSlugs: (article.relatedArticleSlugs ?? []).filter((relatedSlug) =>
+          Boolean(getHelpArticleForAudience(relatedSlug, allowedAudiences)),
+        ),
+      }}
+      allowedAudiences={allowedAudiences}
+    />
+  );
 }

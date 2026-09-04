@@ -59,6 +59,7 @@ vi.mock("@/lib/shipping/parcels-repository", () => ({
   updateShipmentParcel: (...args: unknown[]) => updateShipmentParcel(...args),
   getProviderParcelIdForShipmentParcel: (...args: unknown[]) =>
     getProviderParcelIdForShipmentParcel(...args),
+  claimLabelGenerationAttempt: async () => ({ outcome: "claimed" }),
 }));
 
 vi.mock("@/lib/full-demo/security", () => ({

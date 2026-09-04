@@ -3,26 +3,12 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { EyeLineIcon, LockLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 function EyeOffLineIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 3l18 18"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-      <path
-        d="M10.6 10.6A3 3 0 0 0 12 15a3 3 0 0 0 2.4-4.4M6.7 6.7C4.6 8.1 3.1 10 2.5 12c0 0 3.5 6.5 9.5 6.5 1.6 0 3.1-.4 4.4-1.1M9.9 5.1A10.7 10.7 0 0 1 12 4.5c6 0 9.5 6.5 9.5 6.5a11.2 11.2 0 0 1-2.7 3.6"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.passwordHide} className={className} />;
 }
 
 export type AuthPasswordInputProps = {

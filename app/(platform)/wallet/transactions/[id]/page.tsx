@@ -16,7 +16,7 @@ export default async function WalletTransactionDetailRoute({ params }: Transacti
 
   const { id } = await params;
   const [transaction, transactionContext] = await Promise.all([
-    fetchWalletTransaction(id),
+    fetchWalletTransaction(id, "individual"),
     getWalletEngineTransactionContext(profile.id, id),
   ]);
 
@@ -24,12 +24,19 @@ export default async function WalletTransactionDetailRoute({ params }: Transacti
     notFound();
   }
 
+  const showHostedPayoutAccess =
+    Boolean(transaction.stripeTransferId?.trim() || transaction.stripePayoutId?.trim()) ||
+    transaction.type === "withdrawal" ||
+    transaction.type === "sale";
+
   return (
     <TransactionDetailPage
       profile={profile}
       transaction={transaction}
       transactionContext={transactionContext ?? undefined}
       backHref="/wallet/transactions"
+      sellerContext="individual"
+      showHostedPayoutAccess={showHostedPayoutAccess}
     />
   );
 }

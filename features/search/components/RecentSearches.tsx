@@ -1,4 +1,6 @@
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 type RecentSearchesProps = {
@@ -11,11 +13,7 @@ type RecentSearchesProps = {
 };
 
 function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.close} size={16} className={className} />;
 }
 
 export function RecentSearches({

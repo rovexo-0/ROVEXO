@@ -579,7 +579,7 @@ async function syncBusinessVerificationFlags(userId: string, type: TrustVerifica
       verified_manufacturer?: boolean;
       verified_supplier?: boolean;
     } = {};
-    if (type === "business") update.verified_business = true;
+    // Stripe Connect is the only authority for verified_business.
     if (type === "wholesale") update.verified_wholesale = true;
     if (type === "manufacturer") update.verified_manufacturer = true;
     if (type === "supplier") update.verified_supplier = true;

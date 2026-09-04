@@ -15,7 +15,10 @@ export type WalletTransaction = {
   feeAmount?: number;
   withdrawMethodLabel?: string;
   payoutAvailableAt?: string;
+  /** Connect Transfer id (tr_…) — never a payout id. */
   stripeTransferId?: string;
+  /** Express bank Payout id (po_…) — never a transfer id. */
+  stripePayoutId?: string;
 };
 
 export type ConnectPayoutStatus = {
@@ -24,6 +27,11 @@ export type ConnectPayoutStatus = {
 };
 
 export type WalletData = {
+  /**
+   * Financial context this payload belongs to.
+   * Live refresh must never apply a payload from another context.
+   */
+  walletContext?: "individual" | "business";
   /** Money that can be withdrawn now. Never includes pending/processing/locked. */
   availableBalance: number;
   pendingBalance: number;

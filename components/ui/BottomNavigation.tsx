@@ -5,9 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type MouseEvent } from "react";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { BottomNavV2Icon } from "@/components/ui/BottomNavV2Icon";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { cn } from "@/lib/cn";
+import { BUSINESS_DASHBOARD_ROUTE } from "@/lib/business/access";
+import { INDIVIDUAL_ACCOUNT_ROUTE } from "@/lib/business/switch-seller-context-client";
+import { useActiveSellerContext } from "@/hooks/use-active-seller-context";
 import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
@@ -53,9 +58,10 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   }
   // 4th tab id is "saved" but label is Inbox (canonical bottom nav).
   if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "saved";
-  // Account-tree surfaces (Profile master) — not Inbox.
+  // Account-tree surfaces (Profile master + Business context tree) — not Inbox.
   if (
     pathname.startsWith("/account") ||
+    pathname.startsWith("/business") ||
     pathname.startsWith("/orders") ||
     pathname.startsWith("/balance") ||
     pathname.startsWith("/wallet") ||
@@ -73,19 +79,9 @@ function NavIcon({ type, href, isActive }: { type: BottomNavIconType; href: stri
   return <BottomNavV2Icon type={type} href={href} />;
 }
 
-/** White "+" glyph inside the ROVEXO purple Sell FAB. */
+/** Add glyph inside the ROVEXO purple Sell FAB. */
 function SellPlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="rx-sell-plus">
-      <path
-        d="M12 5v14M5 12h14"
-        stroke="currentColor"
-        strokeWidth={2.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.add} className="rx-sell-plus" />;
 }
 
 function NavLink({
@@ -136,7 +132,10 @@ export function BottomNavigation({
   const pathname = usePathname();
   const router = useRouter();
   const scroll = useMobileHeaderScrollContext();
-  const { mobileBadges } = useRealtimeNotifications();
+  const { mobileBadges, refresh: refreshBadges } = useRealtimeNotifications();
+  const activeSellerContext = useActiveSellerContext();
+  const accountHref =
+    activeSellerContext === "business" ? BUSINESS_DASHBOARD_ROUTE : INDIVIDUAL_ACCOUNT_ROUTE;
   const { t, tx } = useTranslation();
   const activeTab = resolveActiveTab(pathname, active);
   const isChromeVisible = scroll?.isVisible ?? true;
@@ -145,10 +144,14 @@ export function BottomNavigation({
     { id: "home", label: t("nav.home"), href: "/", icon: "home" },
     { id: "search", label: t("nav.browse"), href: "/browse", icon: "search" },
     { id: "saved", label: t("nav.saved"), href: INBOX_ROUTES.hub, icon: "saved" },
-    { id: "account", label: t("nav.account"), href: "/account", icon: "account" },
+    { id: "account", label: t("nav.account"), href: accountHref, icon: "account" },
   ];
   const navItems = menuItems?.length
-    ? mapMenuItems(menuItems).map((item) => ({ ...item, label: tx(item.label) }))
+    ? mapMenuItems(menuItems).map((item) =>
+        item.id === "account"
+          ? { ...item, href: accountHref, label: tx(item.label) }
+          : { ...item, label: tx(item.label) },
+      )
     : localizedDefaults;
   const home = navItems.find((item) => item.id === "home") ?? localizedDefaults[0];
   const search = navItems.find((item) => item.id === "search") ?? localizedDefaults[1];
@@ -164,11 +167,25 @@ export function BottomNavigation({
 
   /* Phase A1 — warm primary destinations once bottom nav mounts. */
   useEffect(() => {
-    const targets = ["/", "/browse", "/search", "/inbox", "/account", "/orders", "/sell", "/wallet"];
+    const targets = [
+      "/",
+      "/browse",
+      "/search",
+      "/inbox",
+      INDIVIDUAL_ACCOUNT_ROUTE,
+      BUSINESS_DASHBOARD_ROUTE,
+      "/orders",
+      "/sell",
+      "/wallet",
+    ];
     for (const href of targets) {
       router.prefetch(href);
     }
   }, [router]);
+
+  useEffect(() => {
+    void refreshBadges({ includeTray: false });
+  }, [activeSellerContext, refreshBadges]);
 
   if (!visible) return null;
 
@@ -176,6 +193,7 @@ export function BottomNavigation({
     <nav
       data-bottom-nav="v2"
       data-bottom-nav-version="v2-final"
+      data-account-context={activeSellerContext}
       aria-label={tx(ariaLabel)}
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center",

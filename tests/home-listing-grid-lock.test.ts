@@ -62,8 +62,8 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(defaults).toContain("showBuyerProtection: true");
     expect(defaults).toContain("showCondition: true");
     expect(defaults).toContain("showSeller: false");
-    expect(defaults).toContain("showRating: true");
-    expect(defaults).toContain("showViews: true");
+    expect(defaults).toContain("showRating: false");
+    expect(defaults).toContain("showViews: false");
     expect(card).toContain("bodyHomepage");
     expect(card).toContain("metaRowHomepage");
     expect(card).toContain("formatListingPriceIncl");

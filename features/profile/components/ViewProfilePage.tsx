@@ -41,7 +41,8 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
-import { Menu } from "lucide-react";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { StoreShareSheet } from "@/features/store-sharing/StoreShareSheet";
 import { STORE_SHARE_COPY, toStoreShareData } from "@/lib/store-sharing/store-share-v1";
 import { trackStoreShare } from "@/lib/analytics/marketplace-events";
@@ -106,31 +107,7 @@ function StarRow({ value }: { value: number }) {
 }
 
 function StorefrontIcon() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 10.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3 7.5 5.5 4h13L21 7.5H3Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9 21v-6h6v6"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.store} size={40} />;
 }
 
 export function ViewProfilePage({
@@ -558,7 +535,7 @@ export function ViewProfilePage({
                   aria-expanded={menuOpen}
                   onClick={() => setMenuOpen((open) => !open)}
                 >
-                  <Menu aria-hidden="true" strokeWidth={1.9} />
+                  <PlatformEmoji emoji={PLATFORM_EMOJI.menu} />
                 </button>
               </div>
             </div>
@@ -1015,14 +992,5 @@ function YourStoreEmptyState({
 }
 
 function MessageBubbleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H12l-4.5 3V16.5H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.chat} size={18} />;
 }

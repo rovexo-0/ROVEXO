@@ -81,6 +81,52 @@ function pickHighestParcelNumber(parcels: ShipmentParcel[]): ShipmentParcel {
 }
 
 /**
+ * Live (non-failed) parcels that are still current for this order.
+ * Recovered multi-carrier: the highest live parcel number is current;
+ * earlier live parcels (including delivered historical) are superseded.
+ */
+export function selectCurrentOrderParcels(
+  parcels: readonly ShipmentParcel[] | null | undefined,
+): ShipmentParcel[] {
+  const live = (parcels ?? []).filter((parcel) => !isFailedHistoricalParcel(parcel));
+  if (live.length === 0) return [];
+  const current = pickHighestParcelNumber(live);
+  return live.filter((parcel) => parcel.parcelNumber === current.parcelNumber);
+}
+
+export function isCurrentOrderParcel(
+  parcel: ShipmentParcel,
+  parcels: readonly ShipmentParcel[] | null | undefined,
+): boolean {
+  return selectCurrentOrderParcels(parcels).some((current) => current.id === parcel.id);
+}
+
+/**
+ * Carrier webhook may advance shipping_records only for the current parcel identity.
+ * Historical / superseded tracking must not overwrite the active shipment.
+ * Empty parcels → allow (single-carrier shipping_records identity).
+ */
+export function shouldApplyCarrierTrackingUpdate(input: {
+  trackingNumber: string | null | undefined;
+  parcels: readonly ShipmentParcel[] | null | undefined;
+}): boolean {
+  const tracking = input.trackingNumber?.trim();
+  if (!tracking) return false;
+  const parcels = input.parcels ?? [];
+  if (parcels.length === 0) return true;
+
+  const matching = parcels.filter((parcel) => parcel.trackingNumber?.trim() === tracking);
+  if (matching.length === 0) return true;
+
+  const current = selectCurrentOrderParcels(parcels);
+  if (current.some((parcel) => parcel.trackingNumber?.trim() === tracking)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Pure selection — no DB I/O.
  * `orderParcels` should be the full order list (any order).
  */

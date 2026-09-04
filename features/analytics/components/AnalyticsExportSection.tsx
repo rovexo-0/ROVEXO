@@ -11,7 +11,6 @@ import type {
   AnalyticsOverviewMetric,
   AnalyticsTopProduct,
   SellerAnalyticsData,
-  BusinessAnalyticsData,
 } from "@/lib/analytics/types";
 
 type AnalyticsExportSectionProps = {
@@ -127,19 +126,5 @@ export function buildSellerExportExtras(data: SellerAnalyticsData): string[][] {
     ["Recent Activity", "Count"],
     ["New Reviews", data.recentActivity.reviews.toString()],
     ["New Saves", data.recentActivity.saves.toString()],
-  ];
-}
-
-export function buildBusinessExportExtras(data: BusinessAnalyticsData): string[][] {
-  return [
-    ["Sales Channels", "Share"],
-    ...data.salesChannels.map((segment) => [segment.label, segment.value.toString()]),
-    [],
-    ["Top Countries", "Revenue", "Orders"],
-    ...data.geographicSales.map((country) => [
-      country.name,
-      formatAnalyticsCurrency(country.revenue),
-      country.orders.toString(),
-    ]),
   ];
 }

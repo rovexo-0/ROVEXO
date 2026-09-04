@@ -1,4 +1,5 @@
 import type { DeliveryCarrier } from "@/lib/products/types";
+import type { SellerContext } from "@/lib/seller-context/seller-context-v1";
 
 export type OrderStatus =
   | "awaiting_payment"
@@ -75,6 +76,11 @@ export type Order = {
   disputesDisabled: boolean;
   /** Canonical Conversation Hub id when buyer↔seller thread exists for this order. */
   conversationId?: string;
+  /**
+   * Immutable selling context stamped at order creation.
+   * Buyer lists never filter on this. Sold lists filter by active seller_context.
+   */
+  sellerContext?: SellerContext;
 };
 
 export type CreateOrderInput = {

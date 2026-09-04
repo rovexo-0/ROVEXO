@@ -43,8 +43,9 @@ describe("sell publish auth path — session-scoped (no false service-role depen
     expect(start).toBeGreaterThanOrEqual(0);
     const end = source.indexOf("\nasync function", start + 1);
     const slice = source.slice(start, end > 0 ? end : undefined);
-    expect(slice).toContain("thumbExists");
-    expect(slice).toContain("thumbnailUrl: thumbExists");
+    expect(slice).toContain("resolveOwnedListingImageServingUrls");
+    expect(source).toContain("preferAvifServingUrls");
+    expect(source).toContain("jpegThumbUrl");
   });
 
   it("pre-publish moderation scan uses session client for duplicate checks", () => {

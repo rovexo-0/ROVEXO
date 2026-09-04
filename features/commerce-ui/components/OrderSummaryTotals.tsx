@@ -28,7 +28,7 @@ function Row({
 }
 
 /**
- * Canonical order totals: Products, Shipping, Platform Fee, Total.
+ * Canonical order totals: Products, Shipping, Buyer Protection, Total.
  * The fee percentage and parcel/label counts are never shown.
  */
 export function OrderSummaryTotals({
@@ -44,7 +44,7 @@ export function OrderSummaryTotals({
       <CanonicalCard variant="list" className="flex w-full flex-col py-1">
         <Row label="Products" value={formatGBP(totals.products)} />
         <Row label="Shipping" value={formatGBP(totals.shipping)} />
-        <Row label="Platform Fee" value={formatGBP(totals.platformFee)} />
+        <Row label="Buyer Protection" value={formatGBP(totals.platformFee)} />
         <div className="border-t border-border">
           <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4">
             <span className="text-sm font-semibold text-text-primary">Total</span>

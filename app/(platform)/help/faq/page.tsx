@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { HelpFaqPage } from "@/features/help/components/HelpFaqPage";
+import { resolveViewerHelpAudiences } from "@/lib/help/help-content-audience-server-v1";
 import { buildPageMetadata, faqJsonLd } from "@/lib/seo/metadata";
 import { getFaqByCluster, faqLibraryAsItems } from "@/lib/seo/faq-library-v1";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
+
+export const dynamic = "force-dynamic";
 
 const faqItems = faqLibraryAsItems([
   ...getFaqByCluster("global", 4),
@@ -19,11 +22,12 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/help/faq",
 });
 
-export default function HelpFaqRoute() {
+export default async function HelpFaqRoute() {
+  const allowedAudiences = await resolveViewerHelpAudiences();
   return (
     <>
       <JsonLdScript id="jsonld-app-(platform)-help-faq-page-tsx" data={faqJsonLd(faqItems)} />
-      <HelpFaqPage />
+      <HelpFaqPage allowedAudiences={allowedAudiences} />
     </>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Copy, QrCode, Share2 } from "lucide-react";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { StoreShareChannel } from "@/lib/store-sharing/store-share-v1";
@@ -79,19 +80,19 @@ const CHANNELS: {
     id: "copy_link",
     label: "Copy Link",
     kind: "ui",
-    icon: <Copy className="store-share-actions__svg" strokeWidth={1.75} aria-hidden />,
+    icon: <PlatformEmoji emoji={PLATFORM_EMOJI.copy} className="store-share-actions__svg" />,
   },
   {
     id: "qr",
     label: "QR Code",
     kind: "ui",
-    icon: <QrCode className="store-share-actions__svg" strokeWidth={1.75} aria-hidden />,
+    icon: <PlatformEmoji emoji={PLATFORM_EMOJI.qr} className="store-share-actions__svg" />,
   },
   {
     id: "more",
     label: "More",
     kind: "ui",
-    icon: <Share2 className="store-share-actions__svg" strokeWidth={1.75} aria-hidden />,
+    icon: <PlatformEmoji emoji={PLATFORM_EMOJI.share} className="store-share-actions__svg" />,
   },
 ];
 

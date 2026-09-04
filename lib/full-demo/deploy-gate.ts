@@ -59,6 +59,7 @@ function check(id: string, pass: boolean, detail: string): FullDemoGateCheck {
 export function runFullDemoCertificationScan(): FullDemoCertificationReport {
   const checkout = readSource("lib/orders/checkout.ts");
   const payouts = readSource("lib/stripe/payouts.ts");
+  const withdrawPayout = readSource("lib/stripe/withdraw-payout.ts");
   const settlement = readSource("lib/commerce-engine/settlement.ts");
   const router = readSource("lib/shipping/providers/router.ts");
   const permanence = readSource("lib/full-demo/permanence.ts");
@@ -121,8 +122,11 @@ export function runFullDemoCertificationScan(): FullDemoCertificationReport {
     ),
     check(
       "wallet_passed",
-      payouts.includes("mustUseVirtualWallet") && settlement.includes("mustUseVirtualWallet"),
-      "Virtual wallet / escrow payout path wired",
+      payouts.includes("mustUseVirtualWallet") &&
+        withdrawPayout.includes("mustUseVirtualWallet") &&
+        settlement.includes("releaseSaleToAvailable") &&
+        !settlement.includes("transferSalePayoutToConnect"),
+      "Virtual wallet on withdraw; Release → Available without sale Connect Transfer",
     ),
     check(
       "tracking_passed",

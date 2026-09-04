@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { IconButton } from "@/components/ui/IconButton";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { CategoryChip } from "@/components/ui/CategoryChip";
@@ -10,22 +10,16 @@ import { CanonicalCard } from "@/src/components/canonical";
 type AnalyticsRangeActionProps = {
   activeRange: AnalyticsDateRange;
   onRangeChange: (range: AnalyticsDateRange) => void;
+  /** Business PWA passes emoji. Seller keeps the existing glyph when omitted. */
+  trigger?: ReactNode;
 };
 
 function FilterIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M10.5 6h9.75M10.5 12h9.75m-9.75 6h9.75M3.75 6h.007v.008H3.75V6Zm0 6h.007v.008H3.75V12Zm0 6h.007v.008H3.75V18Z"
-      />
-    </svg>
-  );
+  return <span className={className} aria-hidden>📅</span>;
 }
 
 /** Master shell rightAction — date range filter (Compact Premium). */
-export function AnalyticsRangeAction({ activeRange, onRangeChange }: AnalyticsRangeActionProps) {
+export function AnalyticsRangeAction({ activeRange, onRangeChange, trigger }: AnalyticsRangeActionProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const activeLabel =
     ANALYTICS_DATE_RANGES.find((range) => range.id === activeRange)?.label ?? "30 Days";
@@ -38,7 +32,7 @@ export function AnalyticsRangeAction({ activeRange, onRangeChange }: AnalyticsRa
         size="md"
         onClick={() => setFilterOpen(true)}
       >
-        <FilterIcon className="h-5 w-5" />
+        {trigger ?? <FilterIcon className="h-5 w-5" />}
       </IconButton>
 
       <ModalContainer

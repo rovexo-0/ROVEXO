@@ -1,6 +1,6 @@
 import { CanonicalSection, CanonicalCard, CanonicalInfoBlock, CanonicalMenuRow } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { PWA_BUSINESS_ACTION_EMOJI } from "@/lib/business/pwa-business-menu-v1";
 import { getBusinessProfile } from "@/lib/profile/data";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
@@ -13,12 +13,12 @@ export default async function BusinessShippingPage() {
   return (
     <AccountCanonicalShell
       title="Shipping"
-      backHref="/business/dashboard"
-      backLabel="Business"
+      backHref="/business/menu"
+      backLabel="Business Menu"
       showHeaderTitle
       showBottomNav={false}
     >
-      <CanonicalSection title="Fulfilment">
+      <CanonicalSection title="📦 Fulfilment">
         <CanonicalCard variant="medium">
           <CanonicalInfoBlock variant="description">
             ROVEXO creates labels and tracking for Business orders. Use the actions below to ship and
@@ -26,15 +26,17 @@ export default async function BusinessShippingPage() {
           </CanonicalInfoBlock>
         </CanonicalCard>
       </CanonicalSection>
-      <CanonicalSection title="Actions">
+      <CanonicalSection title="🧳 Actions">
         <CanonicalCard variant="list">
           <CanonicalMenuRow
             title="Business Orders"
             description="Ship and track sales"
             href="/business/orders"
+            showChevron={false}
+            trailing={<span aria-hidden>›</span>}
             icon={
-              <span className="ac-canonical__menu-icon" aria-hidden>
-                <AccountIcon name="orders" />
+              <span className="ac-canonical__menu-emoji" aria-hidden>
+                {PWA_BUSINESS_ACTION_EMOJI.orders}
               </span>
             }
           />
@@ -42,9 +44,11 @@ export default async function BusinessShippingPage() {
             title="Personal Orders"
             description="Buyer & seller order hub"
             href="/orders"
+            showChevron={false}
+            trailing={<span aria-hidden>›</span>}
             icon={
-              <span className="ac-canonical__menu-icon" aria-hidden>
-                <AccountIcon name="orders" />
+              <span className="ac-canonical__menu-emoji" aria-hidden>
+                {PWA_BUSINESS_ACTION_EMOJI.orders}
               </span>
             }
           />
@@ -52,9 +56,11 @@ export default async function BusinessShippingPage() {
             title="Resolution Centre"
             description="Returns, refunds, and disputes"
             href="/resolution"
+            showChevron={false}
+            trailing={<span aria-hidden>›</span>}
             icon={
-              <span className="ac-canonical__menu-icon" aria-hidden>
-                <AccountIcon name="returns" />
+              <span className="ac-canonical__menu-emoji" aria-hidden>
+                {PWA_BUSINESS_ACTION_EMOJI.resolution}
               </span>
             }
           />

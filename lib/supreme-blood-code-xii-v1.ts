@@ -111,7 +111,7 @@ export const SUPREME_BLOOD_CODE_XII_V1 = {
   ] as const,
 
   financial: {
-    buyer: ["Subtotal", "Shipping", "Platform Fee", "TOTAL PAID"] as const,
+    buyer: ["Subtotal", "Shipping", "Buyer Protection", "TOTAL PAID"] as const,
     seller: ["Subtotal", "Shipping", "YOU'LL RECEIVE"] as const,
     absoluteLaw: {
       buyerMustNeverSee: "YOU'LL RECEIVE",

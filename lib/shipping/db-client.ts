@@ -32,7 +32,11 @@ type UntypedQuery = PromiseLike<UntypedQueryResult> & {
   single: () => Promise<UntypedQueryResult>;
 };
 
-/** Admin client for shipping engine v1 tables until Supabase codegen includes the migration. */
+/**
+ * Admin client for shipping engine v1 tables.
+ * HIGH #4: canonical tables are typed in lib/supabase/types/database.ts;
+ * this bridge stays untyped at call sites to avoid runtime behaviour changes.
+ */
 export function createShippingAdminClient(): { from: (table: ShippingTable) => UntypedQuery } {
   const admin = createAdminClient();
   return admin as unknown as { from: (table: ShippingTable) => UntypedQuery };

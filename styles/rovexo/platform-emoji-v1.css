@@ -1,0 +1,82 @@
+/* ROVEXO PWA — global emoji icon alignment (no SVG feature glyphs). */
+
+.rx-platform-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  font-style: normal;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  user-select: none;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+.cds-menu-row__icon .rx-platform-emoji,
+.ac-canonical__menu-icon .rx-platform-emoji,
+.master-menu-icon .rx-platform-emoji,
+.settings-canonical__icon .rx-platform-emoji {
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+}
+
+.cds-menu-row__chevron .rx-platform-emoji {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  color: inherit;
+}
+
+.rx-bottom-nav-v2-icon.rx-platform-emoji,
+.rx-platform-emoji.h-5,
+.rx-platform-emoji.w-5 {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.05rem;
+}
+
+.rx-platform-emoji.h-4,
+.rx-platform-emoji.w-4 {
+  width: 1rem;
+  height: 1rem;
+  font-size: 0.85rem;
+}
+
+.rx-platform-emoji.h-3\.5,
+.rx-platform-emoji.w-3\.5 {
+  width: 0.875rem;
+  height: 0.875rem;
+  font-size: 0.75rem;
+}
+
+.rx-platform-emoji.h-6,
+.rx-platform-emoji.w-6 {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.rx-platform-emoji.h-12,
+.rx-platform-emoji.w-12 {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.4rem;
+}
+
+.rx-sell-plus.rx-platform-emoji {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+[data-search-bar] .rx-platform-emoji,
+.search-bar .rx-platform-emoji {
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+}

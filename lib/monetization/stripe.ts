@@ -55,7 +55,7 @@ export async function createSubscriptionCheckoutSession(input: {
   if (plan.priceCents === 0) {
     const subscription = await subscribeToPlan(input.userId, plan.slug);
     return subscription
-      ? { url: `${getAppBaseUrl()}/plans?subscription=success` }
+      ? { url: `${await getAppBaseUrl()}/plans?subscription=success` }
       : { error: "Unable to activate free plan." };
   }
 
@@ -63,12 +63,12 @@ export async function createSubscriptionCheckoutSession(input: {
     if (isStripeRequired()) return { error: "Subscription payments are not configured." };
     const subscription = await subscribeToPlan(input.userId, plan.slug);
     return subscription
-      ? { url: `${getAppBaseUrl()}/plans?subscription=success` }
+      ? { url: `${await getAppBaseUrl()}/plans?subscription=success` }
       : { error: "Unable to activate plan." };
   }
 
   const stripe = getStripeClient();
-  const baseUrl = getAppBaseUrl();
+  const baseUrl = await getAppBaseUrl();
   const session = await stripe.checkout.sessions.create(
     {
       mode: "subscription",

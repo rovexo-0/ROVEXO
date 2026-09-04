@@ -13,6 +13,7 @@ import {
   MESSAGE_PHOTO_SIGN_TTL_SECONDS,
 } from "@/lib/messages/message-photo-url-v1";
 import { coerceUnreadCount } from "@/lib/inbox/types";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 type ConversationRow = Tables<"conversations"> & {
   products: Pick<
@@ -27,7 +28,10 @@ type ConversationRow = Tables<"conversations"> & {
     | "accept_offers"
     | "location_city"
   > & {
-    product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
+    product_images: Pick<
+      Tables<"product_images">,
+      "url" | "thumbnail_url" | "storage_path" | "is_primary" | "sort_order"
+    >[];
   } | null;
   buyer: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "username">;
   seller: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "username"> & {
@@ -37,7 +41,7 @@ type ConversationRow = Tables<"conversations"> & {
 };
 
 const PRODUCT_EMBED_SELECT =
-  "id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, is_primary, sort_order )";
+  "id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )";
 
 /**
  * Sold listings are hidden from marketplace RLS. Conversation parties still need
@@ -59,17 +63,27 @@ async function hydrateConversationProduct(row: ConversationRow): Promise<Convers
 
 function productImages(
   images: NonNullable<ConversationRow["products"]>["product_images"],
+  productStatus?: string | null,
 ): string[] {
   const sorted = [...(images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  return sorted.map((image) => image.url).filter((url) => url.trim().length > 0);
+  return sorted
+    .map(
+      (image) =>
+        resolveCardImageSources(image.thumbnail_url, image.url, {
+          storagePath: image.storage_path,
+          productStatus,
+        }).imageUrl,
+    )
+    .filter((url) => url.trim().length > 0);
 }
 
 function productImage(
   images: NonNullable<ConversationRow["products"]>["product_images"],
+  productStatus?: string | null,
 ): string {
-  return productImages(images)[0] ?? "";
+  return productImages(images, productStatus)[0] ?? "";
 }
 
 function mapMessage(row: Tables<"messages">): ChatMessage {
@@ -171,8 +185,8 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
       title: product.title,
       price: Number(product.price),
       condition: product.condition,
-      imageUrl: productImage(product.product_images),
-      imageUrls: productImages(product.product_images),
+      imageUrl: productImage(product.product_images, product.status),
+      imageUrls: productImages(product.product_images, product.status),
       status: product.status as ProductListingStatus,
       listingType: product.listing_type === "auction" ? "auction" : "fixed",
       acceptOffers: Boolean(product.accept_offers),
@@ -196,13 +210,70 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
 
 const conversationSelect = `
   *,
-  products ( id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, is_primary, sort_order ) ),
+  products ( ${PRODUCT_EMBED_SELECT} ),
   buyer:profiles!conversations_buyer_id_fkey ( id, full_name, avatar_url, username ),
   seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url, username, seller_profiles ( rating, review_count ) ),
   messages ( * )
 `;
 
 type DataClient = Awaited<ReturnType<typeof createClient>>;
+
+async function loadConversationSellerContextMap(
+  rows: Array<{ id: string; product_id: string; buyer_id: string; seller_id: string }>,
+  viewerId: string,
+  supabase: DataClient,
+): Promise<Map<string, import("@/lib/seller-context/seller-context-v1").SellerContext>> {
+  const {
+    resolveConversationSellerContext,
+  } = await import("@/lib/inbox/inbox-seller-context-scope-v1");
+  const map = new Map<string, import("@/lib/seller-context/seller-context-v1").SellerContext>();
+  const sellerRows = rows.filter((row) => row.seller_id === viewerId);
+  if (sellerRows.length === 0) {
+    for (const row of rows) {
+      if (row.buyer_id === viewerId) map.set(row.id, "individual");
+    }
+    return map;
+  }
+
+  const conversationIds = sellerRows.map((row) => row.id);
+  const productIds = [...new Set(sellerRows.map((row) => row.product_id))];
+
+  const { data: sessions } = await supabase
+    .from("checkout_sessions")
+    .select("conversation_id, listing_id, seller_context, created_at")
+    .eq("seller_id", viewerId)
+    .order("created_at", { ascending: false });
+
+  const checkoutContextByConversation = new Map<string, string>();
+  const checkoutContextByListing = new Map<string, string>();
+  for (const session of sessions ?? []) {
+    const conversationId = String(session.conversation_id ?? "");
+    const listingId = String(session.listing_id ?? "");
+    const sellerContext = String(session.seller_context ?? "individual");
+    if (conversationId && conversationIds.includes(conversationId) && !checkoutContextByConversation.has(conversationId)) {
+      checkoutContextByConversation.set(conversationId, sellerContext);
+    }
+    if (listingId && productIds.includes(listingId) && !checkoutContextByListing.has(listingId)) {
+      checkoutContextByListing.set(listingId, sellerContext);
+    }
+  }
+
+  for (const row of rows) {
+    const viewerIsBuyer = row.buyer_id === viewerId;
+    map.set(
+      row.id,
+      resolveConversationSellerContext({
+        viewerIsBuyer,
+        orderContext: null,
+        checkoutContext:
+          checkoutContextByConversation.get(row.id) ??
+          checkoutContextByListing.get(row.product_id) ??
+          null,
+      }),
+    );
+  }
+  return map;
+}
 
 export async function listConversations(
   viewerId: string,
@@ -216,21 +287,37 @@ export async function listConversations(
     .order("last_message_at", { ascending: false });
 
   const rows = (data as ConversationRow[] | null) ?? [];
-  const enriched = await Promise.all(
-    rows.map(async (row) => {
-      const hydrated = await hydrateConversationProduct({ ...row, messages: row.messages ?? [] });
-      if (!hydrated.products) return null;
-      const conversation = mapConversation(hydrated, viewerId);
-      const presence = await getPresence(conversation.participant.id);
-      conversation.participant.online = presence?.online ?? false;
-      conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;
-      return conversation;
-    }),
-  );
+  const [{ loadActiveSellerContext }, { filterConversationsForActiveSellerContext }] =
+    await Promise.all([
+      import("@/lib/business/business-onboarding-v1"),
+      import("@/lib/inbox/inbox-seller-context-scope-v1"),
+    ]);
+  const [activeSellerContext, contextMap, enriched] = await Promise.all([
+    loadActiveSellerContext(viewerId),
+    loadConversationSellerContextMap(rows, viewerId, supabase),
+    Promise.all(
+      rows.map(async (row) => {
+        const hydrated = await hydrateConversationProduct({ ...row, messages: row.messages ?? [] });
+        if (!hydrated.products) return null;
+        const conversation = mapConversation(hydrated, viewerId);
+        const presence = await getPresence(conversation.participant.id);
+        conversation.participant.online = presence?.online ?? false;
+        conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;
+        return conversation;
+      }),
+    ),
+  ]);
 
-  return enriched
+  const listed = enriched
     .filter((conversation): conversation is Conversation => conversation != null)
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
+
+  return filterConversationsForActiveSellerContext(
+    listed,
+    viewerId,
+    activeSellerContext,
+    contextMap,
+  );
 }
 
 export async function getConversationById(

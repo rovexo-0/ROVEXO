@@ -1,3 +1,6 @@
+/** In-code Help/Legal audience. Missing audience always means shared. */
+export type HelpContentAudience = "shared" | "individual" | "business";
+
 /** Legacy article categories — preserved for existing article URLs. */
 export type HelpCategory =
   | "account"
@@ -76,6 +79,7 @@ export type HelpTopic = {
   relatedPolicies: { label: string; href: string }[];
   searchRanking: number;
   visible: boolean;
+  audience?: HelpContentAudience;
   pinnedArticleSlugs?: string[];
 };
 
@@ -103,6 +107,8 @@ export type HelpArticle = {
   relatedFeatureHrefs?: { label: string; href: string }[];
   relatedPolicyHrefs?: { label: string; href: string }[];
   sections?: HelpArticleSection;
+  /** Defaults to shared when omitted — never hide existing public Help. */
+  audience?: HelpContentAudience;
 };
 
 export type HelpSearchResult = {
@@ -158,6 +164,7 @@ export type DecisionTree = {
   rootNodeId: string;
   nodes: Record<string, DecisionNode>;
   solutions: Record<string, HelpSolution>;
+  audience?: HelpContentAudience;
 };
 
 export type HelpSessionPathStep = {
@@ -232,6 +239,10 @@ export type SupportHelpContext = {
   browser?: string;
   platformVersion?: string;
   country?: string;
+  /**
+   * Server-stamped seller context only (`individual` | `business`).
+   * Client-provided values must be discarded before insert.
+   */
   accountType?: string;
   errorCode?: string;
 };

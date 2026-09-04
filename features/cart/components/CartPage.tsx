@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -26,20 +28,7 @@ import {
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 
 function TrashLineIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M4 7h16M9 7V5h6v2M8 7l.8 12h6.4L16 7" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.delete} size={16} className={className} />;
 }
 
 type CartPageProps = {
@@ -235,15 +224,7 @@ export function CartPage({ cart }: CartPageProps) {
                             onClick={() => toggleItem(item.id)}
                           >
                             {isSelected ? (
-                              <svg viewBox="0 0 20 20" fill="none" aria-hidden>
-                                <path
-                                  d="M5 10.5 8.5 14 15 7"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
+                              <PlatformEmoji emoji={PLATFORM_EMOJI.check} size={16} />
                             ) : null}
                           </button>
                         </div>
@@ -291,15 +272,15 @@ export function CartPage({ cart }: CartPageProps) {
                 ))}
               </ul>
 
-              <div className="cart-v1__platform-fee" role="group" aria-label="Platform Fee">
+              <div className="cart-v1__platform-fee" role="group" aria-label="Buyer Protection">
                 <span className="cart-v1__platform-fee-icon" aria-hidden>
                   <ShieldLineIcon />
                 </span>
-                <span className="cart-v1__platform-fee-label">Platform Fee</span>
+                <span className="cart-v1__platform-fee-label">Buyer Protection</span>
                 <button
                   type="button"
                   className="cart-v1__info"
-                  aria-label="About platform fee"
+                  aria-label="About buyer protection"
                 >
                   i
                 </button>

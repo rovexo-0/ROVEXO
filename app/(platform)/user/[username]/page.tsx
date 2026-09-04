@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { ViewProfilePage } from "@/features/profile/components/ViewProfilePage";
 import { loadSellerReviews } from "@/features/profile/components/SellerReviewsSection";
@@ -90,19 +91,35 @@ async function resolvePublicProfile(routeParam: string): Promise<PublicSellerPro
   }
 }
 
+const resolvePublicProfileCached = cache(resolvePublicProfile);
+
 async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePayload> {
-  const profile = await resolvePublicProfile(routeParam);
+  const profile = await resolvePublicProfileCached(routeParam);
 
   if (!profile) {
     return { kind: "unavailable" };
   }
 
   try {
-    const [reviews, trustSummary, auth] = await Promise.all([
-      loadSellerReviews(profile.id).catch(() => []),
-      getPublicTrustSummary(profile.id).catch(() => failClosedPublicTrustSummary(profile.id)),
-      getAuthContext().catch(() => null),
-    ]);
+    const authPromise = getAuthContext().catch(() => null);
+    const [reviews, trustSummary, auth, followCounts, publicBadges, viewerFollowing] =
+      await Promise.all([
+        loadSellerReviews(profile.id).catch(() => []),
+        getPublicTrustSummary(profile.id).catch(() => failClosedPublicTrustSummary(profile.id)),
+        authPromise,
+        getFollowCounts(profile.id).catch(() => ({
+          followerCount: 0,
+          followingCount: 0,
+        })),
+        import("@/lib/badge/store")
+          .then((mod) => mod.getPublicBadges(profile.id))
+          .catch(() => []),
+        authPromise.then((session) =>
+          session?.user.id && session.user.id !== profile.id
+            ? isFollowing(session.user.id, profile.id).catch(() => false)
+            : false,
+        ),
+      ]);
 
     const isOwnProfile = auth?.user.id === profile.id;
     const draftListings = isOwnProfile
@@ -124,19 +141,6 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
       }).catch(() => null);
       if (owned) ownerListings = owned.items;
     }
-
-    const [followCounts, viewerFollowing, publicBadges] = await Promise.all([
-      getFollowCounts(profile.id).catch(() => ({
-        followerCount: 0,
-        followingCount: 0,
-      })),
-      auth?.user.id && !isOwnProfile
-        ? isFollowing(auth.user.id, profile.id).catch(() => false)
-        : Promise.resolve(false),
-      import("@/lib/badge/store")
-        .then((mod) => mod.getPublicBadges(profile.id))
-        .catch(() => []),
-    ]);
 
     const earnedBadges = publicBadges.map((badge) => ({ id: badge.id, label: badge.label }));
 
@@ -230,7 +234,7 @@ function storeShareFallbackMetadata(username: string): Metadata {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
   try {
-    const profile = await resolvePublicProfile(username);
+    const profile = await resolvePublicProfileCached(username);
     if (!profile) {
       return storeShareFallbackMetadata(username);
     }

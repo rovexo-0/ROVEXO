@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
-import { ProductViewsLive } from "@/features/product-detail/ProductViewsLive";
 import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
 import { ProductDescriptionV1 } from "@/features/product-detail/ProductDescriptionV1";
 import { ProductGalleryV1 } from "@/features/product-detail/ProductGalleryV1";
@@ -268,7 +267,6 @@ export function ProductDetailPage({ product }: ProductDetailPageProps) {
                   </p>
                 ) : null}
               </div>
-              <ProductViewsLive slug={product.slug} initialViews={product.views ?? 0} />
             </div>
           </section>
 

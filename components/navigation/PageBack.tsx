@@ -1,18 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { IconButton } from "@/components/ui/IconButton";
 import { usePageBack, type UsePageBackOptions } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { focusRing } from "@/components/ui/tokens";
-
-function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-    </svg>
-  );
-}
 
 type PageBackProps = UsePageBackOptions & {
   variant?: "icon" | "text";
@@ -36,7 +30,7 @@ export function PageBack({ variant = "icon", className, ...options }: PageBackPr
         }}
         className={cn("inline-flex items-center gap-1 text-sm font-medium text-text-secondary hover:text-primary", focusRing, className)}
       >
-        <span aria-hidden>←</span>
+        <span aria-hidden>{PLATFORM_EMOJI.back}</span>
         {back.label}
       </Link>
     );
@@ -50,7 +44,7 @@ export function PageBack({ variant = "icon", className, ...options }: PageBackPr
       className={className}
       onClick={back.goBack}
     >
-      <BackIcon className="h-5 w-5" />
+      <PlatformEmoji emoji={PLATFORM_EMOJI.back} size={20} className="h-5 w-5" />
     </IconButton>
   );
 }

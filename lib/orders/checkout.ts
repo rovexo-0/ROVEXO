@@ -19,7 +19,7 @@ import {
   readBuyerWalletCheckoutEligibility,
   reverseBuyerWalletCheckoutDebit,
 } from "@/lib/wallet/sales";
-import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
+import { getAppBaseUrl, getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
@@ -117,6 +117,11 @@ type CheckoutInput = {
   orderId?: string | null;
   /** Master Architecture — durable Checkout Session public_id (`cs`). */
   checkoutSessionId?: string | null;
+  /**
+   * Optional runtime app base URL (dev/LAN) used to build browser-facing
+   * success/cancel redirect URLs without loopback.
+   */
+  appBaseUrl?: string | null;
 };
 
 type CheckoutResult =
@@ -246,7 +251,7 @@ async function finalizePendingOrderCheckoutSession(
     })
     .eq("id", orderRow.id);
 
-  const baseUrl = getAppBaseUrl();
+  const baseUrl = input.appBaseUrl?.replace(/\/$/, "") ?? await getAppBaseUrl();
   const orderSuccessPath = `/checkout/${product.slug}/success?order_id=${orderRow.id}`;
   const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
@@ -331,25 +336,24 @@ async function finalizePendingOrderCheckoutSession(
   }
 
   if (!isStripeConfigured()) {
-    if (isStripeRequired()) {
-      return { error: "Payments are not configured." };
-    }
-
-    const fulfilled = await fulfillOrderFromStripeSession({
-      id: `dev-${orderRow.id}`,
-      metadata: { checkoutType: "order", orderId: orderRow.id },
-      payment_intent: null,
-    });
-
-    if (!fulfilled.success) {
-      return { error: fulfilled.error ?? "Unable to complete order." };
-    }
-
-    const order = await getOrderById(orderRow.id);
-    return { orderId: orderRow.id, url: orderSuccessUrl, order: order ?? undefined };
+    // Fail closed — never fulfill a card checkout without a payment provider.
+    return { error: "Payments are not configured." };
   }
 
-  const stripe = getStripeClient();
+  let stripe: ReturnType<typeof getStripeClient>;
+  try {
+    stripe = getStripeClient();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (
+      /invalid api key|not configured|blocked on localhost|set stripe_secret_key_test/i.test(
+        message,
+      )
+    ) {
+      return { error: "Payments are not configured." };
+    }
+    throw error;
+  }
   const customerId = await ensureStripeCustomer(input.buyerId);
   const { listPaymentMethods, setDefaultPaymentMethod } = await import("@/lib/payments/repository");
   const savedMethods = await listPaymentMethods(input.buyerId);
@@ -387,7 +391,7 @@ async function finalizePendingOrderCheckoutSession(
       price_data: {
         currency: "gbp",
         unit_amount: Math.round(totals.platformFee * 100),
-        product_data: { name: "Platform Fee" },
+        product_data: { name: "Buyer Protection" },
       },
     },
   ];
@@ -403,7 +407,9 @@ async function finalizePendingOrderCheckoutSession(
     });
   }
 
-  const session = await stripe.checkout.sessions.create(
+  let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
+  try {
+    session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
       payment_method_types: ["card"],
@@ -435,7 +441,14 @@ async function finalizePendingOrderCheckoutSession(
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
     },
     { idempotencyKey: `order-checkout-${orderRow.id}` },
-  );
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/invalid api key|no such api key/i.test(message)) {
+      return { error: "Payments are not configured." };
+    }
+    throw error;
+  }
 
   if (!session.url) {
     return { error: "Unable to create checkout session." };
@@ -463,7 +476,7 @@ async function finalizeCheckoutSessionPayment(
 
   if (session.status === "paid" && session.order_id) {
     const order = await getOrderById(session.order_id);
-    const baseUrl = getAppBaseUrl();
+    const baseUrl = input.appBaseUrl?.replace(/\/$/, "") ?? await getAppBaseUrl();
     return {
       orderId: session.order_id,
       checkoutSessionId: session.public_id,
@@ -609,11 +622,9 @@ async function finalizeCheckoutSessionPayment(
         const stripeTotal = existing.amount_total;
         // Reuse only when Stripe total still matches locked ROVEXO total.
         // After shipping quote refine, recreate so PaymentIntent includes shipping.
-        if (
-          typeof stripeTotal === "number" &&
-          stripeTotal === expectedTotalPence &&
-          !shippingRefinedFromQuote
-        ) {
+        if (typeof stripeTotal === "number" && stripeTotal === expectedTotalPence) {
+          // Same locked total (including already-refined shipping) → reuse.
+          // Double Confirm & Pay must not expire the open TEST/LIVE session.
           return {
             orderId: null,
             checkoutSessionId: session.public_id,
@@ -639,7 +650,7 @@ async function finalizeCheckoutSessionPayment(
     }
   }
 
-  const baseUrl = getAppBaseUrl();
+  const baseUrl = input.appBaseUrl?.replace(/\/$/, "") ?? await getAppBaseUrl();
   const orderSuccessPath = `/checkout/${product.slug}/success?cs=${encodeURIComponent(session.public_id)}`;
   const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
@@ -778,32 +789,25 @@ async function finalizeCheckoutSessionPayment(
   }
 
   if (!isStripeConfigured()) {
-    if (isStripeRequired()) {
-      return { error: "Payments are not configured." };
-    }
-
-    const created = await createOrderFromPaidCheckoutSession({
-      checkoutSessionPublicId: session.public_id,
-      shippingAddressId: input.shippingAddressId,
-      deliveryCarrier,
-      selectedShippingQuoteId,
-      selectedShippingQuotePayload,
-      stripeSessionId: `dev-${session.public_id}`,
-      stripePaymentIntentId: null,
-    });
-    if (!created.success) {
-      return { error: created.error };
-    }
-    const order = await getOrderById(created.orderId);
-    return {
-      orderId: created.orderId,
-      checkoutSessionId: session.public_id,
-      url: `${orderSuccessUrl}&order_id=${created.orderId}`,
-      order: order ?? undefined,
-    };
+    // Fail closed — never create a paid order without a real payment rail.
+    // Virtual / wallet settlement is handled above via mustSettleWithoutStripe.
+    return { error: "Payments are not configured." };
   }
 
-  const stripe = getStripeClient();
+  let stripe: ReturnType<typeof getStripeClient>;
+  try {
+    stripe = getStripeClient();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (
+      /invalid api key|not configured|blocked on localhost|set stripe_secret_key_test/i.test(
+        message,
+      )
+    ) {
+      return { error: "Payments are not configured." };
+    }
+    throw error;
+  }
   const customerId = await ensureStripeCustomer(input.buyerId);
 
   const { listPaymentMethods, setDefaultPaymentMethod } = await import("@/lib/payments/repository");
@@ -849,7 +853,7 @@ async function finalizeCheckoutSessionPayment(
       price_data: {
         currency: (session.currency || "gbp").toLowerCase(),
         unit_amount: Math.round(lockedPlatformFee * 100),
-        product_data: { name: "Platform Fee" },
+        product_data: { name: "Buyer Protection" },
       },
     },
   ];
@@ -878,36 +882,14 @@ async function finalizeCheckoutSessionPayment(
       ).slice(0, 450)
     : "";
 
-  const stripeSession = await stripe.checkout.sessions.create(
-    {
-      mode: "payment",
-      payment_method_types: ["card"],
-      ...(customerId ? { customer: customerId } : {}),
-      line_items: lineItems,
-      metadata: {
-        checkoutType: "order",
-        checkoutSessionId: session.public_id,
-        buyerId: input.buyerId,
-        sellerId: product.seller_id,
-        productId: product.id,
-        shippingAddressId: input.shippingAddressId,
-        deliveryCarrier,
-        shippingQuoteId: selectedShippingQuoteId ?? "",
-        ...(selectedShippingQuotePayload?.shippingOptionCode
-          ? { shippingOptionCode: selectedShippingQuotePayload.shippingOptionCode }
-          : {}),
-        ...(selectedShippingQuotePayload?.contractId
-          ? { shippingContractId: selectedShippingQuotePayload.contractId }
-          : {}),
-        paymentMethodId: selected?.id ?? "",
-        offerId: session.offer_id ?? "",
-        bundleId: bundleSnap?.bundleId ?? "",
-        bundleLines: bundleLinesMeta,
-        currency: session.currency || "GBP",
-        subtotal: String(lockedItemPrice),
-        snapshotLockedAt: bundleSnap?.lockedAt ?? "",
-      },
-      payment_intent_data: {
+  let stripeSession: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
+  try {
+    stripeSession = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        payment_method_types: ["card"],
+        ...(customerId ? { customer: customerId } : {}),
+        line_items: lineItems,
         metadata: {
           checkoutType: "order",
           checkoutSessionId: session.public_id,
@@ -923,21 +905,52 @@ async function finalizeCheckoutSessionPayment(
           ...(selectedShippingQuotePayload?.contractId
             ? { shippingContractId: selectedShippingQuotePayload.contractId }
             : {}),
+          paymentMethodId: selected?.id ?? "",
           offerId: session.offer_id ?? "",
           bundleId: bundleSnap?.bundleId ?? "",
           bundleLines: bundleLinesMeta,
           currency: session.currency || "GBP",
           subtotal: String(lockedItemPrice),
+          snapshotLockedAt: bundleSnap?.lockedAt ?? "",
         },
+        payment_intent_data: {
+          metadata: {
+            checkoutType: "order",
+            checkoutSessionId: session.public_id,
+            buyerId: input.buyerId,
+            sellerId: product.seller_id,
+            productId: product.id,
+            shippingAddressId: input.shippingAddressId,
+            deliveryCarrier,
+            shippingQuoteId: selectedShippingQuoteId ?? "",
+            ...(selectedShippingQuotePayload?.shippingOptionCode
+              ? { shippingOptionCode: selectedShippingQuotePayload.shippingOptionCode }
+              : {}),
+            ...(selectedShippingQuotePayload?.contractId
+              ? { shippingContractId: selectedShippingQuotePayload.contractId }
+              : {}),
+            offerId: session.offer_id ?? "",
+            bundleId: bundleSnap?.bundleId ?? "",
+            bundleLines: bundleLinesMeta,
+            currency: session.currency || "GBP",
+            subtotal: String(lockedItemPrice),
+          },
+        },
+        success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: cancelUrl,
+        expires_at: stripeExpiresAt,
       },
-      success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl,
-      expires_at: stripeExpiresAt,
-    },
-    {
-      idempotencyKey: `cs-checkout-${session.public_id}`,
-    },
-  );
+      {
+        idempotencyKey: `cs-checkout-${session.public_id}`,
+      },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/invalid api key|no such api key/i.test(message)) {
+      return { error: "Payments are not configured." };
+    }
+    throw error;
+  }
 
   if (!stripeSession.url) {
     return { error: "Unable to create checkout session." };

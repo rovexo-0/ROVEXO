@@ -116,6 +116,10 @@ describe("P3 quote_payload round-trip", () => {
       shippingOptionCode: "royal_mail:tracked_48",
       contractId: "99",
       quoteApiVersion: "v2+v3",
+      providerShippingCostPence: 238,
+      buyerShippingPricePence: 253,
+      rovexoMarginPence: 15,
+      labelCount: 1,
     });
 
     const restored = shippingQuoteFromPayloadRow({

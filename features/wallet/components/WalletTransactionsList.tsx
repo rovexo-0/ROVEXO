@@ -8,6 +8,8 @@ import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
 type WalletTransactionsListProps = {
   transactions: WalletTransaction[];
+  backHref?: string;
+  detailBaseHref?: string;
 };
 
 /**
@@ -15,11 +17,15 @@ type WalletTransactionsListProps = {
  * Flat full-width rows. No decorative cards / giant containers.
  * UI Simplification v1.0 — search/type/year/export/payouts chrome removed (engines/APIs unchanged).
  */
-export function WalletTransactionsList({ transactions }: WalletTransactionsListProps) {
+export function WalletTransactionsList({
+  transactions,
+  backHref = WALLET_ROUTES.hub,
+  detailBaseHref = WALLET_ROUTES.transactions,
+}: WalletTransactionsListProps) {
   return (
     <AccountCanonicalShell
       title="Transactions"
-      backHref={WALLET_ROUTES.hub}
+      backHref={backHref}
       backLabel="Balance"
       showHeaderTitle
     >
@@ -39,7 +45,7 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
                 return (
                   <CanonicalMenuRow
                     key={transaction.id}
-                    href={`/wallet/transactions/${transaction.id}`}
+                    href={`${detailBaseHref}/${transaction.id}`}
                     title={transaction.productTitle}
                     description={
                       transaction.orderNumber

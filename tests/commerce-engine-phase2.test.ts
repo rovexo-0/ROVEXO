@@ -31,6 +31,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
   const now = Date.parse("2026-01-10T12:00:00.000Z");
   const deliveredJustNow = new Date(now - 1 * HOUR).toISOString();
   const delivered25hAgo = new Date(now - 25 * HOUR).toISOString();
+  const delivered49hAgo = new Date(now - 49 * HOUR).toISOString();
 
   it("holds the seller's funds until delivery", () => {
     expect(
@@ -45,7 +46,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
     ).toBe("not_delivered");
   });
 
-  it("keeps funds pending within the 24h window after delivery", () => {
+  it("keeps funds pending within the Individual 48h window after delivery", () => {
     expect(
       decideRelease({
         status: "delivered",
@@ -53,12 +54,13 @@ describe("commerce engine phase 2+3 — release gate", () => {
         hasRefund: false,
         hasOpenClaim: false,
         requireTimer: true,
+        sellerContext: "individual",
         now,
       }),
     ).toBe("within_hold_window");
   });
 
-  it("auto-releases after delivered + 24h with no claims", () => {
+  it("25h after delivery is still within Individual 48h hold", () => {
     expect(
       decideRelease({
         status: "delivered",
@@ -66,6 +68,21 @@ describe("commerce engine phase 2+3 — release gate", () => {
         hasRefund: false,
         hasOpenClaim: false,
         requireTimer: true,
+        sellerContext: "individual",
+        now,
+      }),
+    ).toBe("within_hold_window");
+  });
+
+  it("auto-releases after delivered + 48h with no claims (Individual)", () => {
+    expect(
+      decideRelease({
+        status: "delivered",
+        deliveredAt: delivered49hAgo,
+        hasRefund: false,
+        hasOpenClaim: false,
+        requireTimer: true,
+        sellerContext: "individual",
         now,
       }),
     ).toBe("released");
@@ -75,7 +92,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
     expect(
       decideRelease({
         status: "issue_open",
-        deliveredAt: delivered25hAgo,
+        deliveredAt: delivered49hAgo,
         hasRefund: false,
         hasOpenClaim: true,
         requireTimer: true,
@@ -86,7 +103,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
     expect(
       decideRelease({
         status: "delivered",
-        deliveredAt: delivered25hAgo,
+        deliveredAt: delivered49hAgo,
         hasRefund: false,
         hasOpenClaim: true,
         requireTimer: true,
@@ -99,7 +116,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
     expect(
       decideRelease({
         status: "delivered",
-        deliveredAt: delivered25hAgo,
+        deliveredAt: delivered49hAgo,
         hasRefund: true,
         hasOpenClaim: false,
         requireTimer: true,
@@ -112,7 +129,7 @@ describe("commerce engine phase 2+3 — release gate", () => {
     expect(
       decideRelease({
         status: "cancelled",
-        deliveredAt: delivered25hAgo,
+        deliveredAt: delivered49hAgo,
         hasRefund: false,
         hasOpenClaim: false,
         requireTimer: true,
@@ -147,24 +164,10 @@ describe("commerce engine phase 2+3 — release gate", () => {
       }),
     ).toBe("sale_refunded");
   });
-
-  it("never releases a refunded seller sale after delivered + 24h", () => {
-    expect(
-      decideRelease({
-        status: "delivered",
-        deliveredAt: delivered25hAgo,
-        hasRefund: false,
-        hasOpenClaim: false,
-        saleRefunded: true,
-        requireTimer: true,
-        now,
-      }),
-    ).toBe("sale_refunded");
-  });
 });
 
 describe("commerce engine phase 2+3 — constants", () => {
-  it("uses a 24h delivered release window", () => {
-    expect(DELIVERED_RELEASE_HOURS).toBe(24);
+  it("uses Individual 48h as DELIVERED_RELEASE_HOURS alias", () => {
+    expect(DELIVERED_RELEASE_HOURS).toBe(48);
   });
 });

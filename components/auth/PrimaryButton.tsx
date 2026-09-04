@@ -1,3 +1,4 @@
+import type { MouseEventHandler } from "react";
 import Link from "next/link";
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { buttonSizes, buttonVariants } from "@/components/ui/variants";
@@ -23,7 +24,11 @@ export function PrimaryButton({
 
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link
+        href={href}
+        className={classes}
+        onClick={props.onClick as MouseEventHandler<HTMLAnchorElement> | undefined}
+      >
         {children}
       </Link>
     );

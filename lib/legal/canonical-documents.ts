@@ -1357,6 +1357,17 @@ export function getLegalDocument(slug: string): LegalDocument | null {
   return bySlug.get(slug) ?? null;
 }
 
+export function getLegalDocumentForAudience(
+  slug: string,
+  allowedAudiences: readonly ("shared" | "individual" | "business")[],
+): LegalDocument | null {
+  const document = getLegalDocument(slug);
+  if (!document) return null;
+  const audience = document.audience ?? "shared";
+  if (!allowedAudiences.includes(audience)) return null;
+  return document;
+}
+
 export function listLegalDocuments(): LegalDocument[] {
   const ordered: LegalDocument[] = [];
   for (const slug of LEGAL_CENTRE_REQUIRED_SLUGS) {

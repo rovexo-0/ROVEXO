@@ -47,6 +47,7 @@ export function useProductWatchlist(
       }, 0);
       return () => window.clearTimeout(timer);
     }
+    if (isPending) return;
 
     let cancelled = false;
 
@@ -59,10 +60,10 @@ export function useProductWatchlist(
     return () => {
       cancelled = true;
     };
-  }, [slug, sessionPhase, auth?.profile?.id]);
+  }, [slug, sessionPhase, auth?.profile?.id, isPending]);
 
-  const toggle = useCallback(async () => {
-    if (!slug || isPending) return;
+  const toggle = useCallback(async (): Promise<boolean> => {
+    if (!slug || isPending) return false;
 
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
@@ -82,11 +83,14 @@ export function useProductWatchlist(
         setIsSaved(!nextSaved);
         markSavedInCache(slug, !nextSaved);
         invalidateSavedStatusCache();
+        return false;
       }
+      return true;
     } catch {
       setIsSaved(!nextSaved);
       markSavedInCache(slug, !nextSaved);
       invalidateSavedStatusCache();
+      return false;
     } finally {
       setIsPending(false);
     }

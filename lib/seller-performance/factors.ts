@@ -233,6 +233,8 @@ export async function collectSellerPerformanceFactors(
 
   if (paidOrders.length > 0) {
     const orderIds = paidOrders.map((row) => row.id);
+    // LEGACY compatibility READ only — historical dispatch-time metrics.
+    // Canonical shipment mutations write shipping_records only.
     const { data: shipments } = await admin
       .from("order_shipments")
       .select("order_id, dispatch_at")

@@ -17,8 +17,8 @@ export default async function WalletPendingPage() {
   if (!profile) redirect(`/login?next=${WALLET_ROUTES.pending}`);
 
   const [data, transactions] = await Promise.all([
-    fetchWalletData(),
-    listWalletTransactions(profile.id),
+    fetchWalletData("individual"),
+    listWalletTransactions(profile.id, "individual"),
   ]);
   const pendingOrders = pendingOrderTransactions(transactions);
 

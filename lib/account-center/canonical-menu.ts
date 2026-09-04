@@ -96,7 +96,8 @@ export function buildAccountMenuSections(
     items.push({
       id: "promote",
       title: "Promote",
-      href: "/promote",
+      value: "Coming Soon",
+      comingSoon: true,
       icon: "promotions",
     });
   }

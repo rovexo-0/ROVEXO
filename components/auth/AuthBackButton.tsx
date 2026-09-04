@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { focusRing } from "@/components/ui/tokens";
 
 type AuthBackButtonProps = {
@@ -11,17 +13,7 @@ type AuthBackButtonProps = {
 };
 
 function BackChevron() {
-  return (
-    <svg className="auth-back-button__icon" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M14.5 5.5 8 12l6.5 6.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.back} className="auth-back-button__icon" />;
 }
 
 export function AuthBackButton({ href, label = "Back", className }: AuthBackButtonProps) {

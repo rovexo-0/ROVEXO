@@ -5,6 +5,7 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { MASTER_ICON_COLORS } from "@/lib/design-system/master-icon-system-v1";
 
+import { useRefreshHelpOnSellerContextChange } from "@/features/help/hooks/use-refresh-help-on-seller-context-change";
 import type { HelpPolicyEntry } from "@/lib/help/policies";
 
 type HelpPoliciesPageProps = {
@@ -12,6 +13,7 @@ type HelpPoliciesPageProps = {
 };
 
 export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
+  useRefreshHelpOnSellerContextChange();
   return (
     <AccountCanonicalShell title="Platform Policies" backHref="/help" backLabel="Help Centre" showHeaderTitle>
       <CanonicalInfoBlock variant="description">

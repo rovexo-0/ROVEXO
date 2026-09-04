@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { AUTH_MASTER_SPEC, AUTH_MASTER_SPEC_VERSION } from "@/lib/auth/master-spec";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
+import { mapAuthErrorMessage } from "@/lib/auth/errors";
 
 function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
@@ -48,11 +49,27 @@ describe("AUTH_MASTER_SPEC v1.0 — forgot password screen", () => {
     expect(actions).toContain("requestPasswordReset");
     expect(actions).toContain("No account found for that email address.");
     expect(actions).toContain("Too many reset attempts");
+    expect(actions).toContain("Unable to send reset link. Please try again.");
+    expect(actions).toContain("mapAuthErrorMessage(error.message)");
     expect(screen).toContain("requestPasswordReset");
     expect(screen).toContain("AuthAlert");
     expect(screen).toContain("offlineError");
     expect(screen).not.toContain("router.push");
     expect(screen).not.toContain("redirect(");
+  });
+
+  it("never surfaces JSON-empty Auth messages like \"{}\" to the user", () => {
+    const fallback = "Unable to send reset link. Please try again.";
+    expect(mapAuthErrorMessage("{}") || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage("") || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage("   ") || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage(null) || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage(undefined) || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage("[object Object]") || fallback).toBe(fallback);
+    expect(mapAuthErrorMessage("{}")).not.toBe("{}");
+    expect(mapAuthErrorMessage("Invalid login credentials") || fallback).toBe(
+      "Incorrect email or password.",
+    );
   });
 
   it("uses fade-only forgot password CSS without scale or bounce", () => {

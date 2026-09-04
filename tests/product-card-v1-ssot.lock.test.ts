@@ -32,19 +32,19 @@ const FORBIDDEN_CARD_NAMES = [
 ];
 
 describe("ROVEXO Product Card v1.0 — platform SSOT lock", () => {
-  it("locks canonical prop bundle (views on, seller off)", () => {
+  it("locks canonical prop bundle (rating/views off on Homepage)", () => {
     const defaults = readSource("lib/listing-card/defaults.ts");
     expect(defaults).toContain("LISTING_CARD_HOMEPAGE_PROPS");
     expect(defaults).toContain("ROVEXO_PRODUCT_CARD_PROPS");
-    expect(defaults).toContain("showViews: true");
+    expect(defaults).toContain("showViews: false");
     expect(defaults).toContain("showSeller: false");
     expect(defaults).toContain("showFavorite: true");
-    expect(defaults).toContain("showRating: true");
+    expect(defaults).toContain("showRating: false");
     expect(defaults).toContain("showCondition: true");
     expect(defaults).toContain('surface: "homepage"');
   });
 
-  it("homepage card body includes price, incl, title, condition, rating, views", () => {
+  it("homepage card retains price, incl, title, condition markup (rating/views gated off)", () => {
     const card = readSource("components/ui/ListingCard.tsx");
     expect(card).toContain("priceHomepage");
     expect(card).toContain("inclTotalHomepage");

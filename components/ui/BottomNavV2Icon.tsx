@@ -1,8 +1,5 @@
-import {
-  BrowseCategoriesLineIcon,
-  ChatLineIcon,
-  UserLineIcon,
-} from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { cn } from "@/lib/cn";
 
@@ -14,40 +11,22 @@ type BottomNavV2IconProps = {
   className?: string;
 };
 
-function HomeLineIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
-    </svg>
-  );
-}
-
-/** Bottom Nav — Absolute Final: one line-icon family (20px), no lucide. */
+/** Bottom Nav — global emoji icons (20px). */
 export function BottomNavV2Icon({ type, href, className }: BottomNavV2IconProps) {
   const iconClass = cn("rx-bottom-nav-v2-icon", ICON_CLASS, className);
 
   if (href.startsWith("/inbox") || href.startsWith("/messages") || type === "saved") {
-    return <ChatLineIcon className={iconClass} />;
+    return <PlatformEmoji emoji={PLATFORM_EMOJI.inbox} className={iconClass} />;
   }
 
   switch (type) {
     case "home":
-      return <HomeLineIcon className={iconClass} />;
+      return <PlatformEmoji emoji={PLATFORM_EMOJI.home} className={iconClass} />;
     case "search":
-      /* Tab id stays "search" for routing; visual = Browse Categories grid. */
-      return <BrowseCategoriesLineIcon className={iconClass} />;
+      return <PlatformEmoji emoji={PLATFORM_EMOJI.browse} className={iconClass} />;
     case "account":
-      return <UserLineIcon className={iconClass} />;
+      return <PlatformEmoji emoji={PLATFORM_EMOJI.account} className={iconClass} />;
     default:
-      return <HomeLineIcon className={iconClass} />;
+      return <PlatformEmoji emoji={PLATFORM_EMOJI.home} className={iconClass} />;
   }
 }

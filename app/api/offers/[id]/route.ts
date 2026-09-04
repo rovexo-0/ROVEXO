@@ -4,6 +4,7 @@ import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-beare
 import { validateMutationOrigin } from "@/lib/api/csrf-guard";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { emitSmartNotification } from "@/lib/notifications/events";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
 import {
   executeCounterOffer,
@@ -155,7 +156,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
     const { data: product } = await supabase
       .from("products")
-      .select("slug, title, product_images ( url, is_primary, sort_order )")
+      .select("slug, title, status, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )")
       .eq("id", offer.product_id)
       .maybeSingle();
 
@@ -245,12 +246,22 @@ export async function PATCH(request: Request, context: RouteContext) {
     const productTitle = product?.title?.trim() || undefined;
     const images = (
       product as {
-        product_images?: Array<{ url: string; is_primary: boolean | null; sort_order: number | null }>;
+        product_images?: Array<{
+          url: string;
+          thumbnail_url?: string | null;
+          storage_path?: string | null;
+          is_primary: boolean | null;
+          sort_order: number | null;
+        }>;
       } | null
     )?.product_images;
-    const productImageUrl = [...(images ?? [])].sort(
+    const primary = [...(images ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
-    )[0]?.url;
+    )[0];
+    const productImageUrl = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+      storagePath: primary?.storage_path,
+      productStatus: product?.status,
+    }).imageUrl;
 
     void emitSmartNotification({
       userId: fromRole === "seller" ? offer.seller_id : offer.buyer_id,
@@ -378,17 +389,31 @@ export async function PATCH(request: Request, context: RouteContext) {
     const notifyUser = offer.seller_id === user.id ? offer.buyer_id : offer.seller_id;
     const { data: declineProduct } = await supabase
       .from("products")
-      .select("title, product_images ( url, is_primary, sort_order )")
+      .select("title, status, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )")
       .eq("id", offer.product_id)
       .maybeSingle();
     const declineImages = (
       declineProduct as {
-        product_images?: Array<{ url: string; is_primary: boolean | null; sort_order: number | null }>;
+        product_images?: Array<{
+          url: string;
+          thumbnail_url?: string | null;
+          storage_path?: string | null;
+          is_primary: boolean | null;
+          sort_order: number | null;
+        }>;
       } | null
     )?.product_images;
-    const declineImageUrl = [...(declineImages ?? [])].sort(
+    const declinePrimary = [...(declineImages ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
-    )[0]?.url;
+    )[0];
+    const declineImageUrl = resolveCardImageSources(
+      declinePrimary?.thumbnail_url,
+      declinePrimary?.url,
+      {
+        storagePath: declinePrimary?.storage_path,
+        productStatus: declineProduct?.status,
+      },
+    ).imageUrl;
     void emitSmartNotification({
       userId: notifyUser,
       eventType: "offer_declined",

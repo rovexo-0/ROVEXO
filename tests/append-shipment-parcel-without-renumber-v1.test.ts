@@ -23,9 +23,22 @@ describe("appendShipmentParcelWithoutRenumbering", () => {
     expect(end).toBeGreaterThan(start);
     const method = src.slice(start, end);
     expect(method).toContain("nextAppendParcelNumber");
+    expect(method).toContain("authorizeRecoveryParcelAttempt");
+    expect(method).toContain("isRecoveryParcelAttemptAuthorized");
     expect(method).not.toContain("renumberParcels(");
     expect(method).not.toContain(".update(");
     expect(src).toContain("await renumberParcels(record.id)");
+  });
+
+  it("MEDIUM #7 — recovery append requires explicit authorization flag", () => {
+    const src = read("lib/shipping/parcels-repository.ts");
+    const start = src.indexOf("export async function appendShipmentParcelWithoutRenumbering");
+    const end = src.indexOf("export async function updateShipmentParcel");
+    const method = src.slice(start, end);
+    expect(method).toContain("authorizeRecoveryParcelAttempt: true");
+    expect(method).toMatch(
+      /if\s*\(\s*!isRecoveryParcelAttemptAuthorized\(\s*input\.authorizeRecoveryParcelAttempt\s*\)\s*\)/,
+    );
   });
 
   it("quote append never deletes historical shipping_quotes rows", () => {

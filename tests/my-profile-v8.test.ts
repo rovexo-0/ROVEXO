@@ -36,8 +36,9 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
 
   it("PROFILE_MENU_ICON=PASS", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
-    expect(page).toContain('from "lucide-react"');
-    expect(page).toContain("<Menu ");
+    expect(page).toContain("PlatformEmoji");
+    expect(page).toContain("PLATFORM_EMOJI.menu");
+    expect(page).not.toContain('from "lucide-react"');
   });
 
   it("PROFILE_MENU_NOT_VERTICAL_DOTS=PASS", () => {

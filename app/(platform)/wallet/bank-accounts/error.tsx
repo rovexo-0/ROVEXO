@@ -25,9 +25,9 @@ export default function WalletBankAccountsError({
       <AccountPageStack aria-label="Bank accounts">
         <CanonicalCard variant="list">
           <CanonicalMenuRow
-            title="Personal Account"
-            description="Receive money from your sales"
-            value="Not added"
+            title="Individual Account"
+            description="Receive money from your sales via Stripe"
+            value="Not connected"
             onClick={() => {
               window.location.assign(WALLET_ROUTES.bankAccounts);
             }}
@@ -39,7 +39,7 @@ export default function WalletBankAccountsError({
               window.location.assign(WALLET_ROUTES.bankAccounts);
             }}
           >
-            Add Bank Account
+            Manage on Stripe
           </PrimaryButton>
         </div>
       </AccountPageStack>

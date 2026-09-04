@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { ProfileCommandCentreEntry } from "@/lib/profile/command-centre-entry-v1";
@@ -9,22 +11,7 @@ type ProfileCommandCentreButtonProps = {
 };
 
 function CommandCentreShieldIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M12 3.5 19 6v5c0 5-3 8-7 9.5C8 19 5 16 5 11V6l7-2.5Z" />
-      <path d="M12 9v6" />
-      <path d="M9 12h6" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.shield} size={20} className={className} />;
 }
 
 /**

@@ -64,8 +64,8 @@ type CardChargeResult =
   | { ok: true; paymentIntentId: string }
   | { ok: false; error: string };
 
-function successUrl(type: string): string {
-  return `${getAppBaseUrl()}/promote?promotion=success&type=${encodeURIComponent(type)}`;
+async function successUrl(type: string): Promise<string> {
+  return `${await getAppBaseUrl()}/promote?promotion=success&type=${encodeURIComponent(type)}`;
 }
 
 async function resolveUserEmail(userId: string): Promise<string | null> {
@@ -463,7 +463,7 @@ export async function paySellerPromotion(input: {
       endsAt: endsAt.toISOString(),
     }).catch(() => undefined);
 
-    return { success: true, activated: true, url: successUrl(input.type) };
+    return { success: true, activated: true, url: await successUrl(input.type) };
   } catch {
     if (walletRollback) {
       await restoreWalletBalance({
@@ -583,7 +583,7 @@ export async function payListingPromotion(input: {
       endsAt: applied.endsAt ?? null,
     }).catch(() => undefined);
 
-    return { success: true, activated: true, url: successUrl(input.type) };
+    return { success: true, activated: true, url: await successUrl(input.type) };
   } catch {
     if (walletRollback) {
       await restoreWalletBalance({

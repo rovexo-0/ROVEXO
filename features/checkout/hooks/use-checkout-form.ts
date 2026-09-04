@@ -320,6 +320,7 @@ export function useCheckoutForm(
           idempotencyKey,
           orderId: pendingOrderId,
           checkoutSessionId,
+          appBaseUrl: window.location.origin,
         }),
       });
 

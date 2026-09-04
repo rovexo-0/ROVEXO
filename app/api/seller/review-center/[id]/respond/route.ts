@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth } from "@/lib/auth/session";
 import { submitSellerReviewResponse } from "@/lib/moderation/service";
+import {
+  rejectInvalidReviewCenterSurface,
+  reviewCenterSurfaceFrom,
+} from "@/lib/moderation/seller-review-center-access-v1";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -10,11 +14,14 @@ const responseSchema = z.object({
 });
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
-  if (roleCheck instanceof NextResponse) return roleCheck;
+  const surfaceGate = await rejectInvalidReviewCenterSurface(
+    auth.user.id,
+    reviewCenterSurfaceFrom(request),
+  );
+  if (surfaceGate) return surfaceGate;
 
   try {
     const { id } = await context.params;

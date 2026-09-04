@@ -6,6 +6,7 @@ import {
   completePaymentMethodSetup,
   completePaymentMethodSetupIntent,
   createPaymentMethodSetupIntent,
+  createPaymentMethodsBillingPortalSession,
   listPaymentMethods,
 } from "@/lib/payments/repository";
 import { isStripeConfigured } from "@/lib/stripe/server";
@@ -22,8 +23,8 @@ export async function GET() {
     return NextResponse.json({ methods });
   } catch (error) {
     logPaymentSetupError("GET /api/payment-methods", error);
-    const { message, status, code } = paymentSetupErrorMessage(error);
-    return NextResponse.json({ error: message, code }, { status });
+    const { message, status, code, actionable } = paymentSetupErrorMessage(error);
+    return NextResponse.json({ error: message, code, actionable }, { status });
   }
 }
 
@@ -37,8 +38,9 @@ export async function POST(request: Request) {
     if (!isStripeConfigured()) {
       return NextResponse.json(
         {
-          error: "Stripe is not configured on the server. Set STRIPE_SECRET_KEY in production.",
+          error: "Card payments are not available right now. Stripe TEST keys are required on localhost.",
           code: "stripe_not_configured",
+          actionable: "retry",
         },
         { status: 503 },
       );
@@ -46,6 +48,11 @@ export async function POST(request: Request) {
 
     const body = await readJsonObjectBody(request);
     const action = typeof body.action === "string" ? body.action : "create_setup_intent";
+
+    if (action === "create_billing_portal") {
+      const portal = await createPaymentMethodsBillingPortalSession(auth.user.id);
+      return NextResponse.json({ url: portal.url });
+    }
 
     if (action === "complete_setup" && typeof body.sessionId === "string") {
       const method = await completePaymentMethodSetup(auth.user.id, body.sessionId);
@@ -72,7 +79,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     logPaymentSetupError("POST /api/payment-methods", error);
-    const { message, status, code } = paymentSetupErrorMessage(error);
-    return NextResponse.json({ error: message, code }, { status });
+    const { message, status, code, actionable } = paymentSetupErrorMessage(error);
+    return NextResponse.json({ error: message, code, actionable }, { status });
   }
 }

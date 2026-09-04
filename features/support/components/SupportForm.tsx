@@ -31,7 +31,8 @@ function SupportFormFields() {
   const searchParams = useSearchParams();
   const guided = searchParams.get("guided") === "1";
   const [session] = useState(readHelpSession);
-  const [category, setCategory] = useState(searchParams.get("category") ?? "account");
+  const rawCategory = searchParams.get("category") ?? "account";
+  const [category, setCategory] = useState(rawCategory === "report" ? "report_user" : rawCategory);
   const [subject, setSubject] = useState(
     searchParams.get("listing") ? `Appeal moderation — ${searchParams.get("listing")}` : "",
   );

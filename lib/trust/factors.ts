@@ -107,6 +107,8 @@ export async function collectTrustFactors(userId: string): Promise<TrustFactorSn
   let onTimeShipments = 0;
   let lateShipments = 0;
   if (sellerOrderIds.length > 0) {
+    // LEGACY compatibility READ only — historical on-time metrics.
+    // Active shipment SSOT is shipping_records; do not write order_shipments here.
     const { data: shipmentRows } = await admin
       .from("order_shipments")
       .select("dispatch_at, estimated_delivery_at, delivered_at")

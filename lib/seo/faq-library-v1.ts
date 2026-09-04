@@ -63,7 +63,7 @@ export const FAQ_LIBRARY_V1: readonly FaqLibraryEntry[] = [
     id: "seller-start",
     question: "How do I start selling?",
     answer:
-      "Open Sell, add photos, title, description, category, price and parcel size, then Publish. One Personal Account can buy and sell — no separate seller account.",
+      "Open Sell, add photos, title, description, category, price and parcel size, then Publish. One ROVEXO account can buy and sell — no separate seller account.",
     clusters: ["global", "seller"],
     helpHref: "/help/selling-get-started",
   },
@@ -133,7 +133,7 @@ export const FAQ_LIBRARY_V1: readonly FaqLibraryEntry[] = [
     id: "business-account-myth",
     question: "Do I need a separate business account to sell?",
     answer:
-      "No. ROVEXO uses one Personal Account. Business or tax details are verification on your profile — not a different account type.",
+      "No. ROVEXO uses one account. Business tools are a switch and verified information on the same account — not a different account type.",
     clusters: ["business", "seller"],
     helpHref: "/help/business-accounts-setup",
   },
@@ -141,7 +141,7 @@ export const FAQ_LIBRARY_V1: readonly FaqLibraryEntry[] = [
     id: "business-tax",
     question: "What is seller tax registration?",
     answer:
-      "Before payouts, complete tax registration on your Personal Account (for example Personal, Sole Trader, or Company status for tax purposes) and add a bank account for withdrawals.",
+      "Before payouts, complete tax registration on your ROVEXO account (for example Personal, Sole Trader, or Company status for tax purposes) and add a bank account for withdrawals.",
     clusters: ["business", "wallet"],
     helpHref: "/help/seller-tax-registration",
   },

@@ -31,17 +31,42 @@ export type HomepageDocumentData = {
  * PUBLIC Homepage document data only.
  * Catalogue + live/draft visual + preferred store slots — no identity, inbox, wallet, or orders.
  */
+async function timedHomepageBranch<T>(
+  label: string,
+  work: () => Promise<T>,
+): Promise<{ value: T; ms: number }> {
+  const started = performance.now();
+  const value = await work();
+  const ms = Math.round(performance.now() - started);
+  return { value, ms };
+}
+
 export async function loadHomepageDocumentData(options: {
   previewMode: "live" | "draft";
 }): Promise<HomepageDocumentData> {
-  const [visualConfig, feedResult, showcaseFromDb, preferredStores] = await Promise.all([
-    getPlatformVisualConfig({ mode: options.previewMode }).catch(() =>
-      getDefaultPlatformVisualConfig(),
+  const wallStarted = performance.now();
+
+  const [visualTimed, feedTimed, showcaseTimed, preferredTimed] = await Promise.all([
+    timedHomepageBranch("visual", () =>
+      getPlatformVisualConfig({ mode: options.previewMode }).catch(() =>
+        getDefaultPlatformVisualConfig(),
+      ),
     ),
-    fetchHomepageFeed(1).catch(() => HOMEPAGE_EMPTY_FEATURED_PAGE),
-    fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
-    listActivePreferredMarketplaceStores().catch(() => []),
+    timedHomepageBranch("feed", () =>
+      fetchHomepageFeed(1).catch(() => HOMEPAGE_EMPTY_FEATURED_PAGE),
+    ),
+    timedHomepageBranch("showcase", () =>
+      fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
+    ),
+    timedHomepageBranch("preferredStores", () =>
+      listActivePreferredMarketplaceStores().catch(() => []),
+    ),
   ]);
+
+  const visualConfig = visualTimed.value;
+  const feedResult = feedTimed.value;
+  const showcaseFromDb = showcaseTimed.value;
+  const preferredStores = preferredTimed.value;
 
   const sections = resolveHomepageV4Sections({
     featuredPage: HOMEPAGE_EMPTY_FEATURED_PAGE,
@@ -63,6 +88,27 @@ export async function loadHomepageDocumentData(options: {
       listings: section.listings.map(toPublicProductDocument),
     })),
   };
+
+  const totalMs = Math.round(performance.now() - wallStarted);
+  if (process.env.NODE_ENV !== "production") {
+    const payload = {
+      totalMs,
+      visualMs: visualTimed.ms,
+      feedMs: feedTimed.ms,
+      showcaseMs: showcaseTimed.ms,
+      preferredStoresMs: preferredTimed.ms,
+      feedItems: feedResult.items.length,
+      showcaseSections: showcaseFromDb.length,
+      preferredStores: preferredStores.length,
+    };
+    console.info("[HP_PERF]", JSON.stringify(payload));
+    try {
+      const { appendFileSync } = await import("node:fs");
+      appendFileSync("/tmp/hp-perf.jsonl", `${JSON.stringify(payload)}\n`);
+    } catch {
+      /* ignore local timing sink failures */
+    }
+  }
 
   return { visualConfig, sections: publicSections };
 }

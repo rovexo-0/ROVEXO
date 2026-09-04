@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiListingRole } from "@/lib/auth/session";
 import { setListingStatus } from "@/lib/listings/repository";
+import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
 import {
   processFollowNotificationEvent,
   resolveFollowNotificationActor,
@@ -34,6 +35,10 @@ export async function POST(request: Request, context: RouteContext) {
     if (!listing) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
     }
+
+    // Pause / sold must leave public ISR surfaces immediately; reactivate must restore.
+    // Same canonical bust as publish/edit — not after() (Homepage revalidate=60).
+    revalidatePublishedListing(listing.slug);
 
     if (
       listing.status === "published" &&

@@ -26,7 +26,7 @@ export const CheckoutPriceSummary = memo(function CheckoutPriceSummary({
       </div>
       <div className="ckt-v1__price-row">
         <span className="ckt-v1__price-fee-label">
-          Platform Fee
+          Buyer Protection
           <button
             type="button"
             className="ckt-v1__price-info"
@@ -35,7 +35,7 @@ export const CheckoutPriceSummary = memo(function CheckoutPriceSummary({
             onClick={() => setOpen((value) => !value)}
           >
             i
-            <span className="sr-only">About Platform Fee</span>
+            <span className="sr-only">About Buyer Protection</span>
           </button>
         </span>
         <span>{formatListingPrice(totals.platformFee)}</span>
@@ -54,7 +54,7 @@ export const CheckoutPriceSummary = memo(function CheckoutPriceSummary({
       </div>
       {open ? (
         <p id={tipId} className="ckt-v1__price-tip" role="note">
-          Platform Fee covers secure payment processing, escrow protection, and platform security.
+          Buyer Protection covers secure payment processing, escrow protection, and platform security.
           Sellers never see this line.
         </p>
       ) : null}

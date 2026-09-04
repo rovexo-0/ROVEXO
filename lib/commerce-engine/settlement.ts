@@ -1,24 +1,19 @@
 import "server-only";
 
 /**
- * Commerce Engine — Settlement / Release Engine (Phase 2).
+ * Commerce Engine — Settlement / Release Engine (Stripe E2E Canonical).
  *
- * The single authority that decides WHEN escrowed seller funds are released.
- * Release rule (spec §3, §4, §10):
+ * Release rule:
+ *   Delivered + protection window (Individual 48h / Business 14d) → RELEASE to Available
+ *   Buyer confirms delivery → RELEASE now
+ *   Open claim / refund → BLOCKED
  *
- *   Delivered  →  +24h  →  no dispute / refund / claim / return  →  RELEASE
- *   Buyer confirms delivery                                       →  RELEASE now
- *   Any open claim / refund                                       →  BLOCKED (on hold)
- *
- * It REUSES the certified Stripe Connect transfer (transferSalePayoutToConnect)
- * unchanged — it never modifies Stripe PaymentIntent / Connect / webhook / refund
- * code. It only gates eligibility and records the escrow ledger + events.
+ * Release MUST NOT create a Stripe Transfer.
+ * Withdraw (seller-initiated) moves Available → Connect.
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createCommerceAdminClient } from "@/lib/commerce-engine/db-client";
-import { getConnectAccountStatus } from "@/lib/stripe/connect";
-import { transferSalePayoutToConnect } from "@/lib/stripe/payouts";
 import { recordEscrowEvent } from "@/lib/commerce-engine/ledger";
 import { recordCommerceAudit } from "@/lib/commerce-engine/audit";
 import { emitCommerceEvent } from "@/lib/commerce-engine/events";
@@ -28,7 +23,12 @@ import {
   type ReleaseOutcome,
   type ReleaseReason,
 } from "@/lib/commerce-engine/release-policy";
-import { mustUseVirtualWallet } from "@/lib/full-demo/security";
+import { releaseSaleToAvailable } from "@/lib/wallet/sales";
+import {
+  normalizeSellerContext,
+  protectionHoursForSellerContext,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 
 const OPEN_CASE_STATUSES = [
   "open",
@@ -45,6 +45,7 @@ type OrderRow = {
   seller_id: string;
   order_number: string;
   stripe_refund_id: string | null;
+  seller_context?: string | null;
 };
 
 type PendingSale = {
@@ -55,6 +56,7 @@ type PendingSale = {
   description: string | null;
   status?: string | null;
   stripe_transfer_id?: string | null;
+  seller_context?: string | null;
 };
 
 function parseOrderIdFromDescription(description: string | null): string | null {
@@ -99,10 +101,10 @@ async function loadSellerSaleStatus(order: OrderRow): Promise<string | null> {
   return data?.status ?? null;
 }
 
-/**
- * Evaluate whether an order's escrow may be released now (loads claim/refund
- * state, then applies the pure gate).
- */
+function orderContext(order: OrderRow): SellerContext {
+  return normalizeSellerContext(order.seller_context);
+}
+
 async function evaluateRelease(order: OrderRow, requireTimer: boolean): Promise<ReleaseReason> {
   if (order.status === "cancelled") return "cancelled";
 
@@ -118,6 +120,7 @@ async function evaluateRelease(order: OrderRow, requireTimer: boolean): Promise<
     hasRefund: refund,
     hasOpenClaim: claim,
     saleRefunded: saleStatus === "refunded",
+    sellerContext: orderContext(order),
     requireTimer,
   });
 }
@@ -126,36 +129,19 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
   if (sale.status === "refunded") {
     return { released: false, reason: "sale_refunded" };
   }
+  if (sale.status === "completed") {
+    return { released: true, reason: "released" };
+  }
 
   const gate = await evaluateRelease(order, requireTimer);
   if (gate !== "released") {
     return { released: false, reason: gate };
   }
 
-  const admin = createAdminClient();
-  const { data: sellerProfile } = await admin
-    .from("seller_profiles")
-    .select("stripe_connect_account_id")
-    .eq("id", sale.user_id)
-    .maybeSingle();
-
-  const connectAccountId = sellerProfile?.stripe_connect_account_id;
-  const virtualWallet = mustUseVirtualWallet();
-
-  if (!virtualWallet) {
-    if (!connectAccountId) {
-      return { released: false, reason: "connect_not_ready" };
-    }
-
-    const connectStatus = await getConnectAccountStatus(sale.user_id);
-    if (!connectStatus.connected || !connectStatus.payoutsEnabled) {
-      return { released: false, reason: "connect_not_ready" };
-    }
-  }
-
+  const context = orderContext(order);
+  const hours = protectionHoursForSellerContext(context);
   const amount = Number(sale.amount);
 
-  // Escrow state transition (ledger overlay): PENDING → AVAILABLE.
   await recordEscrowEvent({
     orderId: order.id,
     sellerId: sale.user_id,
@@ -163,15 +149,16 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     fromState: "pending",
     toState: "available",
     amount,
-    reason: requireTimer ? "delivered_plus_24h" : "buyer_confirmed",
+    reason: requireTimer ? `delivered_plus_${hours}h` : "buyer_confirmed",
   });
+
   if (requireTimer) {
     await emitCommerceEvent({
       event: "AUTO_RELEASE",
       orderId: order.id,
       userId: sale.user_id,
       amount,
-      rule: "delivered_plus_24h",
+      rule: `delivered_plus_${hours}h`,
       result: "available",
     });
   }
@@ -180,18 +167,17 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     orderId: order.id,
     userId: sale.user_id,
     amount,
-    rule: requireTimer ? "auto_release_delivered_24h" : "buyer_confirm_release",
+    rule: requireTimer ? `auto_release_delivered_${hours}h` : "buyer_confirm_release",
     result: "available",
   });
 
-  // AVAILABLE → RELEASED via Stripe Connect (production) or virtual demo transfer.
-  const result = await transferSalePayoutToConnect({
+  const result = await releaseSaleToAvailable({
     saleTransactionId: sale.id,
     userId: sale.user_id,
     orderId: order.id,
     orderNumber: sale.order_number ?? order.order_number,
     amount,
-    connectAccountId: connectAccountId ?? "demo_virtual_connect",
+    sellerContext: context,
   });
 
   if (!result.success) {
@@ -200,7 +186,7 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
       orderId: order.id,
       userId: sale.user_id,
       rule: "settlement",
-      result: "transfer_failed",
+      result: "available_credit_failed",
       amount,
       metadata: { error: result.error },
     });
@@ -214,26 +200,24 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     fromState: "available",
     toState: "released",
     amount,
-    reason: "connect_transfer",
-    metadata: { transferId: result.transferId },
+    reason: "available_wallet_credit",
   });
   await emitCommerceEvent({
     event: "SELLER_PAID",
     orderId: order.id,
     userId: sale.user_id,
     amount,
-    rule: "connect_payout",
+    rule: "available_credit",
     result: "released",
-    metadata: { transferId: result.transferId },
+    metadata: { mode: "available_not_transfer" },
   });
   await recordCommerceAudit({
     event: "escrow.released",
     orderId: order.id,
     userId: sale.user_id,
     rule: requireTimer ? "auto_release_after_delivery" : "buyer_confirm",
-    result: "released",
+    result: "released_to_available",
     amount,
-    metadata: { transferId: result.transferId },
   });
 
   void notifySellerFundsReleased({
@@ -250,22 +234,17 @@ async function loadOrder(orderId: string): Promise<OrderRow | null> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("orders")
-    .select("id, status, delivered_at, seller_id, order_number, stripe_refund_id")
+    .select("id, status, delivered_at, seller_id, order_number, stripe_refund_id, seller_context")
     .eq("id", orderId)
     .maybeSingle();
   return (data as OrderRow | null) ?? null;
 }
 
-/**
- * Auto-release worker body (spec §10): find pending sales whose order is
- * Delivered + 24h with no open claim/refund and release them.
- * Returns the number of sales released.
- */
 export async function releaseEligibleOrders(limit = 100): Promise<number> {
   const admin = createAdminClient();
   const { data: pendingSales } = await admin
     .from("wallet_transactions")
-    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id")
+    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id, seller_context")
     .eq("type", "sale")
     .eq("status", "pending")
     .is("stripe_transfer_id", null)
@@ -287,9 +266,6 @@ export async function releaseEligibleOrders(limit = 100): Promise<number> {
   return released;
 }
 
-/**
- * Immediate release for a single order (buyer confirmed delivery — spec §3).
- */
 export async function releaseOrderNow(orderId: string): Promise<ReleaseOutcome> {
   const order = await loadOrder(orderId);
   if (!order) return { released: false, reason: "order_missing" };
@@ -297,19 +273,15 @@ export async function releaseOrderNow(orderId: string): Promise<ReleaseOutcome> 
   const admin = createAdminClient();
   const { data: sale } = await admin
     .from("wallet_transactions")
-    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id")
+    .select("id, user_id, order_number, amount, description, status, stripe_transfer_id, seller_context")
     .eq("user_id", order.seller_id)
     .eq("order_number", order.order_number)
     .eq("type", "sale")
     .maybeSingle();
 
+  if (!sale) return { released: false, reason: "no_pending_sale" };
   if (sale?.status === "refunded") {
     return { released: false, reason: "sale_refunded" };
   }
-
-  if (!sale || sale.status !== "pending" || sale.stripe_transfer_id) {
-    return { released: false, reason: "no_pending_sale" };
-  }
-
   return settleSale(sale as PendingSale, order, false);
 }

@@ -54,7 +54,7 @@ describe("Owner-approved Parcel Size bands v1", () => {
     expect(small.maxWeightKg).toBe(1);
     expect(small.weightKg).toBe(1);
     expect(small.maxDimensionsCm).toEqual({ length: 45, width: 35, height: 16 });
-    expect(formatCanonicalMaxWeightLine(small)).toBe("Weight: 0–1 kg");
+    expect(formatCanonicalMaxWeightLine(small)).toBe("Weight: 0–1.00 kg");
     expect(formatCanonicalMaxDimensionsLine(small)).toBe("Max dimensions: 45 × 35 × 16 cm");
     expect(OWNER_APPROVED_PARCEL_BANDS_V1.small.quoteWeightKg).toBe(1);
   });
@@ -66,7 +66,7 @@ describe("Owner-approved Parcel Size bands v1", () => {
     expect(medium.maxWeightKg).toBe(2);
     expect(medium.weightKg).toBe(2);
     expect(medium.maxDimensionsCm).toEqual({ length: 61, width: 46, height: 46 });
-    expect(formatCanonicalMaxWeightLine(medium)).toBe("Weight: 1–2 kg");
+    expect(formatCanonicalMaxWeightLine(medium)).toBe("Weight: >1.00–2.00 kg");
     expect(formatCanonicalMaxDimensionsLine(medium)).toBe("Max dimensions: 61 × 46 × 46 cm");
   });
 
@@ -77,7 +77,7 @@ describe("Owner-approved Parcel Size bands v1", () => {
     expect(large.maxWeightKg).toBe(15);
     expect(large.weightKg).toBe(15);
     expect(large.maxDimensionsCm.length).toBe(120);
-    expect(formatCanonicalMaxWeightLine(large)).toBe("Weight: 2–15 kg");
+    expect(formatCanonicalMaxWeightLine(large)).toBe("Weight: >2.00–15.00 kg");
     expect(formatCanonicalMaxDimensionsLine(large)).toBe("Max dimensions: Max length 120 cm");
   });
 
@@ -113,9 +113,9 @@ describe("Owner-approved Parcel Size bands v1", () => {
     }
 
     expect(PARCEL_SIZE_OPTIONS.map((o) => o.description)).toEqual([
-      "Weight: 0–1 kg",
-      "Weight: 1–2 kg",
-      "Weight: 2–15 kg",
+      "Weight: 0–1.00 kg",
+      "Weight: >1.00–2.00 kg",
+      "Weight: >2.00–15.00 kg",
     ]);
   });
 

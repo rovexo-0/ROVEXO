@@ -54,7 +54,9 @@ describe("Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0", () => {
     const icons = readSource("features/account-center/components/ProfileMenuIcons.tsx");
     const colors = readSource("lib/account-center/profile-icon-system-v1.ts");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(icons).toContain("function Lightbulb");
+    expect(icons).toContain("PROFILE_ICON_EMOJI");
+    expect(icons).toContain("PlatformEmoji");
+    expect(icons).toContain("ideas");
     expect(colors).toContain('ideas: "#FFD54A"');
     expect(css).not.toContain("ac-canonical__menu-row--ideas");
   });

@@ -8,6 +8,7 @@
 
 import "server-only";
 
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { isMarketplaceFollowAuthorized } from "@/lib/social/social-system-removal-v1";
@@ -56,7 +57,7 @@ async function getWriteClient() {
  * SSOT counts = number of rows in user_follows only.
  * Fail-closed to zero if the table is unavailable (never profile columns).
  */
-export async function getFollowCounts(userId: string): Promise<FollowCounts> {
+export const getFollowCounts = cache(async function getFollowCounts(userId: string): Promise<FollowCounts> {
   if (!userId) return { followerCount: 0, followingCount: 0 };
   const client = await getWriteClient();
 
@@ -79,7 +80,7 @@ export async function getFollowCounts(userId: string): Promise<FollowCounts> {
     followerCount: followersRes.count ?? 0,
     followingCount: followingRes.count ?? 0,
   };
-}
+});
 
 export async function isFollowing(
   followerId: string,

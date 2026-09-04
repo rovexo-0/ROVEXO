@@ -3,9 +3,30 @@ import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { applyOrderRefundLifecycle } from "@/lib/orders/refund-lifecycle.server";
 import { mustUseVirtualPayments } from "@/lib/full-demo/security";
 import { ROVEXO_WALLET_REFUND_METHOD } from "@/lib/wallet/security";
+import {
+  fromRefundPence,
+  isOrderFullyRefunded,
+  refundableGbp,
+  remainingRefundableGbp,
+  resolveRefundIntentAmountGbp,
+  toRefundPence,
+} from "@/lib/stripe/refund-math-v1";
+import {
+  policyMaxRefundablePence,
+  resolveBuyerProtectionAwareRefundGbp,
+  type BuyerProtectionRefundReason,
+  buildOrderFinancialBreakdownPence,
+} from "@/lib/orders/buyer-protection-refund-v1";
 
 export const ZERO_CAPTURE_ERROR = "No captured payment to refund.";
 export const CAPTURE_UNVERIFIED_ERROR = "Unable to verify captured payment.";
+
+export {
+  refundableGbp,
+  remainingRefundableGbp,
+  resolveRefundIntentAmountGbp,
+  isOrderFullyRefunded,
+} from "@/lib/stripe/refund-math-v1";
 
 export function isZeroCaptureRefundError(error: string | undefined): boolean {
   return error === ZERO_CAPTURE_ERROR;
@@ -19,20 +40,6 @@ function isVirtualPaymentIntentId(paymentIntentId: string | null | undefined): b
     paymentIntentId.startsWith("demo_pay_") ||
     paymentIntentId.startsWith("virtual_")
   );
-}
-
-function toPence(gbp: number): number {
-  return Math.round(gbp * 100);
-}
-
-function fromPence(pence: number): number {
-  return Math.round(pence) / 100;
-}
-
-function refundableGbp(orderTotalGbp: number, capturedPence: number): number {
-  const orderTotalPence = toPence(orderTotalGbp);
-  const refundablePence = Math.min(orderTotalPence, Math.max(0, Math.round(capturedPence)));
-  return fromPence(refundablePence);
 }
 
 function readChargeAmountCapturedPence(charge: unknown): number | null {
@@ -117,7 +124,7 @@ async function retrieveVirtualCapturedAmountPence(input: {
 
     const capturedPence = (data ?? []).reduce((sum, row) => {
       if (!isVirtualBuyerDebitRow(row)) return sum;
-      return sum + toPence(Math.abs(Number(row.amount)));
+      return sum + toRefundPence(Math.abs(Number(row.amount)));
     }, 0);
 
     return { ok: true, amountPence: capturedPence };
@@ -127,37 +134,32 @@ async function retrieveVirtualCapturedAmountPence(input: {
   }
 }
 
-async function applyVirtualOrderRefund(
-  orderId: string,
-  amount: number,
-  options?: { notifySeller?: boolean },
-): Promise<{ refundId: string; refundedAmount: number; refundedAt?: string; skipped: true }> {
-  const admin = createAdminClient();
-  const refundId = `virtual-refund-${orderId}`;
-  await applyOrderRefundLifecycle({
-    orderId,
-    refundId,
-    amount,
-    stripeStatus: "succeeded",
-    paymentMethod: ROVEXO_WALLET_REFUND_METHOD,
-    notifySeller: options?.notifySeller,
-  });
-  const { data: updated } = await admin
-    .from("orders")
-    .select("refund_completed_at")
-    .eq("id", orderId)
-    .maybeSingle();
-  return {
-    refundId,
-    refundedAmount: amount,
-    refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
-    skipped: true,
-  };
-}
-
+/**
+ * Canonical ROVEXO order refund (wallet-credit path).
+ * Does NOT call Stripe card Refunds API by default.
+ *
+ * Buyer Protection (`orders.protected_fee`) is platform-owned and NOT refunded
+ * unless `reason === "PLATFORM_ERROR"`. Refund amount is always ROVEXO-calculated
+ * — never PaymentIntent.amount automatically.
+ *
+ * Idempotency:
+ * - Eligible amount already refunded → return existing
+ * - Same intent retry → lifecycle / wallet keys
+ * - Partial: amountGbp required for intentional partial; omit = remaining eligible
+ */
 export async function createOrderStripeRefund(
   orderId: string,
-  options?: { notifySeller?: boolean },
+  options?: {
+    notifySeller?: boolean;
+    /** Partial refund amount in GBP. Omit for full remaining eligible. */
+    amountGbp?: number;
+    idempotencyKey?: string | null;
+    /**
+     * Refund reason controlling Buyer Protection fee eligibility.
+     * Default OTHER → fee retained. Only PLATFORM_ERROR may refund the fee.
+     */
+    reason?: BuyerProtectionRefundReason;
+  },
 ): Promise<
   | { refundId: string; refundedAmount?: number; refundedAt?: string; skipped?: boolean }
   | { error: string; skipped?: boolean }
@@ -165,7 +167,9 @@ export async function createOrderStripeRefund(
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, order_number, stripe_payment_intent_id, stripe_refund_id, refunded_amount, total, buyer_id, seller_id")
+    .select(
+      "id, order_number, stripe_payment_intent_id, stripe_refund_id, refunded_amount, total, item_price, delivery_fee, protected_fee, buyer_id, seller_id",
+    )
     .eq("id", orderId)
     .maybeSingle();
 
@@ -173,11 +177,27 @@ export async function createOrderStripeRefund(
     return { error: "Order not found." };
   }
 
-  if (order.stripe_refund_id) {
-    const alreadyRefunded = Number(order.refunded_amount);
-    if (!Number.isFinite(alreadyRefunded) || alreadyRefunded <= 0) {
-      return { error: CAPTURE_UNVERIFIED_ERROR };
-    }
+  const alreadyRefunded = Number(order.refunded_amount ?? 0);
+  const orderTotalGbp = Number(order.total);
+  const itemPriceGbp = Number(order.item_price ?? 0);
+  const deliveryFeeGbp = Number(order.delivery_fee ?? 0);
+  const protectedFeeGbp = Number(order.protected_fee ?? 0);
+  const reason: BuyerProtectionRefundReason = options?.reason ?? "OTHER";
+
+  const breakdown = buildOrderFinancialBreakdownPence({
+    itemPriceGbp,
+    deliveryFeeGbp,
+    protectedFeeGbp,
+    totalGbp: orderTotalGbp,
+  });
+  const policyCeilingGbp = fromRefundPence(policyMaxRefundablePence(breakdown, reason));
+
+  /* Eligible amount fully refunded — idempotent success (fee may still be retained). */
+  if (
+    order.stripe_refund_id &&
+    (isOrderFullyRefunded(alreadyRefunded, orderTotalGbp) ||
+      isOrderFullyRefunded(alreadyRefunded, policyCeilingGbp))
+  ) {
     return {
       refundId: order.stripe_refund_id,
       refundedAmount: alreadyRefunded,
@@ -185,10 +205,18 @@ export async function createOrderStripeRefund(
     };
   }
 
-  const orderTotalGbp = Number(order.total);
+  /*
+   * Refund id present but amount missing/invalid — fail closed.
+   * Do not invent order.total as the refunded amount.
+   */
+  if (order.stripe_refund_id && (!Number.isFinite(alreadyRefunded) || alreadyRefunded <= 0)) {
+    return { error: CAPTURE_UNVERIFIED_ERROR };
+  }
+
   const virtualPi = isVirtualPaymentIntentId(order.stripe_payment_intent_id);
   const virtualPath = virtualPi || mustUseVirtualPayments() || !isStripeConfigured();
 
+  let capturedPence: number;
   if (virtualPath) {
     const virtualCapture = await retrieveVirtualCapturedAmountPence({
       buyerId: order.buyer_id,
@@ -200,37 +228,99 @@ export async function createOrderStripeRefund(
     if (virtualCapture.amountPence <= 0) {
       return { error: ZERO_CAPTURE_ERROR };
     }
-    const amount = refundableGbp(orderTotalGbp, virtualCapture.amountPence);
-    if (amount <= 0) {
+    capturedPence = virtualCapture.amountPence;
+  } else {
+    if (!order.stripe_payment_intent_id) {
+      return { error: "No payment intent found for this order." };
+    }
+    const liveCapture = await retrieveLiveCapturedAmountPence(order.stripe_payment_intent_id);
+    if (!liveCapture.ok) {
+      return { error: CAPTURE_UNVERIFIED_ERROR };
+    }
+    if (liveCapture.amountPence <= 0) {
       return { error: ZERO_CAPTURE_ERROR };
     }
-    return applyVirtualOrderRefund(orderId, amount, options);
+    capturedPence = liveCapture.amountPence;
   }
 
-  if (!order.stripe_payment_intent_id) {
-    return { error: "No payment intent found for this order." };
+  const maxRefundableGbp = refundableGbp(orderTotalGbp, capturedPence);
+  const policyAware = resolveBuyerProtectionAwareRefundGbp({
+    itemPriceGbp,
+    deliveryFeeGbp,
+    protectedFeeGbp,
+    totalGbp: orderTotalGbp,
+    alreadyRefundedGbp: Number.isFinite(alreadyRefunded) ? alreadyRefunded : 0,
+    maxRefundableGbp,
+    reason,
+    amountGbp: options?.amountGbp,
+  });
+  if (!policyAware.ok) {
+    if (policyAware.error === "No remaining refundable amount.") {
+      return {
+        refundId: order.stripe_refund_id ?? `wallet-refund-${orderId}`,
+        refundedAmount: alreadyRefunded,
+        skipped: true,
+      };
+    }
+    return { error: policyAware.error };
+  }
+  const amount = policyAware.amountGbp;
+  const remainingGbp = remainingRefundableGbp(
+    Math.min(maxRefundableGbp, policyCeilingGbp),
+    Number.isFinite(alreadyRefunded) ? alreadyRefunded : 0,
+  );
+
+  if (!(amount > 0) || remainingGbp <= 0) {
+    return {
+      refundId: order.stripe_refund_id ?? `wallet-refund-${orderId}`,
+      refundedAmount: alreadyRefunded,
+      skipped: true,
+    };
   }
 
-  const liveCapture = await retrieveLiveCapturedAmountPence(order.stripe_payment_intent_id);
-  if (!liveCapture.ok) {
-    return { error: CAPTURE_UNVERIFIED_ERROR };
+  // Keep resolveRefundIntentAmountGbp as a final clamp against remaining eligible.
+  const resolved = resolveRefundIntentAmountGbp({
+    remainingGbp,
+    amountGbp: amount,
+  });
+  if (!resolved.ok) {
+    return { error: resolved.error };
   }
-  if (liveCapture.amountPence <= 0) {
-    return { error: ZERO_CAPTURE_ERROR };
+  const amountFinal = resolved.amountGbp;
+
+  const isPartial = amountFinal + 0.0001 < remainingGbp || alreadyRefunded > 0;
+  const refundSeq = Math.round(toRefundPence(alreadyRefunded + amountFinal));
+  const refundId =
+    options?.idempotencyKey?.trim() ||
+    (isPartial ? `wallet-refund-${orderId}-${refundSeq}` : `wallet-refund-${orderId}`);
+
+  if (virtualPath) {
+    await applyOrderRefundLifecycle({
+      orderId,
+      refundId,
+      amount: amountFinal,
+      stripeStatus: "succeeded",
+      paymentMethod: ROVEXO_WALLET_REFUND_METHOD,
+      notifySeller: options?.notifySeller,
+    });
+    const { data: updated } = await admin
+      .from("orders")
+      .select("refund_completed_at, refunded_amount")
+      .eq("id", orderId)
+      .maybeSingle();
+    return {
+      refundId,
+      refundedAmount: amountFinal,
+      refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
+      skipped: true,
+    };
   }
 
-  const amount = refundableGbp(orderTotalGbp, liveCapture.amountPence);
-  if (amount <= 0) {
-    return { error: ZERO_CAPTURE_ERROR };
-  }
-
-  // ROVEXO wallet-credit path: do NOT create a Stripe card refund.
-  // One financial outcome — wallet credit (idempotent) — then existing Withdraw.
-  const refundId = `wallet-refund-${orderId}`;
+  // ROVEXO wallet-credit path: do NOT create a Stripe card refund by default.
   const status = await applyOrderRefundLifecycle({
     orderId,
     refundId,
-    amount,
+    amount: amountFinal,
     stripeStatus: "succeeded",
     paymentMethod: ROVEXO_WALLET_REFUND_METHOD,
     notifySeller: options?.notifySeller,
@@ -244,7 +334,10 @@ export async function createOrderStripeRefund(
 
   return {
     refundId,
-    refundedAmount: amount,
+    refundedAmount: amountFinal,
     refundedAt: status === "completed" ? updated?.refund_completed_at ?? new Date().toISOString() : undefined,
   };
 }
+
+/** @internal test/export alias — pence helpers used by capture verification contracts */
+export { fromRefundPence as fromPence, toRefundPence as toPence };

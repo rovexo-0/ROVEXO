@@ -69,6 +69,7 @@ describe("Master Menu Design — Selling", () => {
     expect(SELLING_HUB_INTRO).toBe("Manage everything you sell.");
     const titles = buildSellingMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
+      "Seller setup",
       "Listings",
       "Orders",
       "Reviews",
@@ -91,10 +92,10 @@ describe("Master Menu Design — Business", () => {
       "Orders",
       "Inventory",
       "Analytics",
-      "Reviews",
       "Wallet",
       "VAT",
-      "Directory",
+      "Store",
+      "Promote",
     ]);
   });
 });

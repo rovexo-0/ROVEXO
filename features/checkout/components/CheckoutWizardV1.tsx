@@ -160,6 +160,16 @@ export function CheckoutWizardV1({
     };
   }, []);
 
+  useEffect(() => {
+    if (
+      draft.paymentMethod === "rovexo_balance" &&
+      availableBalance != null &&
+      availableBalance < totals.total
+    ) {
+      updateDraft({ paymentMethod: "card" });
+    }
+  }, [availableBalance, draft.paymentMethod, totals.total, updateDraft]);
+
   const shippingPrice = product.freeDelivery ? 0 : totals.delivery;
   const shippingMethodLabel = product.freeDelivery
     ? "Free delivery"
@@ -175,6 +185,14 @@ export function CheckoutWizardV1({
   const paymentMethod: PaymentMethodId =
     draft.paymentMethod === "rovexo_balance" ? "rovexo_balance" : "card";
 
+  const walletBalanceSufficient =
+    availableBalance != null &&
+    Number.isFinite(availableBalance) &&
+    availableBalance >= totals.total;
+
+  const walletPaymentUnavailable =
+    paymentMethod === "rovexo_balance" && !walletBalanceSufficient;
+
   const footerDisabled =
     !canPay ||
     isSubmitting ||
@@ -183,6 +201,7 @@ export function CheckoutWizardV1({
     shippingBlocked ||
     !addressComplete ||
     !deliveryResolved ||
+    walletPaymentUnavailable ||
     (activeDeliveryMode === "ship_home" &&
       !product.freeDelivery &&
       !liveQuotesAttempted &&
@@ -454,12 +473,16 @@ export function CheckoutWizardV1({
                 type="button"
                 role="radio"
                 aria-checked={paymentMethod === "rovexo_balance"}
+                aria-disabled={!walletBalanceSufficient}
                 className={
                   paymentMethod === "rovexo_balance"
                     ? "ckt-v1__option ckt-v1__option--selected"
                     : "ckt-v1__option"
                 }
-                onClick={() => updateDraft({ paymentMethod: "rovexo_balance" })}
+                onClick={() => {
+                  if (!walletBalanceSufficient) return;
+                  updateDraft({ paymentMethod: "rovexo_balance" });
+                }}
               >
                 <span className="ckt-v1__option-icon" aria-hidden>
                   <WalletLineIcon />
@@ -467,10 +490,11 @@ export function CheckoutWizardV1({
                 <span className="ckt-v1__option-copy ckt-v1__option-copy--stacked">
                   <span className="ckt-v1__option-title">Rovexo Balance</span>
                   <span className="ckt-v1__option-detail">
-                    Available Balance{" "}
                     {availableBalance != null
-                      ? formatListingPrice(availableBalance)
-                      : "£0.00"}
+                      ? walletBalanceSufficient
+                        ? `Available Balance ${formatListingPrice(availableBalance)}`
+                        : `Insufficient · ${formatListingPrice(availableBalance)} available`
+                      : "Available Balance £0.00"}
                   </span>
                 </span>
                 <span className="ckt-v1__option-radio" aria-hidden />

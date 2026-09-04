@@ -27,6 +27,8 @@ import {
   type RovexoIdeaStatus,
 } from "@/lib/rovexo-ideas/types";
 import { cn } from "@/lib/cn";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 const FILTERS: Array<{ id: RovexoIdeasFilter; label: string }> = [
   { id: "top", label: "Top Ideas" },
@@ -50,59 +52,30 @@ function formatRelative(iso: string): string {
 }
 
 function IconClose() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.close} size={16} />;
 }
 
 function IconBulb() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.8c.7.5 1.1 1.2 1.2 2.2h4.6c.1-1 .5-1.7 1.2-2.2A6 6 0 0 0 12 3Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.ideas} size={18} />;
 }
 
 function IconThumb({ down = false }: { down?: boolean }) {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
+    <PlatformEmoji
+      emoji="👍"
+      size={18}
       style={down ? { transform: "rotate(180deg)" } : undefined}
-    >
-      <path
-        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h10.3a2 2 0 0 0 2-1.7l1.4-8A2 2 0 0 0 18.7 9H14ZM7 22H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    />
   );
 }
 
 function IconStar({ filled = false }: { filled?: boolean }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
-      <path
-        d="m12 3.5 2.7 5.5 6 .9-4.4 4.2 1 6L12 17.5 6.7 20l1-6L3.3 9.9l6-.9L12 3.5Z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <PlatformEmoji
+      emoji={PLATFORM_EMOJI.star}
+      size={14}
+      style={filled ? undefined : { opacity: 0.35 }}
+    />
   );
 }
 

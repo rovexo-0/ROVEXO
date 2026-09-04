@@ -49,9 +49,26 @@ export function runProductionBuild(env = process.env) {
 
 function removeProductionBuild(cwd = process.cwd()) {
   const nextDir = path.join(cwd, ".next");
-  if (fs.existsSync(nextDir)) {
-    fs.rmSync(nextDir, { recursive: true, force: true });
+  if (!fs.existsSync(nextDir)) return;
+  // Rename first so concurrent readers/writers do not trip ENOTEMPTY on in-place rm.
+  const trash = path.join(cwd, `.next-trash-${process.pid}-${Date.now()}`);
+  try {
+    fs.renameSync(nextDir, trash);
+  } catch {
+    // Directory busy — fall through to direct rm with retries.
   }
+  const target = fs.existsSync(trash) ? trash : nextDir;
+  let lastError;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true, maxRetries: 15, retryDelay: 100 });
+      return;
+    } catch (error) {
+      lastError = error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 150 * (attempt + 1));
+    }
+  }
+  throw lastError;
 }
 
 /**
@@ -62,9 +79,14 @@ function removeProductionBuild(cwd = process.cwd()) {
 export function ensureProductionBuild(webServerEnv) {
   loadDotEnvFiles();
   const staleSources = [
+    "middleware.ts",
+    "lib/ops/security-headers.ts",
+    "lib/checkout/engines/checkout-session-engine-v1.ts",
+    "lib/api/csrf-guard.ts",
     "features/sell/types.ts",
     "features/sell/context/SellProvider.tsx",
     "lib/homepage/homepage-eligibility.ts",
+    "lib/homepage/homepage-test-listing-exclusion-v1.ts",
     "lib/profile/auto-verified.ts",
     "features/sell/ui/SellScreen.tsx",
     "features/sell/ui/SellProgressiveAttributes.tsx",

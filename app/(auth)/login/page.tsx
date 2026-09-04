@@ -19,13 +19,14 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { next, error } = await searchParams;
+  const oauthProvidersPromise = loadPublicOauthProviders();
   await redirectIfAuthenticated(next);
 
   const initialError = error
     ? AUTH_ERROR_MESSAGES[error] ?? "Unable to sign in. Please try again."
     : undefined;
 
-  const oauthProviders = await loadPublicOauthProviders();
+  const oauthProviders = await oauthProvidersPromise;
 
   return (
     <LoginScreen

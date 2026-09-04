@@ -1,10 +1,8 @@
 /**
- * ROVEXO Visit Store v2.0 — Compact Owner Freeze
- * Route ONLY: `/store/[slug]`
+ * ROVEXO Visit Store — `/store/[slug]` only.
  * Never used by Profile `/user/[username]`.
  *
- * First screen: Hero → Identity → Meta → Share/Report (+ Follow) → Tabs → Listings.
- * Removed: intermediate info cards · Message CTA · profile shortcut · listing filter control.
+ * No Store Cover/banner. Starts at avatar + identity · Follow / Message / Share · listings.
  */
 
 "use client";
@@ -36,33 +34,13 @@ import {
   STORE_V2_VERSION,
 } from "@/lib/store/store-v2-final-v1";
 import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
-import { ShareIcon } from "@/features/product-detail/icons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { copyText } from "@/lib/store-sharing/store-share-v1";
 import { StoreShopBundles } from "@/features/store/components/StoreShopBundles";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import "@/styles/rovexo/store-visit-v2.css";
-
-/** Discrete flag icon — Store hero only (20–22px purple, no chrome). */
-function ReportFlagIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      width={22}
-      height={22}
-      aria-hidden
-    >
-      <path d="M5 21V4" />
-      <path d="M5 4h11l-1.5 4L16 12H5" />
-    </svg>
-  );
-}
 
 type MainTab = "listings" | "reviews";
 
@@ -157,6 +135,9 @@ export function StoreVisitPageV2({
     useState<(typeof REPORT_REASONS)[number]>(REPORT_REASONS[0]);
   const [reportDetails, setReportDetails] = useState("");
   const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const ignoreOverflowBackdropClickRef = useRef(false);
+  const [messageBusy, setMessageBusy] = useState(false);
 
   if (store.sellerId !== storeId) {
     setStoreId(store.sellerId);
@@ -171,7 +152,10 @@ export function StoreVisitPageV2({
     setFollowingCount(counts.followingCount);
   }, []);
 
-  const activeListings = loadFailed ? [] : listings;
+  const activeListings = useMemo(
+    () => (loadFailed ? [] : listings),
+    [loadFailed, listings],
+  );
   const reviewCount = Math.max(0, store.reviewCount, reviews.length);
   const averageRating =
     store.reviewCount > 0 && store.rating > 0
@@ -254,6 +238,37 @@ export function StoreVisitPageV2({
     );
   }, [copyStoreLinkFallback, store.storeName, storeSharePath]);
 
+  const handleMessage = useCallback(async () => {
+    if (messageBusy) return;
+    const productSlug = activeListings[0]?.slug;
+    if (!productSlug) {
+      pushToast({ title: "Messaging is temporarily unavailable.", variant: "error" });
+      return;
+    }
+    setMessageBusy(true);
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productSlug }),
+      });
+      const payload = (await response.json().catch(() => null)) as { href?: string } | null;
+      if (response.status === 401) {
+        router.push(`/login?next=${encodeURIComponent(storeSharePath)}`);
+        return;
+      }
+      if (!response.ok || !payload?.href) {
+        pushToast({ title: "Messaging is temporarily unavailable.", variant: "error" });
+        return;
+      }
+      router.push(payload.href);
+    } catch {
+      pushToast({ title: "Messaging is temporarily unavailable.", variant: "error" });
+    } finally {
+      setMessageBusy(false);
+    }
+  }, [activeListings, messageBusy, pushToast, router, storeSharePath]);
+
   const submitReport = useCallback(async () => {
     setReportSubmitting(true);
     try {
@@ -285,7 +300,7 @@ export function StoreVisitPageV2({
   return (
     <BetaAppShell>
       <div
-        className="sv2"
+        className={cn("sv2", overflowOpen && "sv2--overflow-open")}
         data-store-version={STORE_V2_VERSION}
         data-store-canonical={STORE_V2_CANONICAL}
         data-store-freeze="PRODUCTION_FREEZE_ACTIVE"
@@ -297,37 +312,94 @@ export function StoreVisitPageV2({
           centeredTitle="Store"
           fallbackHref="/search"
           backLabel="Back"
-          closeFallbackHref="/"
+          rightAction={
+            <button
+              type="button"
+              className={cn("sv2__overflow-btn", focusRing)}
+              aria-label="Store menu"
+              aria-expanded={overflowOpen}
+              data-store-header-overflow="v1"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                ignoreOverflowBackdropClickRef.current = true;
+                setOverflowOpen((open) => !open);
+                window.setTimeout(() => {
+                  ignoreOverflowBackdropClickRef.current = false;
+                }, 0);
+              }}
+            >
+              <PlatformEmoji emoji={PLATFORM_EMOJI.more} size={22} />
+            </button>
+          }
         />
-
-        <HubPageMain className="sv2__main">
-          <div className="sv2__banner" aria-hidden data-store-hero-banner="v2" />
-
-          <section className="sv2__hero" data-store-hero="v2" data-store-mobile-canonical="v2.0">
-            <div className="sv2__hero-icons" role="group" aria-label="Store actions">
-              <button
-                type="button"
-                className={cn("sv2__icon-btn", "sv2__icon-btn--share", focusRing)}
-                aria-label="Share store"
-                data-store-share="v2"
-                onClick={() => {
-                  handleShare();
-                }}
-              >
-                <ShareIcon size={22} className="sv2__icon" />
-              </button>
-              {!isOwnStore ? (
+        {overflowOpen ? (
+          <>
+            <button
+              type="button"
+              className="sv2__overflow-backdrop"
+              aria-label="Close store menu"
+              onClick={() => {
+                if (ignoreOverflowBackdropClickRef.current) return;
+                setOverflowOpen(false);
+              }}
+            />
+            <div
+              className="sv2__overflow-menu"
+              role="menu"
+              data-store-overflow-menu="v1"
+              data-store-overflow-role={isOwnStore ? "owner" : "visitor"}
+            >
+              {isOwnStore ? (
+                <>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="sv2__overflow-item"
+                    aria-label="Share Store"
+                    data-store-overflow-owner="share"
+                    onClick={() => {
+                      setOverflowOpen(false);
+                      handleShare();
+                    }}
+                  >
+                    Share Store
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="sv2__overflow-item"
+                    aria-label="Edit Store"
+                    data-store-overflow-owner="edit"
+                    onClick={() => {
+                      setOverflowOpen(false);
+                      router.push("/account/edit-profile");
+                    }}
+                  >
+                    Edit Store
+                  </button>
+                </>
+              ) : (
                 <button
                   type="button"
-                  className={cn("sv2__icon-btn", focusRing)}
+                  role="menuitem"
+                  className="sv2__overflow-item"
                   aria-label="Report store"
-                  onClick={() => setReportOpen(true)}
+                  data-store-overflow-visitor="report"
+                  onClick={() => {
+                    setOverflowOpen(false);
+                    setReportOpen(true);
+                  }}
                 >
-                  <ReportFlagIcon className="sv2__icon" />
+                  Report
                 </button>
-              ) : null}
+              )}
             </div>
+          </>
+        ) : null}
 
+        <HubPageMain className="sv2__main">
+          <section className="sv2__hero" data-store-hero="v2" data-store-mobile-canonical="v2.0">
             <div className="sv2__avatar-wrap">
               <Avatar
                 src={store.avatarUrl}
@@ -378,8 +450,8 @@ export function StoreVisitPageV2({
               <span>{memberSinceYear(memberSinceLabel)}</span>
             </div>
 
-            {!isOwnStore ? (
-              <div className="sv2__actions sv2__actions--follow-only">
+            <div className={cn("sv2__actions", isOwnStore && "sv2__actions--own")}>
+              {!isOwnStore ? (
                 <div className="sv2__follow-slot">
                   <FollowButton
                     userId={store.sellerId}
@@ -390,8 +462,31 @@ export function StoreVisitPageV2({
                     storeCta
                   />
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+              {!isOwnStore ? (
+                <button
+                  type="button"
+                  className={cn("sv2__action-btn", "sv2__action-btn--message", focusRing)}
+                  disabled={messageBusy}
+                  onClick={() => void handleMessage()}
+                >
+                  <PlatformEmoji emoji={PLATFORM_EMOJI.chat} size={16} />
+                  Message
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className={cn("sv2__action-btn", "sv2__action-btn--share", focusRing)}
+                aria-label="Share store"
+                data-store-share="v2"
+                onClick={() => {
+                  handleShare();
+                }}
+              >
+                <PlatformEmoji emoji={PLATFORM_EMOJI.share} size={16} />
+                Share
+              </button>
+            </div>
           </section>
 
           <nav className="sv2__tabs" aria-label="Store sections" role="tablist">

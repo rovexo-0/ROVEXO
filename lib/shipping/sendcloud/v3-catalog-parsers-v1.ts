@@ -14,6 +14,7 @@ import type {
   SendcloudV3RouteAwareSelection,
 } from "@/lib/shipping/sendcloud/v3-catalog-types-v1";
 import type { SendcloudV3QuoteMetadata } from "@/lib/shipping/sendcloud/types";
+import { separateShippingPricesPence } from "@/lib/shipping/pricing/buyer-shipping-price-v1";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === "object" && !Array.isArray(v)
@@ -74,12 +75,41 @@ export function coerceShippingQuotePayload(
       ? quoteApiVersionRaw
       : undefined;
 
+  const providerRaw =
+    row.providerShippingCostPence ?? row.provider_shipping_cost_pence;
+  const buyerRaw = row.buyerShippingPricePence ?? row.buyer_shipping_price_pence;
+  const marginRaw = row.rovexoMarginPence ?? row.rovexo_margin_pence;
+  const labelCountRaw = row.labelCount ?? row.label_count;
+
+  const providerShippingCostPence =
+    typeof providerRaw === "number" && Number.isFinite(providerRaw) && providerRaw >= 0
+      ? Math.trunc(providerRaw)
+      : undefined;
+  const buyerShippingPricePence =
+    typeof buyerRaw === "number" && Number.isFinite(buyerRaw) && buyerRaw >= 0
+      ? Math.trunc(buyerRaw)
+      : undefined;
+  const rovexoMarginPence =
+    typeof marginRaw === "number" && Number.isFinite(marginRaw) && marginRaw >= 0
+      ? Math.trunc(marginRaw)
+      : undefined;
+  const labelCount =
+    typeof labelCountRaw === "number" &&
+    Number.isFinite(labelCountRaw) &&
+    labelCountRaw >= 1
+      ? Math.trunc(labelCountRaw)
+      : undefined;
+
   return {
     externalQuoteId,
     ...(v2MethodId != null ? { v2MethodId } : {}),
     ...(shippingOptionCode ? { shippingOptionCode } : {}),
     ...(contractId ? { contractId } : {}),
     ...(quoteApiVersion ? { quoteApiVersion } : {}),
+    ...(providerShippingCostPence != null ? { providerShippingCostPence } : {}),
+    ...(buyerShippingPricePence != null ? { buyerShippingPricePence } : {}),
+    ...(rovexoMarginPence != null ? { rovexoMarginPence } : {}),
+    ...(labelCount != null ? { labelCount } : {}),
   };
 }
 
@@ -144,7 +174,17 @@ export function resolveShippingQuoteApiVersion(input: {
   return "v2";
 }
 
-export function buildShippingQuotePayload(quote: ShippingQuote): ShippingQuotePayload {
+export function buildShippingQuotePayload(
+  quote: ShippingQuote,
+  options?: {
+    labelCount?: number;
+    /**
+     * Paid-order lock: never recalculate / overwrite buyer shipping after payment.
+     * Provider + margin still update for real labelCount ledger.
+     */
+    lockedBuyerShippingPricePence?: number;
+  },
+): ShippingQuotePayload {
   const externalQuoteId = String(quote.id);
   const v2MethodId =
     quote.v2MethodId != null && Number.isFinite(quote.v2MethodId) && quote.v2MethodId > 0
@@ -164,12 +204,29 @@ export function buildShippingQuotePayload(quote: ShippingQuote): ShippingQuotePa
     quote.quoteApiVersion ??
     resolveShippingQuoteApiVersion({ shippingOptionCode, v2MethodId });
 
+  const providerShippingCostPence = Math.max(0, Math.trunc(quote.pricePence));
+  const separated = separateShippingPricesPence({
+    providerShippingCostPence,
+    labelCount: options?.labelCount ?? 1,
+  });
+
+  const lockedBuyer =
+    typeof options?.lockedBuyerShippingPricePence === "number" &&
+    Number.isFinite(options.lockedBuyerShippingPricePence) &&
+    options.lockedBuyerShippingPricePence >= 0
+      ? Math.trunc(options.lockedBuyerShippingPricePence)
+      : null;
+
   return {
     externalQuoteId,
     ...(v2MethodId != null ? { v2MethodId } : {}),
     ...(shippingOptionCode ? { shippingOptionCode } : {}),
     ...(contractId ? { contractId } : {}),
     quoteApiVersion,
+    providerShippingCostPence: separated.providerShippingCostPence,
+    buyerShippingPricePence: lockedBuyer ?? separated.buyerShippingPricePence,
+    rovexoMarginPence: separated.rovexoMarginPence,
+    labelCount: separated.labelCount,
   };
 }
 

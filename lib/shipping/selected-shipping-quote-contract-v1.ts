@@ -12,6 +12,10 @@ import {
   resolveShippingQuoteApiVersion,
 } from "@/lib/shipping/sendcloud/v3-catalog-parsers-v1";
 import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import {
+  separateShippingPricesPence,
+  toBuyerShippingPricePence,
+} from "@/lib/shipping/pricing/buyer-shipping-price-v1";
 import type {
   ShippingQuote,
   ShippingQuoteApiVersion,
@@ -58,15 +62,35 @@ export function shippingQuoteFromCheckoutCarrierQuote(
     normalizeQuoteApiVersion(quote.quoteApiVersion) ??
     resolveShippingQuoteApiVersion({ shippingOptionCode, v2MethodId });
 
+  const providerPricePence =
+    typeof quote.providerPricePence === "number" && Number.isFinite(quote.providerPricePence)
+      ? Math.max(0, Math.trunc(quote.providerPricePence))
+      : null;
+
+  // Fail closed: never invent provider cost from buyerPricePence / price (buyer fee).
+  if (providerPricePence == null) {
+    return {
+      id: quote.id,
+      providerId: isSendcloudQuoteId(quote.id) ? "sendcloud" : "checkout",
+      carrier: quote.carrier,
+      serviceName: quote.serviceName,
+      pricePence: 0,
+      currency: "GBP",
+      estimatedDays: { min: 1, max: 5 },
+      ...(v2MethodId != null ? { v2MethodId } : {}),
+      ...(shippingOptionCode ? { shippingOptionCode } : {}),
+      ...(contractId ? { contractId } : {}),
+      quoteApiVersion,
+    };
+  }
+
   return {
     id: quote.id,
     providerId: isSendcloudQuoteId(quote.id) ? "sendcloud" : "checkout",
     carrier: quote.carrier,
     serviceName: quote.serviceName,
-    pricePence:
-      typeof quote.buyerPricePence === "number" && Number.isFinite(quote.buyerPricePence)
-        ? Math.max(0, Math.trunc(quote.buyerPricePence))
-        : Math.round(Math.max(0, Number(quote.price) || 0) * 100),
+    // ShippingQuote.pricePence is ALWAYS the provider cost — never buyer delivery_fee.
+    pricePence: providerPricePence,
     currency: "GBP",
     estimatedDays: { min: 1, max: 5 },
     ...(v2MethodId != null ? { v2MethodId } : {}),
@@ -83,7 +107,27 @@ export function buildSelectedShippingQuotePayload(
   if ("pricePence" in quote) {
     return buildShippingQuotePayload(quote);
   }
-  return buildShippingQuotePayload(shippingQuoteFromCheckoutCarrierQuote(quote));
+  const shippingQuote = shippingQuoteFromCheckoutCarrierQuote(quote);
+  const base = buildShippingQuotePayload(shippingQuote);
+  const provider =
+    typeof quote.providerPricePence === "number" && Number.isFinite(quote.providerPricePence)
+      ? Math.max(0, Math.trunc(quote.providerPricePence))
+      : shippingQuote.pricePence;
+  const buyer =
+    typeof quote.buyerPricePence === "number" && Number.isFinite(quote.buyerPricePence)
+      ? Math.max(0, Math.trunc(quote.buyerPricePence))
+      : toBuyerShippingPricePence(provider, 1);
+  const separated = separateShippingPricesPence({
+    providerShippingCostPence: provider,
+    labelCount: 1,
+  });
+  return {
+    ...base,
+    providerShippingCostPence: separated.providerShippingCostPence,
+    buyerShippingPricePence: buyer,
+    rovexoMarginPence: separated.rovexoMarginPence,
+    labelCount: separated.labelCount,
+  };
 }
 
 function payloadFromUnknownQuoteSource(
@@ -345,7 +389,7 @@ export function buildLegacyBridgeShippingQuote(input: {
   const base: ShippingQuote = {
     id: input.quoteId,
     providerId: isSendcloudQuoteId(input.quoteId) ? "sendcloud" : "checkout",
-    carrier: input.carrier || "Royal Mail",
+    carrier: input.carrier.trim(),
     serviceName: input.serviceName || input.carrier || "Selected delivery",
     pricePence: Math.max(0, Math.round(input.pricePence)),
     currency: "GBP",

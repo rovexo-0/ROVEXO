@@ -167,6 +167,7 @@ describe("COD SÂNGE — Notification product thumbnails", () => {
   it("enrich batches conversation product images (no N+1)", () => {
     const enrich = readSource("lib/notifications/enrich-product-media.ts");
     expect(enrich).toContain("extractConversationIdFromNotificationHref");
+    expect(enrich).toContain("resolveCardImageSources");
     expect(enrich).toContain(".in(\"id\", [...conversationIds])");
     expect(enrich).not.toContain("for (const item of needs) {\n    await supabase");
     expect(enrich).not.toContain("notification_product_images");

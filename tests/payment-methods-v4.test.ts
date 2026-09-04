@@ -37,6 +37,9 @@ describe("Payment Methods v5.0 — Empty State Freeze + Fail Closed empty", () =
     expect(page).toContain("durationMs: 2500");
     expect(page).toContain("DEFAULT CARD");
     expect(page).toContain("create_setup_intent");
+    expect(page).toContain("create_billing_portal");
+    expect(page).toContain("Manage on Stripe");
+    expect(page).toContain("toastFromSetupError");
     expect(page).toContain("pushToast");
     expect(page).not.toContain("Card setup is temporarily paused");
     expect(page).not.toContain("Your payment methods remain secured by Stripe.");
@@ -45,10 +48,12 @@ describe("Payment Methods v5.0 — Empty State Freeze + Fail Closed empty", () =
     expect(page).not.toContain("FailClosedPanel");
     expect(page).not.toContain("FAIL_CLOSED_USER_MESSAGE");
     expect(page).not.toContain("Something went wrong");
-    expect(page).not.toContain("payload.error");
     expect(page).not.toContain("HTTP ${");
     expect(page).not.toContain("loadFailed");
     expect(page).not.toContain("pm-v4__card");
+    expect(page).not.toContain("error.message");
+    expect(page).not.toContain("sk_live");
+    expect(page).not.toContain("sk_test");
   });
 
   it("hides unavailable Apple Pay / Google Pay (no unavailable copy)", () => {

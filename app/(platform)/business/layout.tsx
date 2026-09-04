@@ -1,20 +1,8 @@
-import { redirect } from "next/navigation";
-import {
-  isV1BusinessUxRemoved,
-  PHASE_C_V1_BUSINESS_CLEANUP_V1,
-} from "@/lib/phase-c-v1-business-cleanup-v1";
-
 /**
- * Phase C — all `/business/*` end-user routes redirect to Personal Account.
- * Business hub implementation remains on disk for v2.0 (isolated / inactive).
+ * Business seller_context routes render in the PWA.
+ * Extra Account-nav Business Bank / search-businesses UX stays Phase-C hidden.
+ * This layout must not blanket-redirect `/business/*`.
  */
-export default function BusinessV1CleanupLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  if (isV1BusinessUxRemoved()) {
-    redirect(PHASE_C_V1_BUSINESS_CLEANUP_V1.redirectBusinessRoutesTo);
-  }
+export default function BusinessLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

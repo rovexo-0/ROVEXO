@@ -15,7 +15,66 @@
   color: var(--sv2-text);
 }
 
-/* Header = AccountCanonicalHeader (Orders SSOT). No Visit Store overrides. */
+/* Header = AccountCanonicalHeader. Store right slot is overflow ⋯ (Close remains default elsewhere). */
+
+.sv2--overflow-open .account-canonical-header {
+  z-index: 1;
+}
+
+.sv2__overflow-btn {
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--sv2-text);
+}
+
+.sv2__overflow-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.sv2__overflow-menu {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  right: 12px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  min-width: 168px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgb(15 23 42 / 0.16);
+  pointer-events: auto;
+}
+
+.sv2__overflow-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sv2-text);
+  font: 600 15px/1.2 inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sv2__overflow-item:hover,
+.sv2__overflow-item:focus-visible {
+  background: rgb(147 51 234 / 0.08);
+}
 
 .sv2__main {
   display: flex;
@@ -24,77 +83,29 @@
   padding: 16px 0 32px;
 }
 
-.sv2__banner {
-  width: 100%;
-  height: 72px;
-  margin: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgb(147 51 234 / 0.08) 0%, rgb(255 255 255 / 0) 100%),
-    linear-gradient(135deg, #faf5ff 0%, #ffffff 55%, #f8fafc 100%);
-  border-bottom: 1px solid var(--sv2-border);
-}
-
 .sv2__hero {
   position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  padding: 0 16px 12px;
-  margin-top: -36px;
-  text-align: center;
-}
-
-.sv2__hero-icons {
-  position: absolute;
-  top: 0;
-  right: 4px;
-  z-index: 50;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  pointer-events: auto;
-}
-
-.sv2__icon-btn {
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--sv2-purple);
-  cursor: pointer;
-  pointer-events: auto;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.sv2__icon {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  pointer-events: none;
+  padding: 16px 16px 12px;
+  margin-top: 0;
+  text-align: left;
 }
 
 .sv2__avatar-wrap {
   position: relative;
+  z-index: 1;
   display: inline-flex;
   margin-bottom: 2px;
 }
 
 .sv2__avatar {
-  width: 96px !important;
-  height: 96px !important;
-  box-shadow: 0 4px 16px rgb(15 23 42 / 0.08);
+  width: 88px !important;
+  height: 88px !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 0 0 2px var(--sv2-purple);
 }
 
 .sv2__avatar-verified {
@@ -116,12 +127,13 @@
   margin: 0;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
   flex-wrap: wrap;
   font-size: 20px;
   font-weight: 800;
   line-height: 1.2;
+  color: var(--sv2-purple);
 }
 
 .sv2__name-verified {
@@ -140,12 +152,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px 6px;
   margin-top: 2px;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--sv2-text);
+  font-weight: 500;
+  color: var(--sv2-muted);
   line-height: 1.35;
 }
 
@@ -160,13 +172,13 @@
 
 .sv2__actions {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   width: 100%;
-  max-width: 420px;
   margin-top: 8px;
 }
 
-.sv2__actions--follow-only {
+.sv2__actions--own {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -177,8 +189,33 @@
 
 .sv2__follow-slot button {
   width: 100%;
-  min-height: 48px;
+  min-height: 44px;
+  height: 44px;
   border-radius: 14px;
+  font-size: 14px;
+}
+
+.sv2__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 0;
+  font: 700 14px/1 inherit;
+  cursor: pointer;
+}
+
+.sv2__action-btn--message {
+  background: var(--sv2-purple);
+  color: #ffffff;
+}
+
+.sv2__action-btn--share {
+  background: #f1f5f9;
+  color: #334155;
 }
 
 .sv2__tabs {
@@ -223,6 +260,31 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.sv2__grid [data-listing-card="rovexo"] {
+  border: 1px solid var(--sv2-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.sv2__grid [data-listing-card="rovexo"] [data-store-saved] {
+  top: 8px;
+  right: 8px;
+}
+
+.sv2__grid[data-store-listing-cards] > [data-listing-card="rovexo"] figure,
+.sv2__grid[data-store-listing-cards] > .sv2__bundle-select [data-listing-card="rovexo"] figure {
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0;
+  min-height: 0;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: 4 / 5 !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
 }
 
 .sv2__load-more {
@@ -421,10 +483,6 @@
   .sv2__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 12px;
-  }
-
-  .sv2__banner {
-    height: 88px;
   }
 
   .sv2__main {

@@ -53,6 +53,7 @@
    and imported only from CommandCentreLayout (Admin + Super Admin). */
 /* OPT-P0-CSS-02: benefits-rail.css — archive Homepage only. */
 @import "./icon-standard-v1.css";
+@import "./platform-emoji-v1.css";
 /* OPT-HP-LCP-CSS: universal-ui-v1 — only applies under [data-universal-ui]; Homepage uses
    BetaAppShell data-compact-premium only. Owned by staff/seller/dashboard layouts. */
 @import "./compact-premium-v1.css";

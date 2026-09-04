@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { Avatar } from "@/components/ui/Avatar";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
@@ -38,17 +40,7 @@ const CROP_SIZE = 280;
 const PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 
 function CameraGlyph() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 8h3l2-2h6l2 2h3v11H4V8Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="13" r="3.5" stroke="currentColor" strokeWidth="1.75" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.camera} size={18} />;
 }
 
 /**

@@ -10,12 +10,14 @@ import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
+import {
+  STORE_VISIT_LISTING_PROPS,
+  storeListingCardAttr,
+} from "@/lib/store/store-listing-card-premium-v1";
 import { BundleSellerConflictDialog } from "@/features/product-detail/AddToBundleSheet";
 import { addLineToBundleClient } from "@/features/bundle/add-line-to-bundle-client-v1";
 import { BUNDLE_ENGINE_V1 } from "@/lib/bundle/bundle-engine-v1";
 import { formatListingPrice } from "@/lib/listing-card/format";
-import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import { readBundleMirror, discardBundleMirror } from "@/lib/bundle/bundle-mirror-v1";
 import {
   bundleSubtotal,
@@ -344,8 +346,7 @@ export function StoreShopBundles({
                     key={product.id}
                     product={product}
                     variant="grid"
-                    {...HP_CANONICAL_LISTING_PROPS}
-                    surface="store"
+                    {...STORE_VISIT_LISTING_PROPS}
                   />
                 );
               }
@@ -374,8 +375,7 @@ export function StoreShopBundles({
                     <ListingCard
                       product={product}
                       variant="grid"
-                      {...HP_CANONICAL_LISTING_PROPS}
-                      surface="store"
+                      {...STORE_VISIT_LISTING_PROPS}
                       showFavorite={false}
                     />
                   </div>

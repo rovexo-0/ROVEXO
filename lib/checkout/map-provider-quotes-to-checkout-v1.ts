@@ -13,6 +13,9 @@ import {
   toBuyerShippingPricePence,
 } from "@/lib/shipping/pricing/buyer-shipping-price-v1";
 import {
+  assertParcelWeightKgAllowed,
+} from "@/lib/shipping/canonical-parcel-size-v1";
+import {
   filterV1_0CustomerFacingQuotes,
   formatV1_0CarrierDisplayName,
   resolveV1_0ActiveCarrier,
@@ -88,13 +91,15 @@ function isHomeDeliveryEligible(quote: ShippingQuote): boolean {
 /**
  * Weight eligibility vs canonical parcel — fail closed when parcel context is set.
  * Uses Sendcloud-provided minWeightKg/maxWeightKg only. Never parses serviceName bands.
+ * Allows 0 kg (SMALL). Rejects >15 kg (absolute max).
  */
 export function isQuoteWeightEligibleForParcel(
   quote: ShippingQuote,
   parcel: ParcelDimensions | null | undefined,
 ): boolean {
   if (!parcel) return true;
-  if (!Number.isFinite(parcel.weightKg) || parcel.weightKg <= 0) return false;
+  const gate = assertParcelWeightKgAllowed(parcel.weightKg);
+  if (!gate.ok) return false;
 
   const min = quote.minWeightKg;
   const max = quote.maxWeightKg;
@@ -110,7 +115,7 @@ export function isQuoteWeightEligibleForParcel(
     return false;
   }
 
-  return parcel.weightKg >= min && parcel.weightKg <= max;
+  return gate.weightKg >= min && gate.weightKg <= max;
 }
 
 /**

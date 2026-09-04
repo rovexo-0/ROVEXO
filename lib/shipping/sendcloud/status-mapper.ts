@@ -8,15 +8,27 @@ export function mapSendcloudCarrier(carrier: string): UkCarrier | string {
 
 /**
  * Map Sendcloud carrier messages → ROVEXO shipping lifecycle.
- * Sprint 2 surface states: Created, Label Generated, Collected, In Transit,
- * Delivered, Returned, Cancelled, Failed (mapped onto SHIPPING_STATUSES).
+ *
+ * FAIL CLOSED: unrecognized / empty / null messages return `null`.
+ * Callers must NOT advance order/shipment lifecycle on `null`
+ * (preserve last known valid status / existing pending).
+ * Only explicitly recognized statuses may advance lifecycle.
  */
-export function mapSendcloudTrackingStatus(statusMessage: string | undefined): ShippingStatus {
-  const normalized = (statusMessage ?? "").trim().toLowerCase();
+export function mapSendcloudTrackingStatus(
+  statusMessage: string | null | undefined,
+): ShippingStatus | null {
+  if (statusMessage == null) return null;
+  const normalized = statusMessage.trim().toLowerCase();
+  if (!normalized) return null;
 
   if (normalized.includes("delivered")) return "delivered";
   if (normalized.includes("out for delivery")) return "out_for_delivery";
-  if (normalized.includes("transit") || normalized.includes("on the way") || normalized.includes("in transit")) {
+  if (
+    normalized.includes("in transit") ||
+    normalized.includes("transit") ||
+    normalized.includes("on the way") ||
+    normalized.includes("en route")
+  ) {
     return "in_transit";
   }
   if (
@@ -31,16 +43,23 @@ export function mapSendcloudTrackingStatus(statusMessage: string | undefined): S
   if (normalized.includes("cancel")) return "cancelled";
   if (normalized.includes("fail") || normalized.includes("exception")) return "failed";
   if (normalized.includes("lost")) return "lost";
-  // Created / Label Generated / awaiting pickup
+  // Known pending / created / label-generated / awaiting pickup
   if (
     normalized.includes("created") ||
     normalized.includes("label") ||
     normalized.includes("preparing") ||
-    normalized.includes("awaiting") ||
-    !normalized
+    normalized.includes("awaiting")
   ) {
     return "preparing";
   }
 
-  return "in_transit";
+  // Unknown / unrecognized — never invent shipped / in_transit / delivered.
+  return null;
+}
+
+/** True when the carrier message maps to an explicit lifecycle status. */
+export function isRecognizedSendcloudTrackingStatus(
+  statusMessage: string | null | undefined,
+): boolean {
+  return mapSendcloudTrackingStatus(statusMessage) != null;
 }

@@ -35,7 +35,7 @@ export default async function WalletWithdrawRoute() {
     softFail = "supabase";
   }
 
-  return <WithdrawPage data={data} softFail={softFail} />;
+  return <WithdrawPage data={data} softFail={softFail} sellerContext="individual" />;
 }
 
 export async function generateMetadata() {

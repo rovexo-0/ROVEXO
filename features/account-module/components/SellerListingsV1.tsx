@@ -15,6 +15,7 @@ import { useCallback, useMemo, useState } from "react";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { PromotionPicker } from "@/features/seller/listings/components/PromotionPicker";
 import type { SellerListingOverflowAction } from "@/features/seller/listings/components/SellerListingOverflowMenu";
+import { MoreLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import type { PromotionType } from "@/lib/promotions/config";
 import type { ListingFilter, SellerListing } from "@/lib/listings/types";
@@ -48,16 +49,6 @@ function listingStatusLabel(status: ProductStatus | string): string {
   if (status === "sold") return "Sold";
   if (status === "paused") return "Paused";
   return "Active";
-}
-
-function MoreIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <circle cx="5" cy="12" r="1.75" />
-      <circle cx="12" cy="12" r="1.75" />
-      <circle cx="19" cy="12" r="1.75" />
-    </svg>
-  );
 }
 
 type SellerListingsV1Props = {
@@ -344,7 +335,7 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                         setOpenMenuId((current) => (current === listing.id ? null : listing.id))
                       }
                     >
-                      <MoreIcon className="h-5 w-5" />
+                      <MoreLineIcon className="h-5 w-5" />
                     </button>
 
                     {openMenuId === listing.id ? (

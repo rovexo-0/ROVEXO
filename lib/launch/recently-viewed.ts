@@ -4,6 +4,7 @@ import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-vi
 import type { Product } from "@/lib/products/types";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 type RecentlyViewedRow = {
   viewed_at: string;
@@ -24,7 +25,13 @@ type RecentlyViewedRow = {
       avatar_url: string | null;
       verified: boolean;
     } | null;
-    product_images: Array<{ url: string; is_primary: boolean; sort_order: number; thumbnail_url?: string | null }>;
+    product_images: Array<{
+      url: string;
+      is_primary: boolean;
+      sort_order: number;
+      thumbnail_url?: string | null;
+      storage_path?: string | null;
+    }>;
   } | null;
 };
 
@@ -32,6 +39,9 @@ function mapProduct(row: NonNullable<RecentlyViewedRow["products"]>): Product {
   const images = [...(row.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
+  const cardImages = resolveCardImageSources(images[0]?.thumbnail_url, images[0]?.url, {
+    storagePath: images[0]?.storage_path ?? "",
+  });
   return {
     id: row.id,
     slug: row.slug,
@@ -48,7 +58,8 @@ function mapProduct(row: NonNullable<RecentlyViewedRow["products"]>): Product {
     reviewCount: row.review_count,
     views: row.views,
     likes: row.likes,
-    imageUrl: images[0]?.url ?? "",
+    imageUrl: cardImages.imageUrl,
+    imageFullUrl: cardImages.imageFullUrl,
     sections: [],
   };
 }
@@ -84,7 +95,7 @@ export async function listRecentlyViewed(userId: string, limit = 12): Promise<Pr
           id, seller_id, slug, title, description, status, price, condition, rating, review_count, views, likes,
           category_id, moderation_status,
           profiles!products_seller_id_fkey ( full_name, avatar_url, verified, email, username, account_status, role ),
-          product_images ( url, thumbnail_url, is_primary, sort_order )
+          product_images ( url, thumbnail_url, is_primary, sort_order, storage_path )
         )
       `,
       )

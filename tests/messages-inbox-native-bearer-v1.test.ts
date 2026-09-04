@@ -161,6 +161,31 @@ function profileClient() {
 function badgeClient() {
   const unreadQuery = {
     eq: () => unreadQuery,
+    or: async () => ({
+      data: [
+        {
+          id: "c1",
+          product_id: "p1",
+          buyer_id: USER_ID,
+          seller_id: USER_B,
+          buyer_unread_count: 1,
+          seller_unread_count: 0,
+          buyer_archived: false,
+          seller_archived: false,
+        },
+        {
+          id: "c2",
+          product_id: "p2",
+          buyer_id: USER_ID,
+          seller_id: USER_B,
+          buyer_unread_count: 1,
+          seller_unread_count: 0,
+          buyer_archived: false,
+          seller_archived: false,
+        },
+      ],
+      error: null,
+    }),
     maybeSingle: async () => ({ data: { sum: 1 }, error: null }),
   };
   return {
@@ -170,6 +195,26 @@ function badgeClient() {
       }
       if (table === "conversations") {
         return { select: () => unreadQuery };
+      }
+      if (table === "checkout_sessions") {
+        return {
+          select: () => ({
+            eq: () => ({
+              order: async () => ({ data: [], error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "seller_profiles") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({
+                data: { active_seller_context: "individual" },
+              }),
+            }),
+          }),
+        };
       }
       throw new Error(`unexpected table ${table}`);
     },
@@ -372,6 +417,17 @@ describe("Messages / Inbox cookie and Bearer handlers", () => {
         }
         if (table === "conversation_reports") {
           return { insert: async () => ({ error: null }) };
+        }
+        if (table === "seller_profiles") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { active_seller_context: "individual" },
+                }),
+              }),
+            }),
+          };
         }
         throw new Error(`unexpected table ${table}`);
       },

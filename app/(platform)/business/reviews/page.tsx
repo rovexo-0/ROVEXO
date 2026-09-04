@@ -1,11 +1,27 @@
+import { redirect } from "next/navigation";
 import { SellerReviewCenterPage } from "@/features/seller/review-center/components/SellerReviewCenterPage";
-import { getBusinessProfile } from "@/lib/profile/data";
+import { loadPwaBusinessSession } from "@/lib/business/pwa-business-session";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = privatePageMetadata;
 
-/** Business Reviews — stays in Business hub (no seller → My Account dump). */
+/** Business Reviews — canonical Review Center, Business hub only. */
 export default async function BusinessReviewsPage() {
-  await getBusinessProfile();
-  return <SellerReviewCenterPage backHref="/business/dashboard" backLabel="Business" />;
+  const { status } = await loadPwaBusinessSession();
+  if (!status.stripe.verified) {
+    redirect(status.hasBusinessProfile ? "/business/connect" : "/business/information");
+  }
+  if (status.activeSellerContext !== "business") {
+    redirect("/account");
+  }
+  return (
+    <SellerReviewCenterPage
+      backHref="/business/menu"
+      backLabel="Business Menu"
+      listingsHref="/business/inventory"
+      listingsLabel="Back to inventory"
+      caseHrefBase="/business/reviews"
+      surface="business"
+    />
+  );
 }

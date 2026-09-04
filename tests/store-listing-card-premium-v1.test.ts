@@ -75,6 +75,9 @@ describe("ROVEXO v1.0 — Store Card Premium Freeze", () => {
     expect(proStore).toContain('storeListingCardAttr("business")');
     expect(proStore).toContain("HP_CANONICAL_LISTING_PROPS");
     expect(proStore).not.toContain("ListingCardV2");
+    const visit = readSource("features/store/components/StoreShopBundles.tsx");
+    expect(visit).toContain("STORE_VISIT_LISTING_PROPS");
+    expect(visit).toContain("ListingCard");
   });
 
   it("does not alter Homepage ListingCard module freeze tokens", () => {

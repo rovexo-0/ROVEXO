@@ -1,16 +1,15 @@
 "use client";
 
-import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 import {
   buildBusinessMenuSections,
   type BusinessMenuItem,
 } from "@/lib/account-center/business-menu";
-import { resolveHubMenuIconColor } from "@/lib/design-system/master-icon-system-v1";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
 import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import "@/styles/rovexo/business-onboarding-v1.css";
 
 function resolveMenuBadge(
   item: BusinessMenuItem,
@@ -19,7 +18,7 @@ function resolveMenuBadge(
 ): number {
   if (!item.badgeKeys?.length) return 0;
   return item.badgeKeys.reduce((total, key) => {
-    const fromHref = badgeCounts ? resolveHrefBadge(item.href, badgeCounts) : 0;
+    const fromHref = item.href && badgeCounts ? resolveHrefBadge(item.href, badgeCounts) : 0;
     const fromMobile = resolveMobileBadge(key, mobileBadges);
     return total + Math.max(fromHref, fromMobile);
   }, 0);
@@ -43,11 +42,23 @@ export function BusinessMenuSections({ storeSlug }: BusinessMenuSectionsProps) {
               <CanonicalMenuRow
                 key={item.id}
                 id={`business-menu-${item.id}`}
-                href={item.href}
+                href={item.comingSoon ? undefined : item.href}
                 title={item.title}
                 description={item.subtitle}
-                badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
-                icon={<MasterMenuIcon icon={item.icon} color={resolveHubMenuIconColor(item.icon)} />}
+                value={item.value}
+                comingSoon={item.comingSoon}
+                badge={item.comingSoon ? 0 : resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                showChevron={false}
+                trailing={
+                  <span className="biz-menu__chevron" aria-hidden>
+                    ›
+                  </span>
+                }
+                icon={
+                  <span className="ac-canonical__menu-emoji" aria-hidden>
+                    {item.emoji}
+                  </span>
+                }
               />
             ))}
           </CanonicalCard>

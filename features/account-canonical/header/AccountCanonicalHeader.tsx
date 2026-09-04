@@ -25,8 +25,8 @@ export type AccountCanonicalHeaderProps = {
    */
   onBack?: () => void;
   /**
-   * @deprecated Header Standard v1.0 — right slot is always Close when titled.
-   * Ignored when `centeredTitle` is set.
+   * Optional titled-header right slot. Default remains Close (Orders SSOT).
+   * Visit Store passes overflow (`⋯`) here — do not change other pages.
    */
   rightAction?: ReactNode;
   /** Close fallback when history is empty (defaults to fallbackHref). */
@@ -45,10 +45,9 @@ export function AccountCanonicalHeader({
   centeredTitle,
   fallbackHref = ACCOUNT_BACK_FALLBACK,
   onBack,
-  rightAction: _rightAction,
+  rightAction,
   closeFallbackHref,
 }: AccountCanonicalHeaderProps) {
-  void _rightAction;
   const back = usePageBack({
     backHref: fallbackHref,
     backLabel,
@@ -102,7 +101,9 @@ export function AccountCanonicalHeader({
             <>
               <h1 className="account-canonical-header__title">{centeredTitle}</h1>
               <div className="account-canonical-header__action">
-                <RovexoHeaderCloseButton fallbackHref={closeFallbackHref ?? fallbackHref} />
+                {rightAction ?? (
+                  <RovexoHeaderCloseButton fallbackHref={closeFallbackHref ?? fallbackHref} />
+                )}
               </div>
             </>
           ) : null}

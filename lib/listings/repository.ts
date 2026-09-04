@@ -10,7 +10,12 @@ import { resolveEligibleVisibleTotal } from "@/lib/listings/resolve-eligible-vis
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { applyAntiMonopolyRotation } from "@/lib/promotions/boost-time-decay-v1";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
-import { resolveCardImageSources } from "@/lib/media/product-image";
+import { resolveCardImageSources, toBrowserReachableStorageUrl } from "@/lib/media/product-image";
+import {
+  allAvifDerivativeStoragePaths,
+  avifDerivativeStoragePath,
+  preferAvifServingUrls,
+} from "@/lib/media/avif-image-pipeline-v1";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
@@ -71,21 +76,24 @@ function slugify(title: string): string {
     .slice(0, 50)}-${Date.now().toString(36)}`;
 }
 
-function mapImages(rows: Tables<"product_images">[] | undefined): ListingImage[] {
+function mapImages(
+  rows: Tables<"product_images">[] | undefined,
+  productStatus?: string | null,
+): ListingImage[] {
   return [...(rows ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((row) => {
       const url = row.url ?? "";
       const rawThumb = (row.thumbnail_url ?? "").trim();
-      // Derived `-thumb.` URLs that never landed in Storage cause `/_next/image` HTTP 400.
-      // Collapse those invalid refs to the full object URL (GATE 3 class repair at read-time).
-      const thumbIsDerived =
-        Boolean(rawThumb) && Boolean(url) && rawThumb !== url && /-thumb\./i.test(rawThumb);
+      const storagePath = row.storage_path ?? "";
+      // Keep stored `-thumb.jpg` / `-a400.avif` for cards. Missing storage
+      // objects fail closed to the placeholder — never emit Production URLs.
+      const card = resolveCardImageSources(rawThumb, url, { storagePath, productStatus });
       return {
         id: row.id,
-        url,
-        thumbnailUrl: thumbIsDerived ? url : rawThumb || url,
-        storagePath: row.storage_path ?? "",
+        url: card.imageFullUrl,
+        thumbnailUrl: card.imageUrl,
+        storagePath,
         sortOrder: row.sort_order,
         isPrimary: row.is_primary,
       };
@@ -93,9 +101,12 @@ function mapImages(rows: Tables<"product_images">[] | undefined): ListingImage[]
 }
 
 function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): SellerListing {
-  const images = mapImages(row.product_images);
+  const images = mapImages(row.product_images, row.status);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
-  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url);
+  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url, {
+    storagePath: primary?.storagePath,
+    productStatus: row.status,
+  });
   const auctionEndsAt = row.auction_ends_at;
   const isAuctionExpired =
     row.listing_type === "auction" &&
@@ -170,9 +181,12 @@ async function attachSellerListingModes(listings: SellerListing[]): Promise<Sell
 }
 
 function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): Product {
-  const images = mapImages(row.product_images);
+  const images = mapImages(row.product_images, row.status);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
-  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url);
+  const cardImages = resolveCardImageSources(primary?.thumbnailUrl, primary?.url, {
+    storagePath: primary?.storagePath,
+    productStatus: row.status,
+  });
 
   return {
     id: row.id,
@@ -184,7 +198,11 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     brand: row.brands?.name,
     sellerName: resolvePublicUsernameLabel(row.profiles?.username, "Seller"),
     sellerId: row.seller_id,
-    sellerAvatar: normalizeAvatarUrl(row.profiles?.avatar_url) ?? undefined,
+    sellerAvatar: row.profiles?.avatar_url
+      ? toBrowserReachableStorageUrl(
+          normalizeAvatarUrl(row.profiles.avatar_url) ?? row.profiles.avatar_url,
+        )
+      : undefined,
     sellerVerified: row.profiles?.verified ?? false,
     sellerUsername: row.profiles?.username ?? null,
     sellerAccountStatus: row.profiles?.account_status ?? null,
@@ -349,6 +367,28 @@ async function storageObjectExists(
   return Boolean(listed?.some((entry) => entry.name === name));
 }
 
+async function resolveOwnedListingImageServingUrls(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  storagePath: string,
+): Promise<{ url: string; thumbnailUrl: string }> {
+  const thumbPath = storagePath.replace(/\.jpg$/, "-thumb.jpg");
+  const avifThumbPath = avifDerivativeStoragePath(storagePath, "thumb");
+  const avifLargePath = avifDerivativeStoragePath(storagePath, "large");
+  const [thumbExists, avifThumbExists, avifLargeExists] = await Promise.all([
+    storagePath !== thumbPath ? storageObjectExists(supabase, thumbPath) : Promise.resolve(false),
+    storageObjectExists(supabase, avifThumbPath),
+    storageObjectExists(supabase, avifLargePath),
+  ]);
+  const publicUrl = getPublicStorageUrl("products", storagePath);
+  const jpegThumbUrl = thumbExists ? getPublicStorageUrl("products", thumbPath) : null;
+  return preferAvifServingUrls({
+    originalPublicUrl: publicUrl,
+    jpegThumbPublicUrl: jpegThumbUrl,
+    avifThumbPublicUrl: avifThumbExists ? getPublicStorageUrl("products", avifThumbPath) : null,
+    avifLargePublicUrl: avifLargeExists ? getPublicStorageUrl("products", avifLargePath) : null,
+  });
+}
+
 /**
  * Materializes a listing image at its final product-folder path. Returns null
  * (rather than a dangling reference) when the image cannot be placed there, so
@@ -378,13 +418,12 @@ async function attachOwnedExistingImage(
     throw new Error("Unable to save listing images. Please re-upload your photos and try again.");
   }
 
-  const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
-  const thumbnailUrl = image.thumbnailUrl?.trim() || publicUrl;
+  const served = await resolveOwnedListingImageServingUrls(supabase, image.storagePath);
 
   return {
     ...image,
-    url: publicUrl,
-    thumbnailUrl,
+    url: served.url,
+    thumbnailUrl: served.thumbnailUrl,
     sortOrder: image.sortOrder ?? index,
     isPrimary: image.isPrimary ?? index === 0,
   };
@@ -409,17 +448,11 @@ async function moveImageToProductFolder(
       });
       return null;
     }
-    // Repair dangling -thumb refs on already-final paths.
-    const thumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
-    const thumbExists =
-      image.storagePath !== thumbPath ? await storageObjectExists(supabase, thumbPath) : false;
-    const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
+    const served = await resolveOwnedListingImageServingUrls(supabase, image.storagePath);
     return {
       ...image,
-      url: publicUrl,
-      thumbnailUrl: thumbExists
-        ? getPublicStorageUrl("products", thumbPath)
-        : publicUrl,
+      url: served.url,
+      thumbnailUrl: served.thumbnailUrl,
     };
   }
 
@@ -428,6 +461,8 @@ async function moveImageToProductFolder(
   const newPath = buildProductImagePath(sellerId, productId, filename);
   const oldThumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
   const newThumbPath = newPath.replace(/\.jpg$/, "-thumb.jpg");
+  const oldAvifPaths = allAvifDerivativeStoragePaths(image.storagePath);
+  const newAvifPaths = allAvifDerivativeStoragePaths(newPath);
 
   const { error: copyError } = await supabase.storage.from("products").copy(image.storagePath, newPath);
 
@@ -448,22 +483,29 @@ async function moveImageToProductFolder(
 
   // Thumbnail is best-effort; a missing thumbnail must not break publishing.
   await supabase.storage.from("products").copy(oldThumbPath, newThumbPath).catch(() => undefined);
+  await Promise.all(
+    oldAvifPaths.map((oldPath, index) => {
+      const dest = newAvifPaths[index];
+      if (!dest) return Promise.resolve();
+      return supabase.storage.from("products").copy(oldPath, dest).catch(() => undefined);
+    }),
+  );
 
   if (options?.deleteTemp) {
-    await supabase.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
+    await supabase.storage
+      .from("products")
+      .remove([image.storagePath, oldThumbPath, ...oldAvifPaths])
+      .catch(() => undefined);
   }
 
-  // Never persist a dangling -thumb URL when the thumb object was not created
-  // (e.g. API/e2e uploads that only provide the full JPEG). Cards must point
-  // at an object that exists — Gate 3 / SafeImage still soft-fail, but feed
-  // must not emit guaranteed 400s.
-  const thumbExists = await storageObjectExists(supabase, newThumbPath);
-  const publicUrl = getPublicStorageUrl("products", newPath);
+  // JPEG GATE 3 fallback remains inside resolveOwnedListingImageServingUrls.
+  // AVIF thumb/large win when those objects actually exist.
+  const served = await resolveOwnedListingImageServingUrls(supabase, newPath);
 
   return {
     ...image,
-    url: publicUrl,
-    thumbnailUrl: thumbExists ? getPublicStorageUrl("products", newThumbPath) : publicUrl,
+    url: served.url,
+    thumbnailUrl: served.thumbnailUrl,
     storagePath: newPath,
   };
 }
@@ -600,17 +642,12 @@ async function insertDraftProductImageRefs(
       continue;
     }
 
-    const thumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
-    const thumbExists =
-      image.storagePath !== thumbPath ? await storageObjectExists(supabase, thumbPath) : false;
-    const publicUrl = image.url || getPublicStorageUrl("products", image.storagePath);
+    const served = await resolveOwnedListingImageServingUrls(supabase, image.storagePath);
 
     kept.push({
       ...image,
-      url: publicUrl,
-      thumbnailUrl: thumbExists
-        ? getPublicStorageUrl("products", thumbPath)
-        : publicUrl,
+      url: served.url,
+      thumbnailUrl: served.thumbnailUrl,
     });
   }
 
@@ -1119,7 +1156,8 @@ export async function setListingStatus(
 async function deleteStoragePaths(paths: string[]): Promise<void> {
   if (!paths.length) return;
   const admin = createAdminClient();
-  await admin.storage.from("products").remove(paths);
+  const expanded = paths.flatMap((path) => [path, ...allAvifDerivativeStoragePaths(path)]);
+  await admin.storage.from("products").remove(expanded);
 }
 
 export async function deleteStorageFolder(prefix: string): Promise<void> {

@@ -7,10 +7,11 @@ function readSource(relativePath: string): string {
 }
 
 describe("One Product Philosophy Freeze", () => {
-  it("locks AccountIcon stroke and shared menu icon box", () => {
+  it("locks AccountIcon emoji glyphs and shared menu icon box", () => {
     const icons = readSource("components/account/AccountIcons.tsx");
     const cds = readSource("styles/rovexo/canonical-ds.css");
-    expect(icons).toContain("strokeWidth: 1.9");
+    expect(icons).toContain("PlatformEmoji");
+    expect(icons).toContain("ACCOUNT_ICON_EMOJI");
     expect(cds).toContain("--cds-row-min-height: 56px");
     expect(cds).toContain("--cds-icon-size: 20px");
   });

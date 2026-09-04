@@ -12,10 +12,11 @@ import type { Product } from "@/lib/products/types";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 import { resolvePublicUsernameLabel } from "@/lib/profile/public-display-name-v1";
 import { enrichProductsWithCanonicalSellerRating } from "@/lib/products/canonical-seller-rating-v1";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 type SavedProductJoin = Tables<"products"> & {
   profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified" | "username"> | null;
-  product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
+  product_images: Pick<Tables<"product_images">, "url" | "thumbnail_url" | "is_primary" | "sort_order" | "storage_path">[];
   categories: Pick<Tables<"categories">, "slug"> | null;
 };
 
@@ -31,6 +32,11 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
   const images = [...(row.products.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
+
+  const cardImages = resolveCardImageSources(images[0]?.thumbnail_url, images[0]?.url, {
+    storagePath: images[0]?.storage_path ?? "",
+    productStatus: row.products.status,
+  });
 
   const product: Product = {
     id: row.products.id,
@@ -48,7 +54,8 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
     reviewCount: row.products.review_count,
     views: row.products.views,
     likes: row.products.likes,
-    imageUrl: images[0]?.url ?? "",
+    imageUrl: cardImages.imageUrl,
+    imageFullUrl: cardImages.imageFullUrl,
     sections: (row.products.sections ?? []) as Product["sections"],
   };
 
@@ -65,7 +72,7 @@ function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem 
 const SOLD_PRODUCT_SELECT = `
   *,
   profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
-  product_images ( url, is_primary, sort_order ),
+  product_images ( url, thumbnail_url, is_primary, sort_order, storage_path ),
   categories ( slug )
 `;
 
@@ -96,7 +103,7 @@ export async function listSavedItems(userId: string): Promise<SavedItem[]> {
       products (
         *,
         profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
-        product_images ( url, is_primary, sort_order ),
+        product_images ( url, thumbnail_url, is_primary, sort_order, storage_path ),
         categories ( slug )
       )
     `,
@@ -331,7 +338,7 @@ export async function saveItemVerified(
       const { data: product } = await supabase
         .from("products")
         .select(
-          "id, slug, title, seller_id, product_images ( url, is_primary, sort_order )",
+          "id, slug, title, seller_id, status, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )",
         )
         .eq("id", productId)
         .maybeSingle();
@@ -340,16 +347,22 @@ export async function saveItemVerified(
         product as {
           product_images?: Array<{
             url: string;
+            thumbnail_url?: string | null;
+            storage_path?: string | null;
             is_primary: boolean | null;
             sort_order: number | null;
           }>;
         }
       ).product_images;
-      const productImageUrl = [...(images ?? [])].sort(
+      const primary = [...(images ?? [])].sort(
         (a, b) =>
           Number(Boolean(b.is_primary)) - Number(Boolean(a.is_primary)) ||
           (a.sort_order ?? 0) - (b.sort_order ?? 0),
-      )[0]?.url;
+      )[0];
+      const productImageUrl = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+        storagePath: primary?.storage_path,
+        productStatus: (product as { status?: string | null }).status,
+      }).imageUrl;
       const { emitSmartNotification } = await import("@/lib/notifications/events");
       await emitSmartNotification({
         userId: product.seller_id,

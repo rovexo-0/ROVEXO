@@ -6,13 +6,14 @@
  * Soft fails → empty (“No funds available.”). Never unavailable soft-fail copy.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { PrimaryButton } from "@/src/components/canonical";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
+import type { SellerContext } from "@/lib/seller-context/seller-context-v1";
 import {
   WITHDRAW_PAGE_DOM,
   WITHDRAW_PAGE_FREEZE,
@@ -28,14 +29,24 @@ type WithdrawPageProps = {
   data: WalletData;
   softFail?: WithdrawSoftFail;
   initialLoading?: boolean;
+  /** Immutable wallet context — Individual vs Business Connect / wallet. */
+  sellerContext?: SellerContext;
 };
 
 type ModalKind = "none" | "bank" | "confirm" | "success";
+
+function createWithdrawIntentKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `wd-intent-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 export function WithdrawPage({
   data,
   softFail: softFailProp = null,
   initialLoading = false,
+  sellerContext = "individual",
 }: WithdrawPageProps) {
   const router = useRouter();
   const [amount, setAmount] = useState("");
@@ -43,6 +54,8 @@ export function WithdrawPage({
   const [successAmount, setSuccessAmount] = useState<number | null>(null);
   const [softFail, setSoftFail] = useState<WithdrawSoftFail>(softFailProp);
   const [modal, setModal] = useState<ModalKind>("none");
+  /** Per user intent — reused on network retries; reset on new intent. */
+  const intentKeyRef = useRef<string | null>(null);
 
   const view = useMemo(
     () =>
@@ -50,8 +63,9 @@ export function WithdrawPage({
         success: successAmount !== null,
         loading: initialLoading,
         softFail,
+        sellerContext,
       }),
-    [data, successAmount, softFail, initialLoading],
+    [data, successAmount, softFail, initialLoading, sellerContext],
   );
 
   const connectedMethod = useMemo(
@@ -82,6 +96,10 @@ export function WithdrawPage({
       setModal("bank");
       return;
     }
+    // New intentional withdraw → new idempotency key (retries reuse this).
+    if (!intentKeyRef.current) {
+      intentKeyRef.current = createWithdrawIntentKey();
+    }
     setModal("confirm");
   };
 
@@ -91,14 +109,22 @@ export function WithdrawPage({
       return;
     }
 
+    const idempotencyKey = intentKeyRef.current ?? createWithdrawIntentKey();
+    intentKeyRef.current = idempotencyKey;
+
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/wallet/withdraw", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
         body: JSON.stringify({
           methodId: connectedMethod.id,
           amount: parsedAmount,
+          idempotencyKey,
+          sellerContext,
         }),
       });
 
@@ -111,7 +137,9 @@ export function WithdrawPage({
 
       setSuccessAmount(parsedAmount);
       setModal("success");
+      intentKeyRef.current = null;
     } catch {
+      // Keep intent key so user can retry the same withdraw intent.
       setModal("none");
       setSoftFail("network");
       setAmount("");
@@ -122,6 +150,7 @@ export function WithdrawPage({
 
   const closeSuccess = () => {
     setModal("none");
+    intentKeyRef.current = null;
     router.push(view.walletHref);
     router.refresh();
   };
@@ -129,7 +158,7 @@ export function WithdrawPage({
   return (
     <AccountCanonicalShell
       title="Withdraw"
-      backHref={WALLET_ROUTES.hub}
+      backHref={view.walletHref}
       backLabel="Balance"
       showHeaderTitle
       dataMyAccountSurface="withdraw"
@@ -140,6 +169,7 @@ export function WithdrawPage({
         data-withdraw-lock={WITHDRAW_PAGE_DOM}
         data-withdraw-freeze={WITHDRAW_PAGE_FREEZE}
         data-withdraw-state={view.state}
+        data-withdraw-seller-context={sellerContext}
         data-profile-master="v7.0"
         data-design-master="profile"
         data-full-width-surface="withdraw"
@@ -190,7 +220,10 @@ export function WithdrawPage({
             primaryLoading={isSubmitting}
             onPrimary={() => void submitWithdraw()}
             onSecondary={() => {
-              if (!isSubmitting) setModal("none");
+              if (!isSubmitting) {
+                intentKeyRef.current = null;
+                setModal("none");
+              }
             }}
           />
         ) : null}

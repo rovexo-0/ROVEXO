@@ -19,16 +19,16 @@ const PROTECTED_UI = [
   "Canonical Header (ROVEXO Header Standard v1.0)",
   "← Back",
   "Store (title)",
-  "✕ Close",
+  "⋯ overflow",
   "Hero Banner (compact discrete)",
   "Large centered Avatar",
   "Verified Badge",
   "Store Name",
   "@Username",
   "Rating · Followers · Following · Member since (single row)",
-  "Follow (only large full-width button)",
-  "Share icon (hero top-right)",
-  "Report icon (hero top-right)",
+  "Follow / Message / Share action row",
+  "Report in overflow (visitor)",
+  "Cover 3:1 + persisted guidance card",
   "Listings | Reviews (50% / 50%)",
   "Listings grid immediately under tabs",
   "Existing ListingCard (Favourite · Price · Condition · View Count)",
@@ -43,8 +43,9 @@ const PROTECTED_UI = [
 
 const PROTECTED_FUNCTIONALITY = [
   "Favorite",
-  "Share (icon)",
-  "Report (icon)",
+  "Share",
+  "Message (canonical /api/messages)",
+  "Report (overflow)",
   "Buy Now",
   "Make Offer",
   "Follow",
@@ -53,11 +54,10 @@ const PROTECTED_FUNCTIONALITY = [
   "Existing realtime",
 ] as const;
 
-/** Forbidden on Visit Store — Mobile Canonical v2.0 */
+/** Owner-authorized Visit Store Message uses canonical /api/messages only. */
 export const VISIT_STORE_FORBIDDEN_MESSAGE_CTA = [
-  "Message button",
-  "Message CTA",
-  "message-related API/UI from Store",
+  "Facebook-specific share",
+  "second message engine",
 ] as const;
 
 export const VISIT_STORE_COMPACT_REMOVED = [
@@ -67,7 +67,6 @@ export const VISIT_STORE_COMPACT_REMOVED = [
   "FILTER",
   "Share Store button",
   "Report Store button",
-  "Message Button",
   "Unable to share store.",
 ] as const;
 
@@ -131,7 +130,7 @@ export const VISIT_STORE_FINAL_UI_LOCK_V1 = {
 
   header: {
     standard: "ROVEXO Header Standard v1.0",
-    layout: ["back", "title:Store", "close"] as const,
+    layout: ["back", "title:Store", "overflow"] as const,
     mustMatch: "Orders",
     component: "features/account-canonical/header/AccountCanonicalHeader.tsx",
   } as const,
@@ -150,7 +149,6 @@ export const VISIT_STORE_FINAL_UI_LOCK_V1 = {
     "BUSINESS",
     "Share Store button",
     "Report Store button",
-    "Message button",
     "View Profile button",
   ] as const,
 

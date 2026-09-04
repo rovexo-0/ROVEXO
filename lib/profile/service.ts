@@ -11,6 +11,7 @@ export type ProfileDetails = {
   fullName: string;
   username: string;
   avatarUrl: string | null;
+  coverUrl: string | null;
   phone: string | null;
   verified: boolean;
   bio: string | null;
@@ -23,6 +24,7 @@ type ProfileRow = {
   username: string;
   full_name: string;
   avatar_url: string | null;
+  cover_url: string | null;
   verified: boolean;
   role: string;
   phone: string | null;
@@ -43,7 +45,7 @@ export async function getProfileDetails(userId: string): Promise<ProfileDetails 
 
     const profileQuery = profileClient
       .from("profiles")
-      .select("id, username, full_name, avatar_url, verified, role, phone, email, date_of_birth")
+      .select("id, username, full_name, avatar_url, cover_url, verified, role, phone, email, date_of_birth")
       .eq("id", userId)
       .maybeSingle();
 
@@ -94,6 +96,7 @@ function mapProfileDetails(
     fullName: profile.full_name,
     username: profile.username,
     avatarUrl: normalizeAvatarUrl(profile.avatar_url),
+    coverUrl: normalizeAvatarUrl(profile.cover_url),
     phone: profile.phone ?? null,
     verified: profile.verified,
     bio,
@@ -165,6 +168,18 @@ export async function updateAvatarUrl(userId: string, avatarUrl: string | null):
   const { error } = await client
     .from("profiles")
     .update({ avatar_url: avatarUrl })
+    .eq("id", userId);
+
+  if (error) throw error;
+}
+
+
+export async function updateCoverUrl(userId: string, coverUrl: string | null): Promise<void> {
+  const admin = tryCreateAdminClient();
+  const client = admin ?? (await createClient());
+  const { error } = await client
+    .from("profiles")
+    .update({ cover_url: coverUrl })
     .eq("id", userId);
 
   if (error) throw error;

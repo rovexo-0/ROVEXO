@@ -5,6 +5,7 @@ import { cancelBuyerOrder, cancelSellerOrder } from "@/lib/orders/cancel-order.s
 import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@/lib/orders/notifications";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
+import { normalizeSellerContext } from "@/lib/seller-context/seller-context-v1";
 import { CommerceEngine, onOrderDelivered, openEscrowForOrder, releaseOrderNow } from "@/lib/commerce-engine";
 import { onShippingRecordStatusChanged } from "@/lib/commerce-engine/shipping-hooks.server";
 import { onBuyerConfirmed } from "@/lib/resolution-engine/hooks.server";
@@ -19,6 +20,7 @@ import type {
   ReportIssueInput,
 } from "@/lib/orders/types";
 import type { Tables } from "@/lib/supabase/types/database";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 type ProfileSnippet = { id: string; full_name: string };
 
@@ -89,12 +91,68 @@ function mapOrderRow(row: OrderRow): Order {
     refundEstimatedArrival: row.refund_estimated_arrival ?? undefined,
     refundLastUpdated: row.refund_last_updated ?? undefined,
     disputesDisabled: row.disputes_disabled,
+    sellerContext: normalizeSellerContext(row.seller_context),
   };
+}
+
+async function applyListingImageFailClosed(orders: Order[]): Promise<Order[]> {
+  if (orders.length === 0) return orders;
+
+  const productIds = [...new Set(orders.map((order) => order.product.id).filter(Boolean))];
+  if (productIds.length === 0) return orders;
+
+  const admin = createAdminClient();
+  const { data: products } = await admin
+    .from("products")
+    .select(
+      "id, status, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )",
+    )
+    .in("id", productIds);
+
+  const liveById = new Map<
+    string,
+    {
+      status: string | null;
+      storagePath: string | null;
+      thumbnailUrl: string | null;
+      url: string | null;
+    }
+  >();
+  for (const product of products ?? []) {
+    const images = [
+      ...((product.product_images as Array<{
+        url: string;
+        thumbnail_url?: string | null;
+        storage_path?: string | null;
+        is_primary: boolean;
+        sort_order: number;
+      }> | null) ?? []),
+    ].sort(
+      (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
+    );
+    const primary = images[0];
+    liveById.set(String(product.id), {
+      status: product.status ?? null,
+      storagePath: primary?.storage_path ?? null,
+      thumbnailUrl: primary?.thumbnail_url ?? null,
+      url: primary?.url ?? null,
+    });
+  }
+
+  return orders.map((order) => {
+    const live = liveById.get(order.product.id);
+    const snapshot = order.product.imageUrl;
+    const resolved = resolveCardImageSources(live?.thumbnailUrl ?? snapshot, live?.url ?? snapshot);
+    return {
+      ...order,
+      product: { ...order.product, imageUrl: resolved.imageUrl },
+    };
+  });
 }
 
 export async function listOrders(): Promise<Order[]> {
   const rows = await fetchOrderRows();
-  return attachConversationIds(rows.map(mapOrderRow));
+  return attachConversationIds(await applyListingImageFailClosed(rows.map(mapOrderRow)));
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
@@ -109,7 +167,9 @@ export async function getOrderById(id: string): Promise<Order | null> {
     return null;
   }
 
-  const [order] = await attachConversationIds([mapOrderRow(data as OrderRow)]);
+  const [order] = await attachConversationIds(
+    await applyListingImageFailClosed([mapOrderRow(data as OrderRow)]),
+  );
   return order ?? null;
 }
 

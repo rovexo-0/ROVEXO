@@ -64,16 +64,17 @@ describe("refunded sale — release / payout fail-closed", () => {
     expect(sales).toContain("if (existing) {");
   });
 
-  it("Stripe Connect payout refuses a refunded sale before transfer", () => {
+  it("Stripe Connect sale payout path is permanently disabled (Release ≠ Transfer)", () => {
     const payouts = readRepo("lib/stripe/payouts.ts");
+    expect(payouts).toContain("legacy_sale_connect_transfer_disabled");
+    expect(payouts).toContain("processAutomaticSellerPayouts");
+    expect(payouts).toContain("return 0");
+    expect(payouts).toContain("mustUseVirtualWallet");
     const transferFn = payouts.slice(
       payouts.indexOf("export async function transferSalePayoutToConnect"),
     );
-    const stripeCreate = transferFn.indexOf("stripe.transfers.create");
-    const refundedGuard = transferFn.indexOf('saleTx.status === "refunded"');
-    expect(refundedGuard).toBeGreaterThan(-1);
-    expect(stripeCreate).toBeGreaterThan(refundedGuard);
-    expect(transferFn).toContain('error: "sale_refunded"');
+    expect(transferFn).toContain("LEGACY_SALE_CONNECT_TRANSFER_DISABLED");
+    expect(transferFn).not.toContain("stripe.transfers.create");
   });
 
   it("reviews stay outside financial settlement", () => {

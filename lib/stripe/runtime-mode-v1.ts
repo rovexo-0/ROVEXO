@@ -64,13 +64,29 @@ export function isOfficialProductionStripeHost(hostname: string): boolean {
   return (STRIPE_LIVE_PRODUCTION_HOSTS as readonly string[]).includes(host);
 }
 
+/**
+ * Stripe publishable/secret keys are long opaque tokens.
+ * Reject stubs like `sk_test_...` that only match the prefix — those cause
+ * "Invalid API Key" at Confirm & Pay instead of a clear not-configured error.
+ */
+const MIN_STRIPE_KEY_LENGTH = 80;
+
+function isPlausibleStripeKey(key: string): boolean {
+  if (key.length < MIN_STRIPE_KEY_LENGTH) return false;
+  if (key.includes("...")) return false;
+  if (/placeholder/i.test(key)) return false;
+  return true;
+}
+
 export function isStripeLiveKey(key: string | undefined | null): boolean {
   const k = key?.trim() ?? "";
+  if (!isPlausibleStripeKey(k)) return false;
   return k.startsWith("pk_live_") || k.startsWith("sk_live_");
 }
 
 export function isStripeTestKey(key: string | undefined | null): boolean {
   const k = key?.trim() ?? "";
+  if (!isPlausibleStripeKey(k)) return false;
   return k.startsWith("pk_test_") || k.startsWith("sk_test_");
 }
 

@@ -359,6 +359,11 @@ html[data-theme="dark"] .wallet-v2,
   height: 16px;
 }
 
+.wallet-v2[data-wallet-seller-context="business"] .wallet-v2__metric-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .wallet-v2__metric--pending .wallet-v2__metric-icon {
   background: #fff7ed;
   color: #f59e0b;
@@ -589,6 +594,16 @@ html[data-theme="dark"] .wallet-v2,
 .wallet-v2__insight-heading-icon svg {
   width: 15px;
   height: 15px;
+}
+
+.wallet-v2[data-wallet-seller-context="business"] .wallet-v2__insight-heading-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.wallet-v2[data-wallet-seller-context="business"] .wallet-v2__txn-empty-icon {
+  font-size: 28px;
+  line-height: 1;
 }
 
 .wallet-v2__insight-metrics {

@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type AddedToCartToastProps = {
   open: boolean;
@@ -40,15 +42,7 @@ export function AddedToCartToast({
       >
         <p className="pd-v1__cart-toast-title">
           <span className="pd-v1__cart-toast-check" aria-hidden>
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M6 12.5 10 16.5 18 8"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <PlatformEmoji emoji={PLATFORM_EMOJI.check} size={14} />
           </span>
           Added to your cart
         </p>

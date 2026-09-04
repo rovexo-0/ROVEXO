@@ -10,6 +10,8 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 export type ProductFullscreenImageViewerProps = {
   open: boolean;
@@ -252,9 +254,7 @@ export const ProductFullscreenImageViewer = memo(function ProductFullscreenImage
           className={cn("pd-v1__lightbox-close", focusRing)}
           onClick={onClose}
         >
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
-          </svg>
+          <PlatformEmoji emoji={PLATFORM_EMOJI.close} size={24} className="h-6 w-6" />
         </button>
       </div>
 
@@ -267,9 +267,7 @@ export const ProductFullscreenImageViewer = memo(function ProductFullscreenImage
             className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--prev", focusRing)}
             onClick={() => scrollLightboxTo(activeIndex - 1)}
           >
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
-            </svg>
+            <PlatformEmoji emoji={PLATFORM_EMOJI.back} size={24} className="h-6 w-6" />
           </button>
           <button
             type="button"
@@ -278,9 +276,7 @@ export const ProductFullscreenImageViewer = memo(function ProductFullscreenImage
             className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--next", focusRing)}
             onClick={() => scrollLightboxTo(activeIndex + 1)}
           >
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
-            </svg>
+            <PlatformEmoji emoji={PLATFORM_EMOJI.continue} size={24} className="h-6 w-6" />
           </button>
         </>
       ) : null}

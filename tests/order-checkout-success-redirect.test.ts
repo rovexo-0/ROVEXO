@@ -24,4 +24,10 @@ describe("order checkout success redirect", () => {
     expect(webhook).toContain("completePaidOrderFulfillment");
     expect(webhook).toContain("payment_intent.succeeded");
   });
+
+  it("Checkout success AUTO_OPEN stays on the canonical conversation return path", () => {
+    const success = readFileSync("app/(platform)/checkout/[slug]/success/page.tsx", "utf8");
+    expect(success).toContain("confirmOrderCheckoutSession");
+    expect(success).toContain("CheckoutSuccessView");
+  });
 });

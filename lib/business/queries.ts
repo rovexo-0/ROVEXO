@@ -17,9 +17,11 @@ export async function fetchBusinessInventory(): Promise<BusinessInventoryData> {
     .eq("id", profile.id)
     .maybeSingle();
 
+  const items = await listInventoryItems(profile.id);
   return {
     profile,
     company: { companyName: businessAccount?.business_name ?? profile.fullName },
-    items: await listInventoryItems(profile.id),
+    items,
+    productCount: items.length,
   };
 }

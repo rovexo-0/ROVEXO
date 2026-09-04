@@ -51,6 +51,14 @@ function mapRow(row: SellerShippingRow): SellerShippingSettings {
 }
 
 export async function getSellerShippingSettings(userId: string): Promise<SellerShippingSettings> {
+  const loaded = await loadSellerShippingSettings(userId);
+  return loaded.settings;
+}
+
+/** Returns settings plus whether the seller has saved a DB row (one-time setup gate). */
+export async function loadSellerShippingSettings(
+  userId: string,
+): Promise<{ settings: SellerShippingSettings; configured: boolean }> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("seller_shipping_settings")
@@ -58,7 +66,11 @@ export async function getSellerShippingSettings(userId: string): Promise<SellerS
     .eq("user_id", userId)
     .maybeSingle();
 
-  return data ? mapRow(data as SellerShippingRow) : DEFAULTS;
+  if (!data) {
+    return { settings: DEFAULTS, configured: false };
+  }
+
+  return { settings: mapRow(data as SellerShippingRow), configured: true };
 }
 
 export async function updateSellerShippingSettings(

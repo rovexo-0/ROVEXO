@@ -44,7 +44,8 @@ function walkTsFiles(dir: string, out: string[] = []): string[] {
       entry === ".local-chromium-libs" ||
       entry === ".local-webkit-libs" ||
       entry === ".git" ||
-      entry === ".pnpm-store"
+      entry === ".pnpm-store" ||
+      entry === ".worktrees"
     ) {
       continue;
     }

@@ -121,6 +121,17 @@ export type ShippingQuotePayload = {
   shippingOptionCode?: string;
   contractId?: string;
   quoteApiVersion?: ShippingQuoteApiVersion;
+  /**
+   * Raw Sendcloud / provider shipping cost in pence.
+   * Never equal to buyer shipping unless margin is zero (forbidden in v1.0).
+   */
+  providerShippingCostPence?: number;
+  /** Buyer shipping = provider + (15 × labelCount). */
+  buyerShippingPricePence?: number;
+  /** ROVEXO margin in pence for the covered labelCount. */
+  rovexoMarginPence?: number;
+  /** Labels/shipments this margin covers (default 1). Not item quantity. */
+  labelCount?: number;
 };
 
 export type ShippingPricing = {

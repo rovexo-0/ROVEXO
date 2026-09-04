@@ -57,7 +57,8 @@ describe("Wallet Master Design System Contract v4.0 — Profile inheritance", ()
     expect(pmError).not.toContain("Card setup is temporarily paused");
     const baError = readSource("app/(platform)/wallet/bank-accounts/error.tsx");
     expect(baError).toContain("AccountCanonicalShell");
-    expect(baError).toContain("Add Bank Account");
+    expect(baError).toContain("Manage on Stripe");
+    expect(baError).toContain("Individual Account");
     expect(baError).not.toContain("FailClosedPanel");
     expect(readSource("app/(platform)/wallet/loading.tsx")).toContain("AccountCanonicalShell");
     expect(readSource("app/(platform)/wallet/loading.tsx")).not.toContain("BetaAppShell");

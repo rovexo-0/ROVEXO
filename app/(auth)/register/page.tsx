@@ -16,6 +16,7 @@ type RegisterPageProps = {
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const { next, error } = await searchParams;
+  const oauthProvidersPromise = loadPublicOauthProviders();
   await redirectIfAuthenticated(next);
 
   if (!isPublicRegistrationEnabled()) {
@@ -26,7 +27,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
     ? AUTH_ERROR_MESSAGES[error] ?? "Unable to continue. Please try again."
     : undefined;
 
-  const oauthProviders = await loadPublicOauthProviders();
+  const oauthProviders = await oauthProvidersPromise;
 
   return (
     <RegisterScreen

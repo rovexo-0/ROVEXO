@@ -12,6 +12,7 @@ import {
   evaluateBuyerCancellationEligibility,
   evaluateSellerCancellationEligibility,
   resolveBuyerCancellationReason,
+  resolveCancellationShipmentGate,
   resolveSellerCancellationReason,
 } from "@/lib/orders/cancellation";
 import {
@@ -46,6 +47,7 @@ type CancellationContext = {
   parcelStatuses: ShippingStatus[];
   hasReadyLabel: boolean;
   providerParcelIds: string[];
+  parcelIdsToVoid: string[];
 };
 
 async function loadCancellationContext(orderId: string): Promise<CancellationContext | null> {
@@ -77,19 +79,11 @@ async function loadCancellationContext(orderId: string): Promise<CancellationCon
 
   const record = await getShippingRecord(orderId);
   const parcels = await listShipmentParcelsForOrder(orderId);
-
-  const shippingAdmin = createShippingAdminClient();
-  const labelRows =
-    record?.id != null
-      ? (
-          await shippingAdmin
-            .from("shipping_labels_v1")
-            .select("label_status, provider_parcel_id")
-            .eq("shipping_record_id", record.id)
-        ).data
-      : [];
-
-  const labels = (labelRows as Array<{ label_status?: string; provider_parcel_id?: string | null }> | null) ?? [];
+  const gate = resolveCancellationShipmentGate({
+    shippingRecordStatus: record?.status ?? null,
+    shippingRecordTracking: record?.trackingNumber ?? null,
+    parcels,
+  });
 
   return {
     orderId: order.id,
@@ -104,12 +98,11 @@ async function loadCancellationContext(orderId: string): Promise<CancellationCon
     productId: item?.product_id ?? null,
     productQuantity: item?.quantity ?? 1,
     productTitle: item?.title ?? "Item",
-    shippingRecordStatus: record?.status ?? null,
-    parcelStatuses: parcels.map((parcel) => parcel.status),
-    hasReadyLabel: labels.some((label) => label.label_status === "ready"),
-    providerParcelIds: labels
-      .map((label) => label.provider_parcel_id?.trim())
-      .filter((id): id is string => Boolean(id)),
+    shippingRecordStatus: gate.shippingRecordStatus,
+    parcelStatuses: gate.parcelStatuses,
+    hasReadyLabel: gate.hasReadyLabel,
+    providerParcelIds: gate.providerParcelIds,
+    parcelIdsToVoid: gate.parcelIdsToVoid,
   };
 }
 
@@ -161,22 +154,31 @@ async function cancelSendcloudParcels(providerParcelIds: string[]): Promise<void
   }
 }
 
-async function voidLocalShippingArtifacts(orderId: string, reason: string): Promise<void> {
+async function voidLocalShippingArtifacts(
+  orderId: string,
+  reason: string,
+  parcelIdsToVoid: string[],
+): Promise<void> {
   const record = await getShippingRecord(orderId);
   if (!record) return;
 
   const shippingAdmin = createShippingAdminClient();
   const now = new Date().toISOString();
 
-  await shippingAdmin
-    .from("shipping_labels_v1")
-    .update({ label_status: "void", updated_at: now })
-    .eq("shipping_record_id", record.id)
-    .not("label_status", "eq", "void");
+  const voidIds = new Set(parcelIdsToVoid);
+  if (voidIds.size > 0) {
+    await shippingAdmin
+      .from("shipping_labels_v1")
+      .update({ label_status: "void", updated_at: now })
+      .eq("shipping_record_id", record.id)
+      .in("shipment_parcel_id", [...voidIds])
+      .not("label_status", "eq", "void");
+  }
 
   const parcels = await listShipmentParcelsForOrder(orderId);
   for (const parcel of parcels) {
-    if (parcel.status === "cancelled") continue;
+    if (!voidIds.has(parcel.id)) continue;
+    if (parcel.status === "cancelled" || parcel.status === "failed") continue;
     await shippingAdmin
       .from("shipment_parcels")
       .update({ status: "cancelled", updated_at: now })
@@ -236,8 +238,13 @@ async function markOrderCancelled(input: {
  */
 async function refundCapturedPaymentOrZero(
   orderId: string,
+  reason: "OTHER" | "SELLER_CANCEL" = "OTHER",
 ): Promise<{ ok: true; refundId: string | null } | { ok: false; error: string }> {
-  const refundResult = await createOrderStripeRefund(orderId, { notifySeller: false });
+  const refundResult = await createOrderStripeRefund(orderId, {
+    notifySeller: false,
+    // Cancel retains Buyer Protection fee (not PLATFORM_ERROR).
+    reason,
+  });
   if ("error" in refundResult) {
     if (isZeroCaptureRefundError(refundResult.error)) {
       return { ok: true, refundId: null };
@@ -245,6 +252,45 @@ async function refundCapturedPaymentOrZero(
     return { ok: false, error: refundResult.error };
   }
   return { ok: true, refundId: refundResult.refundId };
+}
+
+async function claimOrderCancellation(
+  orderId: string,
+): Promise<"claimed" | "already" | "failed"> {
+  const admin = createAdminClient();
+  const claimKey = `cancel:${orderId}`;
+  const { data: claimed, error: claimError } = await admin
+    .from("orders")
+    .update({ cancel_claim_key: claimKey })
+    .eq("id", orderId)
+    .is("cancel_claim_key", null)
+    .neq("status", "cancelled")
+    .select("id");
+  if (claimError?.code === "23505") {
+    return "already";
+  }
+  if (!claimed?.length) {
+    const { data: again } = await admin
+      .from("orders")
+      .select("status, cancel_claim_key")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (again?.status === "cancelled" || again?.cancel_claim_key) {
+      return "already";
+    }
+    return "failed";
+  }
+  return "claimed";
+}
+
+async function releaseOrderCancellationClaim(orderId: string): Promise<void> {
+  const admin = createAdminClient();
+  await admin
+    .from("orders")
+    .update({ cancel_claim_key: null })
+    .eq("id", orderId)
+    .eq("cancel_claim_key", `cancel:${orderId}`)
+    .neq("status", "cancelled");
 }
 
 /**
@@ -280,6 +326,21 @@ export async function cancelBuyerOrder(input: {
 
   if (!eligibility.allowed) {
     return { success: false, error: eligibility.reason ?? "Order cannot be cancelled." };
+  }
+
+  /* P1-B — single-effect cancel claim (unique cancel_claim_key). */
+  {
+    const claim = await claimOrderCancellation(input.orderId);
+    if (claim === "already") {
+      const latest = await loadCancellationContext(input.orderId);
+      if (latest?.status === "cancelled") {
+        return { success: true };
+      }
+      return { success: false, error: "Cancellation is already in progress." };
+    }
+    if (claim === "failed") {
+      return { success: false, error: "Unable to claim cancellation." };
+    }
   }
 
   if (context.status === "awaiting_payment") {
@@ -325,6 +386,7 @@ export async function cancelBuyerOrder(input: {
     await markOrderCancellationRequested(input.orderId);
     const refundResult = await refundCapturedPaymentOrZero(input.orderId);
     if (!refundResult.ok) {
+      await releaseOrderCancellationClaim(input.orderId);
       return { success: false, error: refundResult.error };
     }
     stripeRefundId = refundResult.refundId;
@@ -368,7 +430,7 @@ export async function cancelBuyerOrder(input: {
   }
 
   if (carrierCancelOk) {
-    await voidLocalShippingArtifacts(input.orderId, cancellationReason);
+    await voidLocalShippingArtifacts(input.orderId, cancellationReason, context.parcelIdsToVoid);
   }
 
   const admin = createAdminClient();
@@ -454,12 +516,28 @@ export async function cancelSellerOrder(input: {
     return { success: false, error: eligibility.reason ?? "Order cannot be cancelled." };
   }
 
+  /* Same cancel_claim_key CAS as buyer — one economic cancel effect. */
+  {
+    const claim = await claimOrderCancellation(input.orderId);
+    if (claim === "already") {
+      const latest = await loadCancellationContext(input.orderId);
+      if (latest?.status === "cancelled") {
+        return { success: true };
+      }
+      return { success: false, error: "Cancellation is already in progress." };
+    }
+    if (claim === "failed") {
+      return { success: false, error: "Unable to claim cancellation." };
+    }
+  }
+
   let stripeRefundId = context.stripeRefundId;
 
   if (context.paidAt || context.stripePaymentIntentId) {
     await markOrderCancellationRequested(input.orderId);
-    const refundResult = await refundCapturedPaymentOrZero(input.orderId);
+    const refundResult = await refundCapturedPaymentOrZero(input.orderId, "SELLER_CANCEL");
     if (!refundResult.ok) {
+      await releaseOrderCancellationClaim(input.orderId);
       return { success: false, error: refundResult.error };
     }
     stripeRefundId = refundResult.refundId;
@@ -498,7 +576,7 @@ export async function cancelSellerOrder(input: {
   }
 
   if (carrierCancelOk) {
-    await voidLocalShippingArtifacts(input.orderId, cancellationReason);
+    await voidLocalShippingArtifacts(input.orderId, cancellationReason, context.parcelIdsToVoid);
   }
 
   const admin = createAdminClient();

@@ -82,22 +82,55 @@ export function isProtectedDemoActor(email: string | null | undefined): boolean 
 export type CheckoutPaymentRail = "virtual_demo" | "rovexo_balance" | "stripe";
 
 /**
+ * Localhost / non-Vercel Stripe TEST card path for Full Demo actors.
+ * Never LIVE. Never Production. Enables Checkout Stripe TEST E2E without
+ * weakening the virtual rail for wallet / virtual_demo modes.
+ */
+function isLocalhostStripeTestCardAllowed(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.VERCEL_ENV === "production") return false;
+  const testKey = process.env.STRIPE_SECRET_KEY_TEST?.trim() || "";
+  return testKey.startsWith("sk_test_");
+}
+
+/**
  * Payment-method routing — Wallet must never require Stripe readiness.
  * Card / unknown methods stay on the Stripe rail.
+ *
+ * Gating order (minimal localhost Stripe TEST exception):
+ * 1. Full Demo / protected demo + card + localhost + sk_test_ → stripe
+ *    (must run BEFORE mustUseVirtualPayments, or cert/virtual env forces virtual_demo)
+ * 2. Global virtual payment mode → virtual_demo
+ * 3. Wallet → rovexo_balance
+ * 4. Other protected demo paths → virtual_demo
+ * 5. Default → stripe
+ *
+ * Never LIVE on localhost. Never Production behavior change
+ * (isLocalhostStripeTestCardAllowed is false when NODE_ENV/VERCEL_ENV=production).
  */
 export function resolveCheckoutPaymentRail(input?: {
   buyerEmail?: string | null;
   paymentMethod?: string | null;
 }): CheckoutPaymentRail {
+  // LOCALHOST Stripe TEST card for Full Demo — before global virtual forced mode.
+  if (
+    input?.paymentMethod === "card" &&
+    isProtectedDemoActor(input?.buyerEmail) &&
+    isLocalhostStripeTestCardAllowed()
+  ) {
+    return "stripe";
+  }
   if (mustUseVirtualPayments()) return "virtual_demo";
-  if (isProtectedDemoActor(input?.buyerEmail)) return "virtual_demo";
   if (input?.paymentMethod === "rovexo_balance") return "rovexo_balance";
+  if (isProtectedDemoActor(input?.buyerEmail)) {
+    return "virtual_demo";
+  }
   return "stripe";
 }
 
 /**
  * Virtual / wallet settlement required — never open real Stripe Checkout.
- * Full Demo accounts are always virtual regardless of env flags.
+ * Exception: Full Demo + card + localhost Stripe TEST (see resolveCheckoutPaymentRail).
  */
 export function mustSettleWithoutStripe(input?: {
   buyerEmail?: string | null;

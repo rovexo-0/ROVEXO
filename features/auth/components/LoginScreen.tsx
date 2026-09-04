@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import dynamic from "next/dynamic";
 import {
   AuthContainer,
   AuthFooter,
@@ -13,7 +12,10 @@ import {
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
-import { AuthOAuthDivider } from "@/features/auth/components/AuthOAuthButtons";
+import {
+  AuthOAuthButtons,
+  AuthOAuthDivider,
+} from "@/features/auth/components/AuthOAuthButtons";
 import { AuthLink } from "@/features/auth/components/AuthLink";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import { signIn, type AuthActionState } from "@/lib/auth/actions";
@@ -21,11 +23,6 @@ import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
 import type { OauthRc1PublicProvider } from "@/lib/auth/oauth-rc1-public-providers-v1";
 
-const AuthOAuthButtons = dynamic(
-  () =>
-    import("@/features/auth/components/AuthOAuthButtons").then((m) => m.AuthOAuthButtons),
-  { ssr: false },
-);
 type LoginScreenProps = {
   next?: string;
   initialError?: string;

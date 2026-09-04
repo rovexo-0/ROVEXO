@@ -1,5 +1,8 @@
 import { sellerShippingSettingsSchema } from "@/lib/account/schemas";
-import { getSellerShippingSettings, updateSellerShippingSettings } from "@/lib/seller/shipping-settings";
+import {
+  loadSellerShippingSettings,
+  updateSellerShippingSettings,
+} from "@/lib/seller/shipping-settings";
 import { requireApiAuth } from "@/lib/auth/session";
 import { NextResponse } from "next/server";
 
@@ -9,12 +12,12 @@ export async function GET() {
     return auth;
   }
 
-  const settings = await getSellerShippingSettings(auth.user.id);
-  return NextResponse.json({ settings });
+  const { settings, configured } = await loadSellerShippingSettings(auth.user.id);
+  return NextResponse.json({ settings, configured });
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -30,7 +33,7 @@ export async function PATCH(request: Request) {
     }
 
     const settings = await updateSellerShippingSettings(auth.user.id, parsed.data);
-    return NextResponse.json({ settings });
+    return NextResponse.json({ settings, configured: true });
   } catch {
     return NextResponse.json({ error: "Unable to update shipping settings." }, { status: 500 });
   }

@@ -34,6 +34,11 @@ function mapRow(row: PaymentMethodRow): SavedPaymentMethod {
   };
 }
 
+/**
+ * Ensure a Stripe Customer exists for this ROVEXO user in the *current* Stripe mode.
+ * Stale IDs (LIVE customer stored while runtime is TEST, or deleted customers) are
+ * cleared and recreated — never trusted blindly from profiles.stripe_customer_id.
+ */
 export async function ensureStripeCustomer(userId: string): Promise<string | null> {
   if (!isStripeConfigured()) return null;
 
@@ -46,10 +51,26 @@ export async function ensureStripeCustomer(userId: string): Promise<string | nul
 
   if (!profile) return null;
 
-  const existing = profile.stripe_customer_id;
-  if (existing) return existing;
-
   const stripe = getStripeClient();
+  const existing = typeof profile.stripe_customer_id === "string"
+    ? profile.stripe_customer_id.trim()
+    : "";
+
+  if (existing) {
+    try {
+      const customer = await stripe.customers.retrieve(existing);
+      if (!("deleted" in customer && customer.deleted)) {
+        return existing;
+      }
+    } catch {
+      // Fall through — recreate under current TEST/LIVE mode.
+    }
+    await admin
+      .from("profiles")
+      .update({ stripe_customer_id: null })
+      .eq("id", userId);
+  }
+
   const customer = await stripe.customers.create({
     email: profile.email,
     name: profile.full_name,
@@ -135,13 +156,23 @@ export async function createPaymentMethodSetupIntent(
 ): Promise<{ clientSecret: string; setupIntentId: string }> {
   if (!isStripeConfigured()) {
     throw new PaymentSetupError(
-      "Stripe is not configured on the server. Set STRIPE_SECRET_KEY.",
+      "Card payments are not available right now. Stripe TEST keys are required on localhost.",
       503,
       "stripe_not_configured",
     );
   }
 
-  const customerId = await ensureStripeCustomer(userId);
+  let customerId: string | null;
+  try {
+    customerId = await ensureStripeCustomer(userId);
+  } catch (error) {
+    throw new PaymentSetupError(
+      "Your Stripe payment profile could not be prepared. Please try again.",
+      502,
+      "stripe_customer_prepare_failed",
+      { cause: error },
+    );
+  }
   if (!customerId) {
     throw new PaymentSetupError(
       "Could not create a Stripe customer for your account. Check your profile email.",
@@ -151,12 +182,33 @@ export async function createPaymentMethodSetupIntent(
   }
 
   const stripe = getStripeClient();
-  const setupIntent = await stripe.setupIntents.create({
-    customer: customerId,
-    payment_method_types: ["card"],
-    usage: "off_session",
-    metadata: { userId },
-  });
+  let setupIntent;
+  try {
+    setupIntent = await stripe.setupIntents.create({
+      customer: customerId,
+      payment_method_types: ["card"],
+      usage: "off_session",
+      metadata: { userId },
+    });
+  } catch (error) {
+    // One retry after forced customer refresh (handles race / residual bad ID).
+    await adminClearStripeCustomer(userId);
+    const refreshed = await ensureStripeCustomer(userId);
+    if (!refreshed) {
+      throw new PaymentSetupError(
+        "Could not create a Stripe customer for your account. Check your profile email.",
+        500,
+        "stripe_customer_missing",
+        { cause: error },
+      );
+    }
+    setupIntent = await stripe.setupIntents.create({
+      customer: refreshed,
+      payment_method_types: ["card"],
+      usage: "off_session",
+      metadata: { userId },
+    });
+  }
 
   if (!setupIntent.client_secret) {
     throw new PaymentSetupError(
@@ -170,6 +222,58 @@ export async function createPaymentMethodSetupIntent(
     clientSecret: setupIntent.client_secret,
     setupIntentId: setupIntent.id,
   };
+}
+
+async function adminClearStripeCustomer(userId: string): Promise<void> {
+  const admin = createAdminClient();
+  await admin.from("profiles").update({ stripe_customer_id: null }).eq("id", userId);
+}
+
+/** Stripe Customer Portal — manage/update/remove cards on Stripe-hosted UI. */
+export async function createPaymentMethodsBillingPortalSession(
+  userId: string,
+): Promise<{ url: string }> {
+  if (!isStripeConfigured()) {
+    throw new PaymentSetupError(
+      "Card payments are not available right now.",
+      503,
+      "stripe_not_configured",
+    );
+  }
+
+  const customerId = await ensureStripeCustomer(userId);
+  if (!customerId) {
+    throw new PaymentSetupError(
+      "Could not open Stripe card management for your account.",
+      500,
+      "stripe_customer_missing",
+    );
+  }
+
+  const stripe = getStripeClient();
+  const base = await getAppBaseUrl();
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${base}/wallet/payment-methods`,
+    });
+    if (!session.url) {
+      throw new PaymentSetupError(
+        "Stripe did not return a card management link.",
+        502,
+        "stripe_portal_url_missing",
+      );
+    }
+    return { url: session.url };
+  } catch (error) {
+    if (error instanceof PaymentSetupError) throw error;
+    throw new PaymentSetupError(
+      "Stripe card management is not available yet. You can still add a card here.",
+      502,
+      "stripe_portal_unavailable",
+      { cause: error },
+    );
+  }
 }
 
 export async function completePaymentMethodSetupIntent(
@@ -213,7 +317,7 @@ export async function createPaymentMethodSetupSession(userId: string): Promise<s
   if (!customerId) return null;
 
   const stripe = getStripeClient();
-  const base = getAppBaseUrl();
+  const base = await getAppBaseUrl();
   const session = await stripe.checkout.sessions.create({
     mode: "setup",
     customer: customerId,

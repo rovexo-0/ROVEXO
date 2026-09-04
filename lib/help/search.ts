@@ -1,7 +1,13 @@
 import { HELP_TOPICS } from "@/lib/help/content/topics";
 import { HELP_ARTICLES } from "@/lib/help/content/articles";
-import { listHelpCategoryHubs } from "@/lib/help/content/category-hubs-v1";
+import { listHelpCategoryHubsForAudience } from "@/lib/help/content/category-hubs-v1";
 import { getAllDecisionTrees } from "@/lib/help/decision-trees/registry";
+import {
+  canAccessHelpContent,
+  HELP_AUDIENCES_FOR_GUEST,
+  isLegacyHelpTopicSlug,
+  type HelpContentAudience,
+} from "@/lib/help/help-content-audience-v1";
 import { CANONICAL_LEGAL_DOCUMENTS } from "@/lib/legal/canonical-documents";
 import type { HelpSearchResult, HelpTopicSlug } from "@/lib/help/types";
 
@@ -67,13 +73,29 @@ const ERROR_INDEX = [
   { id: "message-blocked", title: "Message blocked", keywords: ["message blocked", "chat blocked"] },
 ];
 
-export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] {
+export type HelpSearchOptions = {
+  allowedAudiences?: readonly HelpContentAudience[];
+};
+
+/**
+ * In-memory Help Centre search. Audience defaults to guest = shared only.
+ * Pass allowedAudiences from resolveViewerHelpAudiences() for signed-in viewers.
+ */
+export function searchHelpCentre(
+  query: string,
+  limit = 16,
+  options?: HelpSearchOptions,
+): HelpSearchResult[] {
+  const allowedAudiences = options?.allowedAudiences ?? HELP_AUDIENCES_FOR_GUEST;
   const tokens = tokenize(query);
   if (!tokens.length) return [];
 
   const results: HelpSearchResult[] = [];
 
   for (const article of HELP_ARTICLES) {
+    if (!canAccessHelpContent(article.audience, allowedAudiences)) {
+      continue;
+    }
     // Help stubs that redirect to Legal Centre must not compete in search.
     if (
       article.slug === "privacy-policy" ||
@@ -103,7 +125,7 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
     }
   }
 
-  for (const hub of listHelpCategoryHubs()) {
+  for (const hub of listHelpCategoryHubsForAudience(allowedAudiences)) {
     const haystack = [hub.title, hub.summary, hub.content, ...hub.keywords].join(" ").toLowerCase();
     let score = 0;
     for (const token of tokens) {
@@ -149,6 +171,12 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
   }
 
   for (const topic of HELP_TOPICS) {
+    if (isLegacyHelpTopicSlug(topic.slug)) {
+      continue;
+    }
+    if (!canAccessHelpContent(topic.audience, allowedAudiences)) {
+      continue;
+    }
     const haystack = [topic.label, topic.description, ...topic.keywords].join(" ").toLowerCase();
     let score = topic.searchRanking / 100;
     for (const token of tokens) {
@@ -169,6 +197,12 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
   }
 
   for (const tree of getAllDecisionTrees()) {
+    if (isLegacyHelpTopicSlug(tree.topicSlug)) {
+      continue;
+    }
+    if (!canAccessHelpContent(tree.audience, allowedAudiences)) {
+      continue;
+    }
     for (const nodeEntry of Object.values(tree.nodes)) {
       for (const optionEntry of nodeEntry.options) {
         const haystack = optionEntry.label.toLowerCase();
@@ -226,7 +260,7 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
     }
   }
 
-  for (const policy of HELP_TOPICS.flatMap((topic) =>
+  for (const policy of HELP_TOPICS.filter((topic) => !isLegacyHelpTopicSlug(topic.slug)).flatMap((topic) =>
     topic.relatedPolicies.map((entry) => ({ ...entry, topic: topic.slug })),
   )) {
     let score = 0;
@@ -246,6 +280,9 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
   }
 
   for (const document of CANONICAL_LEGAL_DOCUMENTS) {
+    if (!canAccessHelpContent(document.audience, allowedAudiences)) {
+      continue;
+    }
     const haystack = [document.title, document.summary, document.content, document.slug]
       .join(" ")
       .toLowerCase();
@@ -334,8 +371,8 @@ function dedupeHelpSearchResults(results: HelpSearchResult[]): HelpSearchResult[
   return [...chosen].sort((a, b) => b.score - a.score);
 }
 
-export function searchHelpArticles(query: string, limit = 12) {
-  return searchHelpCentre(query, limit).filter((result) => result.type === "article" && result.article);
+export function searchHelpArticles(query: string, limit = 12, options?: HelpSearchOptions) {
+  return searchHelpCentre(query, limit, options).filter((result) => result.type === "article" && result.article);
 }
 
 export function suggestArticlesForPath(pathname: string) {

@@ -1,25 +1,20 @@
+import "server-only";
+
 import { createClient } from "@/lib/supabase/server";
 import { requireAuthContext } from "@/lib/auth/session";
+import { normalizeSellerContext } from "@/lib/seller-context/seller-context-v1";
+import type {
+  InventoryItem,
+  InventoryOverview,
+  InventoryStatus,
+} from "@/lib/business/inventory-overview-v1";
 
-export type InventoryStatus = "active" | "low_stock" | "out_of_stock";
-
-export type InventoryOverview = {
-  totalProducts: number;
-  availableListings: number;
-  outOfStock: number;
-  totalInventory: number;
-  unitsSold: number;
-  lowStock: number;
-};
-
-export type InventoryItem = {
-  id: string;
-  title: string;
-  sku: string;
-  stock: number;
-  status: InventoryStatus;
-  imageUrl: string;
-};
+export type {
+  InventoryItem,
+  InventoryOverview,
+  InventoryStatus,
+} from "@/lib/business/inventory-overview-v1";
+export { formatInventoryStockOverview } from "@/lib/business/inventory-overview-v1";
 
 function inventoryStatus(stock: number, lowStockAlert: number): InventoryStatus {
   if (stock <= 0) return "out_of_stock";
@@ -27,8 +22,23 @@ function inventoryStatus(stock: number, lowStockAlert: number): InventoryStatus 
   return "active";
 }
 
+async function assertBusinessSellerContext(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("seller_profiles")
+    .select("active_seller_context")
+    .eq("id", userId)
+    .maybeSingle();
+  return normalizeSellerContext(
+    (data as { active_seller_context?: string | null } | null)?.active_seller_context,
+  ) === "business";
+}
+
 export async function listInventoryItems(userId?: string): Promise<InventoryItem[]> {
   const resolvedUserId = userId ?? (await requireAuthContext()).user.id;
+  if (!(await assertBusinessSellerContext(resolvedUserId))) {
+    return [];
+  }
   const supabase = await createClient();
 
   const { data: products } = await supabase

@@ -18,6 +18,7 @@ export {
   CHECKOUT_SESSION_ENGINE_getOpenForBuyerListing,
   CHECKOUT_SESSION_ENGINE_destroy,
   CHECKOUT_SESSION_ENGINE_expireAll,
+  isCheckoutExpireTerminalSkip,
   CHECKOUT_SESSION_ENGINE_selfHeal,
   CHECKOUT_SESSION_ENGINE_markPaid,
   CHECKOUT_SESSION_ENGINE_attachStripe,

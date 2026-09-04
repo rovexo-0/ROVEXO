@@ -22,10 +22,12 @@ describe("Phase C — Business cleanup & branding lock", () => {
     expect(resolveBusinessAddressesVisibility().showBusinessAddressesTab).toBe(false);
   });
 
-  it("redirects /business layout to Personal Account", () => {
+  it("allows seller_context Business routes while extra Business UX stays Phase-C hidden", () => {
     const layout = readSource("app/(platform)/business/layout.tsx");
-    expect(layout).toContain("isV1BusinessUxRemoved");
-    expect(layout).toContain('redirect(PHASE_C_V1_BUSINESS_CLEANUP_V1.redirectBusinessRoutesTo)');
+    expect(isV1BusinessUxRemoved()).toBe(true);
+    expect(layout).not.toContain("isV1BusinessUxRemoved");
+    expect(layout).not.toContain("redirect(PHASE_C_V1_BUSINESS_CLEANUP_V1.redirectBusinessRoutesTo)");
+    expect(layout).toContain("return children");
   });
 
   it("does not mount Following feed on Canonical Homepage (Homepage v1.0 freeze)", () => {

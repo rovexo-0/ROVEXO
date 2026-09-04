@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType } from "react";
 import type { NotificationIcon } from "@/lib/notifications/types";
 import {
   BackLineIcon,
@@ -14,8 +14,10 @@ import {
   TagLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
-type IconProps = SVGProps<SVGSVGElement> & { className?: string };
+type IconProps = { className?: string };
 
 export function SettingsIcon(props: IconProps) {
   return <SettingsLineIcon {...props} />;
@@ -33,25 +35,8 @@ export function CheckIcon(props: IconProps) {
   return <CheckLineIcon {...props} />;
 }
 
-function TrashLineIcon(props: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      {...props}
-    >
-      <path d="M4 7h16M9 7V5h6v2M8 7l.8 12h6.4L16 7" />
-    </svg>
-  );
-}
-
 export function TrashIcon(props: IconProps) {
-  return <TrashLineIcon {...props} />;
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.delete} {...props} />;
 }
 
 const notificationIcons: Record<NotificationIcon, ComponentType<IconProps>> = {

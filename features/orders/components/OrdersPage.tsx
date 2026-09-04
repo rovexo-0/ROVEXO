@@ -14,6 +14,7 @@ import {
   resolveOrdersV7Status,
 } from "@/lib/orders/orders-v7-status";
 import { getMessageHref } from "@/lib/orders/status";
+import { resolveOrdersBackHref, withOrdersReturnTo } from "@/lib/orders/orders-return-to-v1";
 import { SUPREME_BLOOD_CODE_XII_V1 } from "@/lib/supreme-blood-code-xii-v1";
 import type { Order, OrderStatus } from "@/lib/orders/types";
 import "@/styles/rovexo/orders-page-v1.css";
@@ -114,6 +115,8 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
     setSold(soldOrders);
   }
   const tab = resolveOrdersTab(searchParams.get("tab"), bought.length, sold.length);
+  const returnTo = searchParams.get("returnTo");
+  const ordersBack = resolveOrdersBackHref(returnTo);
   const statusParam = searchParams.get("status");
   const chip: Chip =
     statusParam === "in_progress" ||
@@ -162,24 +165,18 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
 
   const setTab = (next: Tab) => {
     // Always encode tab explicitly so buyer-default Bought does not fight Sold clicks.
-    const params = new URLSearchParams();
-    params.set("tab", next);
-    if (chip !== "all") params.set("status", chip);
-    router.push(`/orders?${params.toString()}`);
+    router.push(withOrdersReturnTo(next, chip, returnTo));
   };
 
   const setChip = (next: Chip) => {
-    const params = new URLSearchParams();
-    params.set("tab", tab);
-    if (next !== "all") params.set("status", next);
-    router.push(`/orders?${params.toString()}`);
+    router.push(withOrdersReturnTo(tab, next, returnTo));
   };
 
   return (
     <AccountCanonicalShell
       title="Orders"
-      backHref="/account"
-      backLabel="My Account"
+      backHref={ordersBack.href}
+      backLabel={ordersBack.label}
       showHeaderTitle
       showBottomNav
     >

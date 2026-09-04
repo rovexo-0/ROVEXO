@@ -6,6 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { analyzeImageMetadata } from "@/lib/moderation/analyzer";
 import { enqueueModerationReview } from "@/lib/moderation/service";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
+import {
+  AVIF_CACHE_CONTROL,
+  AVIF_CONTENT_TYPE,
+  allAvifDerivativeStoragePaths,
+  avifDerivativeStoragePath,
+  preferAvifServingUrls,
+} from "@/lib/media/avif-image-pipeline-v1";
 
 export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "listings-upload", 30, 60_000);
@@ -87,7 +94,35 @@ export async function POST(request: Request) {
     const cacheControl = "31536000";
     const fullBlob = new Blob([new Uint8Array(fullBuffer)], { type: contentType });
     const thumbBlob = new Blob([new Uint8Array(thumbnailBuffer)], { type: contentType });
-    const [fullUpload, thumbUpload] = await Promise.all([
+
+    let avifUploads: Array<{
+      path: string;
+      blob: Blob;
+    }> = [];
+    try {
+      const { generateAvifDerivatives } = await import(
+        "@/lib/media/avif-image-conversion.server"
+      );
+      const avif = await generateAvifDerivatives(fullBuffer);
+      avifUploads = (
+        [
+          ["thumb", avif.thumb],
+          ["medium", avif.medium],
+          ["large", avif.large],
+        ] as const
+      ).map(([name, derivative]) => ({
+        path: avifDerivativeStoragePath(fullPath, name),
+        blob: new Blob([new Uint8Array(derivative.buffer)], { type: AVIF_CONTENT_TYPE }),
+      }));
+    } catch {
+      return NextResponse.json({ error: "Upload failed." }, { status: 500 });
+    }
+
+    if (avifUploads.length !== 3) {
+      return NextResponse.json({ error: "Upload failed." }, { status: 500 });
+    }
+
+    const [fullUpload, thumbUpload, ...avifResults] = await Promise.all([
       supabase.storage.from("products").upload(fullPath, fullBlob, {
         contentType,
         upsert: true,
@@ -98,11 +133,36 @@ export async function POST(request: Request) {
         upsert: true,
         cacheControl,
       }),
+      ...avifUploads.map((item) =>
+        supabase.storage.from("products").upload(item.path, item.blob, {
+          contentType: AVIF_CONTENT_TYPE,
+          upsert: true,
+          cacheControl: AVIF_CACHE_CONTROL,
+        }),
+      ),
     ]);
 
     if (fullUpload.error || thumbUpload.error) {
       return NextResponse.json({ error: "Upload failed." }, { status: 500 });
     }
+
+    const avifOk = avifUploads.length === 3 && avifResults.every((result) => !result.error);
+    if (!avifOk) {
+      return NextResponse.json({ error: "Upload failed." }, { status: 500 });
+    }
+
+    const originalPublicUrl = getPublicStorageUrl("products", fullPath);
+    const jpegThumbPublicUrl = getPublicStorageUrl("products", thumbPath);
+    const served = preferAvifServingUrls({
+      originalPublicUrl,
+      jpegThumbPublicUrl,
+      avifThumbPublicUrl: avifOk
+        ? getPublicStorageUrl("products", avifDerivativeStoragePath(fullPath, "thumb"))
+        : null,
+      avifLargePublicUrl: avifOk
+        ? getPublicStorageUrl("products", avifDerivativeStoragePath(fullPath, "large"))
+        : null,
+    });
 
     const imageResult = analyzeImageMetadata({ fileName: filename });
     if (productId && imageResult.decision !== "approved") {
@@ -118,8 +178,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      url: getPublicStorageUrl("products", fullPath),
-      thumbnailUrl: getPublicStorageUrl("products", thumbPath),
+      url: served.url,
+      thumbnailUrl: served.thumbnailUrl,
       storagePath: fullPath,
       thumbnailStoragePath: thumbPath,
       sessionId,
@@ -148,7 +208,11 @@ export async function DELETE(request: Request) {
     }
 
     const supabase = await createClient();
-    const paths = [storagePath, thumbnailStoragePath].filter(Boolean) as string[];
+    const paths = [
+      storagePath,
+      thumbnailStoragePath,
+      ...allAvifDerivativeStoragePaths(storagePath),
+    ].filter(Boolean) as string[];
     await supabase.storage.from("products").remove(paths);
 
     return NextResponse.json({ success: true });

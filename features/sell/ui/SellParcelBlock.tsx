@@ -11,26 +11,16 @@ import { getListingValidationErrors, PARCEL_SIZE_OPTIONS, type ParcelSize } from
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
 import { PARCEL_CARD_PRESENTATION } from "@/features/sell/ui/sell-picker-presentation-v1";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 const SELECT_ANIM_MS = 200;
 
 function ParcelBoxIllustration({ size }: { size: ParcelSize }) {
-  const scale = size === "small" ? 0.72 : size === "medium" ? 0.86 : 1;
+  const emojiSize = size === "small" ? 28 : size === "medium" ? 34 : 40;
   return (
-    <span className="sell-parcel-option__art" aria-hidden style={{ ["--sell-parcel-scale" as string]: scale }}>
-      <svg viewBox="0 0 64 64" className="sell-parcel-option__box" fill="none">
-        <path
-          d="M10 24 L32 12 L54 24 L54 44 L32 56 L10 44 Z"
-          fill="#C4A574"
-          stroke="#8B6914"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        <path d="M10 24 L32 36 L54 24" stroke="#8B6914" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M32 36 V56" stroke="#8B6914" strokeWidth="1.5" />
-        <path d="M22 20 L42 31" stroke="#A67C2D" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
-        <path d="M26 18 L46 29" stroke="#E8D5A3" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
-      </svg>
+    <span className="sell-parcel-option__art" aria-hidden>
+      <PlatformEmoji emoji={PLATFORM_EMOJI.listings} size={emojiSize} className="sell-parcel-option__box" />
     </span>
   );
 }

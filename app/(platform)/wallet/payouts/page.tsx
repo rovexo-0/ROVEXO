@@ -17,6 +17,6 @@ export default async function WalletPayoutsRoute() {
     redirect(`/login?next=${WALLET_ROUTES.payouts}`);
   }
 
-  const data = await fetchWalletData();
+  const data = await fetchWalletData("individual");
   return <WalletPayoutsPage transactions={data.transactions} />;
 }

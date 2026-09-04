@@ -41,6 +41,7 @@ describe("auth redirect helpers", () => {
     expect(sanitizeNextPath("/orders")).toBe("/orders");
     expect(sanitizeNextPath("//evil.com")).toBe("/");
     expect(sanitizeNextPath("/login")).toBe("/");
+    expect(sanitizeNextPath("/reset-password")).toBe("/reset-password");
     expect(sanitizeNextPath(undefined)).toBe("/");
   });
 

@@ -36,6 +36,7 @@ import type { Order } from "@/lib/orders/types";
 import {
   extractActiveOrderDisplayCarriers,
   resolveOrderDisplayCarrier,
+  resolveOrderDisplayTracking,
 } from "@/lib/orders/resolve-order-display-carrier-v1";
 import type { ShipmentParcel } from "@/lib/shipping/types";
 
@@ -72,6 +73,8 @@ export function OrderDetailView({
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchedParcels, setFetchedParcels] = useState<ShipmentParcel[] | null>(null);
+  const [fetchedRecordCarrier, setFetchedRecordCarrier] = useState<string | null>(null);
+  const [fetchedRecordTracking, setFetchedRecordTracking] = useState<string | null>(null);
   const view = resolveOrderViewRole(order, userId);
 
   const shipmentParcels = sellerShipment?.parcels ?? fetchedParcels;
@@ -79,30 +82,59 @@ export function OrderDetailView({
     () => extractActiveOrderDisplayCarriers(shipmentParcels),
     [shipmentParcels],
   );
+  const shippingRecordCarrier =
+    sellerShipment?.record?.carrier ?? fetchedRecordCarrier;
+  const shippingRecordTracking =
+    sellerShipment?.record?.trackingNumber ?? fetchedRecordTracking;
 
   useEffect(() => {
-    if (activeLabelCarrier || activeParcelCarrier || sellerShipment || fetchedParcels) {
+    // Always hydrate current shipment parcels unless already provided.
+    // Hub activeLabelCarrier must NOT skip this — recovered multi-carrier
+    // display requires selectCurrentOrderParcels over a possibly stale label GET.
+    if (sellerShipment || fetchedParcels) {
       return;
     }
     let cancelled = false;
     void fetch(`/api/orders/${order.id}/shipment`)
       .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { shipment?: { parcels?: ShipmentParcel[] } } | null) => {
-        if (cancelled) return;
-        setFetchedParcels(payload?.shipment?.parcels ?? []);
-      })
+      .then(
+        (
+          payload: {
+            shipment?: {
+              parcels?: ShipmentParcel[];
+              record?: { carrier?: string | null; trackingNumber?: string | null } | null;
+            };
+          } | null,
+        ) => {
+          if (cancelled) return;
+          setFetchedParcels(payload?.shipment?.parcels ?? []);
+          setFetchedRecordCarrier(payload?.shipment?.record?.carrier ?? null);
+          setFetchedRecordTracking(payload?.shipment?.record?.trackingNumber ?? null);
+        },
+      )
       .catch(() => {
-        if (!cancelled) setFetchedParcels([]);
+        if (!cancelled) {
+          setFetchedParcels([]);
+          setFetchedRecordCarrier(null);
+          setFetchedRecordTracking(null);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [activeLabelCarrier, activeParcelCarrier, fetchedParcels, order.id, sellerShipment]);
+  }, [fetchedParcels, order.id, sellerShipment]);
 
+  // Current shipment extract wins over Hub label props (active label → parcel → record → order).
   const displayCarrier = resolveOrderDisplayCarrier({
     orderCarrier: order.deliveryCarrier,
-    activeLabelCarrier: activeLabelCarrier || extracted.activeLabelCarrier,
-    activeParcelCarrier: activeParcelCarrier || extracted.activeParcelCarrier,
+    shippingRecordCarrier,
+    activeLabelCarrier: extracted.activeLabelCarrier || activeLabelCarrier,
+    activeParcelCarrier: extracted.activeParcelCarrier || activeParcelCarrier,
+  });
+  const displayTracking = resolveOrderDisplayTracking({
+    orderTracking: order.trackingNumber,
+    shippingRecordTracking,
+    activeParcelTracking: extracted.activeTrackingNumber,
   });
 
   const updateOrder = useCallback(
@@ -161,7 +193,13 @@ export function OrderDetailView({
             ) : null}
           </CanonicalInfoBlock>
         </section>
-        <OrderActionsCard order={order} view={view} onOpenMessages={onOpenMessages} />
+        <OrderActionsCard
+          order={order}
+          view={view}
+          onOpenMessages={onOpenMessages}
+          displayCarrier={displayCarrier}
+          displayTrackingNumber={displayTracking}
+        />
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
     );
@@ -212,7 +250,13 @@ export function OrderDetailView({
       ) : null}
 
       <div className="order-detail-action-stack" data-order-detail-actions="v1.0">
-        <OrderActionsCard order={order} view={view} onOpenMessages={onOpenMessages} />
+        <OrderActionsCard
+          order={order}
+          view={view}
+          onOpenMessages={onOpenMessages}
+          displayCarrier={displayCarrier}
+          displayTrackingNumber={displayTracking}
+        />
         {view === "buyer" ? (
           <BuyerCancelOrderCard
             order={order}

@@ -11,6 +11,7 @@ import {
   trackHelpEvent,
   writeHelpSession,
 } from "@/lib/help/session";
+import { helpTopicGuideHref } from "@/lib/help/help-article-nav-v1";
 import type { HelpTopicSlug } from "@/lib/help/types";
 
 type HelpResolutionPromptProps = {
@@ -33,6 +34,7 @@ export function HelpResolutionPrompt({ topicSlug }: HelpResolutionPromptProps) {
   };
 
   const supportAllowed = canAccessSupport(readHelpSession());
+  const guideHref = helpTopicGuideHref(topicSlug);
 
   return (
     <CanonicalSection title="Did this solve your problem?">
@@ -51,7 +53,7 @@ export function HelpResolutionPrompt({ topicSlug }: HelpResolutionPromptProps) {
             <p className="cds-menu-row__title">More solutions</p>
             <ul className="space-y-ds-2 cds-menu-row__subtitle">
               <li>
-                <Link href={`/help/category/${topicSlug}`} className="text-primary hover:opacity-80">
+                <Link href={guideHref ?? "/help"} className="text-primary hover:opacity-80">
                   Start guided troubleshooting again
                 </Link>
               </li>

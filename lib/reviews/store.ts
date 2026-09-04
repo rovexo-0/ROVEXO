@@ -9,6 +9,7 @@ import {
 } from "@/lib/reviews/rating-distribution";
 import { isValidRating } from "@/lib/rating/rating-engine-v1";
 import { isReviewWindowOpen } from "@/lib/reviews/review-window-v1";
+import { resolveCardImageSources, toBrowserReachableStorageUrl } from "@/lib/media/product-image";
 import type {
   CreateReviewInput,
   ReplyToReviewInput,
@@ -123,7 +124,9 @@ function mapReview(row: {
       PUBLIC_IDENTITY_FALLBACKS.member,
     ),
     reviewerUsername: row.reviewer?.username ?? null,
-    reviewerAvatarUrl: row.reviewer?.avatar_url ?? null,
+    reviewerAvatarUrl: row.reviewer?.avatar_url
+      ? toBrowserReachableStorageUrl(row.reviewer.avatar_url)
+      : null,
     verifiedPurchase: row.verified_purchase !== false,
     replyText: row.reply_text ?? null,
     replyAt: row.reply_at ?? null,
@@ -419,7 +422,7 @@ async function enrichSellerReviewsForStore(reviews: Review[]): Promise<Review[]>
   if (productIds.length > 0) {
     const { data: products } = await admin
       .from("products")
-      .select("id, slug, title, product_images ( url, thumbnail_url, sort_order, is_primary )")
+      .select("id, slug, title, status, product_images ( url, thumbnail_url, storage_path, sort_order, is_primary )")
       .in("id", productIds);
 
     for (const row of products ?? []) {
@@ -432,10 +435,14 @@ async function enrichSellerReviewsForStore(reviews: Review[]): Promise<Review[]>
       productById.set(String(row.id), {
         slug: String(row.slug ?? ""),
         title: String(row.title ?? ""),
-        imageUrl:
-          (primary?.thumbnail_url as string | undefined) ??
-          (primary?.url as string | undefined) ??
-          null,
+        imageUrl: resolveCardImageSources(
+          (primary?.thumbnail_url as string | undefined) ?? null,
+          (primary?.url as string | undefined) ?? null,
+          {
+            storagePath: (primary?.storage_path as string | undefined) ?? "",
+            productStatus: (row as { status?: string | null }).status,
+          },
+        ).imageUrl,
       });
     }
   }

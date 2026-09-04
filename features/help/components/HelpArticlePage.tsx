@@ -6,22 +6,30 @@ import { useEffect } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
 import { HelpResolutionPrompt } from "@/features/help/components/HelpResolutionPrompt";
+import { useRefreshHelpOnSellerContextChange } from "@/features/help/hooks/use-refresh-help-on-seller-context-change";
 import { getHelpTopic } from "@/lib/help/content/topics";
-import { getArticleSections } from "@/lib/help/content/article-meta";
-import { getHelpArticle } from "@/lib/help/content/articles";
+import { getHelpArticleForAudience } from "@/lib/help/content/articles";
+import { helpCategoryBreadcrumb, helpTopicGuideHref } from "@/lib/help/help-article-nav-v1";
+import { HELP_AUDIENCES_FOR_GUEST, type HelpContentAudience } from "@/lib/help/help-content-audience-v1";
 import { renderMarkdown } from "@/lib/help/markdown";
 import { markArticleViewed, readHelpSession, startHelpSession, trackHelpEvent } from "@/lib/help/session";
 import type { HelpArticle } from "@/lib/help/types";
 
 type HelpArticlePageProps = {
   article: HelpArticle;
+  allowedAudiences?: readonly HelpContentAudience[];
 };
 
-export function HelpArticlePage({ article }: HelpArticlePageProps) {
-  const sections = getArticleSections(article);
+export function HelpArticlePage({
+  article,
+  allowedAudiences = HELP_AUDIENCES_FOR_GUEST,
+}: HelpArticlePageProps) {
+  useRefreshHelpOnSellerContextChange();
   const topic = getHelpTopic(article.topic ?? "other");
+  const guideHref = helpTopicGuideHref(article.topic);
+  const categoryCrumb = helpCategoryBreadcrumb(article.category);
   const related = (article.relatedArticleSlugs ?? [])
-    .map((slug) => getHelpArticle(slug))
+    .map((slug) => getHelpArticleForAudience(slug, allowedAudiences))
     .filter((entry): entry is HelpArticle => Boolean(entry));
 
   useEffect(() => {
@@ -39,44 +47,54 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
 
   return (
     <AccountCanonicalShell title={article.title} backHref="/help" backLabel="Help Centre" showHeaderTitle>
-      {topic ? (
+      <nav aria-label="Breadcrumb" className="cds-section__intro">
+        <Link href="/help" className="font-medium text-primary hover:opacity-80">
+          Help Centre
+        </Link>
+        <span aria-hidden="true"> / </span>
+        <Link href={categoryCrumb.href} className="font-medium text-primary hover:opacity-80">
+          {categoryCrumb.label}
+        </Link>
+        <span aria-hidden="true"> / </span>
+        <span aria-current="page">{article.title}</span>
+      </nav>
+
+      {guideHref && topic ? (
         <CanonicalInfoBlock variant="tip">
-          <Link href={`/help/category/${topic.slug}`} className="font-medium text-primary hover:opacity-80">
+          <Link href={guideHref} className="font-medium text-primary hover:opacity-80">
             Open {topic.label} guided troubleshooting
           </Link>
         </CanonicalInfoBlock>
       ) : null}
 
-      <CanonicalInfoBlock variant="description">{sections.overview}</CanonicalInfoBlock>
+      <CanonicalInfoBlock variant="description">{article.summary}</CanonicalInfoBlock>
 
       <CanonicalCard variant="medium">
         <div className="flex flex-col gap-ds-5 p-ds-4">
-          <ArticleSection title="Overview">
-            <div
-              className="prose-help cds-menu-row__subtitle"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
-            />
-          </ArticleSection>
-          <ArticleListSection title="Step-by-step guide" items={sections.steps} />
-          <ArticleListSection title="Requirements" items={sections.requirements} />
-          <ArticleSection title="Estimated processing time">
-            <p className="cds-menu-row__subtitle">{sections.processingTime}</p>
-          </ArticleSection>
-          <ArticleListSection title="Common mistakes" items={sections.commonMistakes} />
-          <ArticleListSection title="Troubleshooting" items={sections.troubleshooting} />
-          <ArticleSection title="Frequently asked questions">
-            <div className="mt-ds-3 space-y-ds-2">
-              {sections.faqs.map((faq) => (
-                <details key={faq.question} className="cds-card cds-card--sm p-ds-3">
-                  <summary className="cds-menu-row__title cursor-pointer">{faq.question}</summary>
-                  <p className="cds-menu-row__subtitle mt-ds-2">{faq.answer}</p>
-                </details>
-              ))}
-            </div>
-          </ArticleSection>
-          <p className="cds-field__hint">Last updated {article.lastUpdated ?? "2025-06-19"}</p>
+          <div
+            className="prose-help cds-menu-row__subtitle"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
+          />
+          {article.lastUpdated ? (
+            <p className="cds-field__hint">Last updated {article.lastUpdated}</p>
+          ) : null}
         </div>
       </CanonicalCard>
+
+      {related.length ? (
+        <CanonicalSection title="Related articles">
+          <CanonicalCard variant="list">
+            {related.map((entry) => (
+              <CanonicalMenuRow
+                key={entry.slug}
+                title={entry.title}
+                description={entry.summary}
+                href={`/help/${entry.slug}`}
+              />
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
+      ) : null}
 
       <CanonicalSection title="Need more help?">
         <CanonicalCard variant="list">
@@ -85,54 +103,7 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
         </CanonicalCard>
       </CanonicalSection>
 
-      {related.length ? (
-        <CanonicalSection title="Related articles">
-          <CanonicalCard variant="list">
-            {related.map((entry) => (
-              <CanonicalMenuRow key={entry.slug} title={entry.title} href={`/help/${entry.slug}`} />
-            ))}
-          </CanonicalCard>
-        </CanonicalSection>
-      ) : null}
-
-      {(article.relatedFeatureHrefs ?? []).filter(
-        (link) => link.href.startsWith("/category/") || link.href.startsWith("/collections/"),
-      ).length ? (
-        <CanonicalSection title="Browse marketplace">
-          <CanonicalCard variant="list">
-            {(article.relatedFeatureHrefs ?? [])
-              .filter((link) => link.href.startsWith("/category/") || link.href.startsWith("/collections/"))
-              .slice(0, 4)
-              .map((link) => (
-                <CanonicalMenuRow key={link.href} title={link.label} href={link.href} />
-              ))}
-          </CanonicalCard>
-        </CanonicalSection>
-      ) : null}
-
       {article.topic ? <HelpResolutionPrompt topicSlug={article.topic} /> : null}
     </AccountCanonicalShell>
-  );
-}
-
-function ArticleSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section>
-      <h3 className="cds-section__title">{title}</h3>
-      <div className="mt-ds-2">{children}</div>
-    </section>
-  );
-}
-
-function ArticleListSection({ title, items }: { title: string; items: string[] }) {
-  if (!items.length) return null;
-  return (
-    <ArticleSection title={title}>
-      <ul className="mt-ds-2 list-disc space-y-ds-1 pl-ds-5 cds-menu-row__subtitle">
-        {items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    </ArticleSection>
   );
 }

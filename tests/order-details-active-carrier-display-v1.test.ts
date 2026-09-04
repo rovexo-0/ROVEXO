@@ -78,6 +78,7 @@ describe("TEST 1 — normal Royal Mail order displays Royal Mail", () => {
     expect(
       resolveOrderDisplayCarrier({
         orderCarrier: "Royal Mail",
+        shippingRecordCarrier: null,
         activeLabelCarrier: null,
         activeParcelCarrier: null,
       }),
@@ -90,6 +91,7 @@ describe("TEST 2 — normal Evri order displays Evri", () => {
     expect(
       resolveOrderDisplayCarrier({
         orderCarrier: "Evri",
+        shippingRecordCarrier: null,
         activeLabelCarrier: null,
         activeParcelCarrier: null,
       }),
@@ -114,6 +116,7 @@ describe("TEST 4 — historical InPost without active recovery displays InPost",
     expect(
       resolveOrderDisplayCarrier({
         orderCarrier: "InPost",
+        shippingRecordCarrier: null,
         activeLabelCarrier: null,
         activeParcelCarrier: null,
       }),
@@ -121,6 +124,7 @@ describe("TEST 4 — historical InPost without active recovery displays InPost",
     expect(extractActiveOrderDisplayCarriers([historicalInPost])).toEqual({
       activeLabelCarrier: null,
       activeParcelCarrier: null,
+      activeTrackingNumber: null,
     });
   });
 });
@@ -154,6 +158,7 @@ describe("TEST 7 — missing active carrier must not silently default to Royal M
     expect(
       resolveOrderDisplayCarrier({
         orderCarrier: null,
+        shippingRecordCarrier: null,
         activeLabelCarrier: null,
         activeParcelCarrier: null,
       }),
@@ -161,6 +166,7 @@ describe("TEST 7 — missing active carrier must not silently default to Royal M
     expect(
       resolveOrderDisplayCarrier({
         orderCarrier: "   ",
+        shippingRecordCarrier: null,
         activeLabelCarrier: "sendcloud",
         activeParcelCarrier: "",
       }),
@@ -199,9 +205,147 @@ describe("Order Details wiring", () => {
   it("uses the reusable resolver and does not special-case the recovered order", () => {
     const detail = readFileSync("features/orders/components/OrderDetailView.tsx", "utf8");
     const hub = readFileSync("features/inbox/components/ConversationHub.tsx", "utf8");
+    const labels = readFileSync("app/api/shipping/labels/route.ts", "utf8");
     expect(detail).toContain("resolveOrderDisplayCarrier");
+    expect(detail).toContain("resolveOrderDisplayTracking");
     expect(detail).toContain("carrier={displayCarrier}");
+    expect(detail).toContain("displayTrackingNumber={displayTracking}");
+    // Current shipment extract must win over Hub label props.
+    expect(detail).toContain(
+      "activeLabelCarrier: extracted.activeLabelCarrier || activeLabelCarrier",
+    );
+    expect(detail).toContain(
+      "activeParcelCarrier: extracted.activeParcelCarrier || activeParcelCarrier",
+    );
+    expect(detail).not.toContain(
+      "activeLabelCarrier: activeLabelCarrier || extracted.activeLabelCarrier",
+    );
     expect(detail).not.toContain("RVX8343A7C7");
     expect(hub).toContain("activeLabelCarrier={activeShippingLabel?.carrier ?? null}");
+    expect(hub).not.toMatch(/order\?\.deliveryCarrier \|\|\s*"Royal Mail"/);
+    expect(labels).toContain("selectCurrentOrderParcels");
+    expect(labels).toContain("listShipmentParcelsForOrder");
+  });
+});
+
+describe("recovered multi-carrier precedence + tracking identity", () => {
+  const historicalEvri = parcel({
+    id: "parcel-evri",
+    parcelNumber: 1,
+    carrier: "Evri",
+    status: "failed",
+    trackingNumber: "H01EVRIHIST",
+    label: { id: "label-evri", pdfUrl: null, labelUrl: null, status: "void" },
+  });
+  const activeRoyalMail = parcel({
+    id: "parcel-rm",
+    parcelNumber: 2,
+    carrier: "Royal Mail",
+    status: "preparing",
+    trackingNumber: "MZ111222333GB",
+    label: {
+      id: "label-rm",
+      pdfUrl: "/labels/rm.pdf",
+      labelUrl: "/labels/rm.pdf",
+      status: "ready",
+    },
+    providerParcelId: 7001,
+  });
+  const historicalRoyalMail = parcel({
+    id: "parcel-rm-old",
+    parcelNumber: 1,
+    carrier: "Royal Mail",
+    status: "cancelled",
+    trackingNumber: "GBOLDROYAL",
+    label: { id: "label-rm-old", pdfUrl: null, labelUrl: null, status: "void" },
+  });
+  const activeEvri = parcel({
+    id: "parcel-evri-new",
+    parcelNumber: 2,
+    carrier: "Evri",
+    status: "preparing",
+    trackingNumber: "H99EVRIACTIVE",
+    label: {
+      id: "label-evri-new",
+      pdfUrl: "/labels/evri.pdf",
+      labelUrl: "/labels/evri.pdf",
+      status: "ready",
+    },
+    providerParcelId: 8001,
+  });
+
+  it("historical Evri + active Royal Mail displays Royal Mail tracking", () => {
+    const active = extractActiveOrderDisplayCarriers([historicalEvri, activeRoyalMail]);
+    expect(
+      resolveOrderDisplayCarrier({
+        orderCarrier: "Evri",
+        shippingRecordCarrier: "Evri",
+        ...active,
+      }),
+    ).toBe("Royal Mail");
+    expect(active.activeTrackingNumber).toBe("MZ111222333GB");
+  });
+
+  it("historical Royal Mail + active Evri displays Evri tracking", () => {
+    const active = extractActiveOrderDisplayCarriers([historicalRoyalMail, activeEvri]);
+    expect(
+      resolveOrderDisplayCarrier({
+        orderCarrier: "Royal Mail",
+        shippingRecordCarrier: "Royal Mail",
+        ...active,
+      }),
+    ).toBe("Evri");
+    expect(active.activeTrackingNumber).toBe("H99EVRIACTIVE");
+  });
+
+  it("cancelled historical parcel is not selected as active", () => {
+    const active = extractActiveOrderDisplayCarriers([historicalRoyalMail]);
+    expect(active.activeParcelCarrier).toBeNull();
+    expect(active.activeTrackingNumber).toBeNull();
+  });
+
+  it("delivered historical does not overwrite a later live shipment", () => {
+    const deliveredHistorical = parcel({
+      id: "parcel-delivered",
+      parcelNumber: 1,
+      carrier: "Evri",
+      status: "delivered",
+      trackingNumber: "HDELIVERED1",
+      providerParcelId: 1,
+      label: {
+        id: "label-delivered",
+        pdfUrl: "/old.pdf",
+        labelUrl: "/old.pdf",
+        status: "ready",
+      },
+    });
+    const recovered = parcel({
+      id: "parcel-live",
+      parcelNumber: 2,
+      carrier: "Royal Mail",
+      status: "preparing",
+      trackingNumber: "MZLIVE999GB",
+      providerParcelId: 2,
+      label: {
+        id: "label-live",
+        pdfUrl: "/new.pdf",
+        labelUrl: "/new.pdf",
+        status: "ready",
+      },
+    });
+    const active = extractActiveOrderDisplayCarriers([deliveredHistorical, recovered]);
+    expect(active.activeParcelCarrier).toBe("Royal Mail");
+    expect(active.activeTrackingNumber).toBe("MZLIVE999GB");
+  });
+
+  it("shipping_records carrier is used only when active parcel is missing", () => {
+    expect(
+      resolveOrderDisplayCarrier({
+        orderCarrier: "Evri",
+        shippingRecordCarrier: "Royal Mail",
+        activeLabelCarrier: null,
+        activeParcelCarrier: null,
+      }),
+    ).toBe("Royal Mail");
   });
 });

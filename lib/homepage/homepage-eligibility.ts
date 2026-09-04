@@ -11,6 +11,7 @@ import {
   type HomepageMode,
 } from "@/lib/homepage/config";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
+import { excludeHomepageTestListings } from "@/lib/homepage/homepage-test-listing-exclusion-v1";
 
 /** @deprecated Absolute Law v5.0 — demo seed slugs are never marketplace inventory. */
 export const APPROVED_DEMO_SLUG_PATTERN =
@@ -304,7 +305,10 @@ export type EligibilityRow = {
 
 export { isClosedBetaHomepageMode, resolveHomepageMode };
 
-/** @deprecated Use HomepageEligibility.filterProducts */
+/**
+ * Homepage resolve wrapper — core eligibility plus homepage-only TEST/QA exclusion.
+ * Search / Store / Listing Detail use HomepageEligibility.filterProducts, not this.
+ */
 export function filterHomepageProducts<T extends Product>(products: T[]): T[] {
-  return HomepageEligibility.filterProducts(products);
+  return excludeHomepageTestListings(HomepageEligibility.filterProducts(products));
 }

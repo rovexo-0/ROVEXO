@@ -9,6 +9,13 @@ const DEMO_SELLER = DEMO_USERS.find((u) => u.key === "live-seller")!;
 
 /** Full Demo seller session for Sell E2E (no UI login). */
 export async function signInDemoSeller(page: Page, baseURL: string): Promise<void> {
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem("rovexo_cookie_consent_v1", "accepted");
+    } catch {
+      /* ignore */
+    }
+  });
   await page.goto(baseURL, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await signInWithSessionCookies(page, {
     email: DEMO_SELLER.email,

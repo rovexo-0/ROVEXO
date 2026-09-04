@@ -15,7 +15,7 @@ export default async function WalletLockedPage() {
   const profile = await fetchProfile();
   if (!profile) redirect(`/login?next=${WALLET_ROUTES.locked}`);
 
-  const data = await fetchWalletData();
+  const data = await fetchWalletData("individual");
   const balances = resolveWalletBalanceView(data);
   const hasLocked = balances.locked > 0;
 

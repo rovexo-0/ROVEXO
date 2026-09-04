@@ -6,9 +6,39 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Allow only in-app paths and http(s)/mailto. Reject javascript: and protocol-relative URLs. */
+export function safeHelpMarkdownHref(href: string): string | null {
+  const trimmed = href.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+    return trimmed;
+  }
+  if (trimmed.startsWith("#") && !trimmed.startsWith("#javascript")) {
+    return trimmed;
+  }
+  if (/^mailto:[^\s]+$/i.test(trimmed)) {
+    return trimmed;
+  }
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 function inlineMarkdown(value: string): string {
   return escapeHtml(value)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary underline">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, href: string) => {
+      const safe = safeHelpMarkdownHref(href.replace(/&amp;/g, "&"));
+      if (!safe) {
+        return label;
+      }
+      return `<a href="${escapeHtml(safe)}" class="text-primary underline">${label}</a>`;
+    })
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
 

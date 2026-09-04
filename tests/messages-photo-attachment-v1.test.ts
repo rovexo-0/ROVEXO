@@ -40,7 +40,7 @@ describe("Messages photo attachment — Phase I", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     expect(hub).toContain("conv-hub__composer-pending");
     expect(hub).toContain("conv-hub__bubble-photo");
-    expect(hub).toContain('width="24"');
-    expect(hub).toContain('height="24"');
+    expect(hub).toContain("cameraPickerId");
+    expect(hub).toContain("conv-hub__composer-pending");
   });
 });

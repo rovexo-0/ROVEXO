@@ -39,6 +39,29 @@ export function LegalIndexCanonical({ documents }: LegalIndexCanonicalProps) {
             );
           })}
         </div>
+        <p className="cds-section__intro">Related</p>
+        <div className="fw-engine__group">
+          <CanonicalMenuRow
+            href="/help"
+            title="Help Centre"
+            description="Guides and FAQs"
+          />
+          <CanonicalMenuRow
+            href="/account/privacy"
+            title="Privacy Settings"
+            description="Account privacy controls — not the Privacy Policy"
+          />
+          <CanonicalMenuRow
+            href="/about"
+            title="About ROVEXO"
+            description="How the marketplace works"
+          />
+          <CanonicalMenuRow
+            href="/support"
+            title="Contact Support"
+            description="Submit a support request"
+          />
+        </div>
       </div>
     </AccountCanonicalShell>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   DEFAULT_WITHDRAW_DRAFT,
   type WithdrawDraft,
@@ -8,17 +8,31 @@ import {
 } from "@/lib/wallet/types";
 import { parseWithdrawAmount } from "@/lib/wallet/utils";
 import type { WithdrawMethod } from "@/lib/wallet/types";
+import type { SellerContext } from "@/lib/seller-context/seller-context-v1";
 
 type UseWithdrawFlowOptions = {
   availableBalance: number;
   methods: WithdrawMethod[];
+  sellerContext?: SellerContext;
 };
 
-export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOptions) {
+function createWithdrawIntentKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `wd-intent-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function useWithdrawFlow({
+  availableBalance,
+  methods,
+  sellerContext = "individual",
+}: UseWithdrawFlowOptions) {
   const [step, setStep] = useState<WithdrawStep>("method");
   const [draft, setDraft] = useState<WithdrawDraft>(DEFAULT_WITHDRAW_DRAFT);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const intentKeyRef = useRef<string | null>(null);
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === draft.methodId) ?? null,
@@ -49,6 +63,9 @@ export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOp
     }
 
     if (step === "amount" && parsedAmount > 0) {
+      if (!intentKeyRef.current) {
+        intentKeyRef.current = createWithdrawIntentKey();
+      }
       setStep("review");
     }
   };
@@ -62,6 +79,7 @@ export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOp
     }
 
     if (step === "review") {
+      intentKeyRef.current = null;
       setStep("amount");
     }
   };
@@ -69,16 +87,24 @@ export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOp
   const confirmWithdraw = async () => {
     if (!selectedMethod || parsedAmount <= 0) return;
 
+    const idempotencyKey = intentKeyRef.current ?? createWithdrawIntentKey();
+    intentKeyRef.current = idempotencyKey;
+
     setIsSubmitting(true);
     setError(null);
 
     try {
       const response = await fetch("/api/wallet/withdraw", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
         body: JSON.stringify({
           methodId: selectedMethod.id,
           amount: parsedAmount,
+          idempotencyKey,
+          sellerContext,
         }),
       });
 
@@ -87,6 +113,7 @@ export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOp
         return;
       }
 
+      intentKeyRef.current = null;
       setStep("success");
     } catch {
       setError("Unable to submit withdrawal. Please try again.");
@@ -100,6 +127,7 @@ export function useWithdrawFlow({ availableBalance, methods }: UseWithdrawFlowOp
     setDraft(DEFAULT_WITHDRAW_DRAFT);
     setError(null);
     setIsSubmitting(false);
+    intentKeyRef.current = null;
   };
 
   return {

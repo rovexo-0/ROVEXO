@@ -112,6 +112,7 @@ describe("OPT-HP-PERF Homepage load path", () => {
     expect(readSource("next.config.ts")).toContain("buildNextConfigSecurityHeaders");
     expect(readSource("lib/ops/security-headers.ts")).toContain("buildNextConfigSecurityHeaders");
     expect(readSource("lib/ops/security-headers.ts")).toContain("PRODUCTION_CSP_LOOPBACK");
+    expect(readSource("lib/ops/security-headers.ts")).toContain("buildProductionCspLoopback");
   });
 
   it("keeps ListingCard LCP discoverable (priority path unchanged)", () => {

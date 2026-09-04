@@ -67,7 +67,7 @@ describe("Search System v1.0 production lock", () => {
     expect(history).toContain("SEARCH_SYSTEM_V1.historyMax");
   });
 
-  it("locks Search Bar icons to Profile Icons Family (20×20 · stroke 1.9)", () => {
+  it("locks Search Bar icons to platform emoji (20×20 box)", () => {
     const icons = readSource("features/search/components/SearchBarIcons.tsx");
     const field = readSource("components/home/HomepageSearchField.tsx");
     const camera = readSource("components/home/ImageSearchCamera.tsx");
@@ -78,7 +78,9 @@ describe("Search System v1.0 production lock", () => {
     expect(icons).toContain("SEARCH_BAR_HEIGHT_PX = 44");
     expect(icons).toContain("SEARCH_BAR_RADIUS_PX = 16");
     expect(icons).toContain("SEARCH_BAR_TEXT_PX = 16");
-    expect(icons).toContain("Profile Icons Family");
+    expect(icons).toContain("Platform Emoji");
+    expect(icons).toContain("PLATFORM_EMOJI.search");
+    expect(icons).toContain("PLATFORM_EMOJI.camera");
     expect(field).toContain("SearchBarSearchIcon");
     expect(camera).toContain("SearchBarCameraIcon");
     expect(camera).not.toContain("GalleryLineIcon");

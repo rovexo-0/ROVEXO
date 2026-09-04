@@ -34,8 +34,8 @@ describe("My Account rendering safety", () => {
     expect(menu).toMatch(/id: "ideas"[\s\S]*?href:[\s\S]*?\/account\/ideas/);
     const settings = readSource("lib/account-center/settings-menu.ts");
     expect(settings).not.toMatch(/id: "ideas"/);
-    const icons = readSource("components/account/AccountIcons.tsx");
-    expect(icons).toContain('"ideas"');
+    const icons = readSource("lib/icons/platform-emoji-v1.ts");
+    expect(icons).toContain("ideas:");
   });
 
   it("AccountCanonicalShell is the single subpage shell", () => {

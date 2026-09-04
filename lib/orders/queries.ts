@@ -1,13 +1,24 @@
 import { listOrders, getOrderById } from "@/lib/orders/store";
-import { filterOrdersByRole, resolveOrderViewRole } from "@/lib/orders/role";
+import {
+  filterOrdersByRole,
+  filterSoldOrdersBySellerContext,
+  resolveOrderViewRole,
+} from "@/lib/orders/role";
 import type { Order, OrderViewRole } from "@/lib/orders/types";
+import type { SellerContext } from "@/lib/seller-context/seller-context-v1";
 
 export async function fetchOrders(): Promise<Order[]> {
   return listOrders();
 }
 
-export async function fetchOrdersForUser(userId: string, role: OrderViewRole): Promise<Order[]> {
-  return filterOrdersByRole(await listOrders(), userId, role);
+export async function fetchOrdersForUser(
+  userId: string,
+  role: OrderViewRole,
+  sellerContext?: SellerContext,
+): Promise<Order[]> {
+  const scoped = filterOrdersByRole(await listOrders(), userId, role);
+  if (role !== "seller" || !sellerContext) return scoped;
+  return filterSoldOrdersBySellerContext(scoped, sellerContext);
 }
 
 export async function fetchOrderById(id: string): Promise<Order | null> {

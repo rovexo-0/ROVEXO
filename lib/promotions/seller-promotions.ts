@@ -394,7 +394,7 @@ export async function createSellerPromotionCheckoutSession(input: {
       return { error: result.error ?? "Unable to apply promotion." };
     }
 
-    return { url: `${getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
+    return { url: `${await getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
   }
 
   const pendingId = await createPendingSellerPromotion(
@@ -409,7 +409,7 @@ export async function createSellerPromotionCheckoutSession(input: {
   }
 
   const stripe = getStripeClient();
-  const baseUrl = getAppBaseUrl();
+  const baseUrl = await getAppBaseUrl();
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",

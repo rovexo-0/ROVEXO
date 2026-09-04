@@ -3,6 +3,10 @@ import {
   isBuyerCancellableOrderStatus,
   isSellerCancellableOrderStatus,
 } from "@/lib/orders/cancellation";
+import {
+  normalizeSellerContext,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 
 export function resolveOrderViewRole(order: Order, userId: string): OrderViewRole | null {
   if (order.buyer.id === userId) return "buyer";
@@ -12,6 +16,20 @@ export function resolveOrderViewRole(order: Order, userId: string): OrderViewRol
 
 export function filterOrdersByRole(orders: Order[], userId: string, role: OrderViewRole): Order[] {
   return orders.filter((order) => resolveOrderViewRole(order, userId) === role);
+}
+
+/**
+ * Compatibility layer — not a second Orders engine.
+ * Individual sold ≠ Business sold. Legacy unset context maps to individual.
+ */
+export function filterSoldOrdersBySellerContext(
+  orders: Order[],
+  sellerContext: SellerContext,
+): Order[] {
+  const context = normalizeSellerContext(sellerContext);
+  return orders.filter(
+    (order) => normalizeSellerContext(order.sellerContext) === context,
+  );
 }
 
 const SELLER_ACTIONS = new Set(["add_tracking", "mark_delivered", "refund"]);

@@ -19,6 +19,7 @@ function profileDetailsFromSession(profile: UserProfile): ProfileDetails {
     fullName: profile.fullName,
     username: profile.username,
     avatarUrl: profile.avatarUrl ?? null,
+    coverUrl: null,
     phone: null,
     verified: profile.verified,
     bio: null,

@@ -34,16 +34,13 @@ describe("COD SÂNGE — Listing 4:5 + View icon + View Item theme", () => {
     expect(cardCss).not.toMatch(/\.visual\s+img\s*\{[^}]*object-fit:\s*contain/);
   });
 
-  it("5/6/7 — View icon restored via EyeLineIcon + showViews", () => {
-    expect(LISTING_CARD_HOMEPAGE_PROPS.showViews).toBe(true);
+  it("5/6/7 — View icon hidden on Homepage card via EyeLineIcon + showViews", () => {
+    expect(LISTING_CARD_HOMEPAGE_PROPS.showViews).toBe(false);
+    expect(LISTING_CARD_HOMEPAGE_PROPS.showRating).toBe(false);
     expect(cardTsx).toContain("EyeLineIcon");
     expect(cardTsx).toContain("showViews");
     expect(cardCss).toContain(".viewsHomepage");
     expect(cardCss).toContain(".viewsIconHomepage");
-    expect(cardCss).not.toMatch(/\.viewsHomepage\s*\{[^}]*display:\s*none/);
-    expect(cardCss).toMatch(
-      /\.viewsIconHomepage\s*\{[^}]*color:\s*var\(--ds-color-text-primary/,
-    );
   });
 
   it("8/9/10 — View Item uses canonical theme tokens + dark/light", () => {

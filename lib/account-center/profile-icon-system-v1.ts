@@ -42,7 +42,7 @@ export const PROFILE_ICON_KINDS = {
 export const PROFILE_ICON_SYSTEM_RULES = {
   sizePx: PROFILE_ICON_SIZE_PX,
   style: ["premium", "minimalist", "elegant", "lightweight", "modern"] as const,
-  forbidden: ["emojis", "filled icons", "oversized icons", "inconsistent colours", "custom spacings"] as const,
+  forbidden: ["lucide", "material icons", "svg feature icons", "oversized icons", "inconsistent spacing"] as const,
   onlyIconsAndColoursMayDiffer: true,
   inheritsProfileDesignSystem: true,
   inheritsFullWidth: true,

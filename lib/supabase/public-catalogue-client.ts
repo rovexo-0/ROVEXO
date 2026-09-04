@@ -1,6 +1,9 @@
 import "server-only";
 
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/types/database";
 import { tryCreateAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 
 /**
  * Cookie-free Supabase client for PUBLIC marketplace catalogue SSR/ISR.
@@ -14,10 +17,22 @@ import { tryCreateAdminClient } from "@/lib/supabase/admin";
  */
 export function createPublicCatalogueClient() {
   const admin = tryCreateAdminClient();
-  if (!admin) {
+  if (admin) {
+    return admin;
+  }
+
+  // Local/dev: a redacted inherited service-role key must not blank the marketplace.
+  // Cookie-free anon client uses the same public RLS as listing detail pages.
+  if (!isSupabaseConfigured()) {
     throw new Error(
       "Public catalogue client unavailable: SUPABASE_SERVICE_ROLE_KEY is missing or unusable.",
     );
   }
-  return admin;
+
+  return createClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }

@@ -1,5 +1,9 @@
 import type { OrderStatus } from "@/lib/orders/types";
-import type { ShippingStatus } from "@/lib/shipping/types";
+import {
+  isFailedHistoricalParcel,
+  selectCurrentOrderParcels,
+} from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
+import type { ShipmentParcel, ShippingStatus } from "@/lib/shipping/types";
 
 /** Canonical cancellation reason stored on the order record (fallback / legacy). */
 export const BUYER_CANCELLATION_REASON = "Buyer Cancelled";
@@ -71,6 +75,14 @@ const SHIPMENT_STARTED_STATUSES = new Set<ShippingStatus>([
   "returned",
 ]);
 
+/** Parcel label-local `collected` is not carrier handover (P1-C). */
+const PARCEL_DISPATCHED_STATUSES = new Set<ShippingStatus>([
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+  "returned",
+]);
+
 const SHIPPING_STATUS_RANK: Record<ShippingStatus, number> = {
   preparing: 0,
   collected: 1,
@@ -91,6 +103,103 @@ export function isShippingStatusAtLeastCollected(
   return SHIPPING_STATUS_RANK[status] >= SHIPPING_STATUS_RANK.collected;
 }
 
+export function pickHighestShippingStatus(
+  statuses: readonly (ShippingStatus | null | undefined)[],
+): ShippingStatus | null {
+  let best: ShippingStatus | null = null;
+  let bestRank = Number.NEGATIVE_INFINITY;
+  for (const status of statuses) {
+    if (!status) continue;
+    const rank = SHIPPING_STATUS_RANK[status];
+    if (rank > bestRank) {
+      best = status;
+      bestRank = rank;
+    }
+  }
+  return best;
+}
+
+function gateStatusFromCurrentParcel(status: ShippingStatus): ShippingStatus {
+  return status === "collected" ? "preparing" : status;
+}
+
+/**
+ * Current shipment only for cancel / handover gates.
+ * Historical failed / cancelled / superseded parcels do not block or authorize cancel.
+ * shipping_records status is used only when its tracking matches the current parcel.
+ */
+export function resolveCancellationShipmentGate(input: {
+  shippingRecordStatus: ShippingStatus | null;
+  shippingRecordTracking?: string | null;
+  parcels: readonly ShipmentParcel[];
+}): {
+  shippingRecordStatus: ShippingStatus | null;
+  parcelStatuses: ShippingStatus[];
+  hasReadyLabel: boolean;
+  providerParcelIds: string[];
+  parcelIdsToVoid: string[];
+} {
+  const current = selectCurrentOrderParcels(input.parcels);
+  const parcelStatuses = current.map((parcel) => gateStatusFromCurrentParcel(parcel.status));
+  const currentTracking = current[0]?.trackingNumber?.trim() || "";
+  const recordTracking = input.shippingRecordTracking?.trim() || "";
+  const recordMatchesCurrent =
+    current.length === 0 ||
+    !recordTracking ||
+    !currentTracking ||
+    recordTracking === currentTracking;
+
+  const shippingRecordStatus =
+    current.length === 0
+      ? input.shippingRecordStatus
+      : recordMatchesCurrent
+        ? pickHighestShippingStatus([input.shippingRecordStatus, ...parcelStatuses])
+        : pickHighestShippingStatus(parcelStatuses);
+
+  return {
+    shippingRecordStatus,
+    parcelStatuses,
+    hasReadyLabel: current.some((parcel) => parcel.label?.status === "ready"),
+    providerParcelIds: current
+      .map((parcel) =>
+        parcel.providerParcelId != null && parcel.providerParcelId > 0
+          ? String(parcel.providerParcelId)
+          : "",
+      )
+      .filter((id) => id.length > 0),
+    parcelIdsToVoid: current.map((parcel) => parcel.id),
+  };
+}
+
+export function isHistoricalParcelProtectedFromCancel(parcel: ShipmentParcel): boolean {
+  return isFailedHistoricalParcel(parcel);
+}
+
+const TERMINAL_ORDER_STATUSES = new Set<OrderStatus>([
+  "cancelled",
+  "completed",
+  "issue_open",
+]);
+
+/**
+ * Stale carrier webhooks must not promote a cancelled / completed order.
+ * Delivered may only advance from shipped (or awaiting_shipment if the scan is first).
+ */
+export function mayAdvanceOrderStatusFromShipping(input: {
+  orderStatus: OrderStatus | null | undefined;
+  shippingStatus: ShippingStatus;
+}): boolean {
+  if (!input.orderStatus) return false;
+  if (TERMINAL_ORDER_STATUSES.has(input.orderStatus)) return false;
+  if (input.shippingStatus === "delivered") {
+    return input.orderStatus === "shipped" || input.orderStatus === "awaiting_shipment";
+  }
+  if (input.shippingStatus === "collected" || input.shippingStatus === "in_transit") {
+    return input.orderStatus === "awaiting_shipment";
+  }
+  return input.orderStatus !== "delivered";
+}
+
 export function isCarrierHandoverConfirmed(input: {
   shippingRecordStatus: ShippingStatus | null;
   parcelStatuses?: ShippingStatus[];
@@ -98,7 +207,7 @@ export function isCarrierHandoverConfirmed(input: {
   if (isShippingStatusAtLeastCollected(input.shippingRecordStatus)) {
     return true;
   }
-  return (input.parcelStatuses ?? []).some((status) => isShippingStatusAtLeastCollected(status));
+  return (input.parcelStatuses ?? []).some((status) => PARCEL_DISPATCHED_STATUSES.has(status));
 }
 
 export type BuyerCancellationEligibility = {
@@ -145,7 +254,7 @@ export function evaluateBuyerCancellationEligibility(input: {
     };
   }
 
-  if (input.parcelStatuses.some((status) => SHIPMENT_STARTED_STATUSES.has(status))) {
+  if (input.parcelStatuses.some((status) => PARCEL_DISPATCHED_STATUSES.has(status))) {
     return {
       allowed: false,
       reason: "Shipment has already been collected and cannot be cancelled.",

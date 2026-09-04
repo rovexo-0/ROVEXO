@@ -266,7 +266,8 @@ describe("Sendcloud V3 quote persistence", () => {
       store.indexOf("export async function saveShippingLabel"),
     );
     expect(updateFn).toContain("Never changes selected_quote_id");
-    expect(updateFn).toContain(".update({ quote_payload:");
+    expect(updateFn).toContain(".update({");
+    expect(updateFn).toContain("quote_payload: buildShippingQuotePayload");
     expect(updateFn).not.toMatch(/selected_quote_id\s*:/);
     expect(updateFn).not.toContain("selected_shipping_quote_id");
     expect(updateFn).not.toContain(".insert(");

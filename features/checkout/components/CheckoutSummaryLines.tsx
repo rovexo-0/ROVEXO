@@ -29,7 +29,7 @@ export function CheckoutSummaryLines({
         </span>
       </div>
       <div className="ckt-v1__summary-row">
-        <span>Platform Fee</span>
+        <span>Buyer Protection</span>
         <span>{formatListingPrice(totals.platformFee)}</span>
       </div>
       <div className="ckt-v1__summary-total">

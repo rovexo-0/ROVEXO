@@ -9,6 +9,6 @@ export default async function WalletTransactionsRoute() {
     redirect("/login?next=/wallet/transactions");
   }
 
-  const transactions = await listWalletTransactions(profile.id);
+  const transactions = await listWalletTransactions(profile.id, "individual");
   return <WalletTransactionsList transactions={transactions} />;
 }

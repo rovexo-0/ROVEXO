@@ -76,11 +76,23 @@ type CategoryModeRow = {
   transactionMode: TransactionMode | null;
 };
 
+/** In-process TTL cache — taxonomy changes rarely; homepage hit this every request. */
+const CATEGORY_MODE_PROJECTION_TTL_MS = 60_000;
+let categoryModeProjectionCache:
+  | { expiresAt: number; rows: CategoryModeRow[] }
+  | null = null;
+
 async function loadCategoryModeProjection(client: CategoryReader): Promise<CategoryModeRow[]> {
+  const now = Date.now();
+  if (categoryModeProjectionCache && categoryModeProjectionCache.expiresAt > now) {
+    return categoryModeProjectionCache.rows;
+  }
+
   const withMode = await client.from("categories").select("id, slug, parent_id, transaction_mode");
 
+  let rows: CategoryModeRow[];
   if (!withMode.error && withMode.data) {
-    return (
+    rows = (
       withMode.data as Array<{
         id: string;
         slug: string;
@@ -95,19 +107,25 @@ async function loadCategoryModeProjection(client: CategoryReader): Promise<Categ
         ? resolveTransactionModeFromDbValue(row.transaction_mode)
         : null,
     }));
+  } else {
+    const fallback = await client.from("categories").select("id, slug, parent_id");
+    rows = ((fallback.data ?? []) as Array<{
+      id: string;
+      slug: string;
+      parent_id: string | null;
+    }>).map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      parentId: row.parent_id,
+      transactionMode: null,
+    }));
   }
 
-  const fallback = await client.from("categories").select("id, slug, parent_id");
-  return ((fallback.data ?? []) as Array<{
-    id: string;
-    slug: string;
-    parent_id: string | null;
-  }>).map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    parentId: row.parent_id,
-    transactionMode: null,
-  }));
+  categoryModeProjectionCache = {
+    expiresAt: now + CATEGORY_MODE_PROJECTION_TTL_MS,
+    rows,
+  };
+  return rows;
 }
 
 export async function updateCategoryTransactionModeCascade(

@@ -49,13 +49,16 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Tracking not found." }, { status: 404 });
     }
 
-    await updateShippingRecordStatus({
-      orderId: access.orderId,
-      status: tracking.status,
-      title: `Tracking refresh: ${tracking.status.replace(/_/g, " ")}`,
-      description: tracking.events.at(-1)?.statusDetails ?? undefined,
-    });
-    await onShippingRecordStatusChanged({ orderId: access.orderId, status: tracking.status });
+    // Fail closed: unrecognized carrier status must not advance lifecycle.
+    if (tracking.status != null) {
+      await updateShippingRecordStatus({
+        orderId: access.orderId,
+        status: tracking.status,
+        title: `Tracking refresh: ${tracking.status.replace(/_/g, " ")}`,
+        description: tracking.events.at(-1)?.statusDetails ?? undefined,
+      });
+      await onShippingRecordStatusChanged({ orderId: access.orderId, status: tracking.status });
+    }
   }
 
   return NextResponse.json({ ok: true, tracking });

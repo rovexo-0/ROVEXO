@@ -9,9 +9,12 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { productToCardProps } from "@/lib/products/card";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
+import { useCardImageSrc } from "@/lib/media/use-card-image-src";
 import { resolveVerifiedStatus } from "@/lib/master-engine";
 import type { Product } from "@/lib/products/types";
 import { highlightMatch } from "@/features/search/utils/highlight-match";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type SearchResultCardProps = {
   product: Product;
@@ -25,29 +28,16 @@ type SearchResultCardProps = {
 };
 
 function StarIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.08 4.7 5.1.48a.56.56 0 0 1 .32.98l-3.86 3.4 1.13 5a.56.56 0 0 1-.83.6L12 16.5l-4.46 2.66a.56.56 0 0 1-.83-.6l1.13-5-3.86-3.4a.56.56 0 0 1 .32-.98l5.1-.48 2.08-4.7Z" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.star} size={12} className={className} />;
 }
 
 function HeartIcon({ filled, className }: { filled: boolean; className?: string }) {
   return (
-    <svg
+    <PlatformEmoji
+      emoji={filled ? PLATFORM_EMOJI.heart : PLATFORM_EMOJI.heartEmpty}
+      size={18}
       className={className}
-      viewBox="0 0 24 24"
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth={filled ? 0 : 2}
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 20.25c-.4 0-.79-.15-1.09-.42C6.14 15.6 3.5 13.2 3.5 9.9 3.5 7.4 5.42 5.5 7.85 5.5c1.4 0 2.74.66 3.6 1.7l.55.66.55-.66a4.66 4.66 0 0 1 3.6-1.7c2.43 0 4.35 1.9 4.35 4.4 0 3.3-2.64 5.7-7.41 9.93-.3.27-.69.42-1.09.42Z"
-      />
-    </svg>
+    />
   );
 }
 
@@ -73,6 +63,11 @@ export const SearchResultCard = memo(function SearchResultCard({
   const props = productToCardProps(product);
   const { isSaved, toggle, isPending } = useProductWatchlist(product.slug);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const {
+    src: cardImageSrc,
+    onError: onCardImageError,
+    unoptimized: cardImageUnoptimized,
+  } = useCardImageSrc(product.imageUrl, product.imageFullUrl);
 
   const condition = formatCondition(product.condition);
   const hasRating = product.reviewCount > 0 && product.rating > 0;
@@ -119,11 +114,13 @@ export const SearchResultCard = memo(function SearchResultCard({
 
       <div className="pointer-events-none relative z-10 h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-surface-muted">
         <SafeImage
-          src={props.imageUrl}
+          src={cardImageSrc}
           alt=""
           fill
           loading="lazy"
           sizes="72px"
+          unoptimized={cardImageUnoptimized}
+          onError={onCardImageError}
           onLoad={handleImageLoad}
           className={cn(
             "object-cover transition-[opacity,transform] duration-500 ease-ds group-hover:scale-[1.05]",

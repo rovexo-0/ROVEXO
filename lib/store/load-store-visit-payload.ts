@@ -38,15 +38,18 @@ export async function loadStoreVisitPayload(routeParam: string): Promise<StoreVi
   if (!store) return { kind: "unavailable" };
 
   try {
-    const auth = await getAuthContext().catch(() => null);
-    const isOwnStore = auth?.user.id === store.sellerId;
-
-    const [reviews, followCounts, viewerFollowing, expandedListings] = await Promise.all([
+    const authPromise = getAuthContext().catch(() => null);
+    const [auth, reviews, followCounts] = await Promise.all([
+      authPromise,
       listSellerReviews(store.sellerId, 50).catch(() => [] as Review[]),
       getFollowCounts(store.sellerId).catch(() => ({
         followerCount: 0,
         followingCount: 0,
       })),
+    ]);
+    const isOwnStore = auth?.user.id === store.sellerId;
+
+    const [viewerFollowing, expandedListings] = await Promise.all([
       auth?.user.id && !isOwnStore
         ? isFollowing(auth.user.id, store.sellerId).catch(() => false)
         : Promise.resolve(false),

@@ -1,17 +1,21 @@
 /**
  * Business hub — Absolute Final Freeze (officially locked).
- * Orders · Inventory · Analytics · Reviews · Wallet · VAT · Directory.
+ * Orders · Inventory · Analytics · Wallet · VAT · Store · Promote (Coming Soon).
+ * Reviews / Directory / Verification removed from user-facing navigation (engines retained).
+ * Ordinary row marks are emoji (PWA_BUSINESS_ACTION_EMOJI) — not AccountIcon / Lucide.
  */
-import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
+import { PWA_BUSINESS_ACTION_EMOJI } from "@/lib/business/pwa-business-menu-v1";
 
 export type BusinessMenuItem = {
   id: string;
   title: string;
   subtitle?: string;
-  href: string;
-  icon: AccountIconName;
+  href?: string;
+  emoji: string;
   badgeKeys?: MobileBadgeKey[];
+  comingSoon?: boolean;
+  value?: string;
 };
 
 export type BusinessMenuSection = {
@@ -33,21 +37,27 @@ export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessM
           id: "orders",
           title: "Orders",
           href: "/business/orders",
-          icon: "orders",
+          emoji: PWA_BUSINESS_ACTION_EMOJI.orders,
           badgeKeys: ["orders"],
         },
-        { id: "inventory", title: "Inventory", href: "/business/inventory", icon: "inventory" },
-        { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "analytics" },
-        { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
+        { id: "inventory", title: "Inventory", href: "/business/inventory", emoji: PWA_BUSINESS_ACTION_EMOJI.inventory },
+        { id: "analytics", title: "Analytics", href: "/business/analytics", emoji: PWA_BUSINESS_ACTION_EMOJI.analytics },
         {
           id: "wallet",
           title: "Wallet",
           href: "/business/wallet",
-          icon: "wallet",
+          emoji: PWA_BUSINESS_ACTION_EMOJI.wallet,
           badgeKeys: ["wallet-payout"],
         },
-        { id: "vat", title: "VAT", href: "/business/tax", icon: "vat" },
-        { id: "directory", title: "Directory", href: "/business/directory", icon: "directory" },
+        { id: "vat", title: "VAT", href: "/business/tax", emoji: PWA_BUSINESS_ACTION_EMOJI.vat },
+        { id: "store", title: "Store", href: "/store", emoji: PWA_BUSINESS_ACTION_EMOJI.store },
+        {
+          id: "promote",
+          title: "Promote",
+          emoji: PWA_BUSINESS_ACTION_EMOJI.promote,
+          comingSoon: true,
+          value: "Coming Soon",
+        },
       ],
     },
   ];

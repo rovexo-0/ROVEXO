@@ -1,4 +1,4 @@
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { PRODUCT_IMAGE_FALLBACK, isUnreachableListingStorageUrl } from "@/lib/media/product-image";
 
 export type ImageSrc = string | { src: string } | null | undefined;
 
@@ -13,5 +13,6 @@ export function isRenderableImageSrc(src: ImageSrc): src is string | { src: stri
   // The bundled placeholder must bypass next/image (SVG optimizer 400).
   if (lower.includes("placeholder-product")) return false;
   if (lower === PRODUCT_IMAGE_FALLBACK.toLowerCase()) return false;
+  if (isUnreachableListingStorageUrl(trimmed)) return false;
   return true;
 }

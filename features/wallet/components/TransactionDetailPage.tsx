@@ -3,6 +3,7 @@ import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { WalletEngineTransactionPanel } from "@/features/wallet-engine/WalletEngineTransactionPanel";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
+import { HostedPayoutAccessRow } from "@/features/wallet/components/HostedPayoutAccessRow";
 import {
   CanonicalCard,
   CanonicalMenuRow,
@@ -22,18 +23,24 @@ type TransactionDetailPageProps = {
   transaction: WalletTransaction;
   transactionContext?: WalletEngineTransactionContext;
   backHref?: string;
+  sellerContext?: "individual" | "business";
+  /** Server-computed: transaction has a hosted payout object or sale/withdrawal type. */
+  showHostedPayoutAccess?: boolean;
 };
 
 export function TransactionDetailPage({
   transaction,
   transactionContext,
   backHref = WALLET_ROUTES.hub,
+  sellerContext = "individual",
+  showHostedPayoutAccess = false,
 }: TransactionDetailPageProps) {
   const amount = Math.abs(transaction.amount);
   const pendingDays =
     transaction.payoutAvailableAt != null
       ? getDaysUntilAvailable(transaction.payoutAvailableAt)
       : null;
+  const restricted = transaction.status === "failed";
 
   return (
     <AccountCanonicalShell
@@ -85,6 +92,11 @@ export function TransactionDetailPage({
                 showChevron={false}
               />
             ) : null}
+            <HostedPayoutAccessRow
+              sellerContext={sellerContext}
+              enabled={showHostedPayoutAccess}
+              restricted={restricted}
+            />
           </CanonicalCard>
         </CanonicalSection>
       </AccountPageStack>

@@ -6,6 +6,7 @@ import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { detectSelfOffer } from "@/lib/trust/anti-fraud";
 import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 import { emitSmartNotification } from "@/lib/notifications/events";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
 import {
   parseCounterOfferMessageMeta,
@@ -211,7 +212,7 @@ export async function POST(request: Request) {
   const { data: product } = await supabase
     .from("products")
     .select(
-      "id, slug, title, price, status, accept_offers, seller_id, product_images ( url, is_primary, sort_order )",
+      "id, slug, title, price, status, accept_offers, seller_id, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )",
     )
     .eq("slug", parsed.data.productSlug)
     .maybeSingle();
@@ -257,12 +258,22 @@ export async function POST(request: Request) {
 
   const images = (
     product as {
-      product_images?: Array<{ url: string; is_primary: boolean | null; sort_order: number | null }>;
+      product_images?: Array<{
+        url: string;
+        thumbnail_url?: string | null;
+        storage_path?: string | null;
+        is_primary: boolean | null;
+        sort_order: number | null;
+      }>;
     }
   ).product_images;
-  const productImageUrl = [...(images ?? [])].sort(
+  const primary = [...(images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
-  )[0]?.url;
+  )[0];
+  const productImageUrl = resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+    storagePath: primary?.storage_path,
+    productStatus: product.status,
+  }).imageUrl;
 
   void emitSmartNotification({
     userId: product.seller_id,

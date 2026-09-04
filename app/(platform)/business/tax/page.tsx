@@ -10,14 +10,16 @@ export const metadata = privatePageMetadata;
 export default async function BusinessTaxRoute() {
   const profile = await getBusinessProfile();
   const taxProfile = await getSellerTaxProfile(profile.id);
-  const connect = taxProfile?.submittedAt ? await createConnectAccountLink(profile.id) : null;
+  const connect = taxProfile?.submittedAt
+    ? await createConnectAccountLink(profile.id, "business")
+    : null;
 
   return (
     <SellerTaxRegistrationPage
       initialProfile={taxProfile}
       connectUrl={connect && "url" in connect ? connect.url : null}
-      backHref="/business/wallet"
-      backLabel="Business Wallet"
+      backHref="/business/menu"
+      backLabel="Business Menu"
     />
   );
 }

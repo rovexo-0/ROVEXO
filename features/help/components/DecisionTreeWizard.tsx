@@ -13,8 +13,10 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 
 
 import { HelpResolutionPrompt } from "@/features/help/components/HelpResolutionPrompt";
+import { useRefreshHelpOnSellerContextChange } from "@/features/help/hooks/use-refresh-help-on-seller-context-change";
 import { HelpSolutionView } from "@/features/help/components/HelpSolutionView";
 import { getHelpTopic } from "@/lib/help/content/topics";
+import { isLegacyHelpTopicSlug } from "@/lib/help/help-content-audience-v1";
 import { resolveDecisionOption } from "@/lib/help/decision-trees/engine";
 import type { DecisionTree, HelpSolution } from "@/lib/help/types";
 import {
@@ -30,6 +32,7 @@ type DecisionTreeWizardProps = {
 };
 
 export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
+  useRefreshHelpOnSellerContextChange();
   const router = useRouter();
   const topic = getHelpTopic(tree.topicSlug);
   const [nodeId, setNodeId] = useState(tree.rootNodeId);
@@ -49,7 +52,11 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
     if (!resolved.option) return;
 
     if (resolved.option.topicSlug && resolved.option.topicSlug !== tree.topicSlug) {
-      router.push(`/help/category/${resolved.option.topicSlug}`);
+      router.push(
+        isLegacyHelpTopicSlug(resolved.option.topicSlug)
+          ? "/help"
+          : `/help/category/${resolved.option.topicSlug}`,
+      );
       return;
     }
 

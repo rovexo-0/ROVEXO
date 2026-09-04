@@ -1,6 +1,8 @@
 "use client";
 
 import { memo } from "react";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { ProductListingActionsMenu } from "@/features/product-detail/ProductListingActionsMenu";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
@@ -19,15 +21,11 @@ type ProductPageChromeProps = {
 
 function IconHeart({ filled }: { filled: boolean }) {
   return (
-    <svg className="pd-v1__chrome-heart" viewBox="0 0 24 24" aria-hidden>
-      <path
-        d="M12 21s-6.7-4.35-9.33-7.6C.5 10.8 1.1 7.05 4.05 5.4 6.2 4.2 8.85 4.75 10.4 6.55L12 8.4l1.6-1.85C15.15 4.75 17.8 4.2 19.95 5.4c2.95 1.65 3.55 5.4 1.38 7.99C18.7 16.65 12 21 12 21Z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <PlatformEmoji
+      emoji={filled ? PLATFORM_EMOJI.heart : PLATFORM_EMOJI.heartEmpty}
+      size={20}
+      className="pd-v1__chrome-heart"
+    />
   );
 }
 
@@ -57,15 +55,7 @@ export const ProductPageChrome = memo(function ProductPageChrome({
         aria-label={back.label}
         onClick={back.goBack}
       >
-        <svg className="pd-v1__chrome-back" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="M15 6 9 12l6 6"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <PlatformEmoji emoji={PLATFORM_EMOJI.back} size={24} className="pd-v1__chrome-back" />
       </button>
       <div className="pd-v1__chrome-actions">
         {!isOwner ? (

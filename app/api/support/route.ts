@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { enforceRateLimit, enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { requireApiAuth } from "@/lib/auth/session";
+import { loadActiveSellerContext } from "@/lib/business/business-onboarding-v1";
+import { bindSupportHelpContextToSellerContext } from "@/lib/help/help-content-audience-v1";
 import { createSupportTicket } from "@/lib/support/service";
 import type { SupportHelpContext } from "@/lib/help/types";
 
@@ -56,13 +58,19 @@ export async function POST(request: Request) {
 
   try {
     const body = supportSchema.parse(await request.json());
+    const sellerContext = await loadActiveSellerContext(auth.user.id);
+    const helpContext = bindSupportHelpContextToSellerContext(
+      body.helpContext as SupportHelpContext | undefined,
+      sellerContext,
+    );
+
     const ticket = await createSupportTicket({
       userId: auth.user.id,
       category: body.category,
       subject: body.subject,
       description: body.description,
       attachmentUrls: body.attachmentUrls,
-      helpContext: body.helpContext as SupportHelpContext | undefined,
+      helpContext,
     });
 
     if (!ticket) {

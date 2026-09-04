@@ -22,6 +22,7 @@ export async function listBusinessDirectory(limit = 48): Promise<BusinessDirecto
       .select(
         "id, business_name, website, description, trust_score, verified_business, verified_wholesale, verified_manufacturer, verified_supplier",
       )
+      .eq("verified_business", true)
       .order("trust_score", { ascending: false })
       .limit(limit);
 
@@ -32,8 +33,7 @@ export async function listBusinessDirectory(limit = 48): Promise<BusinessDirecto
     const { data: profiles } = await admin
       .from("profiles")
       .select("id, username, avatar_url, role")
-      .in("id", ids)
-      .eq("role", "business");
+      .in("id", ids);
 
     const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
 

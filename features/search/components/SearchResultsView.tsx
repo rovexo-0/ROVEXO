@@ -17,7 +17,9 @@ import { SEARCH_MIN_CHARS } from "@/features/search/types";
 import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
 import { subscribeSearchListingsRealtime } from "@/lib/realtime/search-listings-realtime";
 import { focusRing } from "@/components/ui/tokens";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type SearchResultsResponse = {
   items: Product[];
@@ -49,19 +51,11 @@ async function fetchResults(
 }
 
 function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.close} size={18} className={className} />;
 }
 
 function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.back} size={18} className={className} />;
 }
 
 export function SearchResultsView({

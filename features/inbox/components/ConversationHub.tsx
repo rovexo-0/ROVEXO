@@ -1751,8 +1751,15 @@ export function ConversationHub({
         activeShippingLabel?.carrier ||
         view.tracking?.courierName ||
         order?.deliveryCarrier ||
-        "Royal Mail"
+        ""
       ).trim() as Order["deliveryCarrier"];
+      if (!carrier) {
+        pushToast({
+          title: "Tracking will appear once the carrier scans your parcel.",
+          variant: "info",
+        });
+        return;
+      }
       const trackingUrl = getTrackingUrl(carrier, trackingNumber);
       if (!trackingUrl) {
         pushToast({

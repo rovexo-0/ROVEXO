@@ -13,6 +13,9 @@ import type { SellerReviewCase } from "@/lib/moderation/review-center";
 
 type SellerReviewCasePageProps = {
   caseId: string;
+  backHref?: string;
+  backLabel?: string;
+  surface?: "business";
 };
 
 function formatTimelineDate(value: string): string {
@@ -22,13 +25,19 @@ function formatTimelineDate(value: string): string {
   });
 }
 
-export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
+export function SellerReviewCasePage({
+  caseId,
+  backHref = "/seller/review-center",
+  backLabel = "Review Center",
+  surface,
+}: SellerReviewCasePageProps) {
   const [reviewCase, setReviewCase] = useState<SellerReviewCase | null>(null);
   const [explanation, setExplanation] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const surfaceQuery = surface === "business" ? "?surface=business" : "";
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +47,10 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
       setError(null);
 
       try {
-        const response = await fetch(`/api/seller/review-center/${caseId}`);
+        const response = await fetch(`/api/seller/review-center/${caseId}${surfaceQuery}`, {
+          credentials: "include",
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error("Failed");
         const payload = (await response.json()) as { case: SellerReviewCase };
         if (cancelled) return;
@@ -55,7 +67,7 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
     return () => {
       cancelled = true;
     };
-  }, [caseId]);
+  }, [caseId, surfaceQuery]);
 
   async function submitResponse() {
     setSubmitting(true);
@@ -63,7 +75,7 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/seller/review-center/${caseId}/respond`, {
+      const response = await fetch(`/api/seller/review-center/${caseId}/respond${surfaceQuery}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ explanation }),
@@ -84,8 +96,8 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
 
   const shellProps = {
     title: reviewCase?.productTitle ?? "Review Case",
-    backHref: "/seller/review-center",
-    backLabel: "Review Center",
+    backHref,
+    backLabel,
     showHeaderTitle: true as const,
     showBottomNav: false as const,
   };
@@ -103,7 +115,7 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
       <AccountCanonicalShell {...shellProps}>
         <div className="ac-canonical">
           <p className="cds-field__error">{error}</p>
-          <CanonicalMenuRow title="Back to Review Center" href="/seller/review-center" />
+          <CanonicalMenuRow title="Back to Review Center" href={backHref} />
         </div>
       </AccountCanonicalShell>
     );
@@ -114,8 +126,8 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
   return (
     <AccountCanonicalShell
       title={reviewCase.productTitle}
-      backHref="/seller/review-center"
-      backLabel="Review Center"
+      backHref={backHref}
+      backLabel={backLabel}
       showHeaderTitle
       showBottomNav={false}
     >

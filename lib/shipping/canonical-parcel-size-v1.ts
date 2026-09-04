@@ -18,34 +18,53 @@ import { EVRI_LABEL_ENGINE_CERTIFICATION_V1 } from "@/lib/shipping/sendcloud/evr
 import { ROYAL_MAIL_LABEL_ENGINE_CERTIFICATION_V1 } from "@/lib/shipping/sendcloud/royal-mail-label-engine-certification-v1";
 
 export const PARCEL_SIZE_CANONICAL_V1 = {
-  version: "v1.1",
+  version: "v1.2",
   equation: "SELL → Owner Parcel Size → in-band Sendcloud quote → checkout → label",
   moneyAdjacent: false,
   source: "OWNER_APPROVED_PARCEL_SIZE",
   note: "ROVEXO tier names are UX labels — not Sendcloud service names",
+  weightBands:
+    "SMALL 0–1.00kg · MEDIUM >1.00–2.00kg · LARGE >2.00–15.00kg · >15kg fail-closed",
 } as const;
+
+/** Absolute ceiling — weight above this is invalid (fail closed). */
+export const PARCEL_WEIGHT_ABSOLUTE_MAX_KG = 15 as const;
 
 /**
  * Owner-approved customer bands (Sell UI + quote/label representation).
+ *
+ * Weight law (inclusive / exclusive):
+ * - SMALL  = 0 ≤ kg ≤ 1.00
+ * - MEDIUM = 1.00 < kg ≤ 2.00
+ * - LARGE  = 2.00 < kg ≤ 15.00
+ * - kg > 15.00 → invalid / fail closed
+ *
  * quoteWeightKg is the in-band Sendcloud representation — not a seller-measured
  * parcel and not a Sendcloud catalog maximum.
  */
 export const OWNER_APPROVED_PARCEL_BANDS_V1 = {
   small: {
+    /** Inclusive lower bound. */
     minWeightKg: 0,
+    /** Inclusive upper bound. */
     maxWeightKg: 1,
+    minExclusive: false,
     quoteWeightKg: 1,
     maxDimensionsCm: { length: 45, width: 35, height: 16 },
   },
   medium: {
+    /** Exclusive lower bound (>1.00). */
     minWeightKg: 1,
     maxWeightKg: 2,
+    minExclusive: true,
     quoteWeightKg: 2,
     maxDimensionsCm: { length: 61, width: 46, height: 46 },
   },
   large: {
+    /** Exclusive lower bound (>2.00). */
     minWeightKg: 2,
     maxWeightKg: 15,
+    minExclusive: true,
     quoteWeightKg: 15,
     maxLengthCm: 120,
     /**
@@ -56,6 +75,52 @@ export const OWNER_APPROVED_PARCEL_BANDS_V1 = {
     sendcloudRequiredCrossSectionCm: { width: 35, height: 16 },
   },
 } as const;
+
+export type ParcelWeightBandId = "small" | "medium" | "large";
+
+/**
+ * Fail-closed parcel weight gate.
+ * Allows 0 kg (SMALL). Rejects negative and > 15.00 kg.
+ */
+export function assertParcelWeightKgAllowed(
+  weightKg: number,
+): { ok: true; weightKg: number } | { ok: false; error: string } {
+  if (!Number.isFinite(weightKg)) {
+    return { ok: false, error: "Parcel weight must be a finite number." };
+  }
+  if (weightKg < 0) {
+    return { ok: false, error: "Parcel weight cannot be negative." };
+  }
+  if (weightKg > PARCEL_WEIGHT_ABSOLUTE_MAX_KG) {
+    return {
+      ok: false,
+      error: `Parcel weight ${weightKg} kg exceeds the ${PARCEL_WEIGHT_ABSOLUTE_MAX_KG} kg maximum.`,
+    };
+  }
+  return { ok: true, weightKg };
+}
+
+/**
+ * Resolve Owner weight band for a measured kg.
+ * Exact 1.00 → SMALL · exact 2.00 → MEDIUM · exact 15.00 → LARGE · >15 → null.
+ */
+export function resolveParcelWeightBandId(
+  weightKg: number,
+): ParcelWeightBandId | null {
+  const gate = assertParcelWeightKgAllowed(weightKg);
+  if (!gate.ok) return null;
+  const w = gate.weightKg;
+  if (w <= OWNER_APPROVED_PARCEL_BANDS_V1.small.maxWeightKg) return "small";
+  if (w <= OWNER_APPROVED_PARCEL_BANDS_V1.medium.maxWeightKg) return "medium";
+  return "large";
+}
+
+export function isParcelWeightInBand(
+  weightKg: number,
+  band: ParcelWeightBandId,
+): boolean {
+  return resolveParcelWeightBandId(weightKg) === band;
+}
 
 /**
  * Live Sendcloud catalog maxima — reference only.
@@ -142,9 +207,9 @@ export const CANONICAL_PARCEL_SIZES_V1: readonly CanonicalParcelSizeDefinition[]
     legacyId: "small",
     displayName: "Small",
     sellLabel: "SMALL",
-    sellWeightLine: "Weight: 0–1 kg",
+    sellWeightLine: "Weight: 0–1.00 kg",
     sellDimensionsLine: "Max dimensions: 45 × 35 × 16 cm",
-    sellSubtitle: "Weight: 0–1 kg",
+    sellSubtitle: "Weight: 0–1.00 kg",
     weightKg: SMALL.quoteWeightKg,
     minWeightKg: SMALL.minWeightKg,
     lengthCm: SMALL.maxDimensionsCm.length,
@@ -163,9 +228,9 @@ export const CANONICAL_PARCEL_SIZES_V1: readonly CanonicalParcelSizeDefinition[]
     legacyId: "medium",
     displayName: "Medium",
     sellLabel: "MEDIUM",
-    sellWeightLine: "Weight: 1–2 kg",
+    sellWeightLine: "Weight: >1.00–2.00 kg",
     sellDimensionsLine: "Max dimensions: 61 × 46 × 46 cm",
-    sellSubtitle: "Weight: 1–2 kg",
+    sellSubtitle: "Weight: >1.00–2.00 kg",
     weightKg: MEDIUM.quoteWeightKg,
     minWeightKg: MEDIUM.minWeightKg,
     lengthCm: MEDIUM.maxDimensionsCm.length,
@@ -184,9 +249,9 @@ export const CANONICAL_PARCEL_SIZES_V1: readonly CanonicalParcelSizeDefinition[]
     legacyId: "large",
     displayName: "Large",
     sellLabel: "LARGE",
-    sellWeightLine: "Weight: 2–15 kg",
+    sellWeightLine: "Weight: >2.00–15.00 kg",
     sellDimensionsLine: "Max dimensions: Max length 120 cm",
-    sellSubtitle: "Weight: 2–15 kg",
+    sellSubtitle: "Weight: >2.00–15.00 kg",
     weightKg: LARGE.quoteWeightKg,
     minWeightKg: LARGE.minWeightKg,
     ...largeSendcloudDimensions(),
@@ -206,9 +271,9 @@ const HISTORICAL_XL: CanonicalParcelSizeDefinition = {
   legacyId: "xl",
   displayName: "Extra Large",
   sellLabel: "EXTRA LARGE",
-  sellWeightLine: "Weight: 2–15 kg",
+  sellWeightLine: "Weight: >2.00–15.00 kg",
   sellDimensionsLine: "Max dimensions: Max length 120 cm",
-  sellSubtitle: "Weight: 2–15 kg",
+  sellSubtitle: "Weight: >2.00–15.00 kg",
   weightKg: LARGE.quoteWeightKg,
   minWeightKg: LARGE.minWeightKg,
   ...largeSendcloudDimensions(),
@@ -335,9 +400,9 @@ export function getV1_0ParcelShippingDetailsBlocks(): readonly ParcelShippingDet
       maxWidthCm: String(MEDIUM.maxDimensionsCm.width),
       maxHeightCm: String(MEDIUM.maxDimensionsCm.height),
       notes: [
-        "ROVEXO SMALL band: 0–1 kg · 45×35×16 cm",
-        "ROVEXO MEDIUM band: 1–2 kg · 61×46×46 cm",
-        "ROVEXO LARGE band: 2–15 kg · max length 120 cm — eligibility follows live Sendcloud quotes.",
+        "ROVEXO SMALL band: 0–1.00 kg · 45×35×16 cm",
+        "ROVEXO MEDIUM band: >1.00–2.00 kg · 61×46×46 cm",
+        "ROVEXO LARGE band: >2.00–15.00 kg · max length 120 cm — eligibility follows live Sendcloud quotes.",
       ],
     },
   ] as const;

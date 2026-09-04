@@ -346,7 +346,8 @@
   color: var(--srch-land-purple);
 }
 
-.srch-land__chip-icon svg {
+.srch-land__chip-icon svg,
+.srch-land__chip-icon .rx-platform-emoji {
   width: 14px;
   height: 14px;
 }
@@ -384,7 +385,8 @@
   transform: translate(-50%, -50%);
 }
 
-.srch-land__chip-x svg {
+.srch-land__chip-x svg,
+.srch-land__chip-x .rx-platform-emoji {
   width: 12px;
   height: 12px;
 }

@@ -7,12 +7,13 @@ function readSource(relativePath: string): string {
 }
 
 /**
- * ROVEXO is the only visible financial interface: the user must NEVER see the
- * payment processor (Stripe / Stripe Connect / Stripe Express) anywhere in the
- * wallet, payout, or payments UI.
+ * ROVEXO remains the primary financial interface.
+ * Decorative payment-processor branding is forbidden.
+ * Owner-required Stripe-hosted action CTAs ("Manage/View/Resolve on Stripe")
+ * live on dedicated management surfaces — not as decorative branding.
  */
 
-const WALLET_UI_FILES = [
+const WALLET_UI_FILES_NO_STRIPE_WORD = [
   "app/(platform)/wallet/page.tsx",
   "features/wallet/components/WalletHubV1.tsx",
   "features/wallet/components/WalletPage.tsx",
@@ -32,7 +33,7 @@ const RELATED_UI_FILES = [
 ];
 
 describe("Wallet UI shows no payment-processor branding", () => {
-  for (const file of [...WALLET_UI_FILES, ...RELATED_UI_FILES]) {
+  for (const file of [...WALLET_UI_FILES_NO_STRIPE_WORD, ...RELATED_UI_FILES]) {
     it(`${file} contains no visible "Stripe" branding`, () => {
       expect(existsSync(path.join(process.cwd(), file)), file).toBe(true);
       const source = readSource(file);
@@ -50,5 +51,13 @@ describe("Wallet UI shows no payment-processor branding", () => {
     const source = readSource("features/wallet/components/TransactionDetailPage.tsx");
     expect(source).not.toContain("stripeTransferId");
     expect(source).not.toContain('label="Stripe');
+  });
+
+  it("hosted payout access CTAs are server-routed (Owner Stripe accessibility)", () => {
+    const access = readSource("features/wallet/components/HostedPayoutAccessRow.tsx");
+    expect(access).toContain("View on Stripe");
+    expect(access).toContain("Resolve on Stripe");
+    expect(access).toContain("/api/wallet/connect");
+    expect(access).not.toContain("dashboard.stripe.com");
   });
 });

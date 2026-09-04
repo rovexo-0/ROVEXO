@@ -2,6 +2,11 @@ import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 import { enrichHelpArticle } from "@/lib/help/content/article-meta";
 import { WAVE_A_HELP_ARTICLES } from "@/lib/help/content/wave-a-articles-v1";
 import {
+  canAccessHelpContent,
+  HELP_AUDIENCES_FOR_GUEST,
+  type HelpContentAudience,
+} from "@/lib/help/help-content-audience-v1";
+import {
   PRIVACY_DATA_CONTROLLER_MARKDOWN,
   TERMS_PLATFORM_OPERATOR_MARKDOWN,
 } from "@/lib/legal/content";
@@ -14,7 +19,7 @@ export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; descripti
   { id: "delivery", label: "Delivery", description: "Shipping, tracking, and delivery options" },
   { id: "chat", label: "Chat", description: "Messaging buyers and sellers safely" },
   { id: "pro-seller", label: "Pro Seller", description: "Analytics, promotions, and growth tools" },
-  { id: "business-accounts", label: "Seller tax status", description: "Tax registration on your Personal Account" },
+  { id: "business-accounts", label: "Seller tax status", description: "Tax registration on your ROVEXO account" },
   { id: "safety", label: "Safety", description: "Stay safe on ROVEXO" },
   { id: "ai-moderation", label: "AI Moderation", description: "How automated review works" },
   { id: "prohibited-items", label: "Prohibited Items", description: "Items not allowed on ROVEXO" },
@@ -95,8 +100,9 @@ ROVEXO checkout includes purchase protection on eligible purchases.
 - Counterfeit items where prohibited
 
 ## How to get help
-- Message the seller first from your order page.
-- If unresolved, open a support request from **Contact Support** with your order number.`,
+- Message the seller in Conversation Hub.
+- Use the in-product issue flow on the order when it is available.
+- If unresolved, contact Support. Keep evidence on ROVEXO.`
   },
   {
     slug: "selling-get-started",
@@ -141,13 +147,13 @@ Listings with clear photos sell faster and receive fewer disputes.`,
     content: `# Payments and checkout
 
 ## Buyers
-- Pay securely at checkout with supported card methods.
-- Your payment is processed before the seller ships.
+- Pay in ROVEXO Checkout with a supported payment method.
+- Review **Total Buyer Pays** before Confirm & Pay.
 
 ## Sellers
-- ROVEXO collects payment and releases seller payouts after order milestones.
-- A platform commission applies to completed sales.
-- Add your bank account from your seller wallet to receive payouts.`,
+- Seller Fee is £0. Buyers pay Platform Fee as part of Total Buyer Pays.
+- After protection timing, funds appear in Balance for withdrawal to a verified bank account.
+- Add your bank account from Balance to withdraw.`
   },
   {
     slug: "payments-refunds",
@@ -175,13 +181,13 @@ Refunds return to the original payment method when approved.`,
     content: `# Delivery and shipping
 
 ## At checkout
-- Choose standard or express delivery where available.
-- Delivery fees are shown before you pay.
+- Available delivery options and fees are shown before you pay.
+- Checkout uses ROVEXO shipping quotes for that order.
 
 ## Seller responsibilities
-- Ship within the stated handling time.
-- Add tracking when available from your seller order page.
-- Package items securely to prevent damage in transit.`,
+- Fulfil using the ROVEXO label flow for the paid order.
+- Pack to the declared parcel size.
+- Mark shipped so tracking can appear in Orders and Conversation Hub.`
   },
   {
     slug: "delivery-tracking",
@@ -194,12 +200,12 @@ Refunds return to the original payment method when approved.`,
 Open **Orders** and select your purchase to view status updates.
 
 ## Status stages
-- **Awaiting shipment** — payment received, seller preparing item
-- **Shipped** — tracking available when provided
-- **Delivered** — carrier confirms delivery
-- **Completed** — buyer confirmed receipt
+- **Awaiting shipment** — payment received, seller preparing the item
+- **Shipped** — tracking appears when the seller ships
+- **Delivered** — carrier or order status shows delivered
+- **Completed** — the order is completed in Orders / Conversation Hub
 
-Contact the seller through Messages if tracking stalls.`,
+Contact the seller in Conversation Hub if tracking stalls.`
   },
   {
     slug: "chat-safety",
@@ -216,45 +222,44 @@ Contact the seller through Messages if tracking stalls.`,
   },
   {
     slug: "pro-seller-dashboard",
-    title: "Pro Selling workspace",
+    title: "Selling workspace",
     category: "pro-seller",
-    summary: "Track sales, analytics, and promotions.",
-    keywords: ["selling", "analytics", "sales", "pro"],
-    content: `# Pro Selling workspace
+    summary: "Sell, fulfil orders, and use Balance on the same ROVEXO account.",
+    keywords: ["selling", "orders", "balance", "sell"],
+    content: `# Selling workspace
 
-Your Selling workspace shows:
-- Daily sales and order counts
-- Revenue and conversion trends
-- Active featured listings and bumps
-- Recent orders and low-stock alerts
+Selling uses the same ROVEXO account you use for buying. There is no second account to create.
 
-Open **Analytics** for detailed charts and CSV export.`,
+## What you can use today
+- Publish listings from **Sell**
+- Manage orders in **Orders** and Conversation Hub
+- View **Balance** and withdraw when eligible
+
+Paid promotions (featured listings and bumps) are not a live v1.0 product. Promote on Profile is Coming Soon.`,
   },
   {
     slug: "pro-seller-promotions",
     title: "Featured listings and bumps",
     category: "pro-seller",
-    summary: "Promote listings to reach more buyers.",
-    keywords: ["featured", "bump", "promotion"],
+    summary: "Paid listing promotions are not a live v1.0 product.",
+    keywords: ["featured", "bump", "promotion", "coming soon"],
     content: `# Featured listings and bumps
 
-## Featured listings
-- Highlight items in discovery sections for a set duration.
+Paid listing promotions (featured placements and bumps) are **not available** as a live ROVEXO product in v1.0.
 
-## Bumps
-- Move listings higher in category results temporarily.
+Promote on Profile is shown as **Coming Soon**. This article is not a live subscription, advertising, or paid-promotion product.
 
-Promotions expire automatically. You receive a notification when a promotion ends.`,
+To reach buyers today, publish a complete listing from **Sell** with accurate photos, category, price, and parcel size.`,
   },
   {
     slug: "business-accounts-setup",
     title: "Seller tax status",
     category: "selling",
-    summary: "Complete seller tax registration on your Personal Account before payouts.",
+    summary: "Complete seller tax registration on your ROVEXO account before payouts.",
     keywords: ["tax", "company", "vat", "sole trader", "payout"],
     content: `# Seller tax status
 
-ROVEXO v1.0 uses one **Personal Account**. Tax registration status is information used for payouts and reporting — not a separate commercial account product.
+ROVEXO uses one account. Tax registration status is information used for payouts and reporting — not a separate commercial account product. Business tools are a switch and verified information on the same account.
 
 ## Tax registration
 - Open Seller Tax Registration and choose the status that matches your situation: **Personal**, **Pro Seller**, **Sole Trader**, or **Company**.
@@ -417,11 +422,11 @@ Report concerns through Contact Support or in-app report tools.`,
     slug: "seller-tax-registration",
     title: "Seller tax registration",
     category: "selling",
-    summary: "Complete tax registration on your Personal Account before payouts.",
+    summary: "Complete tax registration on your ROVEXO account before payouts.",
     keywords: ["tax", "vat", "utr", "nino", "stripe connect", "personal"],
     content: `# Seller tax registration
 
-Before receiving payouts, complete seller tax registration on your Personal Account:
+Before receiving payouts, complete seller tax registration on your ROVEXO account:
 
 ## Registration status (tax purposes)
 - **Personal** — occasional selling
@@ -439,10 +444,27 @@ export function getHelpArticle(slug: string): HelpArticle | undefined {
   return article ? enrichHelpArticle(article) : undefined;
 }
 
+export function getHelpArticleForAudience(
+  slug: string,
+  allowedAudiences: readonly HelpContentAudience[] = HELP_AUDIENCES_FOR_GUEST,
+): HelpArticle | undefined {
+  const article = getHelpArticle(slug);
+  if (!article || !canAccessHelpContent(article.audience, allowedAudiences)) {
+    return undefined;
+  }
+  return article;
+}
+
 export function getHelpArticlesByCategory(category: HelpCategory): HelpArticle[] {
   return HELP_ARTICLES.filter((article) => article.category === category).map(enrichHelpArticle);
 }
 
 export function getAllHelpArticles(): HelpArticle[] {
   return HELP_ARTICLES.map(enrichHelpArticle);
+}
+
+export function listHelpArticlesForAudience(
+  allowedAudiences: readonly HelpContentAudience[] = HELP_AUDIENCES_FOR_GUEST,
+): HelpArticle[] {
+  return getAllHelpArticles().filter((article) => canAccessHelpContent(article.audience, allowedAudiences));
 }

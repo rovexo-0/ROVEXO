@@ -131,7 +131,7 @@ export const SUPREME_BLOOD_CODE_XXIII_V1 = {
   } as const,
 
   priceSummary: {
-    lines: ["Product Price", "Shipping", "Platform Fee", "TOTAL TO PAY"] as const,
+    lines: ["Product Price", "Shipping", "Buyer Protection", "TOTAL TO PAY"] as const,
     totalMustAlwaysBeVisible: true,
     buyerMustNeverAsk: [
       "What am I paying for?",

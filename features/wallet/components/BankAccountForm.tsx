@@ -58,7 +58,7 @@ export function BankAccountForm({
     if (!open || !connected) return;
 
     let cancelled = false;
-    void fetch("/api/wallet/bank-account")
+    void fetch("/api/wallet/bank-account?sellerContext=individual")
       .then((response) => response.json())
       .then((payload: {
         success?: boolean;
@@ -125,7 +125,7 @@ export function BankAccountForm({
       const response = await fetch("/api/wallet/bank-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, sellerContext: "individual" }),
       });
       const payload = (await response.json().catch(() => ({}))) as {
         success?: boolean;
@@ -156,7 +156,9 @@ export function BankAccountForm({
     setFormError(null);
     setRemoving(true);
     try {
-      const response = await fetch("/api/wallet/bank-account", { method: "DELETE" });
+      const response = await fetch("/api/wallet/bank-account?sellerContext=individual", {
+        method: "DELETE",
+      });
       if (response.ok) {
         reset();
         onRemoved?.();

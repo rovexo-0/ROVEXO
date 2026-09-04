@@ -69,6 +69,8 @@ export function mapOrderCheckoutErrorToRvx(raw: string | null | undefined): {
     lower.includes("payments are not configured") ||
     lower.includes("unable to complete virtual payment") ||
     lower.includes("stripe is not configured") ||
+    lower.includes("invalid api key") ||
+    lower.includes("blocked on localhost") ||
     lower.includes("checkout session required") ||
     lower.includes("payment session expired")
   ) {

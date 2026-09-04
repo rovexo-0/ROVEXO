@@ -3,6 +3,8 @@
 import { memo, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { stripListingAttributeNotesFromDescriptionV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { VIEW_ITEM_PRESENTATION_TOKENS_V1 } from "@/lib/product-detail/view-item-presentation-tokens-v1";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type ProductDescriptionV1Props = {
   description: string;
@@ -59,21 +61,12 @@ export const ProductDescriptionV1 = memo(function ProductDescriptionV1({
           onClick={() => setExpanded((current) => !current)}
         >
           <span>{expanded ? "Show less" : "Read more"}</span>
-          <svg
+          <PlatformEmoji
+            emoji={PLATFORM_EMOJI.dropdown}
+            size={16}
             className="pd-v1__description-chevron"
             data-expanded={expanded ? "true" : "false"}
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          />
         </button>
       ) : null}
     </section>

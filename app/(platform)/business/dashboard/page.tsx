@@ -1,48 +1,44 @@
+import { redirect } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { getProfile } from "@/lib/profile/data";
-import { fetchBusinessDashboard } from "@/lib/business/queries";
-import { BusinessDashboardPage } from "@/features/business/dashboard/components/BusinessDashboardPage";
-import { CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { BusinessHomeScreen } from "@/features/business/onboarding/BusinessHomeScreen";
+import {
+  activateBusinessContext,
+  loadPwaBusinessSession,
+  resolveBusinessStoreHref,
+} from "@/lib/business/pwa-business-session";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = {
   ...privatePageMetadata,
-  title: "Business · ROVEXO",
+  title: "Business Home · ROVEXO",
 };
 
-/**
- * Business — always opens Business (PO). Unverified users see Verification CTA,
- * never My Account.
- */
 export default async function BusinessDashboardRoute() {
-  const profile = await getProfile();
-
-  if (!profile.capabilities.hasBusinessVerification) {
-    return (
-      <AccountCanonicalShell title="Business" backHref="/account" backLabel="My Account" showHeaderTitle>
-        <CanonicalInfoBlock variant="description">
-          Verify your business to unlock Store, Orders, Wallet, and Analytics.
-        </CanonicalInfoBlock>
-        <div className="cds-section">
-          <CanonicalCard variant="list">
-            <CanonicalMenuRow
-              id="business-verify-cta"
-              href="/business/verification"
-              title="Verification"
-              description="Start business verification"
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="verification" />
-                </span>
-              }
-            />
-          </CanonicalCard>
-        </div>
-      </AccountCanonicalShell>
-    );
+  const { profile, status } = await loadPwaBusinessSession();
+  if (!status.stripe.verified) {
+    redirect(status.hasBusinessProfile ? "/business/connect" : "/business/information");
   }
 
-  const data = await fetchBusinessDashboard(profile.id);
-  return <BusinessDashboardPage data={data} />;
+  try {
+    await activateBusinessContext(profile.id, status.activeSellerContext);
+  } catch (error) {
+    const name = error instanceof Error ? error.name : "";
+    if (name === "STRIPE_VERIFICATION_REQUIRED" || name === "BUSINESS_INFORMATION_REQUIRED") {
+      redirect(status.hasBusinessProfile ? "/business/connect" : "/business/information");
+    }
+    // Do not abort Business Home after a successful client switch. A thrown RSC
+    // cancels App Router navigation and leaves the user on /account.
+  }
+  const storeHref = resolveBusinessStoreHref(profile);
+
+  return (
+    <AccountCanonicalShell
+      title="BUSINESS HOME"
+      backHref="/"
+      backLabel="Home"
+      showHeaderTitle
+    >
+      <BusinessHomeScreen status={status} storeHref={storeHref} />
+    </AccountCanonicalShell>
+  );
 }

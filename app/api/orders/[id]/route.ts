@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { getUserRole, isPlatformAdminRole, requireApiAuth } from "@/lib/auth/session";
+import { getUserRole, isPlatformAdminRole } from "@/lib/auth/session";
+import { requireCookieOrBearerApiAuth } from "@/lib/auth/require-cookie-or-bearer-api-auth-v1";
 import { applyOrderAction, getOrderById } from "@/lib/orders/store";
 import { canPerformOrderAction } from "@/lib/orders/role";
 import type { OrderAction } from "@/lib/orders/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+export async function GET(request: Request, context: RouteContext) {
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -27,7 +28,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireCookieOrBearerApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }

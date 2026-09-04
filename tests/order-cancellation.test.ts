@@ -370,7 +370,7 @@ describe("seller cancellation contracts", () => {
     expect(cancel).toContain('reason: "seller_cancelled"');
     expect(store).toContain("cancelSellerOrder");
     expect(store).toContain("actorUserId === existing.seller.id");
-    expect(api).toContain("requireApiAuth");
+    expect(api).toContain("requireCookieOrBearerApiAuth");
     expect(api).toContain("applyOrderAction(id, body.action, payload, auth.user.id)");
     expect(notify).toContain("Order cancelled by seller");
     expect(notify).toContain("Reason: ${input.reason}");
@@ -379,7 +379,7 @@ describe("seller cancellation contracts", () => {
     expect(hub).toContain('actionId === "print_label"');
     expect(store).toContain('throw new Error("Unauthorized.")');
     expect(store).toContain('error: "Forbidden."');
-    expect(api).toContain("requireApiAuth");
+    expect(api).toContain("requireCookieOrBearerApiAuth");
     expect(card).toContain('label: "CREATE SHIPPING LABEL"');
     expect(card).toContain('label: "CANCEL ORDER"');
     expect(detail).toContain("Cancelled by seller");

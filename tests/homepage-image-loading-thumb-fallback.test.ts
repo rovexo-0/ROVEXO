@@ -58,12 +58,12 @@ describe("Homepage image loading — thumb→url→placeholder", () => {
     expect(start).toBeGreaterThanOrEqual(0);
     const end = source.indexOf("\nasync function", start + 1);
     const slice = source.slice(start, end > 0 ? end : undefined);
-    expect(slice).toContain("thumbExists");
     expect(slice).toContain("storageObjectExists");
     expect(slice).toContain('!image.storagePath.includes("/temp/")');
-    expect(slice).toContain(
-      "thumbnailUrl: thumbExists ? getPublicStorageUrl(\"products\", newThumbPath) : publicUrl",
-    );
+    expect(slice).toContain("resolveOwnedListingImageServingUrls");
+    expect(slice).toContain("newThumbPath");
+    expect(source).toContain("jpegThumbUrl");
+    expect(source).toContain("preferAvifServingUrls");
   });
 
   it("ListingCard uses one-shot card image fallback without SafeImage redesign", () => {
@@ -85,5 +85,16 @@ describe("Homepage image loading — thumb→url→placeholder", () => {
     const source = readSource("lib/products/repository.ts");
     expect(source).toContain("resolveCardImageSources");
     expect(source).toContain("imageFullUrl: cardImages.imageFullUrl");
+    expect(source).not.toContain("thumbIsDerived");
+    expect(readSource("lib/listings/repository.ts")).not.toContain("thumbIsDerived");
+  });
+
+  it("does not collapse a stored sibling -thumb.jpg to the original JPEG", () => {
+    const sources = resolveCardImageSources(
+      "https://cdn.example.com/a-thumb.jpg",
+      "https://cdn.example.com/a.jpg",
+    );
+    expect(sources.imageUrl).toBe("https://cdn.example.com/a-thumb.jpg");
+    expect(sources.imageFullUrl).toBe("https://cdn.example.com/a.jpg");
   });
 });

@@ -75,7 +75,7 @@ export function OrderSummary({
       <CanonicalCard variant="list" className="flex w-full flex-col py-1">
         <SummaryRow label="Item" amount={totals.itemPrice} />
         <DeliverySummaryRow totals={totals} listingOffersFreeDelivery={listingOffersFreeDelivery} />
-        <SummaryRow label="Platform Fee" amount={totals.platformFee} />
+        <SummaryRow label="Buyer Protection" amount={totals.platformFee} />
         <div className="border-t border-border">
           <SummaryRow label="Total" amount={totals.total} emphasis />
         </div>

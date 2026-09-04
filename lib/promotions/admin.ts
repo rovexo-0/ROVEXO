@@ -8,7 +8,7 @@ import { computePromotionScore } from "@/lib/promotions/format";
 import { applyListingPromotion } from "@/lib/promotions/service";
 import type { AdminPromotionRow, AdminPromotionStats } from "@/lib/promotions/admin-types";
 import { getAdminPromotionAnalytics } from "@/lib/promotions/analytics";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 function mapAdminPromotionRow(row: {
   id: string;
@@ -24,7 +24,14 @@ function mapAdminPromotionRow(row: {
   created_at: string;
   products: {
     title: string;
-    product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
+    status?: string | null;
+    product_images?: Array<{
+      url: string;
+      thumbnail_url?: string | null;
+      storage_path?: string | null;
+      is_primary: boolean;
+      sort_order: number;
+    }>;
   } | null;
   profiles: { full_name: string } | null;
 }): AdminPromotionRow {
@@ -36,7 +43,10 @@ function mapAdminPromotionRow(row: {
     id: row.id,
     productId: row.product_id,
     productTitle: row.products?.title ?? "Listing",
-    productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
+    productImageUrl: resolveCardImageSources(images[0]?.thumbnail_url, images[0]?.url, {
+      storagePath: images[0]?.storage_path,
+      productStatus: row.products?.status,
+    }).imageUrl,
     sellerId: row.seller_id,
     sellerName: row.profiles?.full_name ?? "Seller",
     type: row.type as PromotionType,
@@ -64,7 +74,8 @@ export async function listAdminPromotions(input?: {
       *,
       products:product_id (
         title,
-        product_images ( url, is_primary, sort_order )
+        status,
+        product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )
       ),
       profiles:seller_id ( full_name )
     `,
@@ -86,7 +97,14 @@ export async function listAdminPromotions(input?: {
       ...row,
       products: row.products as {
         title: string;
-        product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
+        status?: string | null;
+        product_images?: Array<{
+          url: string;
+          thumbnail_url?: string | null;
+          storage_path?: string | null;
+          is_primary: boolean;
+          sort_order: number;
+        }>;
       } | null,
       profiles: row.profiles as { full_name: string } | null,
     }),

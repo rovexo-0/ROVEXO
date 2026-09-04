@@ -124,10 +124,25 @@ export async function CHECKOUT_SESSION_ENGINE_create(input: {
   conversationId?: string | null;
   /** Bundle Engine — immutable checkout snapshot (multi-item). */
   bundleLines?: BundleCheckoutSnapshotV1 | null;
+  /** Immutable seller financial context (defaults to seller active_seller_context switch). */
+  sellerContext?: "individual" | "business" | null;
 }): Promise<{ ok: true; session: CheckoutSessionRow } | { ok: false; reason: string }> {
   const admin = createAdminClient();
   const publicId = mintCheckoutSessionPublicId();
   const expiresAt = expiresAtIso();
+
+  // Stamp the seller's ACTIVE context (individual|business switch), not "has business profile".
+  // Sold Orders / Wallet filter by active_seller_context — mismatch hides real sales.
+  let sellerContext = input.sellerContext ?? null;
+  if (!sellerContext) {
+    const { data: sellerProfile } = await admin
+      .from("seller_profiles")
+      .select("active_seller_context")
+      .eq("id", input.sellerId)
+      .maybeSingle();
+    sellerContext =
+      sellerProfile?.active_seller_context === "business" ? "business" : "individual";
+  }
 
   const insertPayload: Record<string, unknown> = {
     public_id: publicId,
@@ -142,6 +157,7 @@ export async function CHECKOUT_SESSION_ENGINE_create(input: {
     total: input.total,
     offer_id: input.offerId ?? null,
     conversation_id: input.conversationId ?? null,
+    seller_context: sellerContext,
     status: "open",
     expires_at: expiresAt,
   };
@@ -586,6 +602,8 @@ async function healOrphanedReservations(): Promise<{
         });
         if (destroyed.persisted && destroyed.affectedRows > 0) {
           restored += 1;
+        } else if (isCheckoutExpireTerminalSkip(destroyed.reason)) {
+          // Paid while healing — leave inventory with the order; not a failure.
         } else {
           failures += 1;
           INVENTORY_LIFECYCLE_LOG("skip", {
@@ -626,9 +644,10 @@ export async function CHECKOUT_SESSION_ENGINE_markPaid(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
-}): Promise<void> {
+}): Promise<{ attached: boolean }> {
   const admin = createAdminClient();
-  await admin
+  // Race-safe: only the first open→paid writer attaches order_id.
+  const { data, error } = await admin
     .from("checkout_sessions")
     .update({
       status: "paid",
@@ -639,7 +658,13 @@ export async function CHECKOUT_SESSION_ENGINE_markPaid(input: {
       updated_at: new Date().toISOString(),
     })
     .eq("id", input.sessionId)
-    .eq("status", "open");
+    .eq("status", "open")
+    .select("id")
+    .maybeSingle();
+  if (error) {
+    throw new Error(`CHECKOUT_SESSION_ENGINE_markPaid failed: ${error.message}`);
+  }
+  return { attached: Boolean(data?.id) };
 }
 
 export async function CHECKOUT_SESSION_ENGINE_attachStripe(input: {
@@ -664,6 +689,15 @@ export type CheckoutSessionExpireAllResult = {
   failures: number;
   ok: boolean;
 };
+
+/**
+ * Destroy outcomes that are expected terminal skips — never inventory failures.
+ * Paid sessions must never be expired or stock-restored; counting them as
+ * failures makes startup falsely unhealthy.
+ */
+export function isCheckoutExpireTerminalSkip(reason: string): boolean {
+  return reason === "paid" || reason === "paid_post_claim";
+}
 
 /**
  * Expire ALL open sessions past expires_at, then heal orphan reserved listings.
@@ -705,6 +739,10 @@ export async function CHECKOUT_SESSION_ENGINE_expireAll(): Promise<CheckoutSessi
         session: row as CheckoutSessionRow,
         status: "expired",
       });
+      if (isCheckoutExpireTerminalSkip(result.reason)) {
+        // Paid / payment race — expected terminal. Do not expire, restore, or fail.
+        continue;
+      }
       if (result.persisted && result.affectedRows > 0) {
         expired += 1;
       } else {

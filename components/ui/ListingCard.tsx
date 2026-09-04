@@ -127,30 +127,25 @@ function promotionSurface(surface: ListingCardSurface): PromotionSurface {
 
 function IconHeart({ filled }: { filled: boolean }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      aria-hidden
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-    </svg>
+    <span className={css.starIcon} aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>
+      {filled ? "❤️" : "🤍"}
+    </span>
+  );
+}
+
+function StoreSavedGlyph({ filled }: { filled: boolean }) {
+  return (
+    <span aria-hidden style={{ fontSize: 14, lineHeight: 1 }}>
+      {filled ? "❤️" : "♡"}
+    </span>
   );
 }
 
 function IconStar() {
   return (
-    <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden className={css.starIcon}>
-      <path
-        fill="var(--ds-color-star)"
-        d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
-      />
-    </svg>
+    <span className={css.starIcon} aria-hidden style={{ fontSize: 12, lineHeight: 1 }}>
+      ⭐
+    </span>
   );
 }
 
@@ -223,6 +218,12 @@ export const ListingCard = memo(function ListingCard({
     favoriteMode === "watchlist" ? product.slug : "",
   );
   const pinned = favoriteMode === "watchlist" ? isSaved : Boolean(isFavoriteProp);
+  const [likesSeed, setLikesSeed] = useState({ id: product.id, likes: product.likes ?? 0 });
+  const [likesOffset, setLikesOffset] = useState(0);
+  if (likesSeed.id !== product.id || likesSeed.likes !== (product.likes ?? 0)) {
+    setLikesSeed({ id: product.id, likes: product.likes ?? 0 });
+    setLikesOffset(0);
+  }
   const [shareOpen, setShareOpen] = useState(false);
   const liveViews = useLiveProductViews(product.slug, product.views);
   const { src: cardImageSrc, onError: onCardImageError, unoptimized: cardImageUnoptimized } =
@@ -245,8 +246,16 @@ export const ListingCard = memo(function ListingCard({
       event.stopPropagation();
       const saving = !pinned;
 
+      if (surface === "store") {
+        setLikesOffset((current) => current + (saving ? 1 : -1));
+      }
+
       if (favoriteMode === "watchlist") {
-        void toggleSaved();
+        void toggleSaved().then((ok) => {
+          if (ok === false && surface === "store") {
+            setLikesOffset((current) => current + (saving ? -1 : 1));
+          }
+        });
         if (saving) {
           const { currency } = getActiveMarket();
           trackGaEvent("add_to_favorites", { item_id: product.id, item_name: product.title, currency });
@@ -259,10 +268,13 @@ export const ListingCard = memo(function ListingCard({
         }
       }
     },
-    [favoriteMode, pinned, onFavorite, product.id, product.title, toggleSaved],
+    [favoriteMode, pinned, onFavorite, product.id, product.title, surface, toggleSaved],
   );
 
   const isHomepageCard = surface === "homepage";
+  const isStoreCard = surface === "store";
+  const showIncl = showBuyerProtection && !isStoreCard;
+  const likesCount = Math.max(0, Math.floor(product.likes ?? 0) + likesOffset);
   const lcpIntrinsic =
     Boolean(priority) &&
     typeof priorityImageWidth === "number" &&
@@ -271,7 +283,10 @@ export const ListingCard = memo(function ListingCard({
   const lcpWidth =
     lcpIntrinsic && priorityImageWidth ? Math.round(priorityImageWidth) : undefined;
   const lcpHeight = lcpWidth ? Math.round((lcpWidth * 5) / 4) : undefined;
-  const showFooter = !isHomepageCard && (showSeller || showRating || showViews);
+  const showFooter =
+    isStoreCard
+      ? showRating || showViews
+      : !isHomepageCard && (showSeller || showRating || showViews);
   const ratingEnd = surface === "homepage" && showRating && !showSeller && !showViews;
   const soldBadge = Boolean(
     statusBadgeLabel && /^sold$/i.test(statusBadgeLabel.trim()),
@@ -329,7 +344,7 @@ export const ListingCard = memo(function ListingCard({
               <p className={css.conditionHomepage}>{condition}</p>
             ) : null}
             <p className={css.priceHomepage}>{priceLabel ?? formatListingPrice(amount)}</p>
-            {showBuyerProtection ? (
+            {showIncl ? (
               <p className={css.inclTotalHomepage}>
                 <span>{inclLabel}</span>
                 <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
@@ -361,7 +376,7 @@ export const ListingCard = memo(function ListingCard({
           <h3 className={css.title}>{product.title}</h3>
           {showCondition && condition ? <p className={css.condition}>{condition}</p> : null}
           <p className={css.price}>{priceLabel ?? formatListingPrice(amount)}</p>
-          {showBuyerProtection ? (
+          {showIncl ? (
             <p className={css.protection}>
               <span>{inclLabel}</span>
               <ShieldLineIcon className={css.protectionIcon} aria-hidden />
@@ -370,8 +385,11 @@ export const ListingCard = memo(function ListingCard({
 
           {showFooter ? (
             <>
-              <div className={css.divider} role="presentation" />
-              <div className={cn(css.footer, ratingEnd && css.footerRatingEnd)}>
+              {isStoreCard ? null : <div className={css.divider} role="presentation" />}
+              <div
+                className={cn(css.footer, ratingEnd && css.footerRatingEnd)}
+                data-product-card-stats={isStoreCard ? "v1.0" : undefined}
+              >
                 {!ratingEnd ? (
                   <div className={css.footerLeft}>
                     {showSeller ? (
@@ -424,7 +442,11 @@ export const ListingCard = memo(function ListingCard({
                     aria-label={formatProductViewsLabel(liveViews)}
                     data-view-live={product.slug}
                   >
-                    <EyeLineIcon className={css.viewsIcon} aria-hidden />
+                    {isStoreCard ? (
+                      <span aria-hidden>👁</span>
+                    ) : (
+                      <EyeLineIcon className={css.viewsIcon} aria-hidden />
+                    )}
                     {formatCardViews(liveViews)}
                   </span>
                 ) : null}
@@ -437,13 +459,21 @@ export const ListingCard = memo(function ListingCard({
       {showFavorite ? (
         <button
           type="button"
-          className={css.save}
+          className={cn(css.save, isStoreCard && css.saveStore)}
           data-active={pinned ? "true" : "false"}
+          data-store-saved={isStoreCard ? "true" : undefined}
           aria-label={pinned ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={pinned}
           onClick={onSave}
         >
-          <IconHeart filled={pinned} />
+          {isStoreCard ? (
+            <>
+              <StoreSavedGlyph filled={pinned} />
+              <span>{formatCardViews(likesCount)}</span>
+            </>
+          ) : (
+            <IconHeart filled={pinned} />
+          )}
         </button>
       ) : null}
 

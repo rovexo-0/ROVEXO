@@ -26,18 +26,63 @@ const PRODUCTION_CSP_DIRECTIVES = [
 
 export const PRODUCTION_CSP = PRODUCTION_CSP_DIRECTIVES.join("; ");
 
-/**
- * Loopback `next start` / Lighthouse: same CSP without upgrade-insecure-requests.
- * Keeps production HTTPS hosts on the full PRODUCTION_CSP (incl. upgrade).
- */
-export const PRODUCTION_CSP_LOOPBACK = PRODUCTION_CSP_DIRECTIVES.filter(
-  (directive) => directive !== "upgrade-insecure-requests",
-).join("; ");
-
 export function isLoopbackHost(host: string | null | undefined): boolean {
   const bare = host?.split(":")[0]?.toLowerCase() ?? "";
   return bare === "localhost" || bare === "127.0.0.1" || bare === "[::1]" || bare === "::1";
 }
+
+/**
+ * Local Supabase (Managed Playwright / `next start` on loopback) serves http(s) + ws on
+ * 127.0.0.1|localhost — production CSP only allows https://*.supabase.co, which blocks
+ * homepage images + auth/realtime and fails certification console checks.
+ * Used ONLY via PRODUCTION_CSP_LOOPBACK (never on public production hosts).
+ */
+function loopbackSupabaseCspSources(): { http: string[]; ws: string[] } {
+  const http = new Set<string>();
+  const ws = new Set<string>();
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (raw) {
+    try {
+      const parsed = new URL(raw);
+      if (isLoopbackHost(parsed.hostname)) {
+        http.add(parsed.origin);
+        ws.add(`${parsed.protocol === "https:" ? "wss" : "ws"}://${parsed.host}`);
+      }
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  // Local Supabase CLI default — covers Playwright when URL is loopback or unset mid-boot.
+  http.add("http://127.0.0.1:54321");
+  http.add("http://localhost:54321");
+  ws.add("ws://127.0.0.1:54321");
+  ws.add("ws://localhost:54321");
+  return { http: [...http], ws: [...ws] };
+}
+
+/**
+ * Loopback `next start` / Lighthouse / Managed Playwright:
+ * same CSP without upgrade-insecure-requests + local Supabase img/connect origins.
+ * Public production hosts keep full PRODUCTION_CSP (incl. upgrade).
+ */
+export function buildProductionCspLoopback(): string {
+  const { http, ws } = loopbackSupabaseCspSources();
+  return PRODUCTION_CSP_DIRECTIVES.filter(
+    (directive) => directive !== "upgrade-insecure-requests",
+  )
+    .map((directive) => {
+      if (directive.startsWith("img-src ")) {
+        return `${directive} ${http.join(" ")}`;
+      }
+      if (directive.startsWith("connect-src ")) {
+        return `${directive} ${[...http, ...ws].join(" ")}`;
+      }
+      return directive;
+    })
+    .join("; ");
+}
+
+export const PRODUCTION_CSP_LOOPBACK = buildProductionCspLoopback();
 /** Documented residual CSP allowances (audit acceptance — P11.2). */
 export const CSP_RESIDUAL_JUSTIFICATIONS = {
   "script-src 'unsafe-inline'":

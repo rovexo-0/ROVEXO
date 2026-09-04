@@ -31,7 +31,7 @@ describe("Profile Icon System v1.0", () => {
     expect(PROFILE_ICON_COLORS).not.toHaveProperty("followers");
   });
 
-  it("wires ProfileMenuIcon into menu · holiday · theme · no emojis", () => {
+  it("wires ProfileMenuIcon into menu · holiday · theme · platform emoji", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
     const icons = readSource("features/account-center/components/ProfileMenuIcons.tsx");
     const holiday = readSource("features/account-center/components/HolidayModeProfileRow.tsx");
@@ -41,17 +41,11 @@ describe("Profile Icon System v1.0", () => {
     expect(menu).toContain("ProfileMenuIcon");
     expect(menu).toContain("ThemeProfileRow");
     expect(menu).toContain('data-profile-icons="v1.0"');
-    expect(menu).not.toContain("♡");
-    expect(menu).not.toContain("🌴");
-    expect(menu).not.toContain("💳");
-    expect(icons).toContain("function Heart");
-    expect(icons).toContain("function PalmTree");
-    expect(icons).toContain("function Moon");
-    expect(icons).toContain("function Logout");
-    expect(icons).toContain("PROFILE_ICON_SIZE_PX");
+    expect(icons).toContain("PROFILE_ICON_EMOJI");
+    expect(icons).toContain("PlatformEmoji");
+    expect(icons).not.toContain("<svg");
     expect(holiday).toContain('ProfileMenuIcon id="holiday-mode"');
     expect(theme).toContain('ProfileMenuIcon id="theme"');
-    expect(holiday).not.toContain("🌴");
     expect(css).toContain("color: #9333ea");
     expect(css).toContain("width: 24px");
   });

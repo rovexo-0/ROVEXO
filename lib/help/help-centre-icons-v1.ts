@@ -27,6 +27,11 @@ export const HELP_CENTRE_SUPPORT_ICONS = {
   contactSupport: { icon: "messages" as AccountIconName, color: MASTER_ICON_COLORS.blue },
   reportProblem: { icon: "support" as AccountIconName, color: MASTER_ICON_COLORS.red },
   legalCentre: { icon: "legal" as AccountIconName, color: MASTER_ICON_COLORS.blue },
+  privacyPolicy: { icon: "legal" as AccountIconName, color: MASTER_ICON_COLORS.green },
+  privacySettings: { icon: "security" as AccountIconName, color: MASTER_ICON_COLORS.green },
+  about: { icon: "profile" as AccountIconName, color: MASTER_ICON_COLORS.purple },
+  faq: { icon: "help" as AccountIconName, color: MASTER_ICON_COLORS.blue },
+  businessStore: { icon: "listings" as AccountIconName, color: MASTER_ICON_COLORS.purple },
 } as const;
 
 export function resolveHelpCategoryIcon(title: string): HelpCentreIconSpec {

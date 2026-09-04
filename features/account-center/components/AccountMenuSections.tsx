@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   ACCOUNT_LOGOUT_MENU_ITEM,
@@ -49,6 +49,8 @@ type AccountMenuSectionsProps = {
   holidayModeEnabled?: boolean;
   /** Active listings — Smart Visibility for Holiday Mode. */
   activeListingCount?: number;
+  /** Compact Profile Business action — first row in the Master Menu. */
+  leadingRow?: ReactNode;
 };
 
 export function AccountMenuSections({
@@ -56,6 +58,7 @@ export function AccountMenuSections({
   availableBalanceLabel,
   holidayModeEnabled = false,
   activeListingCount = 0,
+  leadingRow = null,
 }: AccountMenuSectionsProps) {
   const { badgeCounts, mobileBadges } = useRealtimeNotifications();
   const [isPending, startTransition] = useTransition();
@@ -81,8 +84,9 @@ export function AccountMenuSections({
 
   return (
     <nav className="ac-canonical__menu" aria-label={tx("Profile")} data-master-menu="profile-v1" data-profile-icons="v1.0">
-      {sections.map((section) => (
+      {sections.map((section, index) => (
         <div key={section.id} className="ac-canonical__menu-group" data-section={section.id}>
+          {index === 0 ? leadingRow : null}
           {section.items.map((item) => {
             if (item.id === "theme") {
               // Theme is rendered in a dedicated group below — guaranteed on mobile + desktop.
@@ -102,13 +106,14 @@ export function AccountMenuSections({
               <CanonicalMenuRow
                 key={item.id}
                 id={`ac-canonical-${item.id}`}
-                href={item.href}
+                href={item.comingSoon ? undefined : item.href}
                 title={item.title}
                 description={item.subtitle}
                 value={item.value}
-                badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                comingSoon={item.comingSoon}
+                badge={item.comingSoon ? 0 : resolveMenuBadge(item, badgeCounts, mobileBadges)}
                 icon={<ProfileMenuIcon id={item.id} />}
-                prefetch={Boolean(item.href)}
+                prefetch={Boolean(item.href) && !item.comingSoon}
               />
             );
           })}

@@ -1,5 +1,11 @@
 import { getAllHelpArticles } from "@/lib/help/content/articles";
 import { getAllDecisionTrees } from "@/lib/help/decision-trees/registry";
+import {
+  canAccessHelpContent,
+  HELP_AUDIENCES_FOR_GUEST,
+  isLegacyHelpTopicSlug,
+  type HelpContentAudience,
+} from "@/lib/help/help-content-audience-v1";
 import { FAQ_LIBRARY_V1, getFaqByCluster } from "@/lib/seo/faq-library-v1";
 import type { FaqCluster } from "@/lib/seo/faq-library-v1";
 
@@ -24,11 +30,17 @@ function libraryEntries(): HelpFaqEntry[] {
   }));
 }
 
-export function listHelpFaqs(limit = 200): HelpFaqEntry[] {
+export function listHelpFaqs(
+  limit = 200,
+  allowedAudiences: readonly HelpContentAudience[] = HELP_AUDIENCES_FOR_GUEST,
+): HelpFaqEntry[] {
   const entries: HelpFaqEntry[] = [...libraryEntries()];
   const seenQuestions = new Set(entries.map((entry) => entry.question.toLowerCase()));
 
   for (const article of getAllHelpArticles()) {
+    if (!canAccessHelpContent(article.audience, allowedAudiences)) {
+      continue;
+    }
     for (const [index, faq] of (article.sections?.faqs ?? []).entries()) {
       const key = faq.question.toLowerCase();
       if (seenQuestions.has(key)) continue;
@@ -45,6 +57,12 @@ export function listHelpFaqs(limit = 200): HelpFaqEntry[] {
   }
 
   for (const tree of getAllDecisionTrees()) {
+    if (isLegacyHelpTopicSlug(tree.topicSlug)) {
+      continue;
+    }
+    if (!canAccessHelpContent(tree.audience, allowedAudiences)) {
+      continue;
+    }
     for (const solution of Object.values(tree.solutions)) {
       for (const [index, faq] of solution.faqs.entries()) {
         const key = faq.question.toLowerCase();
@@ -76,14 +94,18 @@ export function listHelpFaqsByCluster(cluster: FaqCluster, limit = 12): HelpFaqE
   }));
 }
 
-export function searchHelpFaqs(query: string, limit = 24): HelpFaqEntry[] {
+export function searchHelpFaqs(
+  query: string,
+  limit = 24,
+  allowedAudiences: readonly HelpContentAudience[] = HELP_AUDIENCES_FOR_GUEST,
+): HelpFaqEntry[] {
   const tokens = query
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((token) => token.length > 1);
-  if (!tokens.length) return listHelpFaqs(limit);
+  if (!tokens.length) return listHelpFaqs(limit, allowedAudiences);
 
-  return listHelpFaqs(500)
+  return listHelpFaqs(500, allowedAudiences)
     .map((entry) => {
       const haystack = `${entry.question} ${entry.answer}`.toLowerCase();
       const score = tokens.reduce((sum, token) => (haystack.includes(token) ? sum + 1 : sum), 0);

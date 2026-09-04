@@ -185,6 +185,10 @@
   color: #dc2626;
 }
 
+.ac-canonical__menu .cds-menu-row--business-action .cds-menu-row__title {
+  color: #7c3aed;
+}
+
 .ac-canonical__menu .cds-menu-row__icon,
 .ac-canonical__menu .ac-canonical__menu-icon {
   width: 24px;

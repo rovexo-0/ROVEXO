@@ -1,4 +1,6 @@
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import type { HTMLAttributes } from "react";
 
 /** ROVEXO canonical business verification badge — single source of truth. */
@@ -22,15 +24,7 @@ const LABELS: Record<BusinessBadgeKind, string> = {
 };
 
 function BadgeIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden className={className}>
-      <path d="M10 1.5 12.09 3.02l2.58-.02.79 2.45 2.09 1.5-.8 2.45.8 2.45-2.09 1.5-.79 2.45-2.58-.02L10 18.5l-2.09-1.52-2.58.02-.79-2.45L2.45 13l.8-2.45-.8-2.45 2.09-1.5.79-2.45 2.58.02L10 1.5Z" />
-      <path
-        d="M8.6 12.3 6.4 10.1l1.06-1.06 1.14 1.14 3-3L12.66 8.2 8.6 12.3Z"
-        fill="var(--ds-color-success-foreground, #fff)"
-      />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.verification} size={14} className={className} />;
 }
 
 export function BusinessBadge({

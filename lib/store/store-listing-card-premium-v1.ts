@@ -71,3 +71,19 @@ export function storeListingCardAttr(
 ): { "data-store-listing-cards": StoreListingCardDensity } {
   return { "data-store-listing-cards": density };
 }
+
+/**
+ * Visit Store listing cards — same ListingCard, seller-set price only.
+ * Homepage / Search keep LISTING_CARD_HOMEPAGE_PROPS (incl. + shield).
+ */
+export const STORE_VISIT_LISTING_PROPS = {
+  surface: "store" as const,
+  showFavorite: true,
+  showCondition: true,
+  showPlatformFee: false,
+  showBuyerProtection: false,
+  showSeller: false,
+  showRating: true,
+  showViews: true,
+  showShare: false,
+} as const;

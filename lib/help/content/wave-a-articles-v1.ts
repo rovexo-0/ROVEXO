@@ -178,9 +178,10 @@ export const WAVE_A_HELP_ARTICLES: HelpArticle[] = [
     title: "Storefront tips for sellers",
     category: "business-accounts",
     topic: "business-accounts",
+    audience: "business",
     summary: "Present a clear public store using Business tools on your ROVEXO Account.",
     keywords: ["store", "storefront", "business"],
-    content: "# Storefront tips for sellers\n\nYour public store or profile shows listings and ratings.\n\n## Tips\n- Keep avatar and bio professional\n- Maintain honest listings\n- Reply promptly in Conversation Hub\n\nBusiness details are verification on your Personal Account.",
+    content: "# Storefront tips for sellers\n\nYour public store or profile shows listings and ratings.\n\n## Tips\n- Keep avatar and bio professional\n- Maintain honest listings\n- Reply promptly in Conversation Hub\n\nBusiness details are verification on the same ROVEXO account.",
   },
   {
     slug: "business-vat-basics",
@@ -189,7 +190,7 @@ export const WAVE_A_HELP_ARTICLES: HelpArticle[] = [
     topic: "business-accounts",
     summary: "High-level UK VAT reminders for sellers \u2014 not tax advice.",
     keywords: ["vat", "tax", "hmrc"],
-    content: "# VAT and selling basics (informational)\n\nROVEXO does not replace your accountant.\n\n## Remember\n- Tax registration status on your Personal Account must be accurate\n- Thresholds and VAT rules can change \u2014 check HMRC guidance\n- Keep records of sales for your own compliance\n\nThis article is informational only.",
+    content: "# VAT and selling basics (informational)\n\nROVEXO does not replace your accountant.\n\n## Remember\n- Tax registration status on your ROVEXO account must be accurate\n- Thresholds and VAT rules can change \u2014 check HMRC guidance\n- Keep records of sales for your own compliance\n\nThis article is informational only.",
   },
   {
     slug: "safety-scam-red-flags",

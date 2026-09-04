@@ -25,7 +25,8 @@ describe("Homepage Share Social v1 — COD SÂNGE", () => {
     expect(button).toContain("ShareNodesLineIcon");
     expect(button).toContain('aria-label="Share ROVEXO"');
     expect(button).toContain("navigator.share");
-    expect(icons).toContain("export function ShareNodesLineIcon");
+    expect(icons).toContain("ShareNodesLineIcon");
+    expect(icons).toMatch(/export (?:function|const) ShareNodesLineIcon/);
   });
 
   it("uses production canonical homepage URL — never localhost or query/session params", () => {

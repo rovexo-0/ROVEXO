@@ -39,19 +39,32 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 vi.mock("@/lib/shipping/db-client", () => ({
   createShippingAdminClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () =>
-          Promise.resolve({
-            data: [{ label_status: "pending", provider_parcel_id: "12345" }],
-          }),
-      }),
-      update: () => ({
-        eq: () => ({
-          not: () => Promise.resolve({ data: null }),
+    from: () => {
+      const chain: {
+        select: () => unknown;
+        eq: () => unknown;
+        in: () => unknown;
+        not: () => unknown;
+        update: () => unknown;
+        then: (resolve: (value: { data: null }) => unknown) => unknown;
+      } = {
+        select: () => chain,
+        eq: () => chain,
+        in: () => chain,
+        not: () => Promise.resolve({ data: null }),
+        update: () => chain,
+        then: (resolve: (value: { data: null }) => unknown) => resolve({ data: null }),
+      };
+      return {
+        select: () => ({
+          eq: () =>
+            Promise.resolve({
+              data: [{ label_status: "pending", provider_parcel_id: "12345" }],
+            }),
         }),
-      }),
-    }),
+        update: () => chain,
+      };
+    },
   }),
 }));
 
@@ -105,15 +118,27 @@ vi.mock("@/lib/orders/checkout", () => ({
 function mockOrderQuery(order: typeof orderRow | null) {
   adminFrom.mockImplementation((table: string) => {
     if (table === "orders") {
+      const claimSelect = () =>
+        Promise.resolve({
+          data: order ? [{ id: order.id }] : [],
+          error: null,
+        });
+
+      const updateChain = {
+        eq: () => updateChain,
+        is: () => updateChain,
+        neq: () => updateChain,
+        select: claimSelect,
+        then: (resolve: (value: { data: null }) => unknown) => resolve({ data: null }),
+      };
+
       return {
         select: () => ({
           eq: () => ({
             maybeSingle: () => Promise.resolve({ data: order }),
           }),
         }),
-        update: () => ({
-          eq: () => Promise.resolve({ data: null }),
-        }),
+        update: () => updateChain,
       };
     }
     if (table === "profiles") {
@@ -148,7 +173,30 @@ describe("cancelBuyerOrder — refund before Sendcloud cancel", () => {
       id: "ship-1",
       status: "preparing",
     });
-    listShipmentParcelsForOrder.mockResolvedValue([]);
+    listShipmentParcelsForOrder.mockResolvedValue([
+      {
+        id: "parcel-1",
+        shippingRecordId: "ship-1",
+        parcelNumber: 1,
+        totalParcels: 1,
+        weightKg: 1,
+        dimensions: null,
+        carrier: "Royal Mail",
+        shippingService: null,
+        trackingNumber: "SC123456789GB",
+        trackingUrl: null,
+        productItemIds: ["p1"],
+        insuranceEnabled: false,
+        insuranceValueGbp: null,
+        operation: null,
+        estimatedDeliveryAt: null,
+        status: "preparing",
+        label: { id: "label-1", pdfUrl: null, labelUrl: null, status: "pending" },
+        providerParcelId: 12345,
+        createdAt: "2026-08-01T00:00:00.000Z",
+        updatedAt: "2026-08-01T00:00:00.000Z",
+      },
+    ]);
     markOrderCancellationRequested.mockResolvedValue(undefined);
     releaseShippingReserveForOrder.mockResolvedValue(undefined);
     releaseProductInventory.mockResolvedValue(undefined);
@@ -240,7 +288,10 @@ describe("cancelBuyerOrder — refund before Sendcloud cancel", () => {
 
     expect(createOrderStripeRefund).toHaveBeenCalledTimes(2);
     // createOrderStripeRefund itself uses idempotencyKey order-refund-${orderId}
-    expect(createOrderStripeRefund).toHaveBeenCalledWith("order-1", { notifySeller: false });
+    expect(createOrderStripeRefund).toHaveBeenCalledWith("order-1", {
+      notifySeller: false,
+      reason: "OTHER",
+    });
   });
 
   it("E: already-refunded order => createOrderStripeRefund still called once path (returns existing)", async () => {

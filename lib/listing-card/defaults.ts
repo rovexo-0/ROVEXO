@@ -5,7 +5,8 @@ import type { ListingCardProps } from "@/components/ui/ListingCard";
  * One component (`ListingCard`) · one prop bundle · every product grid.
  *
  * Displays: image · favourite · price · incl. total · title · condition ·
- * gold ★ rating · views · click → product page.
+ * click → product page.
+ * Homepage: rating + views removed (no empty gaps).
  * Never: seller name · location · parallel marketplace card implementations.
  * SearchResultCard is the Owner-approved Search typeahead / autocomplete exception only
  * (Cluster 4 SSOT lock — not a second marketplace card).
@@ -17,8 +18,8 @@ export const LISTING_CARD_HOMEPAGE_PROPS = {
   showPlatformFee: false,
   showBuyerProtection: true,
   showSeller: false,
-  showRating: true,
-  showViews: true,
+  showRating: false,
+  showViews: false,
   showShare: false,
   showPhotoCount: false,
   showStatusBadge: false,

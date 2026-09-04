@@ -7,6 +7,11 @@ import {
   initiateWithdrawalPayout,
   reverseWithdrawalTransfer,
 } from "@/lib/stripe/withdraw-payout";
+import {
+  isStripePayoutId,
+  isStripeTransferId,
+  reportLegacyPayoutIdInTransferColumn,
+} from "@/lib/stripe/stripe-object-ids-v1";
 import { mustUseVirtualWallet } from "@/lib/full-demo/security";
 import { resolveBankAccountDisplayName } from "@/lib/wallet/bank-account";
 import { decryptSensitive, encryptSensitive, isBankEncryptionConfigured } from "@/lib/wallet/crypto";
@@ -16,16 +21,48 @@ import {
   canDebitAvailable,
   roundWalletMoney,
 } from "@/lib/wallet/security";
+import { WITHDRAW_DESC } from "@/lib/wallet/withdraw-lifecycle-v1";
 import { assertRovexoVerifiedForMoney } from "@/lib/verified/money-gate";
+import { logPaymentError } from "@/lib/ops/logger";
 import type { Tables } from "@/lib/supabase/types/database";
-import type { WalletData, WalletTransaction, WithdrawMethod } from "@/lib/wallet/types";
+import type {
+  ConnectPayoutStatus,
+  WalletData,
+  WalletTransaction,
+  WithdrawMethod,
+} from "@/lib/wallet/types";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { summarizeWalletWithdrawals } from "@/lib/transaction-hub/seller-wallet";
+import {
+  MIN_WITHDRAW_GBP,
+  normalizeSellerContext,
+  walletContextMatchesSellerContext,
+  walletLedgerSellerContextFilter,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 
 /** Never select sort_code / account_number via the user session client. */
 const WITHDRAW_METHOD_PUBLIC_COLUMNS =
-  "id, user_id, provider, label, last_digits, connected, is_default, created_at" as const;
+  "id, user_id, provider, label, last_digits, connected, is_default, created_at, seller_context" as const;
+
+function applySellerContextColumnFilter<
+  T extends { eq: (column: string, value: string) => T; or: (filters: string) => T },
+>(query: T, context: SellerContext): T {
+  const filter = walletLedgerSellerContextFilter(context);
+  return filter.mode === "eq"
+    ? query.eq("seller_context", filter.value)
+    : query.or(filter.value);
+}
 
 function mapTransaction(row: Tables<"wallet_transactions">): WalletTransaction {
+  const legacy = reportLegacyPayoutIdInTransferColumn({
+    transactionId: row.id,
+    stripeTransferId: row.stripe_transfer_id,
+  });
+  if (legacy) {
+    logPaymentError("Legacy payout id in stripe_transfer_id — reconciliation required", null, legacy);
+  }
+
   return {
     id: row.id,
     orderNumber: row.order_number ?? "",
@@ -40,7 +77,99 @@ function mapTransaction(row: Tables<"wallet_transactions">): WalletTransaction {
     feeAmount: row.fee_amount != null ? Number(row.fee_amount) : undefined,
     description: row.description ?? undefined,
     stripeTransferId: row.stripe_transfer_id ?? undefined,
+    stripePayoutId: row.stripe_payout_id ?? undefined,
   };
+}
+
+async function applyWalletListingImageFailClosed(
+  transactions: WalletTransaction[],
+): Promise<WalletTransaction[]> {
+  if (transactions.length === 0) return transactions;
+
+  const orderNumbers = [
+    ...new Set(transactions.map((tx) => tx.orderNumber?.trim()).filter((value): value is string => Boolean(value))),
+  ];
+
+  const liveByOrderNumber = new Map<
+    string,
+    {
+      status: string | null;
+      storagePath: string | null;
+      thumbnailUrl: string | null;
+      url: string | null;
+    }
+  >();
+
+  if (orderNumbers.length) {
+    const admin = createAdminClient();
+    const { data: orders } = await admin
+      .from("orders")
+      .select("order_number, order_items ( product_id )")
+      .in("order_number", orderNumbers);
+
+    const productIdByOrderNumber = new Map<string, string>();
+    const productIds = new Set<string>();
+    for (const order of orders ?? []) {
+      const productId = (
+        order.order_items as Array<{ product_id?: string }> | null
+      )?.[0]?.product_id;
+      if (!order.order_number || !productId) continue;
+      productIdByOrderNumber.set(order.order_number, productId);
+      productIds.add(productId);
+    }
+
+    if (productIds.size) {
+      const { data: products } = await admin
+        .from("products")
+        .select(
+          "id, status, product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )",
+        )
+        .in("id", [...productIds]);
+
+      const liveByProductId = new Map<
+        string,
+        {
+          status: string | null;
+          storagePath: string | null;
+          thumbnailUrl: string | null;
+          url: string | null;
+        }
+      >();
+      for (const product of products ?? []) {
+        const images = [
+          ...((product.product_images as Array<{
+            url: string;
+            thumbnail_url?: string | null;
+            storage_path?: string | null;
+            is_primary: boolean;
+            sort_order: number;
+          }> | null) ?? []),
+        ].sort(
+          (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
+        );
+        const primary = images[0];
+        liveByProductId.set(String(product.id), {
+          status: product.status ?? null,
+          storagePath: primary?.storage_path ?? null,
+          thumbnailUrl: primary?.thumbnail_url ?? null,
+          url: primary?.url ?? null,
+        });
+      }
+
+      for (const [orderNumber, productId] of productIdByOrderNumber) {
+        const live = liveByProductId.get(productId);
+        if (live) liveByOrderNumber.set(orderNumber, live);
+      }
+    }
+  }
+
+  return transactions.map((tx) => {
+    const live = tx.orderNumber ? liveByOrderNumber.get(tx.orderNumber) : undefined;
+    const snapshot = tx.productImageUrl;
+    if (!snapshot && !live) return tx;
+    const resolved = resolveCardImageSources(live?.thumbnailUrl ?? snapshot, live?.url ?? snapshot);
+    return { ...tx, productImageUrl: resolved.imageUrl };
+  });
 }
 
 function mapWithdrawMethod(row: {
@@ -59,16 +188,83 @@ function mapWithdrawMethod(row: {
   };
 }
 
-export async function getWalletData(userId: string): Promise<WalletData> {
+export async function getWalletData(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+): Promise<WalletData> {
+  const context = normalizeSellerContext(sellerContext);
   const supabase = await createClient();
-  const { data: wallet } = await supabase
+  let { data: wallet } = await supabase
     .from("wallets")
     .select("*")
     .eq("user_id", userId)
+    .eq("wallet_context", context)
     .maybeSingle();
 
+  if (!wallet && context === "individual") {
+    const legacy = await supabase.from("wallets").select("*").eq("user_id", userId).maybeSingle();
+    if (
+      legacy.data &&
+      walletContextMatchesSellerContext(legacy.data.wallet_context, "individual")
+    ) {
+      wallet = legacy.data;
+    }
+  }
+
+  const ledgerFilter = walletLedgerSellerContextFilter(context);
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const monthQuery = supabase
+    .from("wallet_transactions")
+    .select("amount, type, status, stripe_transfer_id, seller_context")
+    .eq("user_id", userId)
+    .gte("created_at", monthStart);
+  const txQuery = supabase
+    .from("wallet_transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const paidOutQuery = supabase
+    .from("wallet_transactions")
+    .select("amount")
+    .eq("user_id", userId)
+    .eq("type", "withdrawal")
+    .eq("status", "completed");
+  const pendingSaleQuery = supabase
+    .from("wallet_transactions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("type", "sale")
+    .eq("status", "pending");
+  const processingQuery = supabase
+    .from("wallet_transactions")
+    .select("amount, status")
+    .eq("user_id", userId)
+    .eq("type", "withdrawal")
+    .eq("status", "pending");
+
+  const scopedMonth =
+    ledgerFilter.mode === "eq"
+      ? monthQuery.eq("seller_context", ledgerFilter.value)
+      : monthQuery.or(ledgerFilter.value);
+  const scopedTx =
+    ledgerFilter.mode === "eq"
+      ? txQuery.eq("seller_context", ledgerFilter.value)
+      : txQuery.or(ledgerFilter.value);
+  const scopedPaidOut =
+    ledgerFilter.mode === "eq"
+      ? paidOutQuery.eq("seller_context", ledgerFilter.value)
+      : paidOutQuery.or(ledgerFilter.value);
+  const scopedPendingSale =
+    ledgerFilter.mode === "eq"
+      ? pendingSaleQuery.eq("seller_context", ledgerFilter.value)
+      : pendingSaleQuery.or(ledgerFilter.value);
+  const scopedProcessing =
+    ledgerFilter.mode === "eq"
+      ? processingQuery.eq("seller_context", ledgerFilter.value)
+      : processingQuery.or(ledgerFilter.value);
 
   const [
     { data: monthTransactions },
@@ -79,64 +275,42 @@ export async function getWalletData(userId: string): Promise<WalletData> {
     { count: pendingOrderCount },
     { data: processingWithdrawalRows },
   ] = await Promise.all([
-      supabase
-        .from("wallet_transactions")
-        .select("amount, type, status, stripe_transfer_id")
-        .eq("user_id", userId)
-        .gte("created_at", monthStart),
-      supabase
-        .from("wallet_transactions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(20),
-      supabase
-        .from("withdraw_methods")
-        .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("wallet_transactions")
-        .select("amount")
-        .eq("user_id", userId)
-        .eq("type", "sale")
-        .eq("status", "completed")
-        .not("stripe_transfer_id", "is", null),
-      getConnectAccountStatus(userId),
-      supabase
-        .from("wallet_transactions")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("type", "sale")
-        .eq("status", "pending"),
-      supabase
-        .from("wallet_transactions")
-        .select("amount, status")
-        .eq("user_id", userId)
-        .eq("type", "withdrawal")
-        .eq("status", "pending"),
-    ]);
+      scopedMonth,
+      scopedTx,
+      applySellerContextColumnFilter(
+        supabase
+          .from("withdraw_methods")
+          .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
+          .eq("user_id", userId)
+          .order("created_at", { ascending: true }),
+        context,
+      ),
+      scopedPaidOut,
+      getConnectAccountStatus(userId, context),
+      scopedPendingSale,
+      scopedProcessing,
+  ]);
 
   const monthRevenue =
     monthTransactions
       ?.filter((tx) => tx.type === "sale")
       .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
 
-  const monthPaidOut =
-    monthTransactions
-      ?.filter((tx) => tx.type === "sale" && tx.status === "completed" && tx.stripe_transfer_id)
-      .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
-
-  const monthWithdrawn = Math.abs(
+  const monthPaidOut = Math.abs(
     monthTransactions
       ?.filter((tx) => tx.type === "withdrawal" && tx.status === "completed")
       .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0,
   );
 
-  const paidOutBalance =
-    paidOutRows?.reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
+  const monthWithdrawn = monthPaidOut;
 
-  const mappedTransactions = (transactions ?? []).map(mapTransaction);
+  const paidOutBalance = Math.abs(
+    paidOutRows?.reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0,
+  );
+
+  const mappedTransactions = await applyWalletListingImageFailClosed(
+    (transactions ?? []).map(mapTransaction),
+  );
   const withdrawalSummaryFromList = summarizeWalletWithdrawals(mappedTransactions);
   const processingTotal = roundWalletMoney(
     (processingWithdrawalRows ?? []).reduce((sum, tx) => sum + Math.abs(Number(tx.amount)), 0),
@@ -156,6 +330,7 @@ export async function getWalletData(userId: string): Promise<WalletData> {
   );
 
   return {
+    walletContext: context,
     availableBalance: Number(wallet?.available_balance ?? 0),
     pendingBalance: Number(wallet?.pending_balance ?? 0),
     pendingAvailableAt: wallet?.pending_available_at ?? "",
@@ -169,61 +344,98 @@ export async function getWalletData(userId: string): Promise<WalletData> {
       fees: { value: monthFees, changePercent: 0 },
     },
     transactions: mappedTransactions,
-    withdrawMethods: (methods ?? []).map(mapWithdrawMethod),
+    withdrawMethods: overlayWithdrawMethodsForConnectStatus(
+      (methods ?? []).map(mapWithdrawMethod),
+      connectStatus,
+    ),
     connectStatus,
   };
 }
 
-export async function listWalletTransactions(userId: string): Promise<WalletTransaction[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("wallet_transactions")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+function overlayWithdrawMethodsForConnectStatus(
+  methods: WithdrawMethod[],
+  connectStatus: ConnectPayoutStatus,
+): WithdrawMethod[] {
+  const connected = Boolean(connectStatus.connected && connectStatus.payoutsEnabled);
+  return methods.map((method) =>
+    method.provider === "stripe_connect" ? { ...method, connected } : method,
+  );
+}
 
-  return (data ?? []).map(mapTransaction);
+export async function listWalletTransactions(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+): Promise<WalletTransaction[]> {
+  const context = normalizeSellerContext(sellerContext);
+  const supabase = await createClient();
+  const { data } = await applySellerContextColumnFilter(
+    supabase.from("wallet_transactions").select("*").eq("user_id", userId),
+    context,
+  ).order("created_at", { ascending: false });
+
+  return applyWalletListingImageFailClosed((data ?? []).map(mapTransaction));
 }
 
 export async function getWalletTransactionById(
   userId: string,
   id: string,
+  sellerContext: SellerContext = "individual",
 ): Promise<WalletTransaction | null> {
+  const context = normalizeSellerContext(sellerContext);
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("wallet_transactions")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("id", id)
-    .maybeSingle();
+  const { data } = await applySellerContextColumnFilter(
+    supabase.from("wallet_transactions").select("*").eq("user_id", userId).eq("id", id),
+    context,
+  ).maybeSingle();
 
-  return data ? mapTransaction(data) : null;
+  if (!data) return null;
+  if (!walletContextMatchesSellerContext(data.seller_context, context)) {
+    return null;
+  }
+  const [resolved] = await applyWalletListingImageFailClosed([mapTransaction(data)]);
+  return resolved ?? null;
 }
 
-export async function listWithdrawMethods(userId: string): Promise<WithdrawMethod[]> {
+export async function listWithdrawMethods(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+): Promise<WithdrawMethod[]> {
+  const context = normalizeSellerContext(sellerContext);
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("withdraw_methods")
-    .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true });
+  const { data } = await applySellerContextColumnFilter(
+    supabase
+      .from("withdraw_methods")
+      .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
+      .eq("user_id", userId),
+    context,
+  ).order("created_at", { ascending: true });
 
-  return (data ?? []).map(mapWithdrawMethod);
+  const methods = (data ?? []).map(mapWithdrawMethod);
+  const connectStatus = await getConnectAccountStatus(userId, context);
+  return overlayWithdrawMethodsForConnectStatus(methods, connectStatus);
 }
 
 export async function getWithdrawMethodById(
   userId: string,
   id: string,
+  sellerContext: SellerContext = "individual",
 ): Promise<WithdrawMethod | null> {
+  const context = normalizeSellerContext(sellerContext);
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("withdraw_methods")
-    .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
-    .eq("user_id", userId)
-    .eq("id", id)
-    .maybeSingle();
+  const { data } = await applySellerContextColumnFilter(
+    supabase
+      .from("withdraw_methods")
+      .select(WITHDRAW_METHOD_PUBLIC_COLUMNS)
+      .eq("user_id", userId)
+      .eq("id", id),
+    context,
+  ).maybeSingle();
 
-  return data ? mapWithdrawMethod(data) : null;
+  if (!data) return null;
+  if (!walletContextMatchesSellerContext(data.seller_context, context)) {
+    return null;
+  }
+  return mapWithdrawMethod(data);
 }
 
 /**
@@ -234,10 +446,13 @@ export async function saveBankAccount(input: {
   accountHolderName: string;
   sortCode: string;
   accountNumber: string;
+  sellerContext?: SellerContext | string | null;
 }): Promise<WithdrawMethod | null> {
   if (!isWalletMoneyEnvReady("bank_encrypt") || !isBankEncryptionConfigured()) {
     return null;
   }
+
+  const sellerContext = normalizeSellerContext(input.sellerContext);
 
   let encryptedSort: string;
   let encryptedAccount: string;
@@ -255,6 +470,7 @@ export async function saveBankAccount(input: {
     last_digits: lastDigits,
     connected: true,
     is_default: true,
+    seller_context: sellerContext,
     account_holder_name: input.accountHolderName,
     sort_code: encryptedSort,
     account_number: encryptedAccount,
@@ -262,11 +478,15 @@ export async function saveBankAccount(input: {
 
   try {
     const admin = createAdminClient();
-    const { data: existing } = await admin
-      .from("withdraw_methods")
-      .select("id")
-      .eq("user_id", input.userId)
-      .eq("provider", "bank_account")
+    const existingQuery = applySellerContextColumnFilter(
+      admin
+        .from("withdraw_methods")
+        .select("id")
+        .eq("user_id", input.userId)
+        .eq("provider", "bank_account"),
+      sellerContext,
+    );
+    const { data: existing } = await existingQuery
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -307,8 +527,10 @@ export type BankAccountDisplaySummary = {
  */
 export async function getBankAccountDisplaySummary(
   userId: string,
+  sellerContext: SellerContext = "individual",
 ): Promise<BankAccountDisplaySummary | null> {
-  const methods = await listWithdrawMethods(userId);
+  const context = normalizeSellerContext(sellerContext);
+  const methods = await listWithdrawMethods(userId, context);
   const method = methods.find((item) => item.provider === "bank_account" && item.connected);
   if (!method) {
     return null;
@@ -319,12 +541,14 @@ export async function getBankAccountDisplaySummary(
   if (isBankEncryptionConfigured()) {
     try {
       const admin = createAdminClient();
-      const { data } = await admin
-        .from("withdraw_methods")
-        .select("sort_code")
-        .eq("user_id", userId)
-        .eq("provider", "bank_account")
-        .maybeSingle();
+      const { data } = await applySellerContextColumnFilter(
+        admin
+          .from("withdraw_methods")
+          .select("sort_code")
+          .eq("user_id", userId)
+          .eq("provider", "bank_account"),
+        context,
+      ).maybeSingle();
       if (data?.sort_code) {
         const digits = decryptSensitive(data.sort_code).replace(/\D/g, "");
         if (digits.length >= 2) {
@@ -347,7 +571,10 @@ export async function getBankAccountDisplaySummary(
 /**
  * Server-only: decrypted bank details for payout rails. Never serialize to client.
  */
-export async function getBankAccountForPayout(userId: string): Promise<{
+export async function getBankAccountForPayout(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+): Promise<{
   accountHolderName: string;
   sortCode: string;
   accountNumber: string;
@@ -356,13 +583,16 @@ export async function getBankAccountForPayout(userId: string): Promise<{
     return null;
   }
 
+  const context = normalizeSellerContext(sellerContext);
   const admin = createAdminClient();
-  const { data } = await admin
-    .from("withdraw_methods")
-    .select("account_holder_name, sort_code, account_number")
-    .eq("user_id", userId)
-    .eq("provider", "bank_account")
-    .maybeSingle();
+  const { data } = await applySellerContextColumnFilter(
+    admin
+      .from("withdraw_methods")
+      .select("account_holder_name, sort_code, account_number")
+      .eq("user_id", userId)
+      .eq("provider", "bank_account"),
+    context,
+  ).maybeSingle();
 
   if (!data?.sort_code || !data?.account_number) {
     return null;
@@ -379,14 +609,17 @@ export async function getBankAccountForPayout(userId: string): Promise<{
   }
 }
 
-/** Remove the user's native ROVEXO bank account. */
-export async function removeBankAccount(userId: string): Promise<boolean> {
+/** Remove the user's native ROVEXO bank account for one seller context only. */
+export async function removeBankAccount(
+  userId: string,
+  sellerContext: SellerContext = "individual",
+): Promise<boolean> {
+  const context = normalizeSellerContext(sellerContext);
   const admin = createAdminClient();
-  const { error } = await admin
-    .from("withdraw_methods")
-    .delete()
-    .eq("user_id", userId)
-    .eq("provider", "bank_account");
+  const { error } = await applySellerContextColumnFilter(
+    admin.from("withdraw_methods").delete().eq("user_id", userId).eq("provider", "bank_account"),
+    context,
+  );
 
   return !error;
 }
@@ -403,6 +636,7 @@ export async function recordWithdrawal(input: {
   methodId: string;
   amount: number;
   idempotencyKey?: string | null;
+  sellerContext?: string | null;
 }): Promise<WalletTransaction | null> {
   // Fail closed: never lock or move money when required secrets are missing.
   if (!isWalletMoneyEnvReady("withdraw")) {
@@ -421,13 +655,14 @@ export async function recordWithdrawal(input: {
     return null;
   }
 
+  const sellerContext = normalizeSellerContext(input.sellerContext);
   const amount = roundWalletMoney(input.amount);
-  if (!(amount > 0)) {
+  if (!(amount >= MIN_WITHDRAW_GBP)) {
     return null;
   }
 
   const admin = createAdminClient();
-  const method = await getWithdrawMethodById(input.userId, input.methodId);
+  const method = await getWithdrawMethodById(input.userId, input.methodId, sellerContext);
   if (!method || !method.connected) {
     return null;
   }
@@ -436,14 +671,14 @@ export async function recordWithdrawal(input: {
     if (!isBankEncryptionConfigured()) {
       return null;
     }
-    const bank = await getBankAccountForPayout(input.userId);
+    const bank = await getBankAccountForPayout(input.userId, sellerContext);
     if (!bank?.sortCode || !bank.accountNumber) {
       return null;
     }
   }
 
   // Validate Connect / virtual rail BEFORE locking money.
-  const rail = await assertWithdrawalRailReady(input.userId, method.provider);
+  const rail = await assertWithdrawalRailReady(input.userId, method.provider, sellerContext);
   if (!rail.ready) {
     return null;
   }
@@ -467,21 +702,43 @@ export async function recordWithdrawal(input: {
 
   const { data: wallet } = await admin
     .from("wallets")
-    .select("id, available_balance, user_id")
+    .select("id, available_balance, user_id, wallet_context")
     .eq("user_id", input.userId)
+    .eq("wallet_context", sellerContext)
     .maybeSingle();
 
-  if (!wallet || !canDebitAvailable(Number(wallet.available_balance), amount)) {
+  let walletRow = wallet;
+
+  // Legacy individual only — never accept a business row as individual fallback.
+  if (!walletRow && sellerContext === "individual") {
+    const legacy = await admin
+      .from("wallets")
+      .select("id, available_balance, user_id, wallet_context")
+      .eq("user_id", input.userId)
+      .maybeSingle();
+    if (
+      legacy.data &&
+      walletContextMatchesSellerContext(legacy.data.wallet_context, "individual")
+    ) {
+      walletRow = legacy.data;
+    }
+  }
+
+  if (
+    !walletRow ||
+    !walletContextMatchesSellerContext(walletRow.wallet_context, sellerContext) ||
+    !canDebitAvailable(Number(walletRow.available_balance), amount)
+  ) {
     return null;
   }
 
-  const previousAvailable = roundWalletMoney(Number(wallet.available_balance));
+  const previousAvailable = roundWalletMoney(Number(walletRow.available_balance));
   const newBalance = roundWalletMoney(previousAvailable - amount);
 
   const { data: lockedRows, error: walletError } = await admin
     .from("wallets")
     .update({ available_balance: newBalance })
-    .eq("id", wallet.id)
+    .eq("id", walletRow.id)
     .eq("user_id", input.userId)
     .gte("available_balance", amount)
     .select("id");
@@ -494,9 +751,10 @@ export async function recordWithdrawal(input: {
   const { data: transaction, error: txError } = await admin
     .from("wallet_transactions")
     .insert({
-      wallet_id: wallet.id,
+      wallet_id: walletRow.id,
       user_id: input.userId,
       order_number: orderNumber,
+      seller_context: sellerContext,
       product_title: `Withdrawal to ${method.label}`,
       amount: -amount,
       // WITHDRAWING / PROCESSING — never COMPLETED until transfer confirmation.
@@ -504,7 +762,7 @@ export async function recordWithdrawal(input: {
       type: "withdrawal",
       withdraw_method_label: `${method.label} ••${method.lastDigits}`,
       idempotency_key: idempotencyKey,
-      description: `withdrawing:${idempotencyKey}`,
+      description: WITHDRAW_DESC.withdrawing(idempotencyKey),
     })
     .select("*")
     .single();
@@ -522,7 +780,7 @@ export async function recordWithdrawal(input: {
     await admin
       .from("wallets")
       .update({ available_balance: previousAvailable })
-      .eq("id", wallet.id)
+      .eq("id", walletRow.id)
       .eq("user_id", input.userId);
 
     return null;
@@ -534,6 +792,7 @@ export async function recordWithdrawal(input: {
     amount,
     methodProvider: method.provider,
     idempotencyKey,
+    sellerContext,
   });
 
   if (!payout.success) {
@@ -545,15 +804,22 @@ export async function recordWithdrawal(input: {
     return null;
   }
 
-  // Transfer confirmation = money left platform ledger to Connect (or virtual rail).
-  const confirmed = await confirmWithdrawalCompleted({
-    userId: input.userId,
-    transactionId: transaction.id,
-    stripeTransferId: payout.transferId,
-  });
+  // Transfer success ≠ bank paid. Virtual has no bank rail → complete.
+  // Live Express: keep pending + transfer id until payout.paid (or safe correlation).
+  const settled = payout.virtual
+    ? await confirmWithdrawalBankCompleted({
+        userId: input.userId,
+        transactionId: transaction.id,
+        stripeTransferId: payout.transferId,
+        virtual: true,
+      })
+    : await markWithdrawalTransferAwaitingPayout({
+        userId: input.userId,
+        transactionId: transaction.id,
+        stripeTransferId: payout.transferId,
+      });
 
-  if (!confirmed) {
-    // Uncertain ledger confirm → reverse transfer then unlock (never leave orphan debit).
+  if (!settled) {
     await rollbackWithdrawal({
       userId: input.userId,
       transactionId: transaction.id,
@@ -563,28 +829,37 @@ export async function recordWithdrawal(input: {
     return null;
   }
 
-  const { data: completed } = await admin
+  const { data: finalRow } = await admin
     .from("wallet_transactions")
     .select("*")
     .eq("id", transaction.id)
     .maybeSingle();
 
-  return completed ? mapTransaction(completed) : mapTransaction(transaction);
+  return finalRow ? mapTransaction(finalRow) : mapTransaction(transaction);
 }
 
 /**
- * Confirm a pending withdrawal after external payout success (audit + COMPLETED).
- * Fail closed if row is not a pending withdrawal owned by the user.
+ * After Connect Transfer succeeds: keep status pending (awaiting bank payout).
+ * Never writes po_ into stripe_transfer_id. Never marks bank-paid.
  */
-export async function confirmWithdrawalCompleted(input: {
+export async function markWithdrawalTransferAwaitingPayout(input: {
   userId: string;
   transactionId: string;
-  stripeTransferId?: string | null;
+  stripeTransferId: string;
 }): Promise<boolean> {
+  if (!isStripeTransferId(input.stripeTransferId)) {
+    logPaymentError(
+      "Refused non-transfer id for stripe_transfer_id",
+      null,
+      { transactionId: input.transactionId, id: input.stripeTransferId },
+    );
+    return false;
+  }
+
   const admin = createAdminClient();
   const { data: tx } = await admin
     .from("wallet_transactions")
-    .select("id, status, type, user_id")
+    .select("id, status, type, user_id, stripe_transfer_id")
     .eq("id", input.transactionId)
     .eq("user_id", input.userId)
     .maybeSingle();
@@ -593,12 +868,195 @@ export async function confirmWithdrawalCompleted(input: {
     return false;
   }
 
+  // Idempotent: already awaiting with same transfer id.
+  if (tx.stripe_transfer_id === input.stripeTransferId) {
+    return true;
+  }
+
   const { data: updated, error } = await admin
     .from("wallet_transactions")
     .update({
+      status: "pending",
+      stripe_transfer_id: input.stripeTransferId,
+      description: WITHDRAW_DESC.awaitingPayout(input.stripeTransferId),
+    })
+    .eq("id", input.transactionId)
+    .eq("user_id", input.userId)
+    .eq("status", "pending")
+    .eq("type", "withdrawal")
+    .select("id");
+
+  return Boolean(!error && updated?.length);
+}
+
+/**
+ * Confirm bank settlement (payout.paid) or virtual withdraw completion.
+ * Stores stripe_payout_id separately. Never overwrites stripe_transfer_id with po_.
+ */
+export async function confirmWithdrawalBankCompleted(input: {
+  userId: string;
+  transactionId: string;
+  stripePayoutId?: string | null;
+  stripeTransferId?: string | null;
+  virtual?: boolean;
+}): Promise<boolean> {
+  const admin = createAdminClient();
+  const { data: tx } = await admin
+    .from("wallet_transactions")
+    .select("id, status, type, user_id, stripe_transfer_id, stripe_payout_id")
+    .eq("id", input.transactionId)
+    .eq("user_id", input.userId)
+    .maybeSingle();
+
+  if (!tx || tx.type !== "withdrawal") {
+    return false;
+  }
+
+  // Idempotent completed.
+  if (tx.status === "completed") {
+    if (
+      input.stripePayoutId &&
+      isStripePayoutId(input.stripePayoutId) &&
+      !tx.stripe_payout_id
+    ) {
+      await admin
+        .from("wallet_transactions")
+        .update({ stripe_payout_id: input.stripePayoutId })
+        .eq("id", input.transactionId)
+        .eq("user_id", input.userId);
+    }
+    return true;
+  }
+
+  if (tx.status !== "pending") {
+    return false;
+  }
+
+  // Never write payout id into transfer column.
+  if (input.stripeTransferId && isStripePayoutId(input.stripeTransferId)) {
+    logPaymentError(
+      "Refused writing payout id into stripe_transfer_id",
+      null,
+      { transactionId: input.transactionId, id: input.stripeTransferId },
+    );
+  }
+
+  let patch: {
+    status: "completed";
+    description: string;
+    stripe_transfer_id?: string;
+    stripe_payout_id?: string;
+  };
+
+  if (input.virtual) {
+    patch = {
       status: "completed",
-      ...(input.stripeTransferId ? { stripe_transfer_id: input.stripeTransferId } : {}),
-      description: `completed:${input.transactionId}`,
+      description: WITHDRAW_DESC.completedVirtual(input.transactionId),
+    };
+    if (input.stripeTransferId && isStripeTransferId(input.stripeTransferId)) {
+      patch.stripe_transfer_id = input.stripeTransferId;
+    }
+  } else if (input.stripePayoutId && isStripePayoutId(input.stripePayoutId)) {
+    patch = {
+      status: "completed",
+      stripe_payout_id: input.stripePayoutId,
+      description: WITHDRAW_DESC.completedBank(input.stripePayoutId),
+    };
+  } else {
+    return false;
+  }
+
+  const { data: updated, error } = await admin
+    .from("wallet_transactions")
+    .update(patch)
+    .eq("id", input.transactionId)
+    .eq("user_id", input.userId)
+    .eq("status", "pending")
+    .eq("type", "withdrawal")
+    .select("id");
+
+  return Boolean(!error && updated?.length);
+}
+
+/**
+ * @deprecated Prefer confirmWithdrawalBankCompleted / markWithdrawalTransferAwaitingPayout.
+ * Kept for callers that mean bank completion; refuses po_ in transfer column.
+ */
+export async function confirmWithdrawalCompleted(input: {
+  userId: string;
+  transactionId: string;
+  stripeTransferId?: string | null;
+  stripePayoutId?: string | null;
+}): Promise<boolean> {
+  if (input.stripePayoutId || isStripePayoutId(input.stripeTransferId)) {
+    return confirmWithdrawalBankCompleted({
+      userId: input.userId,
+      transactionId: input.transactionId,
+      stripePayoutId: input.stripePayoutId ?? input.stripeTransferId,
+    });
+  }
+  if (input.stripeTransferId && isStripeTransferId(input.stripeTransferId)) {
+    return markWithdrawalTransferAwaitingPayout({
+      userId: input.userId,
+      transactionId: input.transactionId,
+      stripeTransferId: input.stripeTransferId,
+    });
+  }
+  return false;
+}
+
+/**
+ * Express automatic payout failed after Transfer.
+ * Do NOT restore Available (funds may still sit on Connect).
+ * Do NOT reverse Transfer blindly.
+ * Persist stripe_payout_id + failure description; keep pending for recoverability.
+ */
+export async function markWithdrawalPayoutFailed(input: {
+  userId: string;
+  transactionId: string;
+  stripePayoutId: string;
+  failureCode?: string | null;
+}): Promise<boolean> {
+  if (!isStripePayoutId(input.stripePayoutId)) {
+    return false;
+  }
+
+  const admin = createAdminClient();
+  const { data: tx } = await admin
+    .from("wallet_transactions")
+    .select("id, status, type, user_id, stripe_transfer_id")
+    .eq("id", input.transactionId)
+    .eq("user_id", input.userId)
+    .maybeSingle();
+
+  if (!tx || tx.type !== "withdrawal") {
+    return false;
+  }
+
+  // Already bank-completed — never invent Available credit or reverse.
+  if (tx.status === "completed") {
+    logPaymentError(
+      "payout.failed after completed withdrawal — ops review required",
+      null,
+      {
+        transactionId: input.transactionId,
+        payoutId: input.stripePayoutId,
+      },
+    );
+    return false;
+  }
+
+  if (tx.status !== "pending") {
+    return false;
+  }
+
+  const code = input.failureCode ?? "unknown";
+  const { data: updated, error } = await admin
+    .from("wallet_transactions")
+    .update({
+      stripe_payout_id: input.stripePayoutId,
+      description: WITHDRAW_DESC.payoutFailed(input.stripePayoutId, code),
+      // Stay pending + transfer_id: Available already debited; funds on Connect.
     })
     .eq("id", input.transactionId)
     .eq("user_id", input.userId)
@@ -671,7 +1129,7 @@ export async function rollbackWithdrawal(input: {
     .from("wallet_transactions")
     .update({
       status: "failed",
-      description: `rolled_back:${input.reason}`,
+      description: WITHDRAW_DESC.rolledBack(input.reason),
     })
     .eq("id", input.transactionId)
     .eq("status", "pending");

@@ -5,7 +5,6 @@ import { randomUUID } from "node:crypto";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { detectParcelTier, mapLegacyParcelSize } from "@/lib/shipping/parcels";
-import { mapToLegacyShipmentStatus } from "@/lib/shipping/status";
 import { createTrackingEvent } from "@/lib/shipping/tracking";
 import type {
   LegacyParcelSize,
@@ -29,10 +28,10 @@ import {
   isValidTrackingNumber,
   type UkCarrier,
 } from "@/lib/shipping/carriers";
-import { createOrderShipment, getOrderShipment } from "@/lib/shipping/service";
 import { attachLabelToParcel, createShipmentParcel, listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import type { ShipmentParcel } from "@/lib/shipping/types";
 import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
+import { SHIPPING_RECORDS_SSOT_V1 } from "@/lib/shipping/shipping-records-ssot-v1";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -331,6 +330,8 @@ export async function updateShippingRecordStatus(input: {
     description: input.description,
   });
 
+  // SSOT: shipping_records only — never dual-write order_shipments.
+  void SHIPPING_RECORDS_SSOT_V1;
   await admin.from("shipping_records").update({ status: input.status }).eq("id", record.id);
   await admin.from("shipping_tracking_events").insert({
     shipping_record_id: record.id,
@@ -342,15 +343,38 @@ export async function updateShippingRecordStatus(input: {
     source: event.source,
   });
 
-  const legacyStatus = mapToLegacyShipmentStatus(input.status);
-  const shipment = await getOrderShipment(input.orderId);
-  if (shipment) {
-    const coreAdmin = createAdminClient();
-    await coreAdmin
-      .from("order_shipments")
-      .update({ status: legacyStatus, last_event: event.title })
-      .eq("id", shipment.id);
-  }
+  return getShippingRecord(input.orderId);
+}
+
+/**
+ * Record an unrecognized carrier update for diagnostics without advancing
+ * shipping_records / order lifecycle. Preserves the current valid status.
+ */
+export async function recordShippingTrackingDiagnosticEvent(input: {
+  orderId: string;
+  title?: string;
+  description?: string;
+}): Promise<ShippingRecord | null> {
+  const record = await getShippingRecord(input.orderId);
+  if (!record) return null;
+
+  const admin = createShippingAdminClient();
+  const event = createTrackingEvent({
+    status: record.status,
+    title: input.title ?? "Unrecognized carrier update",
+    description: input.description,
+    source: "carrier",
+  });
+
+  await admin.from("shipping_tracking_events").insert({
+    shipping_record_id: record.id,
+    status: event.status,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    occurred_at: event.occurredAt,
+    source: event.source,
+  });
 
   return getShippingRecord(input.orderId);
 }
@@ -365,9 +389,9 @@ export async function attachShippingTracking(input: {
     return { record: null, error: "Invalid tracking number format for selected carrier." };
   }
 
+  // Canonical SSOT write — never insert/update order_shipments.
+  void SHIPPING_RECORDS_SSOT_V1;
   await ensureShippingRecord({ orderId: input.orderId });
-  const shipmentResult = await createOrderShipment(input);
-  if (shipmentResult.error) return { record: null, error: shipmentResult.error };
 
   const record = await getShippingRecord(input.orderId);
   if (!record) {
@@ -391,8 +415,20 @@ export async function attachShippingTracking(input: {
     description: `Tracking number ${input.trackingNumber} added.`,
   });
 
+  // Order display fields only (orders is not a second shipment SSOT).
+  // Carrier/tracking/status truth remains on shipping_records.
+  const dispatchAt = new Date().toISOString();
   const estimated = estimateDeliveryDate(input.carrier, input.dispatchDays ?? 2);
-  void estimated;
+  const coreAdmin = createAdminClient();
+  await coreAdmin
+    .from("orders")
+    .update({
+      tracking_number: input.trackingNumber,
+      delivery_carrier: input.carrier,
+      shipped_at: dispatchAt,
+      estimated_delivery_at: estimated.toISOString(),
+    })
+    .eq("id", input.orderId);
 
   return { record: await getShippingRecord(input.orderId) };
 }
@@ -502,10 +538,21 @@ export async function appendAndSelectShippingQuoteWithoutReplacing(input: {
 /**
  * Overlay confirmed V3 metadata onto the existing selected shipping_quotes row.
  * Never inserts a second quote. Never changes selected_quote_id.
+ * MEDIUM #5 — never replaces locked provider cost / quote identity after payment.
  */
 export async function updateShippingQuotePayloadWithoutReplacing(input: {
   orderId: string;
   quote: ShippingQuote;
+  /** Real labels covered by ROVEXO margin (default 1). */
+  labelCount?: number;
+  /**
+   * Paid buyer shipping lock (pence). When set, buyerShippingPricePence is not recalculated.
+   */
+  lockedBuyerShippingPricePence?: number;
+  /**
+   * Paid provider cost lock (pence). When set (or already persisted), never overwrite.
+   */
+  lockedProviderShippingCostPence?: number;
 }): Promise<ShippingRecord | null> {
   const record = await getShippingRecord(input.orderId);
   if (!record?.id) return null;
@@ -513,11 +560,13 @@ export async function updateShippingQuotePayloadWithoutReplacing(input: {
   const admin = createShippingAdminClient();
   const { data: rows } = await admin
     .from("shipping_quotes")
-    .select("id, quote_payload")
+    .select("id, quote_payload, price_pence")
     .eq("shipping_record_id", record.id);
 
   const externalId = String(input.quote.id);
-  const match = ((rows ?? []) as Array<{ id?: string; quote_payload?: unknown }>).find((row) => {
+  const match = (
+    (rows ?? []) as Array<{ id?: string; quote_payload?: unknown; price_pence?: number | null }>
+  ).find((row) => {
     if (input.quote.quoteRowId && row.id === input.quote.quoteRowId) return true;
     const payload = coerceShippingQuotePayload(row.quote_payload ?? null);
     return Boolean(payload?.externalQuoteId && payload.externalQuoteId === externalId);
@@ -527,9 +576,47 @@ export async function updateShippingQuotePayloadWithoutReplacing(input: {
     throw new Error("Selected shipping quote row not found for V3 payload update.");
   }
 
+  const existingPayload = coerceShippingQuotePayload(match.quote_payload ?? null);
+  const lockedBuyer =
+    typeof input.lockedBuyerShippingPricePence === "number" &&
+    Number.isFinite(input.lockedBuyerShippingPricePence)
+      ? Math.max(0, Math.trunc(input.lockedBuyerShippingPricePence))
+      : typeof existingPayload?.buyerShippingPricePence === "number"
+        ? existingPayload.buyerShippingPricePence
+        : undefined;
+
+  const existingProvider =
+    typeof existingPayload?.providerShippingCostPence === "number" &&
+    Number.isFinite(existingPayload.providerShippingCostPence)
+      ? Math.max(0, Math.trunc(existingPayload.providerShippingCostPence))
+      : typeof match.price_pence === "number" && Number.isFinite(match.price_pence)
+        ? Math.max(0, Math.trunc(match.price_pence))
+        : null;
+
+  const lockedProvider =
+    typeof input.lockedProviderShippingCostPence === "number" &&
+    Number.isFinite(input.lockedProviderShippingCostPence)
+      ? Math.max(0, Math.trunc(input.lockedProviderShippingCostPence))
+      : existingProvider != null
+        ? existingProvider
+        : Math.max(0, Math.trunc(input.quote.pricePence));
+
+  const quoteForPayload: ShippingQuote = {
+    ...input.quote,
+    id: existingPayload?.externalQuoteId ?? input.quote.id,
+    pricePence: lockedProvider,
+  };
+
   const { error } = await admin
     .from("shipping_quotes")
-    .update({ quote_payload: buildShippingQuotePayload(input.quote) })
+    .update({
+      quote_payload: buildShippingQuotePayload(quoteForPayload, {
+        labelCount: input.labelCount,
+        lockedBuyerShippingPricePence: lockedBuyer,
+      }),
+      // Column is always locked/existing provider cost — never buyer delivery_fee.
+      price_pence: lockedProvider,
+    })
     .eq("id", match.id)
     .eq("shipping_record_id", record.id);
   if (error) {
@@ -537,6 +624,25 @@ export async function updateShippingQuotePayloadWithoutReplacing(input: {
   }
 
   return getShippingRecord(input.orderId);
+}
+
+/**
+ * Persist separated label pricing onto canonical shipping_records.
+ * shipping_price_pence = authoritative provider cost only.
+ */
+export async function persistShippingRecordProviderCostPence(input: {
+  orderId: string;
+  providerShippingCostPence: number;
+}): Promise<void> {
+  const record = await getShippingRecord(input.orderId);
+  if (!record?.id) return;
+  const admin = createShippingAdminClient();
+  await admin
+    .from("shipping_records")
+    .update({
+      shipping_price_pence: Math.max(0, Math.trunc(input.providerShippingCostPence)),
+    })
+    .eq("id", record.id);
 }
 
 export async function saveShippingLabel(input: {
@@ -575,6 +681,19 @@ export async function saveShippingLabel(input: {
     },
     internalPlatformFeePence: input.internalPlatformFeePence,
   });
+
+  // SSOT identity: current ready label owns shipping_records carrier + tracking.
+  // Never mutates quote, buyer price, or order snapshot.
+  if (input.label.status === "ready" && input.label.trackingNumber?.trim()) {
+    const admin = createShippingAdminClient();
+    await admin
+      .from("shipping_records")
+      .update({
+        carrier: String(input.label.carrier),
+        tracking_number: input.label.trackingNumber.trim(),
+      })
+      .eq("id", record.id);
+  }
 
   return getShippingRecord(input.orderId);
 }

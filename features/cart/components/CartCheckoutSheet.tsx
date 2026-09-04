@@ -89,7 +89,7 @@ export function CartCheckoutSheet({
           <span>{formatListingPrice(delivery)}</span>
         </div>
         <div className="cart-v1__summary-row">
-          <span>Platform Fee</span>
+          <span>Buyer Protection</span>
           <span>{formatListingPrice(protectionFee)}</span>
         </div>
       </div>

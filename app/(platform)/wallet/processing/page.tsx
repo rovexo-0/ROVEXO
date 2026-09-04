@@ -18,8 +18,8 @@ export default async function WalletProcessingPage() {
   if (!profile) redirect(`/login?next=${WALLET_ROUTES.processing}`);
 
   const [data, transactions] = await Promise.all([
-    fetchWalletData(),
-    listWalletTransactions(profile.id),
+    fetchWalletData("individual"),
+    listWalletTransactions(profile.id, "individual"),
   ]);
   const balances = resolveWalletBalanceView(data);
   const processingRows = processingWithdrawalTransactions(transactions);

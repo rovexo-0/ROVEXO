@@ -15,8 +15,8 @@ import type { WalletTransaction } from "@/lib/wallet/types";
 describe("transaction hub seller wallet document 3", () => {
   it("aligns buyer protection with commerce engine hold hours", () => {
     expect(BUYER_PROTECTION_HOURS).toBe(DELIVERED_RELEASE_HOURS);
-    expect(BUYER_PROTECTION_HOURS).toBe(24);
-    expect(PENDING_HOLD_HOURS).toBe(24);
+    expect(BUYER_PROTECTION_HOURS).toBe(48);
+    expect(PENDING_HOLD_HOURS).toBe(48);
   });
 
   it("keeps platform fee on buyer side only", () => {
@@ -75,13 +75,18 @@ describe("transaction hub seller wallet document 3", () => {
       path.join(process.cwd(), "features/wallet/components/WalletHubV1.tsx"),
       "utf8",
     );
+    const routes = readFileSync(
+      path.join(process.cwd(), "lib/wallet/canonical-routes.ts"),
+      "utf8",
+    );
 
     expect(escrow).toContain("notifySellerFundsPending");
     expect(settlement).toContain("notifySellerFundsReleased");
     expect(wallet).toContain("Available");
     expect(wallet).toContain("BALANCE_PAGE_NAME");
-    expect(wallet).toContain("WALLET_ROUTES.withdraw");
+    expect(wallet).toContain("withdrawRouteForSellerContext");
     expect(wallet).not.toContain("wallet-v2__balance-card");
+    expect(routes).toContain("withdrawRouteForSellerContext");
   });
 
   it("extends super admin finance dashboard metrics", () => {

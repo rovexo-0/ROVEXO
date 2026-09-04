@@ -34,7 +34,7 @@ describe("Checkout UI Freeze — CHECKOUT_UI_v1.0", () => {
     expect(CHECKOUT_VISUAL_LOCK.sectionGapPx).toBe(10);
     expect(CHECKOUT_VISUAL_LOCK.headerHeightPx).toBe(52);
     expect(CHECKOUT_MASTER_FREEZE_COPY.cta).toBe("TOTAL PAY");
-    expect(CHECKOUT_MASTER_FREEZE_COPY.feeLabel).toBe("Platform Fee");
+    expect(CHECKOUT_MASTER_FREEZE_COPY.feeLabel).toBe("Buyer Protection");
     expect(CHECKOUT_LOCKED_SECTIONS).toEqual([
       "Product",
       "Address",
@@ -62,7 +62,7 @@ describe("Checkout UI Freeze — CHECKOUT_UI_v1.0", () => {
     expect(wizard).toMatch(/TOTAL PAY \$\{/);
     expect(wizard).not.toContain("Pay Securely");
     expect(wizard).not.toContain("Continue to Payment");
-    expect(wizard).not.toMatch(/Buyer Protection/i);
+    expect(wizard).not.toMatch(/Platform Fee/i);
     expect(price).not.toContain("Total to pay");
     expect(price).not.toContain("ckt-v1__price-total");
     expect(css).not.toContain(".ckt-v1__price-total");

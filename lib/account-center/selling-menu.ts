@@ -32,6 +32,13 @@ export function buildSellingMenuSections(): SellingMenuSection[] {
       title: "",
       items: [
         {
+          id: "setup",
+          title: "Seller setup",
+          subtitle: "Payouts, shipping & store",
+          href: "/seller/setup",
+          icon: "sell",
+        },
+        {
           id: "listings",
           title: "Listings",
           href: "/seller/listings",

@@ -7,9 +7,10 @@ import {
   MoreLineIcon,
   SearchLineIcon,
 } from "@/components/icons/RvxLineIcons";
-import type { SVGProps } from "react";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
-type IconProps = SVGProps<SVGSVGElement> & { className?: string };
+type IconProps = { className?: string };
 
 export function MessageStatusIcon({ status }: { status: MessageStatus }) {
   if (status === "read" || status === "delivered") {
@@ -30,25 +31,8 @@ export function EmptyMessagesIcon(props: IconProps) {
   return <ChatLineIcon className="h-12 w-12" {...props} />;
 }
 
-function PlusLineIcon(props: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      {...props}
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
 export function PlusIcon(props: IconProps) {
-  return <PlusLineIcon {...props} />;
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.plus} {...props} />;
 }
 
 export function CameraIcon(props: IconProps) {

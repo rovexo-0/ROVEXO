@@ -3,23 +3,39 @@
 import { useState, type SyntheticEvent } from "react";
 import { isFailedImageSrc, markFailedImageSrc } from "@/lib/media/failed-image-src";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { isStoredAvifUrl } from "@/lib/media/avif-image-pipeline-v1";
+import {
+  isLegacyJpegThumbUrl,
+  isRelativeSvgListingImage,
+  isUnreachableListingStorageUrl,
+  PRODUCT_IMAGE_FALLBACK,
+  toBrowserReachableStorageUrl,
+} from "@/lib/media/product-image";
 
 function pickCardSrc(preferred: string, fullUrl?: string | null): string {
-  const preferredTrim = preferred?.trim() || "";
-  const fullTrim = fullUrl?.trim() || "";
+  const preferredTrim = toBrowserReachableStorageUrl(preferred?.trim() || "");
+  const fullTrim = toBrowserReachableStorageUrl(fullUrl?.trim() || "");
 
   if (
     preferredTrim &&
+    !isUnreachableListingStorageUrl(preferredTrim) &&
     isRenderableImageSrc(preferredTrim) &&
     !isFailedImageSrc(preferredTrim)
   ) {
     return preferredTrim;
   }
 
-  if (fullTrim && isRenderableImageSrc(fullTrim) && !isFailedImageSrc(fullTrim)) {
+  if (
+    fullTrim &&
+    !isUnreachableListingStorageUrl(fullTrim) &&
+    isRenderableImageSrc(fullTrim) &&
+    !isFailedImageSrc(fullTrim)
+  ) {
     return fullTrim;
   }
+
+  if (isRelativeSvgListingImage(preferredTrim)) return preferredTrim;
+  if (isRelativeSvgListingImage(fullTrim)) return fullTrim;
 
   return PRODUCT_IMAGE_FALLBACK;
 }
@@ -27,7 +43,7 @@ function pickCardSrc(preferred: string, fullUrl?: string | null): string {
 function isDistinctThumbSrc(src: string, fullUrl?: string | null): boolean {
   const fullTrim = fullUrl?.trim() || "";
   if (!fullTrim || src === fullTrim) return false;
-  return /-thumb\./i.test(src);
+  return isLegacyJpegThumbUrl(src) || /-thumb\./i.test(src);
 }
 
 /**
@@ -59,7 +75,7 @@ export function useCardImageSrc(preferred: string, fullUrl?: string | null) {
   return {
     src,
     onError,
-    /** Bypass optimizer only while attempting a distinct thumbnail URL. */
-    unoptimized: isDistinctThumbSrc(src, fullUrl),
+    /** Bypass optimizer for stored AVIF and distinct JPEG `-thumb.` fallbacks. */
+    unoptimized: isStoredAvifUrl(src) || isDistinctThumbSrc(src, fullUrl),
   };
 }

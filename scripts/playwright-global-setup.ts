@@ -1,52 +1,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-
-function loadDotEnvFiles(cwd = process.cwd()) {
-  for (const filename of [".env.local", ".env"]) {
-    const filePath = path.join(cwd, filename);
-    if (!fs.existsSync(filePath)) continue;
-
-    const raw = fs.readFileSync(filePath, "utf8");
-    for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-
-      const eq = trimmed.indexOf("=");
-      if (eq === -1) continue;
-
-      const key = trimmed.slice(0, eq).trim();
-      let value = trimmed.slice(eq + 1).trim();
-
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1);
-      }
-
-      if (!process.env[key]) {
-        process.env[key] = value;
-      }
-    }
-  }
-}
-
-function resolvePackageManager(cwd = process.cwd()) {
-  // This repo is npm-canonical. A leftover pnpm-lock.yaml must not force pnpm.
-  if (fs.existsSync(path.join(cwd, "package-lock.json"))) {
-    return "npm";
-  }
-  if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) {
-    try {
-      execSync(process.platform === "win32" ? "where pnpm" : "which pnpm", { stdio: "ignore" });
-      return "pnpm";
-    } catch {
-      return "npm";
-    }
-  }
-  return "npm";
-}
+import { loadDotEnvFiles, resolvePackageManager } from "./playwright-env.mjs";
 
 function hasProductionBuild(cwd = process.cwd()) {
   return fs.existsSync(path.join(cwd, ".next", "BUILD_ID"));

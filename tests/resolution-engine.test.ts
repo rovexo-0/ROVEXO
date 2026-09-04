@@ -30,7 +30,7 @@ describe("resolution engine — commerce event coverage", () => {
 });
 
 describe("resolution engine — delivery window", () => {
-  it("uses 24h post-delivery for auto-close alignment", () => {
-    expect(DELIVERED_RELEASE_HOURS).toBe(24);
+  it("uses Individual 48h post-delivery for auto-close alignment", () => {
+    expect(DELIVERED_RELEASE_HOURS).toBe(48);
   });
 });

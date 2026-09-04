@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { cn } from "@/lib/cn";
 import type { OrdersV7StatusView } from "@/lib/orders/orders-v7-status";
@@ -16,45 +18,15 @@ type OrdersListItemProps = {
 };
 
 function StatusGlyph({ tone }: { tone: OrdersV7StatusView["tone"] }) {
-  const common = {
-    className: "orders-page__item-status-icon",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.75,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true as const,
-  };
-
-  if (tone === "green") {
-    return (
-      <svg {...common}>
-        <path d="M20 6 9 17l-5-5" />
-      </svg>
-    );
-  }
-  if (tone === "red") {
-    return (
-      <svg {...common}>
-        <path d="M18 6 6 18M6 6l12 12" />
-      </svg>
-    );
-  }
-  if (tone === "orange" || tone === "yellow") {
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 8v5M12 16h.01" />
-      </svg>
-    );
-  }
-  return (
-    <svg {...common}>
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-      <path d="M3.3 7 12 12l8.7-5M12 22V12" />
-    </svg>
-  );
+  const emoji =
+    tone === "green"
+      ? PLATFORM_EMOJI.check
+      : tone === "red"
+        ? PLATFORM_EMOJI.close
+        : tone === "orange" || tone === "yellow"
+          ? PLATFORM_EMOJI.warning
+          : PLATFORM_EMOJI.listings;
+  return <PlatformEmoji emoji={emoji} size={13} className="orders-page__item-status-icon" />;
 }
 
 function formatOrderListPrice(amount: number): string {

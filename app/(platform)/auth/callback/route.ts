@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeNextPath } from "@/lib/auth/redirects";
+import { PASSWORD_RECOVERY_NEXT_PATH, sanitizeNextPath } from "@/lib/auth/redirects";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 import { mfaChallengeHref, readMfaAssurance } from "@/lib/auth/mfa";
 import { isEmailConfirmationOtpType } from "@/lib/auth/email-verification-ux-v1";
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const nextRaw = searchParams.get("next");
   const isPasswordRecovery =
     otpType === "recovery" ||
-    (nextRaw != null && sanitizeNextPath(nextRaw) === "/reset-password");
+    (nextRaw != null && sanitizeNextPath(nextRaw) === PASSWORD_RECOVERY_NEXT_PATH);
 
   const supabase = await createClient();
 
@@ -69,6 +69,7 @@ export async function GET(request: Request) {
     if (oauthError === "access_denied" || oauthError === "user_cancelled") {
       return NextResponse.redirect(`${origin}/login?error=oauth_cancelled`);
     }
+
     return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
   }
 
@@ -80,13 +81,16 @@ export async function GET(request: Request) {
     await syncAutoVerifiedProfile(user.id);
   }
 
+  // Password recovery must never land on Homepage — ResetPasswordScreen needs the session.
+  const destination = isPasswordRecovery ? PASSWORD_RECOVERY_NEXT_PATH : next;
+
   // Google/OAuth authentication ≠ 2FA completed. Identical MFA policy to email login.
   if (user?.id) {
     const assurance = await readMfaAssurance(supabase);
     if (assurance.requiresChallenge) {
-      return NextResponse.redirect(`${origin}${mfaChallengeHref(next)}`);
+      return NextResponse.redirect(`${origin}${mfaChallengeHref(destination)}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(`${origin}${destination}`);
 }

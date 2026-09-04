@@ -14,6 +14,10 @@ import { ShippingService } from "@/lib/shipping/engine";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
 import { isSendcloudQuoteId, parseSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
+  resolveAuthoritativeProviderShippingCostPence,
+  toBuyerShippingPricePence,
+} from "@/lib/shipping/pricing/buyer-shipping-price-v1";
+import {
   applySelectedShippingQuotePayload,
   buildPersistedCheckoutQuote,
   confirmedV3PayloadFromSelectedQuote,
@@ -48,6 +52,10 @@ import {
   resolveCanonicalParcelSize,
 } from "@/lib/shipping/canonical-parcel-size-v1";
 import { logShippingPersistenceFailure } from "@/lib/shipping/shipping-persistence-failure-log-v1";
+import {
+  buildPostPaymentMetadataOnlyQuotePool,
+  overlayPostPaymentLiveQuoteMetadata,
+} from "@/lib/shipping/post-payment-quote-enrichment-v1";
 
 const PAID_ORDER_STATUSES = new Set([
   "awaiting_shipment",
@@ -149,10 +157,12 @@ function pickSelectedQuoteId(
 
   const carrierQuotes = quotes.filter((quote) => String(quote.carrier) === carrier);
   const pool = carrierQuotes.length > 0 ? carrierQuotes : quotes;
-  const targetPence = Math.round(Math.max(0, deliveryFee) * 100);
-
-  const exact = pool.find((quote) => quote.pricePence === targetPence);
-  if (exact) return exact.id;
+  // orders.delivery_fee is BUYER shipping — match provider+15p, never treat as provider.
+  const buyerTargetPence = Math.round(Math.max(0, deliveryFee) * 100);
+  const exactBuyer = pool.find(
+    (quote) => toBuyerShippingPricePence(quote.pricePence, 1) === buyerTargetPence,
+  );
+  if (exactBuyer) return exactBuyer.id;
 
   const supported = pool.find((quote) =>
     CHECKOUT_CARRIERS.includes(String(quote.carrier) as UkCarrier),
@@ -164,11 +174,30 @@ function persistedCheckoutQuoteFromOrder(
   order: PaidOrderShippingRow,
   source?: ShippingQuote | ShippingQuotePayload | null,
 ): ShippingQuote | null {
+  const payload =
+    source && "providerShippingCostPence" in (source as ShippingQuotePayload)
+      ? (source as ShippingQuotePayload)
+      : order.selected_shipping_quote_payload ?? null;
+  const providerPricePence = resolveAuthoritativeProviderShippingCostPence({
+    providerShippingCostPence:
+      payload && "providerShippingCostPence" in payload
+        ? (payload as ShippingQuotePayload).providerShippingCostPence
+        : undefined,
+    quotePricePence:
+      source && "pricePence" in source
+        ? (source as ShippingQuote).pricePence
+        : undefined,
+  });
+  // Fail closed for provider field — never invent from orders.delivery_fee.
+  if (providerPricePence == null) return null;
+  const carrier =
+    typeof order.delivery_carrier === "string" ? order.delivery_carrier.trim() : "";
+  if (!carrier) return null;
   return buildPersistedCheckoutQuote({
     selectedQuoteId: order.selected_shipping_quote_id,
-    carrier: order.delivery_carrier || "Royal Mail",
-    serviceName: order.delivery_carrier || "Selected delivery",
-    pricePence: Math.round(Math.max(0, Number(order.delivery_fee ?? 0)) * 100),
+    carrier,
+    serviceName: carrier,
+    pricePence: providerPricePence,
     payload: source ?? order.selected_shipping_quote_payload ?? null,
   });
 }
@@ -336,7 +365,13 @@ async function runEnsureOrderShippingPersistence(
     Boolean(existingSelected?.id) &&
     !selectedSendcloudQuoteNeedsV3Discovery(existingSelected);
 
+  // MEDIUM #5 — after payment, live enrichment is metadata-only.
+  // Never replace selected quote id, carrier, buyer price, or provider cost.
   if (checkoutQuote && !existingSelected?.id) {
+    // Always start from checkout-locked identity + provider cost (never live price).
+    checkoutQuote =
+      persistedCheckoutQuoteFromOrder(order, checkoutPayload) ?? checkoutQuote;
+
     if (allowLiveQuoteEnrichment && collectionSnapshot && deliverySnapshot) {
       const collectionValidated = ShippingService.validateAddress(collectionSnapshot);
       const deliveryValidated = ShippingService.validateAddress(deliverySnapshot);
@@ -349,37 +384,29 @@ async function runEnsureOrderShippingPersistence(
             preferredCarriers: CHECKOUT_CARRIERS,
           });
           if (pricing.quotes.length > 0) {
-            const selected =
-              pickSelectedQuoteId(
+            // Locked selection only — never pickSelectedQuoteId after payment.
+            const lockedSelectedId =
+              retainCheckoutSelectedQuoteId(
                 pricing.quotes,
-                order.delivery_carrier,
-                Number(order.delivery_fee ?? 0),
-                preferredQuoteId,
+                preferredQuoteId ?? checkoutQuote.id,
               ) ?? checkoutQuote.id;
-            const liveSelected = resolveSelectedShippingQuoteForLabel(pricing.quotes, selected);
-            checkoutQuote =
-              persistedCheckoutQuoteFromOrder(
-                order,
-                liveSelected ?? checkoutPayload,
-              ) ?? checkoutQuote;
-            const confirmedFromLive = confirmedV3PayloadFromSelectedQuote(
-              liveSelected ?? checkoutQuote,
+            const liveSelected = resolveSelectedShippingQuoteForLabel(
+              pricing.quotes,
+              lockedSelectedId,
             );
-            const quotes = pricing.quotes.map((quote) => {
-              if (quote.id !== selected && quote.v2MethodId !== checkoutQuote?.v2MethodId) {
-                return quote;
-              }
-              if (!selectedSendcloudQuoteNeedsV3Discovery(quote) || !confirmedFromLive) {
-                return quote;
-              }
-              return applySelectedShippingQuotePayload(quote, confirmedFromLive);
+            checkoutQuote = overlayPostPaymentLiveQuoteMetadata({
+              lockedQuote: checkoutQuote,
+              liveQuote: liveSelected,
+              lockedProviderShippingCostPence: checkoutQuote.pricePence,
             });
-            const mergedQuotes = quotes.some((quote) => quote.id === selected)
-              ? quotes
-              : [...quotes, checkoutQuote];
+            const pool = buildPostPaymentMetadataOnlyQuotePool({
+              lockedQuote: checkoutQuote,
+              liveQuotes: pricing.quotes,
+              existingQuotes: refreshed?.pricing?.quotes ?? [],
+            });
             const merged: ShippingPricing = {
-              quotes: mergedQuotes,
-              selectedQuoteId: selected,
+              quotes: pool.quotes,
+              selectedQuoteId: pool.selectedQuoteId,
               currency: "GBP",
               providerAvailable: pricing.providerAvailable,
             };
@@ -403,7 +430,7 @@ async function runEnsureOrderShippingPersistence(
       const persistQuote =
         persistedCheckoutQuoteFromOrder(order, checkoutPayload) ?? checkoutQuote;
       const quotes = existing.some((quote) => quote.id === persistQuote.id)
-        ? existing
+        ? existing.map((quote) => (quote.id === persistQuote.id ? persistQuote : quote))
         : [...existing, persistQuote];
       const pricing: ShippingPricing = {
         quotes,
@@ -421,27 +448,60 @@ async function runEnsureOrderShippingPersistence(
     collectionSnapshot &&
     deliverySnapshot
   ) {
-    // Legacy orders without selected_shipping_quote_id — best-effort live quotes.
+    // Legacy orders without a checkout-locked quote — best-effort live quotes.
+    // If preferredQuoteId is set, never adopt a different live selection.
     const collectionValidated = ShippingService.validateAddress(collectionSnapshot);
     const deliveryValidated = ShippingService.validateAddress(deliverySnapshot);
 
     if (collectionValidated.valid && deliveryValidated.valid) {
-      const pricing = await fetchShippingQuotesServer({
-        parcelTier: refreshed?.parcelTier ?? parcelTier,
-        collectionAddress: collectionValidated.normalized,
-        deliveryAddress: deliveryValidated.normalized,
-        preferredCarriers: CHECKOUT_CARRIERS,
-      });
+      try {
+        const pricing = await fetchShippingQuotesServer({
+          parcelTier: refreshed?.parcelTier ?? parcelTier,
+          collectionAddress: collectionValidated.normalized,
+          deliveryAddress: deliveryValidated.normalized,
+          preferredCarriers: CHECKOUT_CARRIERS,
+        });
 
-      if (pricing.quotes.length > 0) {
-        pricing.selectedQuoteId =
-          pickSelectedQuoteId(
-            pricing.quotes,
-            order.delivery_carrier,
-            Number(order.delivery_fee ?? 0),
-            preferredQuoteId,
-          ) ?? pricing.selectedQuoteId;
-        await saveShippingQuotes({ orderId: order.id, pricing });
+        if (pricing.quotes.length > 0) {
+          if (preferredQuoteId) {
+            pricing.selectedQuoteId =
+              retainCheckoutSelectedQuoteId(pricing.quotes, preferredQuoteId) ??
+              preferredQuoteId;
+            const liveSelected = resolveSelectedShippingQuoteForLabel(
+              pricing.quotes,
+              preferredQuoteId,
+            );
+            // Without a locked checkout quote, only accept the preferred identity —
+            // never substitute another carrier/price from the live pool.
+            if (liveSelected && liveSelected.id === preferredQuoteId) {
+              await saveShippingQuotes({
+                orderId: order.id,
+                pricing: {
+                  quotes: [liveSelected],
+                  selectedQuoteId: preferredQuoteId,
+                  currency: "GBP",
+                  providerAvailable: pricing.providerAvailable,
+                },
+              });
+            }
+          } else {
+            pricing.selectedQuoteId =
+              pickSelectedQuoteId(
+                pricing.quotes,
+                order.delivery_carrier,
+                Number(order.delivery_fee ?? 0),
+                preferredQuoteId,
+              ) ?? pricing.selectedQuoteId;
+            await saveShippingQuotes({ orderId: order.id, pricing });
+          }
+        }
+      } catch (error) {
+        console.warn("[orders/post-payment] live quote enrichment skipped", {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          failureStage: "live_quote_enrichment_legacy",
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
     }
   }
@@ -449,39 +509,66 @@ async function runEnsureOrderShippingPersistence(
   // Full Demo / Sendcloud sandbox: materialize demo quotes when still empty.
   const afterAddressQuotes = await getShippingRecord(order.id);
   if ((afterAddressQuotes?.pricing?.quotes.length ?? 0) === 0 && mustUseDemoShipping()) {
-    const demoCollection: ShippingAddress = collectionSnapshot ?? {
-      role: "collection",
-      fullName: "ROVEXO Demo Seller",
-      line1: "1 Demo Street",
-      city: "London",
-      postcode: "E1 6AN",
-      country: "GB",
-      validated: true,
-    };
-    const demoDelivery: ShippingAddress = deliverySnapshot ?? {
-      role: "delivery",
-      fullName: "ROVEXO Demo Buyer",
-      line1: "2 Demo Road",
-      city: "Manchester",
-      postcode: "M1 1AE",
-      country: "GB",
-      validated: true,
-    };
-    const demoPricing = await fetchShippingQuotesServer({
-      parcelTier: afterAddressQuotes?.parcelTier ?? refreshed?.parcelTier ?? parcelTier,
-      collectionAddress: demoCollection,
-      deliveryAddress: demoDelivery,
-      preferredCarriers: CHECKOUT_CARRIERS,
-    });
-    if (demoPricing.quotes.length > 0) {
-      demoPricing.selectedQuoteId =
-        pickSelectedQuoteId(
-          demoPricing.quotes,
-          order.delivery_carrier,
-          Number(order.delivery_fee ?? 0),
-          preferredQuoteId,
-        ) ?? demoPricing.selectedQuoteId;
-      await saveShippingQuotes({ orderId: order.id, pricing: demoPricing });
+    try {
+      const demoCollection: ShippingAddress = collectionSnapshot ?? {
+        role: "collection",
+        fullName: "ROVEXO Demo Seller",
+        line1: "1 Demo Street",
+        city: "London",
+        postcode: "E1 6AN",
+        country: "GB",
+        validated: true,
+      };
+      const demoDelivery: ShippingAddress = deliverySnapshot ?? {
+        role: "delivery",
+        fullName: "ROVEXO Demo Buyer",
+        line1: "2 Demo Road",
+        city: "Manchester",
+        postcode: "M1 1AE",
+        country: "GB",
+        validated: true,
+      };
+      const demoPricing = await fetchShippingQuotesServer({
+        parcelTier: afterAddressQuotes?.parcelTier ?? refreshed?.parcelTier ?? parcelTier,
+        collectionAddress: demoCollection,
+        deliveryAddress: demoDelivery,
+        preferredCarriers: CHECKOUT_CARRIERS,
+      });
+      if (demoPricing.quotes.length > 0) {
+        if (preferredQuoteId && checkoutQuote) {
+          // Paid selection locked — metadata-only overlay; never adopt another demo quote.
+          const pool = buildPostPaymentMetadataOnlyQuotePool({
+            lockedQuote: checkoutQuote,
+            liveQuotes: demoPricing.quotes,
+            existingQuotes: [],
+          });
+          await saveShippingQuotes({
+            orderId: order.id,
+            pricing: {
+              quotes: pool.quotes,
+              selectedQuoteId: pool.selectedQuoteId,
+              currency: "GBP",
+              providerAvailable: demoPricing.providerAvailable,
+            },
+          });
+        } else if (!preferredQuoteId) {
+          demoPricing.selectedQuoteId =
+            pickSelectedQuoteId(
+              demoPricing.quotes,
+              order.delivery_carrier,
+              Number(order.delivery_fee ?? 0),
+              preferredQuoteId,
+            ) ?? demoPricing.selectedQuoteId;
+          await saveShippingQuotes({ orderId: order.id, pricing: demoPricing });
+        }
+      }
+    } catch (error) {
+      console.warn("[orders/post-payment] demo quote enrichment skipped", {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        failureStage: "demo_quote_enrichment",
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -571,15 +658,22 @@ async function runEnsureOrderShippingPersistence(
           }),
         });
         if (meta?.shippingOptionCode) {
+          // Metadata-only overlay — identity / provider cost / buyer price stay locked.
           const enriched = applySelectedShippingQuotePayload(resolvedSelected, {
             externalQuoteId: resolvedSelected.id,
             v2MethodId: methodId,
             shippingOptionCode: meta.shippingOptionCode,
             ...(meta.contractId ? { contractId: meta.contractId } : {}),
           });
+          const lockedBuyerShippingPricePence =
+            typeof order.delivery_fee === "number" && Number.isFinite(order.delivery_fee)
+              ? Math.round(Math.max(0, order.delivery_fee) * 100)
+              : undefined;
           await updateShippingQuotePayloadWithoutReplacing({
             orderId: order.id,
-            quote: enriched,
+            quote: { ...enriched, id: resolvedSelected.id, pricePence: resolvedSelected.pricePence },
+            lockedBuyerShippingPricePence,
+            lockedProviderShippingCostPence: resolvedSelected.pricePence,
           });
         }
       } catch (error) {

@@ -6,6 +6,8 @@ export type StorageBucket = "avatars" | "products" | "messages" | "documents";
 
 const ALLOWED_MIME: Record<StorageBucket, string[]> = {
   avatars: ["image/jpeg", "image/png", "image/webp"],
+  // Client upload stays JPEG/PNG/WebP. Server-generated AVIF is stored separately
+  // and must never be accepted from the client (no MIME/extension bypass).
   products: ["image/jpeg", "image/png", "image/webp"],
   messages: ["image/jpeg", "image/png", "image/webp"],
   documents: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
@@ -181,4 +183,44 @@ export async function uploadMessageImage(
   const extension = rawExt === "jpeg" ? "jpg" : rawExt;
   const path = `${conversationId}/${crypto.randomUUID()}.${extension}`;
   return uploadStorageObject({ bucket: "messages", path, file, client });
+}
+
+
+/** Store/profile cover — same avatars bucket, distinct object path. */
+export async function uploadCover(userId: string, file: File) {
+  validateUploadFile("avatars", file);
+
+  const extension = (file.type.split("/")[1] ?? "webp").toLowerCase();
+  const path = `${userId}/cover.${extension}`;
+  const contentType = file.type || "image/webp";
+
+  const admin = createAdminClient();
+  await ensureAvatarsBucket(admin);
+
+  const body = Buffer.from(await file.arrayBuffer());
+  const { data, error } = await admin.storage.from("avatars").upload(path, body, {
+    upsert: true,
+    contentType,
+    cacheControl: "3600",
+  });
+
+  if (error) throw error;
+
+  const version = Date.now();
+  return {
+    path: data.path,
+    publicUrl: `${getPublicStorageUrl("avatars", data.path)}?v=${version}`,
+  };
+}
+
+export async function deleteCover(userId: string): Promise<void> {
+  const admin = createAdminClient();
+  await admin.storage
+    .from("avatars")
+    .remove([
+      `${userId}/cover.webp`,
+      `${userId}/cover.jpg`,
+      `${userId}/cover.jpeg`,
+      `${userId}/cover.png`,
+    ]);
 }

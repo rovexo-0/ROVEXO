@@ -20,7 +20,7 @@ import {
   type BundlePayloadV1,
 } from "@/lib/bundle/bundle-payload-v1";
 import { markBundleOfferPending, restoreBundleToActive } from "@/lib/bundle/bundle-lifecycle-v1";
-import { getBundleForBuyer } from "@/lib/bundle/bundle-server-engine-v1";
+import { getBundleForBuyer, getActiveBundleForBuyer } from "@/lib/bundle/bundle-server-engine-v1";
 
 export type CreateBundleOfferInput = {
   buyerId: string;
@@ -58,7 +58,20 @@ export async function createBundleOffer(
   }
 
   // Server authority — never trust client lines / sellerId.
-  const serverBundle = await getBundleForBuyer(input.buyerId, ["active"], input.bundleId);
+  let serverBundle = await getBundleForBuyer(input.buyerId, ["active"], input.bundleId);
+  if (!serverBundle || serverBundle.items.length === 0) {
+    // Stale client bundleId (e.g. prior offer_pending) → recover active if product set matches.
+    const active = await getActiveBundleForBuyer(input.buyerId);
+    const hintIds = new Set((input.lines ?? []).map((line) => line.productId).filter(Boolean));
+    const activeIds = new Set((active?.items ?? []).map((item) => item.productId));
+    const hintsMatch =
+      hintIds.size > 0 &&
+      hintIds.size === activeIds.size &&
+      [...hintIds].every((id) => activeIds.has(id));
+    if (active && active.items.length > 0 && (hintsMatch || !input.bundleId)) {
+      serverBundle = active;
+    }
+  }
   if (!serverBundle || serverBundle.items.length === 0) {
     return { ok: false, error: "Bundle is empty or unavailable.", httpStatus: 409 };
   }

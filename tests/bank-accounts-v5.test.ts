@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
 }
 
 describe("Bank Accounts v5.1 — Profile Master inheritance", () => {
-  it("locks Profile inheritance + CanonicalMenuRow + live integrations", () => {
+  it("locks Profile inheritance + CanonicalMenuRow + Stripe Connect for Personal and Business", () => {
     const page = readSource("features/wallet/components/WalletBankAccountsPage.tsx");
     expect(page).toContain('BANK_ACCOUNTS_UI_VERSION = "v5.1"');
     expect(page).toContain("AccountCanonicalShell");
@@ -18,11 +18,18 @@ describe("Bank Accounts v5.1 — Profile Master inheritance", () => {
     expect(page).toContain('data-design-master="profile"');
     expect(page).toContain('data-full-width-surface="bank-accounts"');
     expect(page).toContain("Your Accounts");
-    expect(page).toContain("Personal Account");
+    expect(page).toContain("Individual Account");
     expect(page).toContain("Business Account");
     expect(page).toContain("How payouts work");
     expect(page).toContain("/api/wallet/connect");
-    expect(page).toContain("BankAccountForm");
+    expect(page).toContain('intent: "manage"');
+    expect(page).toContain('openStripeConnectManagement("individual"');
+    expect(page).toContain('openStripeConnectManagement("business"');
+    expect(page).toContain("Manage on Stripe");
+    expect(page).toContain("Change bank account");
+    expect(page).toContain("Your bank details are securely managed by Stripe.");
+    expect(page).not.toContain("Payouts are encrypted and processed securely.");
+    expect(page).not.toContain("BankAccountForm");
     expect(page).toContain("FAIL_CLOSED_USER_MESSAGE");
     expect(page).not.toContain("ba-v5__account");
     expect(page).not.toContain("PCI DSS");
@@ -41,21 +48,23 @@ describe("Bank Accounts v5.1 — Profile Master inheritance", () => {
     expect(readSource("styles/rovexo/index.css")).not.toContain("bank-accounts-v5.css");
   });
 
-  it("keeps UK bank validation SSOT for Personal Account", () => {
+  it("keeps UK bank validation SSOT available for legacy encrypted rows (not new UI collection)", () => {
     const bank = readSource("lib/wallet/bank-account.ts");
     expect(bank).toContain("isValidSortCode");
     expect(bank).toContain("isValidAccountNumber");
     expect(bank).toContain("UK");
   });
 
-  it("adds a compact identification card to the existing Bank Account modal", () => {
+  it("retains BankAccountForm module for legacy data management without mounting on Bank Accounts page", () => {
     const form = readSource("features/wallet/components/BankAccountForm.tsx");
     const css = readSource("styles/rovexo/bank-accounts-v5.css");
+    const page = readSource("features/wallet/components/WalletBankAccountsPage.tsx");
     expect(form).toContain("ba-id-card");
     expect(form).toContain("Connected");
     expect(form).toContain("Edit");
     expect(css).toContain(".ba-id-card");
     expect(css).toContain("#22c55e");
     expect(css).toContain("#9333ea");
+    expect(page).not.toContain("BankAccountForm");
   });
 });

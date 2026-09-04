@@ -171,13 +171,16 @@ describe("ROVEXO Full Demo Certification Mode", () => {
   it("wires virtual payments, wallet, and demo shipping into real paths", () => {
     const checkout = readSource("lib/orders/checkout.ts");
     const payouts = readSource("lib/stripe/payouts.ts");
+    const withdrawPayout = readSource("lib/stripe/withdraw-payout.ts");
     const settlement = readSource("lib/commerce-engine/settlement.ts");
     const router = readSource("lib/shipping/providers/router.ts");
 
     expect(checkout).toContain("mustUseVirtualPayments");
     expect(checkout).toContain("debitVirtualBuyerWallet");
     expect(payouts).toContain("mustUseVirtualWallet");
-    expect(settlement).toContain("mustUseVirtualWallet");
+    expect(withdrawPayout).toContain("mustUseVirtualWallet");
+    expect(settlement).toContain("releaseSaleToAvailable");
+    expect(settlement).not.toContain("transferSalePayoutToConnect");
     expect(router).toContain("demoShippingAdapter");
   });
 

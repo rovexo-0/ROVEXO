@@ -11,12 +11,13 @@ import {
   useRef,
   useState,
   type ReactNode,
-  type SVGProps,
 } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Avatar } from "@/components/ui/Avatar";
 import { RovexoAppIconMark } from "@/components/brand/RovexoLogo";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
 import { CanonicalMenuRow } from "@/src/components/canonical";
@@ -80,29 +81,12 @@ import "@/styles/rovexo/inbox-hub-v1.css";
 
 const PAGE_SIZE = 20;
 
-type IconProps = SVGProps<SVGSVGElement>;
-
-function MessagesEmptyIllustration(props: IconProps) {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden {...props}>
-      <rect x="12" y="18" width="56" height="40" rx="10" stroke="currentColor" strokeWidth="2.5" />
-      <path d="M12 28h56M28 48h24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
+function MessagesEmptyIllustration({ className }: { className?: string }) {
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.inbox} size={48} className={className} />;
 }
 
-function NotificationsEmptyIllustration(props: IconProps) {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden {...props}>
-      <path
-        d="M40 14c-10 0-18 8-18 18v8c0 4-2 7-5 9h46c-3-2-5-5-5-9v-8c0-10-8-18-18-18Z"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <path d="M34 60a6 6 0 0 0 12 0" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
+function NotificationsEmptyIllustration({ className }: { className?: string }) {
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.bell} size={48} className={className} />;
 }
 
 function matchesConversationSearch(conversation: Conversation, query: string): boolean {

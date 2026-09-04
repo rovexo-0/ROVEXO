@@ -2,23 +2,25 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { memo, type ReactNode, type SVGProps } from "react";
+import { memo, type ReactNode } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { resolveManualWithdrawableBalance } from "@/lib/transaction-hub/seller-wallet";
 import { BALANCE_PAGE_NAME } from "@/lib/wallet/balance-hub-v1";
-import { WALLET_CANONICAL_VERSION, WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
+import {
+  WALLET_CANONICAL_VERSION,
+  WALLET_ROUTES,
+  walletBankAccountsRouteForSellerContext,
+  walletTransactionsRouteForSellerContext,
+  withdrawRouteForSellerContext,
+} from "@/lib/wallet/canonical-routes";
 import { SUPREME_BLOOD_CODE_XIII_V1 } from "@/lib/supreme-blood-code-xiii-v1";
 import { SUPREME_BLOOD_CODE_XIV_V1 } from "@/lib/supreme-blood-code-xiv-v1";
 import { SUPREME_BLOOD_CODE_XIX_V1 } from "@/lib/supreme-blood-code-xix-v1";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
 import { useWalletLive } from "@/features/wallet/hooks/use-wallet-live";
-import {
-  ChevronRightLineIcon,
-  InfoLineIcon,
-  WalletLineIcon,
-} from "@/components/icons/RvxLineIcons";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 import "@/styles/rovexo/wallet-hub-v1.css";
 
 type WalletHubV1Props = {
@@ -30,37 +32,6 @@ type WalletHubV1Props = {
   variant?: "personal" | "business";
   isBusinessVerified?: boolean;
 };
-
-type IconProps = SVGProps<SVGSVGElement>;
-
-function CheckCircleLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8.5 12.5 2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ClockLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function RefreshLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M21 12a9 9 0 0 0-15.5-6.4" strokeLinecap="round" />
-      <path d="M3 4v5h5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M3 12a9 9 0 0 0 15.5 6.4" strokeLinecap="round" />
-      <path d="M21 20v-5h-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 const WalletInsights = dynamic(
   () => import("@/features/wallet/components/WalletInsights").then((mod) => mod.WalletInsights),
@@ -108,7 +79,7 @@ const BalanceMetricCard = memo(function BalanceMetricCard({
           {icon}
         </span>
         <span className="wallet-v2__metric-chevron" aria-hidden>
-          <ChevronRightLineIcon />
+          {PLATFORM_EMOJI.chevron}
         </span>
       </span>
       <p className="wallet-v2__metric-title">{title}</p>
@@ -124,12 +95,16 @@ function WalletHubLiveBody({
   initialData,
   userId,
   connectMessage,
+  withdrawHref,
+  sellerContext,
 }: {
   initialData: WalletData;
   userId: string;
   connectMessage?: string;
+  withdrawHref: string;
+  sellerContext: "individual" | "business";
 }) {
-  const { data, rtTick } = useWalletLive(userId, initialData);
+  const { data, rtTick } = useWalletLive(userId, initialData, sellerContext);
   const withdrawable = resolveManualWithdrawableBalance(data);
   const { withdrawalSummary } = data;
 
@@ -149,6 +124,7 @@ function WalletHubLiveBody({
       data-wallet-freeze="LOCKED"
       data-wallet-rt-tick={rtTick}
       data-wallet-available={data.availableBalance}
+      data-wallet-seller-context={sellerContext}
       data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
     >
       {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
@@ -170,13 +146,13 @@ function WalletHubLiveBody({
           <p className="wallet-v2__hero-sub">
             Available to withdraw
             <span className="wallet-v2__hero-info" aria-hidden>
-              <InfoLineIcon />
+              {PLATFORM_EMOJI.info}
             </span>
           </p>
 
           <div className="wallet-v2__hero-actions">
             <Link
-              href={WALLET_ROUTES.withdraw}
+              href={withdrawHref}
               className={cn(
                 "wallet-v2__hero-btn",
                 "wallet-v2__hero-btn--primary",
@@ -190,7 +166,10 @@ function WalletHubLiveBody({
             >
               Withdraw
             </Link>
-            <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
+            <Link
+              href={walletBankAccountsRouteForSellerContext(sellerContext)}
+              className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary"
+            >
               Bank Account
             </Link>
           </div>
@@ -199,32 +178,40 @@ function WalletHubLiveBody({
 
       <section className="wallet-v2__metrics" aria-label="Wallet balances">
         <BalanceMetricCard
-          href={WALLET_ROUTES.transactions}
+          href={walletTransactionsRouteForSellerContext(sellerContext)}
           title="Pending"
           amount={data.pendingBalance}
           tone="pending"
-          icon={<ClockLineIcon />}
+          icon={PLATFORM_EMOJI.pending}
         />
         <BalanceMetricCard
-          href={WALLET_ROUTES.withdraw}
+          href={withdrawHref}
           title="Available"
           amount={withdrawable}
           tone="available"
-          icon={<WalletLineIcon />}
+          icon={PLATFORM_EMOJI.wallet}
         />
         <BalanceMetricCard
-          href={WALLET_ROUTES.payouts}
+          href={
+            sellerContext === "business"
+              ? walletTransactionsRouteForSellerContext("business")
+              : WALLET_ROUTES.payouts
+          }
           title="Processing"
           amount={withdrawalSummary.processingTotal}
           tone="processing"
-          icon={<RefreshLineIcon />}
+          icon={PLATFORM_EMOJI.processing}
         />
         <BalanceMetricCard
-          href={WALLET_ROUTES.payouts}
+          href={
+            sellerContext === "business"
+              ? walletTransactionsRouteForSellerContext("business")
+              : WALLET_ROUTES.payouts
+          }
           title="Paid Out"
           amount={withdrawalSummary.completedTotal}
           tone="paid"
-          icon={<CheckCircleLineIcon />}
+          icon={PLATFORM_EMOJI.paid}
         />
       </section>
 
@@ -233,9 +220,13 @@ function WalletHubLiveBody({
         withdrawn={data.monthSummary.withdrawn.value}
         pending={data.pendingBalance}
         pendingAvailableAt={data.pendingAvailableAt}
+        headingEmoji={PLATFORM_EMOJI.date}
       />
 
-      <WalletRecentTransactions transactions={data.transactions} />
+      <WalletRecentTransactions
+        transactions={data.transactions}
+        listHref={walletTransactionsRouteForSellerContext(sellerContext)}
+      />
     </div>
   );
 }
@@ -250,6 +241,8 @@ export function WalletHubV1({
 }: WalletHubV1Props) {
   void isBusinessVerified;
   const isBusiness = variant === "business";
+  const sellerContext = isBusiness ? "business" : "individual";
+  const withdrawHref = withdrawRouteForSellerContext(sellerContext);
 
   return (
     <AccountCanonicalShell
@@ -259,7 +252,13 @@ export function WalletHubV1({
       showHeaderTitle
       showBottomNav
     >
-      <WalletHubLiveBody initialData={initialData} userId={userId} connectMessage={connectMessage} />
+      <WalletHubLiveBody
+        initialData={initialData}
+        userId={userId}
+        connectMessage={connectMessage}
+        withdrawHref={withdrawHref}
+        sellerContext={sellerContext}
+      />
     </AccountCanonicalShell>
   );
 }

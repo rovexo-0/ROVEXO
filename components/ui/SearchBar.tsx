@@ -30,6 +30,8 @@ import { useSearchOverlayOptional } from "@/features/search/client";
 import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { SearchLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 export type SearchBarProps = {
   inputId?: string;
@@ -56,19 +58,7 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 function ClearIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
-  );
+  return <PlatformEmoji emoji={PLATFORM_EMOJI.close} className={className} />;
 }
 
 function LoadingSpinner({ className }: { className?: string }) {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { z } from "zod";
 import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
@@ -10,11 +11,13 @@ import {
   validateWalletMoneyEnv,
 } from "@/lib/wallet/env-validation";
 import { recordWithdrawal } from "@/lib/wallet/store";
+import { isSellerContext } from "@/lib/seller-context/seller-context-v1";
 
 const withdrawSchema = z.object({
   methodId: z.string().uuid(),
   amount: z.number().positive(),
   idempotencyKey: z.string().min(8).max(128).optional(),
+  sellerContext: z.enum(["individual", "business"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -53,13 +56,23 @@ export async function POST(request: Request) {
   }
 
   const headerKey = request.headers.get("idempotency-key");
-  const clientKey = parsed.data.idempotencyKey ?? headerKey;
+  // Per-intent key: client preferred; never fall back to shared ":default".
+  const clientKey =
+    parsed.data.idempotencyKey?.trim() ||
+    headerKey?.trim() ||
+    randomUUID();
+
+  const sellerContextRaw = parsed.data.sellerContext ?? "individual";
+  if (!isSellerContext(sellerContextRaw)) {
+    return NextResponse.json({ error: "Invalid seller context." }, { status: 400 });
+  }
 
   const transaction = await recordWithdrawal({
     userId: auth.user.id,
     methodId: parsed.data.methodId,
     amount: parsed.data.amount,
     idempotencyKey: clientKey,
+    sellerContext: sellerContextRaw,
   });
 
   if (!transaction) {
@@ -72,19 +85,24 @@ export async function POST(request: Request) {
     );
   }
 
+  const bankSettled = transaction.status === "completed";
+
   void emitSmartNotification({
     userId: auth.user.id,
     eventType: "payout",
     idempotencyKey: `withdraw:${transaction.id}`,
     notificationType: "payment",
-    title:
-      transaction.status === "completed" ? "Withdrawal confirmed" : "Withdrawal submitted",
-    subtitle:
-      transaction.status === "completed"
-        ? `£${parsed.data.amount.toFixed(2)} was transferred securely.`
-        : `£${parsed.data.amount.toFixed(2)} is being processed securely.`,
+    title: bankSettled ? "Withdrawal confirmed" : "Withdrawal submitted",
+    subtitle: bankSettled
+      ? `£${parsed.data.amount.toFixed(2)} was transferred securely.`
+      : `£${parsed.data.amount.toFixed(2)} is being processed securely.`,
     href: `${NOTIFICATION_ROUTES.walletWithdrawal(transaction.id)}`,
-    payload: { transactionId: transaction.id, amount: parsed.data.amount, status: transaction.status },
+    payload: {
+      transactionId: transaction.id,
+      amount: parsed.data.amount,
+      status: transaction.status,
+      sellerContext: sellerContextRaw,
+    },
   });
 
   return NextResponse.json({ transaction });

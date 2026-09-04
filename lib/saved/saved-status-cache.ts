@@ -8,10 +8,12 @@ type SavedListPayload = {
 
 let inflight: Promise<Set<string>> | null = null;
 let cached: Set<string> | null = null;
+let hydrateGeneration = 0;
 
 export function invalidateSavedStatusCache(): void {
   inflight = null;
   cached = null;
+  hydrateGeneration += 1;
 }
 
 export function peekSavedStatusCache(): Set<string> | null {
@@ -22,11 +24,13 @@ export function markSavedInCache(slug: string, saved: boolean): void {
   if (!cached) cached = new Set();
   if (saved) cached.add(slug);
   else cached.delete(slug);
+  hydrateGeneration += 1;
 }
 
 export async function loadSavedSlugSet(): Promise<Set<string>> {
   if (cached) return cached;
   if (!inflight) {
+    const started = hydrateGeneration;
     inflight = fetch("/api/saved", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : { items: [] }))
       .then((payload: SavedListPayload) => {
@@ -35,10 +39,16 @@ export async function loadSavedSlugSet(): Promise<Set<string>> {
           const slug = item.slug ?? item.productSlug;
           if (slug) next.add(slug);
         }
+        if (started !== hydrateGeneration) {
+          return cached ?? next;
+        }
         cached = next;
         return next;
       })
       .catch(() => {
+        if (started !== hydrateGeneration) {
+          return cached ?? new Set<string>();
+        }
         const empty = new Set<string>();
         cached = empty;
         return empty;

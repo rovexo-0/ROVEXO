@@ -2,41 +2,20 @@
 
 import { memo, useState } from "react";
 import Link from "next/link";
-import type { SVGProps } from "react";
 import { cn } from "@/lib/cn";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { WalletTransaction } from "@/lib/wallet/types";
-import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 const PAGE_SIZE = 6;
 
 type WalletRecentTransactionsProps = {
   transactions: WalletTransaction[];
+  useEmojiIcons?: boolean;
+  listHref?: string;
 };
-
-type IconProps = SVGProps<SVGSVGElement>;
-
-function EmptyTxnIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" aria-hidden {...props}>
-      <rect x="14" y="10" width="36" height="44" rx="6" stroke="currentColor" strokeWidth="3" />
-      <path d="M22 22h20M22 30h20M22 38h12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="44" cy="46" r="10" fill="#f4f4f5" stroke="currentColor" strokeWidth="3" />
-      <path d="M44 42v5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="44" cy="50.5" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 /**
  * Balance hub recent transactions — visual density aligned to Inbox/Orders list.
@@ -44,6 +23,7 @@ function ChevronDownIcon(props: IconProps) {
  */
 export const WalletRecentTransactions = memo(function WalletRecentTransactions({
   transactions,
+  listHref = WALLET_ROUTES.transactions,
 }: WalletRecentTransactionsProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const visible = transactions.slice(0, visibleCount);
@@ -56,11 +36,11 @@ export const WalletRecentTransactions = memo(function WalletRecentTransactions({
           Transactions
         </h2>
         <Link
-          href={WALLET_ROUTES.transactions}
+          href={listHref}
           className="wallet-v2__section-link wallet-v2__section-link--latest"
         >
           Latest transactions
-          <ChevronDownIcon />
+          <span aria-hidden>{PLATFORM_EMOJI.dropdown}</span>
         </Link>
       </div>
 
@@ -68,7 +48,7 @@ export const WalletRecentTransactions = memo(function WalletRecentTransactions({
         {visible.length === 0 ? (
           <div className="wallet-v2__txn-empty">
             <span className="wallet-v2__txn-empty-icon" aria-hidden>
-              <EmptyTxnIcon />
+              {PLATFORM_EMOJI.copy}
             </span>
             <p className="wallet-v2__txn-empty-title">No transactions yet</p>
             <p className="wallet-v2__txn-empty-copy">Your payments and withdrawals will appear here.</p>
@@ -81,7 +61,7 @@ export const WalletRecentTransactions = memo(function WalletRecentTransactions({
               return (
                 <Link
                   key={transaction.id}
-                  href={`${WALLET_ROUTES.transactions}/${transaction.id}`}
+                  href={`${listHref}/${transaction.id}`}
                   className="wallet-v2__txn"
                   aria-label={`${title}: ${formatCurrency(Math.abs(transaction.amount))}`}
                 >
@@ -102,7 +82,7 @@ export const WalletRecentTransactions = memo(function WalletRecentTransactions({
                     {formatCurrency(Math.abs(transaction.amount))}
                   </span>
                   <span className="wallet-v2__txn-chevron" aria-hidden>
-                    <ChevronRightLineIcon />
+                    {PLATFORM_EMOJI.chevron}
                   </span>
                 </Link>
               );
@@ -114,7 +94,7 @@ export const WalletRecentTransactions = memo(function WalletRecentTransactions({
                 onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
               >
                 Load more
-                <ChevronDownIcon />
+                <span aria-hidden>{PLATFORM_EMOJI.dropdown}</span>
               </button>
             ) : null}
           </>

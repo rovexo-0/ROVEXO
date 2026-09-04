@@ -567,10 +567,11 @@ export const BUY_NOW_ABSOLUTE_LAW_V1 = {
   ] as const,
   checkoutCopy: {
     cta: "Buy Now",
-    fee: "Platform Fee",
+    fee: "Buyer Protection",
     forbiddenCta: ["Pay", "Pay Securely", "Continue", "Proceed", "Checkout"] as const,
     forbiddenFee: [
-      "Buyer Protection",
+      "Platform Fee",
+      "Platform Fees",
       "Buyer Protection Fee",
       "Buyer Protection Included",
     ] as const,

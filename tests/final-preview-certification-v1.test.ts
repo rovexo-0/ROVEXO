@@ -90,7 +90,7 @@ describe("Final Preview Certification v1.0 — Financial Pre-Audit", () => {
     expect(doc.primaryCountry).toBe("United Kingdom");
     expect(doc.currency).toBe("GBP");
     expect(doc.platformFeeRate).toBe(0.055);
-    expect(doc.holdPeriodHours).toBe(24);
+    expect(doc.holdPeriodHours).toBe(48);
   });
 
   it("locks financial surface files for wallet / stripe / withdraw / refund / bank", () => {
@@ -133,8 +133,8 @@ describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
       "LARGE",
     ]);
     expect(PARCEL_SIZE_OPTIONS.some((o) => /custom|EXTRA/i.test(o.label))).toBe(false);
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: 1–2 kg");
-    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe("Weight: >1.00–2.00 kg");
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "small")?.description).toBe("Weight: 0–1.00 kg");
     expect(PARCEL_SIZE_OPTIONS.every((o) => !o.recommended)).toBe(true);
   });
 

@@ -25,12 +25,12 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   }
 
   const params = await searchParams;
-  if (profile.isSeller && (params.connect === "success" || params.connect === "refresh")) {
-    await syncConnectAccountBySellerId(profile.id);
+  if (params.connect === "success" || params.connect === "refresh") {
+    await syncConnectAccountBySellerId(profile.id, "individual");
   }
 
   const [data, isBusinessVerified] = await Promise.all([
-    fetchWalletData(),
+    fetchWalletData("individual"),
     isBusinessVerifiedAccount(profile.id).catch(() => false),
   ]);
 

@@ -80,22 +80,23 @@ describe("Wallet checkout routing — production scenario £9.07 / £3.72", () =
     );
     const checkout = read("lib/orders/checkout.ts");
     const walletDebitIdx = checkout.indexOf("debitBuyerWalletForCheckout");
-    const stripeRequiredIdx = checkout.lastIndexOf("if (isStripeRequired())");
+    const settleIdx = checkout.indexOf("mustSettleWithoutStripe");
     expect(walletDebitIdx).toBeGreaterThan(-1);
-    expect(stripeRequiredIdx).toBeGreaterThan(walletDebitIdx);
+    expect(settleIdx).toBeGreaterThan(-1);
     expect(checkout).toContain('paymentRail === "rovexo_balance"');
-    expect(checkout).not.toMatch(
-      /paymentRail === "rovexo_balance"[\s\S]{0,120}isStripeRequired\(\)/,
-    );
+    // Wallet settlement runs in the settleWithoutStripe branch — before Stripe client init.
+    expect(checkout).toContain("if (settleWithoutStripe)");
+    expect(walletDebitIdx).toBeLessThan(checkout.indexOf("getStripeClient()"));
   });
 
-  it("TEST H: Card rail remains blocked when Stripe is required", () => {
+  it("TEST H: Card rail remains blocked when Stripe is not configured", () => {
     expect(resolveCheckoutPaymentRail({ paymentMethod: "card" })).toBe("stripe");
     expect(resolveCheckoutPaymentRail({ paymentMethod: null })).toBe("stripe");
     const checkout = read("lib/orders/checkout.ts");
     expect(checkout).toContain("if (!isStripeConfigured())");
-    expect(checkout).toContain("if (isStripeRequired())");
+    // Fail closed for card: never create unpaid orders when Stripe is missing.
     expect(checkout).toContain('return { error: "Payments are not configured." }');
+    expect(checkout).not.toMatch(/stripeSessionId: `dev-\$/);
   });
 
   it("TEST I/J/K/L: debit uses locked checkout totals — offer/shipping/fee unchanged", () => {
@@ -136,6 +137,18 @@ function roundTrip() {
   };
 }
 
+/** Fluent select/eq/maybeSingle mock for wallet_context-scoped buyer reads. */
+function walletSelectMock(data: Record<string, unknown> | null) {
+  const chain: {
+    eq: () => typeof chain;
+    maybeSingle: () => Promise<{ data: typeof data; error: null }>;
+  } = {
+    eq: () => chain,
+    maybeSingle: async () => ({ data, error: null }),
+  };
+  return { select: () => chain };
+}
+
 describe("debitBuyerWalletForCheckout — mocked ledger", () => {
   beforeEach(() => {
     createAdminClient.mockReset();
@@ -148,13 +161,10 @@ describe("debitBuyerWalletForCheckout — mocked ledger", () => {
       from(table: string) {
         if (table === "wallets") {
           return {
-            select: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({
-                  data: { id: "w1", available_balance: AVAILABLE },
-                  error: null,
-                }),
-              }),
+            ...walletSelectMock({
+              id: "w1",
+              available_balance: AVAILABLE,
+              wallet_context: "individual",
             }),
             update,
           };
@@ -193,36 +203,11 @@ describe("debitBuyerWalletForCheckout — mocked ledger", () => {
     createAdminClient.mockReturnValue({
       from(table: string) {
         if (table === "wallets") {
-          const builder = {
-            select: () => builder,
-            eq: () => builder,
-            maybeSingle: async () => ({
-              data: { id: "w1", available_balance: AVAILABLE },
-              error: null,
-            }),
-            update: (payload: { available_balance: number }) => {
-              expect(payload.available_balance).toBe(REMAINING);
-              updateEq(payload);
-              return builder;
-            },
-            gte: () => builder,
-          };
-          Object.assign(builder, {
-            eq: () => builder,
-            select: () => ({
-              ...builder,
-              then: (resolve: (value: { data: Array<{ id: string }>; error: null }) => unknown) =>
-                resolve({ data: [{ id: "w1" }], error: null }),
-            }),
-          });
           return {
-            select: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({
-                  data: { id: "w1", available_balance: AVAILABLE },
-                  error: null,
-                }),
-              }),
+            ...walletSelectMock({
+              id: "w1",
+              available_balance: AVAILABLE,
+              wallet_context: "individual",
             }),
             update: (payload: { available_balance: number }) => {
               expect(payload.available_balance).toBe(REMAINING);
@@ -300,13 +285,10 @@ describe("debitBuyerWalletForCheckout — mocked ledger", () => {
         }
         if (table === "wallets") {
           return {
-            select: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({
-                  data: { available_balance: REMAINING },
-                  error: null,
-                }),
-              }),
+            ...walletSelectMock({
+              id: "w1",
+              available_balance: REMAINING,
+              wallet_context: "individual",
             }),
             update,
           };

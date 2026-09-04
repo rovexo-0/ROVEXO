@@ -29,7 +29,15 @@ const OPEN_PROTECTION_STATUSES = [
   "appealed",
 ] as const;
 
-const ACTIVE_SHIPMENT_STATUSES = [
+const ACTIVE_SHIPPING_RECORD_STATUSES = [
+  "preparing",
+  "collected",
+  "in_transit",
+  "out_for_delivery",
+] as const;
+
+/** Legacy order_shipments statuses — historical fallback only. */
+const LEGACY_ACTIVE_SHIPMENT_STATUSES = [
   "label_created",
   "dispatched",
   "in_transit",
@@ -120,13 +128,29 @@ export async function getAccountDeletionEligibility(userId: string): Promise<Acc
 
   const orderIds = (userOrders ?? []).map((order) => order.id);
   if (orderIds.length > 0) {
-    const { count: activeShipments } = await supabase
-      .from("order_shipments")
+    // Canonical active shipment state — shipping_records SSOT.
+    const shippingClient = supabase as unknown as {
+      from: (table: string) => ReturnType<typeof supabase.from>;
+    };
+    const { count: activeCanonical } = await shippingClient
+      .from("shipping_records")
       .select("id", { count: "exact", head: true })
       .in("order_id", orderIds)
-      .in("status", [...ACTIVE_SHIPMENT_STATUSES]);
+      .in("status", [...ACTIVE_SHIPPING_RECORD_STATUSES]);
 
-    if ((activeShipments ?? 0) > 0) {
+    let activeShipments = activeCanonical ?? 0;
+
+    // Historical fallback: legacy order_shipments rows without canonical active state.
+    if (activeShipments === 0) {
+      const { count: activeLegacy } = await supabase
+        .from("order_shipments")
+        .select("id", { count: "exact", head: true })
+        .in("order_id", orderIds)
+        .in("status", [...LEGACY_ACTIVE_SHIPMENT_STATUSES]);
+      activeShipments = activeLegacy ?? 0;
+    }
+
+    if (activeShipments > 0) {
       blockers.push({
         code: "active_shipments",
         message: "Wait until active shipments are delivered.",

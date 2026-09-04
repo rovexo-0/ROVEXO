@@ -24,7 +24,8 @@ type AccountHubLiveState = {
 };
 
 async function fetchAccountHubLiveState(): Promise<Omit<AccountHubLiveState, "rtTick">> {
-  const payload = await fetchAccountSnapshotShared();
+  // Account hub is Individual financial context only.
+  const payload = await fetchAccountSnapshotShared("individual");
   return {
     snapshot: payload.snapshot,
     wallet: payload.wallet ?? null,

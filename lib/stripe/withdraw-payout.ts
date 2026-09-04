@@ -10,6 +10,11 @@ import { logPaymentError } from "@/lib/ops/logger";
 import { getConnectAccountStatus } from "@/lib/stripe/connect";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { mustUseVirtualWallet } from "@/lib/full-demo/security";
+import {
+  normalizeSellerContext,
+  connectAccountColumn,
+  type SellerContext,
+} from "@/lib/seller-context/seller-context-v1";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isWalletMoneyEnvReady, MISSING_REQUIRED_SECRET } from "@/lib/wallet/env-validation";
 import { roundWalletMoney } from "@/lib/wallet/security";
@@ -31,6 +36,7 @@ export type WithdrawRailReadiness =
 export async function assertWithdrawalRailReady(
   userId: string,
   provider: WithdrawMethodProvider,
+  sellerContext: SellerContext,
 ): Promise<WithdrawRailReadiness> {
   if (mustUseVirtualWallet()) {
     return { ready: true, connectAccountId: null, virtual: true };
@@ -40,14 +46,22 @@ export async function assertWithdrawalRailReady(
     return { ready: false, error: "Stripe is not configured." };
   }
 
+  const context = normalizeSellerContext(sellerContext);
+  const idCol = connectAccountColumn(context);
+
   const admin = createAdminClient();
   const { data: sellerProfile } = await admin
     .from("seller_profiles")
-    .select("stripe_connect_account_id")
+    .select(
+      "stripe_connect_account_id, stripe_connect_account_id_individual, stripe_connect_account_id_business",
+    )
     .eq("id", userId)
     .maybeSingle();
 
-  const connectAccountId = sellerProfile?.stripe_connect_account_id ?? null;
+  const connectAccountId =
+    (sellerProfile as Record<string, string | null> | null)?.[idCol] ??
+    (context === "individual" ? sellerProfile?.stripe_connect_account_id ?? null : null);
+
   if (!connectAccountId) {
     return {
       ready: false,
@@ -55,7 +69,7 @@ export async function assertWithdrawalRailReady(
     };
   }
 
-  const status = await getConnectAccountStatus(userId);
+  const status = await getConnectAccountStatus(userId, context);
   if (!status.connected || !status.payoutsEnabled) {
     return {
       ready: false,
@@ -80,6 +94,8 @@ export async function initiateWithdrawalPayout(input: {
   amount: number;
   methodProvider: WithdrawMethodProvider;
   idempotencyKey: string;
+  /** Required — never silently default when Business context is known. */
+  sellerContext: SellerContext;
 }): Promise<WithdrawPayoutResult> {
   if (!isWalletMoneyEnvReady("withdraw")) {
     return { success: false, error: MISSING_REQUIRED_SECRET, retryable: false };
@@ -91,7 +107,12 @@ export async function initiateWithdrawalPayout(input: {
     return { success: false, error: "Invalid withdrawal amount.", retryable: false };
   }
 
-  const rail = await assertWithdrawalRailReady(input.userId, input.methodProvider);
+  const sellerContext = normalizeSellerContext(input.sellerContext);
+  const rail = await assertWithdrawalRailReady(
+    input.userId,
+    input.methodProvider,
+    sellerContext,
+  );
   if (!rail.ready) {
     return { success: false, error: rail.error, retryable: false };
   }
@@ -124,6 +145,7 @@ export async function initiateWithdrawalPayout(input: {
           walletTransactionId: input.transactionId,
           purpose: "wallet_withdrawal",
           methodProvider: input.methodProvider,
+          sellerContext,
         },
         description: `ROVEXO withdrawal ${input.transactionId}`,
       },
@@ -135,6 +157,7 @@ export async function initiateWithdrawalPayout(input: {
     logPaymentError("Stripe withdrawal transfer failed", error, {
       userId: input.userId,
       transactionId: input.transactionId,
+      sellerContext,
     });
     return {
       success: false,

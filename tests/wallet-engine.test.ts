@@ -24,7 +24,7 @@ describe("wallet engine", () => {
     expect(doc.walletTypes.some((t) => t.id === "platform" && t.enabled)).toBe(false);
     expect(doc.integrations.ordersEngine).toBe(true);
     expect(doc.integrations.buyerProtection).toBe(true);
-    expect(doc.holdPeriodHours).toBe(24);
+    expect(doc.holdPeriodHours).toBe(48);
     expect(doc.platformFeeRate).toBe(0.055);
   });
 

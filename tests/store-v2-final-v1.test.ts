@@ -31,14 +31,14 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(VISIT_STORE_FINAL_UI_LOCK_V1.outsideFreeze.route).toBe("/user/[username]");
     expect(VISIT_STORE_FINAL_UI_LOCK_V1.header.standard).toBe("ROVEXO Header Standard v1.0");
     expect(VISIT_STORE_FINAL_UI_LOCK_V1.header.mustMatch).toBe("Orders");
-    expect(VISIT_STORE_FINAL_UI_LOCK_V1.header.layout).toEqual(["back", "title:Store", "close"]);
+    expect(VISIT_STORE_FINAL_UI_LOCK_V1.header.layout).toEqual(["back", "title:Store", "overflow"]);
     expect(STORE_V2_CANONICAL_UI).toBe("features/store/components/StoreVisitPageV2.tsx");
     expect(STORE_V2_FORBIDDEN_PROFILE_UI).toBe(
       "features/profile/components/ViewProfilePage.tsx",
     );
     expect(STORE_V2_UI.tabs).toEqual(["listings", "reviews"]);
     expect(STORE_V2_UI.listings.forbidden).toContain("Featured");
-    expect(STORE_V2_UI.header.layout).toEqual(["back", "title:Store", "close"]);
+    expect(STORE_V2_UI.header.layout).toEqual(["back", "title:Store", "overflow"]);
   });
 
   it("wires /store to StoreVisitPageV2 only", () => {
@@ -59,6 +59,9 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(page).toContain('centeredTitle="Store"');
     expect(page).toContain('fallbackHref="/search"');
     expect(page).toContain("storeCta");
+    expect(page).toContain("rightAction");
+    expect(page).toContain("data-store-header-overflow");
+    expect(page).toContain("PLATFORM_EMOJI.more");
     expect(page).toContain('aria-label="Share store"');
     expect(page).toContain('aria-label="Report store"');
     expect(page).toContain("Check out this ROVEXO Store");
@@ -70,9 +73,11 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(page).not.toContain("canShare");
     expect(page).toContain('data-store-share="v2"');
     expect(page).not.toContain("Unable to share store.");
-    expect(page).toContain("sv2__hero-icons");
-    expect(page).toContain("sv2__icon-btn");
-    expect(page).toContain("ShareIcon");
+    expect(page).toContain("data-store-overflow-menu");
+    expect(page).toContain("sv2__overflow-item");
+    expect(page).toContain("sv2__action-btn--message");
+    expect(page).toContain("sv2__action-btn--share");
+    expect(page).toContain("/api/messages");
     expect(page).toContain("followers");
     expect(page).toContain("following");
     expect(page).toContain('setTab("listings")');
@@ -80,20 +85,19 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
     expect(page).toContain("StoreShopBundles");
     const bundles = readSource("features/store/components/StoreShopBundles.tsx");
     expect(bundles).toContain("ListingCard");
-    expect(bundles).toContain("HP_CANONICAL_LISTING_PROPS");
+    expect(bundles).toContain("STORE_VISIT_LISTING_PROPS");
     expect(bundles).toContain("Load more");
     expect(page).toContain("sv2__review-product");
     expect(page).toContain("/listing/");
     expect(page).toContain("Verified Purchase");
-    expect(page).not.toContain(">Share Store<");
+    expect(page).toContain("Share Store");
+    expect(page).toContain("Edit Store");
     expect(page).not.toContain(">Report Store<");
     expect(page).not.toContain("View Profile");
     expect(page).not.toContain("sv2__sidebar");
     expect(page).not.toContain("sv2__business");
     expect(page).not.toContain("sv2__bio");
-    expect(page).not.toContain('>Message<');
     expect(page).not.toContain("startConversation");
-    expect(page).not.toContain("/api/messages");
     expect(page).not.toContain("Order Details");
     expect(page).not.toContain("Featured");
     expect(page).not.toContain("CanonicalPageHeader");
@@ -102,17 +106,26 @@ describe("STORE v2.0 FINAL — Visit Store only (Profile isolated)", () => {
 
     const header = readSource("features/account-canonical/header/AccountCanonicalHeader.tsx");
     expect(header).toContain("RovexoHeaderCloseButton");
+    expect(header).toContain("rightAction ??");
     expect(header).toContain("data-rovexo-header-standard");
 
     const css = readSource("styles/rovexo/store-visit-v2.css");
     expect(css).toContain("padding: 16px 0 32px");
-    expect(css).toContain(".sv2__hero-icons");
-    expect(css).toContain("gap: 14px");
+    expect(css).toContain(".sv2__overflow-menu");
+    // Store Cover fully removed — no banner / cover crop / guidance reserved space.
+    expect(css).not.toContain(".sv2__banner");
+    expect(css).not.toContain("sv2__cover");
+    expect(css).not.toContain("aspect-ratio: 16 / 9");
+    expect(css).not.toContain("aspect-ratio: 820 / 312");
+    expect(css).toContain(".sv2__hero");
     expect(css).toContain("color: var(--sv2-purple)");
     expect(css).not.toContain("store-v2-header-title");
     expect(css).not.toContain("grid-template-columns: 48px minmax(0, 1fr) 48px");
     expect(css).not.toContain("sv2__sidebar");
     expect(css).not.toContain("sv2__stats");
+    expect(page).not.toContain("StoreCoverControls");
+    expect(page).not.toContain("sv2__banner");
+    expect(page).not.toContain("Add cover");
   });
 
   it("does not put Store v2 markers into Profile ViewProfilePage", () => {

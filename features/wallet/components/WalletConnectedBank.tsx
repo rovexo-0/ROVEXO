@@ -21,7 +21,9 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
   const removeBank = () => {
     setError(null);
     startTransition(async () => {
-      const response = await fetch("/api/wallet/bank-account", { method: "DELETE" });
+      const response = await fetch("/api/wallet/bank-account?sellerContext=individual", {
+        method: "DELETE",
+      });
       if (!response.ok) {
         setError(toUserSafeFailClosedMessage(null, "unavailable").body);
         return;

@@ -56,8 +56,20 @@ export async function openEscrowForOrder(input: {
   deliveryFee?: number;
   stripePaymentIntentId?: string | null;
   correlationId?: string | null;
+  sellerContext?: string | null;
 }): Promise<void> {
   try {
+    const admin = createAdminClient();
+    const { data: orderCtx } = await admin
+      .from("orders")
+      .select("seller_context")
+      .eq("id", input.orderId)
+      .maybeSingle();
+    const { normalizeSellerContext } = await import("@/lib/seller-context/seller-context-v1");
+    const sellerContext = normalizeSellerContext(
+      input.sellerContext ?? orderCtx?.seller_context,
+    );
+
     const before = await findPendingSaleTx(input.orderNumber, input.sellerId);
 
     // Credit the seller into PENDING via the existing (certified) wallet op.
@@ -69,6 +81,7 @@ export async function openEscrowForOrder(input: {
       productImageUrl: input.productImageUrl,
       itemPrice: input.itemPrice,
       stripePaymentIntentId: input.stripePaymentIntentId,
+      sellerContext,
     });
 
     const { platformFee, sellerAmount } = calculateSellerNetAmount(input.itemPrice);
@@ -143,9 +156,8 @@ export async function openEscrowForOrder(input: {
 }
 
 /**
- * Delivery confirmed: start the delivered+24h auto-release timer.
- * Sets the sale transaction's release-eligibility time (defense-in-depth) and
- * records the delivery event. Actual payout happens via the settlement engine.
+ * Delivery confirmed: start the context-aware auto-release timer
+ * (Individual 48h / Business 14d from immutable order.seller_context).
  */
 export async function onOrderDelivered(input: {
   orderId: string;
@@ -156,13 +168,17 @@ export async function onOrderDelivered(input: {
     const admin = createAdminClient();
     const { data: order } = await admin
       .from("orders")
-      .select("id, order_number, seller_id, delivered_at, status")
+      .select("id, order_number, seller_id, delivered_at, status, seller_context")
       .eq("id", input.orderId)
       .maybeSingle();
     if (!order) return;
 
+    const { normalizeSellerContext, protectionHoursForSellerContext } = await import(
+      "@/lib/seller-context/seller-context-v1"
+    );
+    const hours = protectionHoursForSellerContext(normalizeSellerContext(order.seller_context));
     const deliveredAtIso = input.deliveredAt ?? order.delivered_at ?? new Date().toISOString();
-    const releaseAt = new Date(new Date(deliveredAtIso).getTime() + DELIVERED_RELEASE_HOURS * 3600_000);
+    const releaseAt = new Date(new Date(deliveredAtIso).getTime() + hours * 3600_000);
 
     // Only advance eligibility while there is NO active claim (order not disputed).
     if (order.status !== "issue_open" && order.status !== "cancelled") {
@@ -181,7 +197,12 @@ export async function onOrderDelivered(input: {
       orderId: input.orderId,
       userId: order.seller_id,
       rule: "delivered_timer_started",
-      metadata: { deliveredAt: deliveredAtIso, releaseEligibleAt: releaseAt.toISOString() },
+      metadata: {
+        deliveredAt: deliveredAtIso,
+        releaseEligibleAt: releaseAt.toISOString(),
+        sellerContext: normalizeSellerContext(order.seller_context),
+        protectionHours: hours,
+      },
     });
   } catch (error) {
     console.error(

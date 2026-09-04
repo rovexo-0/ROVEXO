@@ -14,9 +14,10 @@ describe("Bottom Navigation Search → Browse SSOT renaming v1.0", () => {
     expect(nav).not.toContain('t("nav.search")');
   });
 
-  it("uses category grid icon for bottom Browse — not magnifier", () => {
+  it("uses category browse emoji for bottom Browse — not Search magnifier", () => {
     const icon = readSource("components/ui/BottomNavV2Icon.tsx");
-    expect(icon).toContain("BrowseCategoriesLineIcon");
+    expect(icon).toContain("PLATFORM_EMOJI.browse");
+    expect(icon).not.toContain("PLATFORM_EMOJI.search");
     expect(icon).not.toContain("SearchLineIcon");
   });
 

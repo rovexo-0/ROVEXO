@@ -6,6 +6,8 @@ import { cn } from "@/lib/cn";
 import { getListingShareUrl, getFacebookShareUrl } from "@/lib/share/listing-url";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { trackShareListing } from "@/lib/analytics/marketplace-events";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type ShareListingSheetProps = {
   open: boolean;
@@ -90,9 +92,7 @@ const channels: ShareChannel[] = [
       `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`,
     icon: (
       <ShareChannelIcon>
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-        </svg>
+        <PlatformEmoji emoji={PLATFORM_EMOJI.mail} size={20} className="h-5 w-5" />
       </ShareChannelIcon>
     ),
   },

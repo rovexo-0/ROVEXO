@@ -1,9 +1,11 @@
 import Stripe from "stripe";
+import { headers as nextHeaders } from "next/headers";
 import { getAppUrl } from "@/lib/supabase/env";
 import {
   isStripeLiveKey,
   isStripeLiveRuntimeAllowed,
   isStripeTestKey,
+  isDevelopmentOrLanHostname,
   parseRuntimeContextFromOrigin,
   resolveStripeKeyMode,
   type StripeKeyMode,
@@ -129,7 +131,7 @@ export function getStripeClient(runtime?: Partial<StripeRuntimeContext>): Stripe
   if (existing) return existing;
 
   const client = new Stripe(secretKey, {
-    apiVersion: "2025-08-27.basil",
+    apiVersion: "2025-12-15.clover",
   });
   stripeClients[mode] = client;
   return client;
@@ -154,6 +156,45 @@ export function getStripeWebhookSecret(): string {
   return liveSecret;
 }
 
-export function getAppBaseUrl(): string {
+export async function getAppBaseUrl(): Promise<string> {
+  // Vercel Production never honors loopback/LAN Origin spoofing.
+  if (process.env.VERCEL_ENV === "production") {
+    return getAppUrl();
+  }
+
+  // LAN / localhost certification: avoid phone-visible loopback URLs.
+  // Prefer the origin the PWA is actually running from (Origin/Referer),
+  // falling back to the request host only when it is a dev/LAN host.
+  try {
+    const hdrs = await nextHeaders();
+    const host = hdrs.get("host");
+    const originHeader = hdrs.get("origin");
+    const refererHeader = hdrs.get("referer");
+    const xForwardedHost = hdrs.get("x-forwarded-host");
+    if (!host) return getAppUrl();
+
+    const xForwardedProto = hdrs.get("x-forwarded-proto");
+    const proto = xForwardedProto?.split(",")[0]?.trim() ?? "http";
+
+    const candidates = [originHeader, refererHeader, xForwardedHost, host]
+      .map((value) => (value ? value.trim() : value))
+      .filter((value): value is string => Boolean(value));
+
+    for (const candidate of candidates) {
+      try {
+        const url = new URL(
+          candidate.includes("://") ? candidate : `${proto}://${candidate}`,
+        );
+        if (isDevelopmentOrLanHostname(url.hostname)) {
+          return url.origin;
+        }
+      } catch {
+        // Ignore and try next candidate.
+      }
+    }
+  } catch {
+    // Fail open to the canonical env-based app URL.
+  }
+
   return getAppUrl();
 }

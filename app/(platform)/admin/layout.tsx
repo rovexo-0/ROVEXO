@@ -3,6 +3,12 @@ import { requireRole } from "@/lib/auth/session";
 import { AdminCommandCentreShell } from "@/features/command-centre/AdminCommandCentreShell";
 
 /**
+ * Runtime-only. Admin pages read service-role secrets; they must never
+ * statically prerender during `next build`.
+ */
+export const dynamic = "force-dynamic";
+
+/**
  * Platform Admin Console (`/admin/*`).
  * Access: `admin` + `super_admin`.
  * UI: shared Command Centre White Theme (same shell as Super Admin).

@@ -111,5 +111,11 @@ describe("canonical refund architecture (no second engine)", () => {
     expect(migration).toContain("withdraw_methods_user_bank_account_uidx");
     expect(migration).not.toMatch(/create table if not exists public\.wallets_/i);
     expect(migration).not.toMatch(/create table if not exists public\.wallet_ledger/i);
+
+    const contextMigration = readSource(
+      "supabase/migrations/20260903210000_withdraw_methods_seller_context_v1.sql",
+    );
+    expect(contextMigration).toContain("withdraw_methods_user_bank_account_context_uidx");
+    expect(contextMigration).toContain("drop index if exists public.withdraw_methods_user_bank_account_uidx");
   });
 });

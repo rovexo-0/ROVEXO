@@ -33,7 +33,7 @@ const SUCCESS_CARD_SAVED = "Card saved.";
 const EMPTY_TITLE = "No cards added yet";
 const EMPTY_DESCRIPTION = "Add a card for faster checkout.";
 const STRIPE_FOOTER = "🛡 Secured by Stripe";
-const ADD_CARD_ERROR_TOAST = {
+const ADD_CARD_FALLBACK_TOAST = {
   title: "Unable to add a card.",
   description: "Please try again.",
   variant: "error" as const,
@@ -61,6 +61,27 @@ function getClientWalletsSnapshot(): DetectedWalletPayments {
 
 function useDetectedWallets(): DetectedWalletPayments {
   return useSyncExternalStore(subscribeNoop, getClientWalletsSnapshot, () => EMPTY_WALLETS);
+}
+
+function toastFromSetupError(payload: {
+  error?: string;
+  actionable?: string;
+}): {
+  title: string;
+  description: string;
+  variant: "error";
+  durationMs: number;
+} {
+  const safe = typeof payload.error === "string" ? payload.error.trim() : "";
+  if (!safe) return ADD_CARD_FALLBACK_TOAST;
+  const firstSentence = safe.split(/(?<=\.)\s+/)[0] ?? safe;
+  const title =
+    firstSentence.length > 72 ? `${firstSentence.slice(0, 69)}…` : firstSentence;
+  const description =
+    payload.actionable === "manage_on_stripe"
+      ? "Use Manage on Stripe, or try again."
+      : "Please try again.";
+  return { title, description, variant: "error", durationMs: 3500 };
 }
 
 export type WalletPaymentMethodsPageProps = {
@@ -95,6 +116,7 @@ export function WalletPaymentMethodsPage({
   const [setupOpen, setSetupOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [startingSetup, setStartingSetup] = useState(false);
+  const [openingPortal, setOpeningPortal] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { applePay, googlePay } = useDetectedWallets();
 
@@ -152,19 +174,58 @@ export function WalletPaymentMethodsPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "create_setup_intent" }),
       });
-      const payload = (await response.json()) as { clientSecret?: string };
+      const payload = (await response.json()) as {
+        clientSecret?: string;
+        error?: string;
+        actionable?: string;
+      };
 
       if (!response.ok || !payload.clientSecret) {
-        pushToast(ADD_CARD_ERROR_TOAST);
+        pushToast(toastFromSetupError(payload));
         return;
       }
 
       setClientSecret(payload.clientSecret);
       setSetupOpen(true);
     } catch {
-      pushToast(ADD_CARD_ERROR_TOAST);
+      pushToast(ADD_CARD_FALLBACK_TOAST);
     } finally {
       setStartingSetup(false);
+    }
+  };
+
+  const manageOnStripe = async () => {
+    setOpeningPortal(true);
+    try {
+      const response = await fetch("/api/payment-methods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_billing_portal" }),
+      });
+      const payload = (await response.json()) as {
+        url?: string;
+        error?: string;
+        actionable?: string;
+      };
+      if (response.ok && payload.url) {
+        window.location.href = payload.url;
+        return;
+      }
+      pushToast(
+        toastFromSetupError({
+          error: payload.error ?? "Stripe card management is not available yet.",
+          actionable: payload.actionable,
+        }),
+      );
+    } catch {
+      pushToast({
+        title: "Unable to open Stripe.",
+        description: "Please try again.",
+        variant: "error",
+        durationMs: 2500,
+      });
+    } finally {
+      setOpeningPortal(false);
     }
   };
 
@@ -174,8 +235,13 @@ export function WalletPaymentMethodsPage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "complete_setup_intent", setupIntentId }),
     });
-    const payload = (await response.json()) as { method?: SavedPaymentMethod };
+    const payload = (await response.json()) as {
+      method?: SavedPaymentMethod;
+      error?: string;
+      actionable?: string;
+    };
     if (!response.ok || !payload.method) {
+      pushToast(toastFromSetupError(payload));
       return;
     }
     await loadMethods();
@@ -188,11 +254,24 @@ export function WalletPaymentMethodsPage({
   const removeCard = async (id: string) => {
     try {
       const response = await fetch(`/api/payment-methods/${id}`, { method: "DELETE" });
-      if (!response.ok) return;
+      if (!response.ok) {
+        pushToast({
+          title: "Unable to remove card.",
+          description: "Please try again or Manage on Stripe.",
+          variant: "error",
+          durationMs: 2500,
+        });
+        return;
+      }
       setSelectedId(null);
       await loadMethods();
     } catch {
-      // keep functional UI
+      pushToast({
+        title: "Unable to remove card.",
+        description: "Please try again.",
+        variant: "error",
+        durationMs: 2500,
+      });
     }
   };
 
@@ -203,11 +282,24 @@ export function WalletPaymentMethodsPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "set_default" }),
       });
-      if (!response.ok) return;
+      if (!response.ok) {
+        pushToast({
+          title: "Unable to set default card.",
+          description: "Please try again.",
+          variant: "error",
+          durationMs: 2500,
+        });
+        return;
+      }
       setSelectedId(null);
       await loadMethods();
     } catch {
-      // keep functional UI
+      pushToast({
+        title: "Unable to set default card.",
+        description: "Please try again.",
+        variant: "error",
+        durationMs: 2500,
+      });
     }
   };
 
@@ -275,6 +367,13 @@ export function WalletPaymentMethodsPage({
                   description={
                     billingConfigured ? "Configured." : "Manage your billing details."
                   }
+                />
+                <CanonicalMenuRow
+                  title="Manage on Stripe"
+                  description="Open Stripe to inspect or fix card issues."
+                  onClick={() => void manageOnStripe()}
+                  showChevron
+                  disabled={openingPortal}
                 />
               </CanonicalCard>
 
@@ -357,6 +456,13 @@ export function WalletPaymentMethodsPage({
                   description={
                     billingConfigured ? "Configured." : "Manage your billing details."
                   }
+                />
+                <CanonicalMenuRow
+                  title="Manage on Stripe"
+                  description="Open Stripe to inspect or fix card issues."
+                  onClick={() => void manageOnStripe()}
+                  showChevron
+                  disabled={openingPortal}
                 />
               </CanonicalCard>
 

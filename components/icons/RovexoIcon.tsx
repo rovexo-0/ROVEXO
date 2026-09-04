@@ -1,17 +1,14 @@
 "use client";
 
-import { SafeImage } from "@/components/ui/SafeImage";
+import { PlatformEmoji } from "@/components/icons/PlatformEmoji";
 import { cn } from "@/lib/cn";
-import { resolveRovexoIconSrc } from "@/lib/icons/icons";
+import { rovexoIconRefEmoji } from "@/lib/icons/platform-emoji-v1";
 import { resolveRovexoIconSize, type RovexoIconVariant } from "@/lib/icons/sizes";
-import { isGlassIconMode } from "@/lib/icons/theme";
 import type { RovexoIconRef } from "@/lib/icons/types";
 
 export type RovexoIconProps = {
   icon: RovexoIconRef;
-  /** Explicit pixel size — overrides `variant`. */
   size?: number;
-  /** Preset size from the global homepage icon system. */
   variant?: RovexoIconVariant;
   className?: string;
   alt?: string;
@@ -19,8 +16,8 @@ export type RovexoIconProps = {
 };
 
 /**
- * Official ROVEXO icon renderer.
- * All UI icons must resolve through `RovexoIcons` + this component.
+ * Official ROVEXO functional icon renderer — platform emoji (not SVG/image glyphs).
+ * Photographic category heroes and product photos stay on SafeImage elsewhere.
  */
 export function RovexoIcon({
   icon,
@@ -30,26 +27,17 @@ export function RovexoIcon({
   alt = "",
   priority = false,
 }: RovexoIconProps) {
+  void priority;
   const px = resolveRovexoIconSize(variant, size);
-  const src = resolveRovexoIconSrc(icon);
-  const glass = isGlassIconMode();
+  const emoji = rovexoIconRefEmoji(icon.folder, icon.name);
 
   return (
-    <SafeImage
-      src={src}
-      alt={alt}
+    <PlatformEmoji
+      emoji={emoji}
       width={px}
       height={px}
-      priority={priority}
-      unoptimized
-      fallback="hide"
-      aria-hidden={alt ? undefined : true}
-      className={cn(
-        "rovexo-icon shrink-0 object-contain",
-        glass ? "rovexo-icon--glass" : "rovexo-icon--standard",
-        className,
-      )}
-      style={{ width: px, height: px }}
+      className={cn("rovexo-icon shrink-0", className)}
+      title={alt || undefined}
     />
   );
 }

@@ -5,11 +5,12 @@
 
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import { mapSendcloudCarrierToUk } from "@/lib/shipping/sendcloud/carrier-aliases";
-import { isActiveAnnouncedOrReadyParcel } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
+import { selectCurrentOrderParcels } from "@/lib/shipping/resolve-shipment-parcel-for-label-v1";
 import type { ShipmentParcel } from "@/lib/shipping/types";
 
 export type ResolveOrderDisplayCarrierInput = {
   orderCarrier?: string | null;
+  shippingRecordCarrier?: string | null;
   activeLabelCarrier?: string | null;
   activeParcelCarrier?: string | null;
 };
@@ -25,7 +26,7 @@ export function normalizeOrderDisplayCarrier(
 }
 
 /**
- * Precedence: active label → active parcel → historical order carrier → empty.
+ * Precedence: active label → active parcel → shipping_records → historical order → empty.
  * Empty = fail closed (Delivery Status hides the line). No invented default.
  */
 export function resolveOrderDisplayCarrier(
@@ -34,42 +35,59 @@ export function resolveOrderDisplayCarrier(
   return (
     normalizeOrderDisplayCarrier(input.activeLabelCarrier) ??
     normalizeOrderDisplayCarrier(input.activeParcelCarrier) ??
+    normalizeOrderDisplayCarrier(input.shippingRecordCarrier) ??
     normalizeOrderDisplayCarrier(input.orderCarrier) ??
     ""
   );
 }
 
-function pickHighestParcelNumber(parcels: readonly ShipmentParcel[]): ShipmentParcel {
-  return parcels.reduce((best, current) =>
-    current.parcelNumber > best.parcelNumber ? current : best,
+export type ResolveOrderDisplayTrackingInput = {
+  orderTracking?: string | null;
+  shippingRecordTracking?: string | null;
+  activeParcelTracking?: string | null;
+};
+
+/** Tracking identity follows the same current-shipment precedence as carrier. */
+export function resolveOrderDisplayTracking(
+  input: ResolveOrderDisplayTrackingInput,
+): string {
+  return (
+    input.activeParcelTracking?.trim() ||
+    input.shippingRecordTracking?.trim() ||
+    input.orderTracking?.trim() ||
+    ""
   );
 }
 
 export type ActiveOrderDisplayCarriers = {
   activeLabelCarrier: string | null;
   activeParcelCarrier: string | null;
+  activeTrackingNumber: string | null;
 };
 
 /**
- * Active recovered shipment only. Failed historical parcels are excluded.
- * Label carrier is taken from the active parcel that has a ready label —
- * never from a stale shipping_records snapshot.
+ * Current recovered shipment only. Failed / cancelled / superseded historical
+ * parcels are excluded. Label + tracking come from the current parcel.
  */
 export function extractActiveOrderDisplayCarriers(
   parcels: readonly ShipmentParcel[] | null | undefined,
 ): ActiveOrderDisplayCarriers {
-  const list = parcels ?? [];
-  const active = list.filter(isActiveAnnouncedOrReadyParcel);
-  if (active.length === 0) {
-    return { activeLabelCarrier: null, activeParcelCarrier: null };
+  const current = selectCurrentOrderParcels(parcels);
+  if (current.length === 0) {
+    return {
+      activeLabelCarrier: null,
+      activeParcelCarrier: null,
+      activeTrackingNumber: null,
+    };
   }
 
-  const current = pickHighestParcelNumber(active);
-  const withReadyLabel = active.filter((parcel) => parcel.label?.status === "ready");
-  const labeled = withReadyLabel.length > 0 ? pickHighestParcelNumber(withReadyLabel) : null;
+  const withReadyLabel = current.filter((parcel) => parcel.label?.status === "ready");
+  const labeled = withReadyLabel[0] ?? null;
+  const parcel = current[0]!;
 
   return {
     activeLabelCarrier: labeled?.carrier?.trim() || null,
-    activeParcelCarrier: current.carrier?.trim() || null,
+    activeParcelCarrier: parcel.carrier?.trim() || null,
+    activeTrackingNumber: parcel.trackingNumber?.trim() || labeled?.trackingNumber?.trim() || null,
   };
 }

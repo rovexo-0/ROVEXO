@@ -52,7 +52,7 @@ export function MonthlyStatementDetail({ statement }: MonthlyStatementDetailProp
             <strong>{formatCurrency(statement.startBalance)}</strong>
           </div>
           <SummaryRow label="Sales" value={statement.sales} />
-          <SummaryRow label="Platform Fees" value={statement.platformFees} negative />
+          <SummaryRow label="Buyer Protection" value={statement.platformFees} negative />
           <SummaryRow label="Refunds" value={statement.refunds} negative />
           <SummaryRow label="Withdrawals" value={statement.withdrawals} negative />
           <div className="wallet-statement__summary-row wallet-statement__summary-row--total">

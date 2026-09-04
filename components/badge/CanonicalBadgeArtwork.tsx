@@ -5,6 +5,7 @@ import {
   type BadgeVisualState,
 } from "@/lib/badge/badge-visual-system-v2";
 import styles from "@/components/badge/CanonicalBadgeArtwork.module.css";
+import { PLATFORM_EMOJI } from "@/lib/icons/platform-emoji-v1";
 
 type CanonicalBadgeArtworkProps = {
   badgeKey: string;
@@ -275,9 +276,7 @@ function Glyph({ glyph, accent }: { glyph: BadgeVisualKey; accent: string }) {
 function CheckMark() {
   return (
     <span className={`${styles.mark} ${styles.check}`} aria-hidden>
-      <svg viewBox="0 0 16 16" fill="none">
-        <path d="m3.5 8.2 3 3 6-6.4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      </svg>
+      {PLATFORM_EMOJI.check}
     </span>
   );
 }
@@ -285,10 +284,7 @@ function CheckMark() {
 function LockMark() {
   return (
     <span className={`${styles.mark} ${styles.lock}`} aria-hidden>
-      <svg viewBox="0 0 16 16" fill="none">
-        <rect x="3.5" y="7" width="9" height="6.5" rx="1.4" fill="currentColor" />
-        <path d="M5.4 7V5.4a2.6 2.6 0 0 1 5.2 0V7" stroke="currentColor" strokeWidth="1.6" />
-      </svg>
+      {PLATFORM_EMOJI.lock}
     </span>
   );
 }

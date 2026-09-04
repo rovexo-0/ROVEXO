@@ -3,7 +3,7 @@
  * Uses existing tables only. No schema migrations. No admin override.
  */
 
-import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { isFullDemoEmail } from "@/lib/full-demo/canonical";
 import { ROVEXO_VERIFIED_ENGINE_VERSION } from "@/lib/verified/constants";
 import { evaluateDataMatch } from "@/lib/verified/data-match";
@@ -65,7 +65,7 @@ export async function evaluateRovexoVerified(userId: string): Promise<RovexoVeri
     profileResult,
     verificationsResult,
     paymentsResult,
-    bankResult,
+    payoutMethodsResult,
     businessResult,
     connectResult,
   ] = await Promise.all([
@@ -85,11 +85,10 @@ export async function evaluateRovexoVerified(userId: string): Promise<RovexoVeri
       .eq("user_id", userId),
     admin
       .from("withdraw_methods")
-      .select("id, account_holder_name, connected")
+      .select("id, provider, account_holder_name, connected, seller_context")
       .eq("user_id", userId)
-      .eq("provider", "bank_account")
       .eq("connected", true)
-      .maybeSingle(),
+      .in("provider", ["bank_account", "stripe_connect"]),
     admin
       .from("business_accounts")
       .select("business_name, company_type, verified_business")
@@ -136,19 +135,46 @@ export async function evaluateRovexoVerified(userId: string): Promise<RovexoVeri
 
   const path = resolvePath(businessResult.data?.company_type);
   const hasPaymentMethods = (paymentsResult.count ?? 0) > 0;
-  const hasBank = Boolean(bankResult.data?.connected);
-  const accountHolderName = bankResult.data?.account_holder_name ?? null;
+  const payoutMethods = (payoutMethodsResult.data ?? []) as Array<{
+    provider: string;
+    account_holder_name: string | null;
+    connected: boolean;
+    seller_context: string | null;
+  }>;
+
+  const isIndividualContext = (ctx: string | null) =>
+    ctx == null || ctx === "" || ctx === "individual";
+
+  const individualMethods = payoutMethods.filter((m) => isIndividualContext(m.seller_context));
+  const businessMethods = payoutMethods.filter((m) => m.seller_context === "business");
+
+  const hasIndividualBank = individualMethods.some((m) => m.provider === "bank_account");
+  const hasIndividualConnect = individualMethods.some((m) => m.provider === "stripe_connect");
+  const hasBusinessBank = businessMethods.some((m) => m.provider === "bank_account");
+  const hasBusinessConnect = businessMethods.some((m) => m.provider === "stripe_connect");
+
+  const hasBank = hasIndividualBank || hasIndividualConnect;
+  const bankHolder =
+    individualMethods.find((m) => m.provider === "bank_account" && m.account_holder_name)
+      ?.account_holder_name ?? null;
+  /** Stripe Connect collects bank identity — use profile name for data-match when Connect-ready. */
+  const accountHolderName =
+    bankHolder ?? (hasIndividualConnect ? profile.full_name : null);
+
   const emailPass =
     Boolean(profile.email?.includes("@")) && (emailConfirmed || approved.has("email"));
   const phonePass = Boolean(profile.phone?.trim()) && approved.has("phone");
   const paymentPass = hasPaymentMethods;
   const bankPass = hasBank;
   const identityPass = approved.has("identity");
-  const stripeConnectOk = Boolean(connectResult.data?.stripe_connect_completed);
+  const stripeConnectOk =
+    Boolean(connectResult.data?.stripe_connect_completed) ||
+    hasIndividualConnect ||
+    hasBusinessConnect;
   const kycPass = identityPass && approved.has("payment") && (stripeConnectOk || hasBank);
   const companyPass = Boolean(businessResult.data?.verified_business);
   const directorPass = identityPass;
-  const businessBankPass = hasBank && companyPass;
+  const businessBankPass = (hasBusinessBank || hasBusinessConnect) && companyPass;
 
   const dataMatch = evaluateDataMatch({
     fullName: profile.full_name,
@@ -224,7 +250,8 @@ export async function isBusinessVerifiedAccount(userId: string): Promise<boolean
 /** Read-only: whether profiles.verified is currently true (display cache). */
 export async function readCachedRovexoVerified(userId: string): Promise<boolean> {
   try {
-    const admin = createAdminClient();
+    const admin = tryCreateAdminClient();
+    if (!admin) return false;
     const { data } = await admin.from("profiles").select("verified").eq("id", userId).maybeSingle();
     return Boolean(data?.verified);
   } catch {

@@ -14,7 +14,7 @@ import { computePromotionScore } from "@/lib/promotions/format";
 import { isPromotionPurchaseBlocked } from "@/lib/promotions/boost-time-decay-v1";
 import type { ListingPromotionRecord } from "@/lib/promotions/types";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 
 type ApplyPromotionInput = {
   sellerId: string;
@@ -172,7 +172,7 @@ export async function applyListingPromotion(
   const { data: product, error: productError } = await admin
     .from("products")
     .select(
-      "id, seller_id, bump_count, bumped_until, featured_until, last_bumped_at, title, status, product_images(url, is_primary, sort_order)",
+      "id, seller_id, bump_count, bumped_until, featured_until, last_bumped_at, title, status, product_images(url, thumbnail_url, storage_path, is_primary, sort_order)",
     )
     .eq("id", input.productId)
     .eq("seller_id", input.sellerId)
@@ -338,13 +338,22 @@ export async function applyListingPromotion(
   const images = [...(product.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
+  const primary = images[0];
+  const resolvedPromotionImage = resolveCardImageSources(
+    (primary as { thumbnail_url?: string | null } | undefined)?.thumbnail_url,
+    primary?.url,
+    {
+      storagePath: (primary as { storage_path?: string | null } | undefined)?.storage_path,
+      productStatus: product.status,
+    },
+  ).imageUrl;
 
   if (input.promotionId) {
     await recordPromotionWalletTransaction({
       sellerId: input.sellerId,
       promotionId: input.promotionId,
       productTitle: product.title,
-      productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
+      productImageUrl: resolvedPromotionImage,
       amountCents: input.amountCents,
       type: input.type,
       durationId: input.durationId,
@@ -429,7 +438,7 @@ export async function createPromotionCheckoutSession(input: {
       return { error: result.error ?? "Unable to apply promotion." };
     }
 
-    return { url: `${getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
+    return { url: `${await getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
   }
 
   const pending = await createPendingPromotion(
@@ -445,7 +454,7 @@ export async function createPromotionCheckoutSession(input: {
   }
 
   const stripe = getStripeClient();
-  const baseUrl = getAppBaseUrl();
+  const baseUrl = await getAppBaseUrl();
   const label = input.type === "bump" ? "Bump listing" : "Showcase listing";
 
   const session = await stripe.checkout.sessions.create(
@@ -627,7 +636,7 @@ export async function getActiveSellerPromotions(
   const supabase = await createClient();
   const { data: products } = await supabase
     .from("products")
-    .select("id, title, bumped_until, featured_until, product_images(url, is_primary, sort_order)")
+    .select("id, title, status, bumped_until, featured_until, product_images(url, thumbnail_url, storage_path, is_primary, sort_order)")
     .eq("seller_id", sellerId)
     .eq("status", "published");
 
@@ -646,7 +655,15 @@ export async function getActiveSellerPromotions(
     const images = [...(product.product_images ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
     );
-    const imageUrl = images[0]?.url ?? PRODUCT_IMAGE_FALLBACK;
+    const primary = images[0];
+    const imageUrl = resolveCardImageSources(
+      (primary as { thumbnail_url?: string | null } | undefined)?.thumbnail_url,
+      primary?.url,
+      {
+        storagePath: (primary as { storage_path?: string | null } | undefined)?.storage_path,
+        productStatus: product.status,
+      },
+    ).imageUrl;
 
     if (product.bumped_until && new Date(product.bumped_until).getTime() > now) {
       results.push({
@@ -792,7 +809,8 @@ export async function getSellerPromotionHistory(
       created_at,
       products:product_id (
         title,
-        product_images ( url, is_primary, sort_order )
+        status,
+        product_images ( url, thumbnail_url, storage_path, is_primary, sort_order )
       )
     `,
     )
@@ -804,17 +822,28 @@ export async function getSellerPromotionHistory(
   return (data ?? []).map((row) => {
     const product = row.products as {
       title: string;
-      product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
+      status?: string | null;
+      product_images?: Array<{
+        url: string;
+        thumbnail_url?: string | null;
+        storage_path?: string | null;
+        is_primary: boolean;
+        sort_order: number;
+      }>;
     } | null;
     const images = [...(product?.product_images ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
     );
+    const primary = images[0];
 
     return {
       id: row.id,
       productId: row.product_id,
       productTitle: product?.title ?? "Listing",
-      productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
+      productImageUrl: resolveCardImageSources(primary?.thumbnail_url, primary?.url, {
+        storagePath: primary?.storage_path,
+        productStatus: product?.status,
+      }).imageUrl,
       type: row.type as PromotionType,
       durationId: row.duration_id,
       amountCents: row.amount_cents,

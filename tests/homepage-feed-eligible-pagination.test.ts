@@ -223,6 +223,7 @@ describe("Homepage feed pagination wiring + infinite-scroll contract", () => {
     expect(feedBlock).toContain('.gt("stock", 0)');
     expect(feedBlock).toContain("applyHolidayModeVisibilityFilter");
     expect(feedBlock).toContain("HomepageEligibility.isRowEligible");
+    expect(feedBlock).toContain("isHomepageExcludedTestListing");
     expect(feedBlock).toContain('.order("promotion_score", { ascending: false })');
     expect(feedBlock).toContain('.order("created_at", { ascending: false })');
     expect(feedBlock).toContain('.order("views", { ascending: false })');
