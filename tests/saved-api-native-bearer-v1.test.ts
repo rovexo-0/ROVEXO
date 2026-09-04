@@ -180,6 +180,7 @@ describe("verifyBearerAccessToken helpers", () => {
 describe("Saved CSRF cookie vs Bearer", () => {
   it("cookie POST/DELETE without valid Origin stay protected", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
     const post = await validateMutationOrigin(
@@ -218,6 +219,7 @@ describe("Saved CSRF cookie vs Bearer", () => {
 
   it("unverified Bearer POST does not skip Origin CSRF", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
     verifyBearerAccessToken.mockResolvedValue(null);
 

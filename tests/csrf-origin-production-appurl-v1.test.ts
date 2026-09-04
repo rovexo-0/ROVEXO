@@ -14,6 +14,7 @@ afterEach(() => {
 describe("COD SÂNGE CSRF production origin", () => {
   it("getAppUrl production ignores localhost from env", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://127.0.0.1:3000");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");
@@ -24,12 +25,13 @@ describe("COD SÂNGE CSRF production origin", () => {
     expect(getAppUrl()).toBe("https://www.rovexo.co.uk");
   });
 
-  it("production CSRF allows www.rovexo.co.uk Origin", () => {
+  it("production CSRF allows www.rovexo.co.uk Origin", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
     expect(
-      validateMutationOrigin(
+      await validateMutationOrigin(
         new Request("https://www.rovexo.co.uk/api/shipping/labels", {
           method: "POST",
           headers: { origin: "https://www.rovexo.co.uk" },
@@ -38,11 +40,12 @@ describe("COD SÂNGE CSRF production origin", () => {
     ).toBeNull();
   });
 
-  it("production CSRF rejects evil Origin", () => {
+  it("production CSRF rejects evil Origin", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
 
-    const blocked = validateMutationOrigin(
+    const blocked = await validateMutationOrigin(
       new Request("https://www.rovexo.co.uk/api/shipping/labels", {
         method: "POST",
         headers: { origin: "https://evil.example" },
@@ -51,11 +54,12 @@ describe("COD SÂNGE CSRF production origin", () => {
     expect(blocked?.status).toBe(403);
   });
 
-  it("production CSRF ignores misconfigured loopback APP_URL allowlist entry", () => {
+  it("production CSRF ignores misconfigured loopback APP_URL allowlist entry", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
-    const blocked = validateMutationOrigin(
+    const blocked = await validateMutationOrigin(
       new Request("https://www.rovexo.co.uk/api/shipping/labels", {
         method: "POST",
         headers: {
@@ -67,7 +71,7 @@ describe("COD SÂNGE CSRF production origin", () => {
     expect(blocked?.status).toBe(403);
 
     expect(
-      validateMutationOrigin(
+      await validateMutationOrigin(
         new Request("https://www.rovexo.co.uk/api/shipping/labels", {
           method: "POST",
           headers: {
@@ -79,17 +83,60 @@ describe("COD SÂNGE CSRF production origin", () => {
     ).toBeNull();
   });
 
-  it("development still allows localhost Origin", () => {
+  it("development still allows localhost Origin", async () => {
     vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("VERCEL_ENV", "");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
     expect(
-      validateMutationOrigin(
+      await validateMutationOrigin(
         new Request("http://localhost:3000/api/shipping/labels", {
           method: "POST",
           headers: { origin: "http://localhost:3000" },
         }),
       ),
     ).toBeNull();
+  });
+
+  it("Playwright managed NODE_ENV=production without VERCEL_ENV allows loopback Origin", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://127.0.0.1:3000");
+
+    expect(
+      await validateMutationOrigin(
+        new Request("http://127.0.0.1:3000/api/listings", {
+          method: "POST",
+          headers: {
+            host: "127.0.0.1:3000",
+            origin: "http://127.0.0.1:3000",
+          },
+        }),
+      ),
+    ).toBeNull();
+
+    // APIRequestContext may omit Origin — still allowed only off Vercel Production.
+    expect(
+      await validateMutationOrigin(
+        new Request("http://127.0.0.1:3000/api/listings", {
+          method: "POST",
+          headers: { host: "127.0.0.1:3000" },
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  it("Vercel Production rejects missing Origin even on loopback Host spoof", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
+
+    const blocked = await validateMutationOrigin(
+      new Request("https://www.rovexo.co.uk/api/listings", {
+        method: "POST",
+        headers: { host: "localhost:3000" },
+      }),
+    );
+    expect(blocked?.status).toBe(403);
   });
 });

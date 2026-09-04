@@ -40,7 +40,7 @@ describe("P11.1 security hardening", () => {
   });
 
   it("wires CSRF on money and offer mutations", () => {
-    expect(read("app/api/checkout/buy-now/route.ts")).toContain("requireApiAuth(request)");
+    expect(read("app/api/checkout/buy-now/route.ts")).toContain("requireCookieOrBearerApiAuth(request)");
     expect(read("app/api/wallet/withdraw/route.ts")).toContain("requireApiAuth(request)");
     expect(read("app/api/offers/route.ts")).toContain("validateMutationOrigin");
     expect(read("app/api/offers/[id]/route.ts")).toContain("validateMutationOrigin");

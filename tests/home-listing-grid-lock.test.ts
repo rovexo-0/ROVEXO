@@ -85,9 +85,25 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(formatListingPriceIncl(10, 3)).toBe("£13.55 incl.");
   });
 
-  it("prefers listing shipping over live quote for payable total", async () => {
+  it("Home listing cards use buyer listing shipping, not checkout live quotes", async () => {
+    const card = readSource("components/ui/ListingCard.tsx");
+    const {
+      resolveListingShippingForIncl,
+      formatListingPriceIncl,
+    } = await import("@/lib/listing-card/format");
     const { getDeliveryPrice } = await import("@/lib/checkout/delivery");
 
+    expect(card).toContain("resolveListingShippingForIncl");
+    expect(card).toContain("product.shippingPrice");
+    expect(card).not.toContain("getDeliveryPrice");
+    expect(card).not.toContain("selectedQuote");
+
+    expect(resolveListingShippingForIncl({ shippingPrice: 3 })).toBe(3);
+    expect(resolveListingShippingForIncl({ shippingPrice: 9.99 })).toBe(9.99);
+    expect(formatListingPriceIncl(1, 3)).toBe("£4.06 incl.");
+
+    // Checkout SSOT: live selected quote wins. £9.99 here is a quote fixture,
+    // not Home listing shipping. Do not teach Home to read selectedQuote.
     expect(
       getDeliveryPrice({
         listingShippingPrice: 3,
@@ -99,7 +115,7 @@ describe("Official Listing Card — homepage grid lock", () => {
           eta: "1-2 days",
         },
       }),
-    ).toBe(3);
+    ).toBe(9.99);
   });
 
   it("formats card footer rating and views from listing data", async () => {

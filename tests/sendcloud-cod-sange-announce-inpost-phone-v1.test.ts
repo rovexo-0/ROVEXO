@@ -359,7 +359,8 @@ describe("COD SÂNGE — InPost announce mapping", () => {
       deliveryAddress: { ...baseAddrs.deliveryAddress, phone: "+447438969272" },
       collectionAddress: { ...baseAddrs.collectionAddress, phone: "+447700900456" },
       orderNumber: "RVX8343A7C7",
-      shippingOptionCode: "royal_mail:tracked-24",
+      shippingOptionCode: "royal_mailv2:tracked_24/size=s",
+      contractId: "116816",
       v2MethodId: 1001,
       idempotencyKey: "rovexo-order-announce-non-inpost-phone-1",
     });
@@ -370,7 +371,10 @@ describe("COD SÂNGE — InPost announce mapping", () => {
       to_address: { phone_number?: string };
       ship_with: { properties: { shipping_option_code: string } };
     };
-    expect(payload.ship_with.properties.shipping_option_code).toBe("royal_mail:tracked-24");
+    // Canonical Royal Mail UK V3 code is passed through (not legacy royal_mail:tracked-24).
+    expect(payload.ship_with.properties.shipping_option_code).toBe(
+      "royal_mailv2:tracked_24/size=s",
+    );
     // Non-InPost: no InPost normalization / omit — raw trimmed telephone from mapper.
     expect(payload.from_address.phone_number).toBe("+447700900456");
     expect(payload.to_address.phone_number).toBe("+447438969272");
@@ -378,7 +382,7 @@ describe("COD SÂNGE — InPost announce mapping", () => {
 
   it("label-generation enriches profile phone/email into announce addresses", () => {
     const src = read("lib/shipping/label-generation.server.ts");
-    expect(src).toContain('select("id, email, phone")');
+    expect(src).toContain('select("id, email, phone, full_name")');
     expect(src).toContain("deliveryAddressForLabel");
     expect(src).toContain("collectionAddressForLabel");
     expect(src).toContain("buyerContact.phone");

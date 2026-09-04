@@ -90,6 +90,7 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
   const sellProvider = readSource(rootDir, "features/sell/context/SellProvider.tsx");
   const listingForm = [
     readSource(rootDir, "features/sell/ui/SellTitleBlock.tsx"),
+    readSource(rootDir, "features/sell/ui/SellDescriptionBlock.tsx"),
     readSource(rootDir, "features/sell/ui/SellPricingBlock.tsx"),
     readSource(rootDir, "features/sell/ui/SellParcelBlock.tsx"),
   ].join("\n");

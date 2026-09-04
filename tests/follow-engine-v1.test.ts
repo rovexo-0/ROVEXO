@@ -46,7 +46,7 @@ describe("Follow Engine v1.0 — Absolute Blood Code", () => {
     expect(api).toContain("@/lib/follow/marketplace-follow-store-v1");
     expect(api).toContain("viewerFollowingCount");
     expect(api).toContain("You cannot follow yourself");
-    expect(api).toContain("requireApiAuth");
+    expect(api).toContain("requireCookieOrBearerApiAuth");
   });
 
   it("public profile loads relationship truth from engine", () => {

@@ -296,6 +296,7 @@ describe("Messages / Inbox Native Bearer source contract", () => {
 describe("Messages CSRF cookie vs Bearer", () => {
   it("cookie mutations without Origin stay protected", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.rovexo.co.uk");
     const blocked = await validateMutationOrigin(
       new Request(DETAIL_URL, {

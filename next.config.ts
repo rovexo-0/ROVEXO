@@ -5,6 +5,18 @@ import { buildPerformanceRouteHeaders } from "./lib/ops/performance-headers";
 import { buildNextConfigSecurityHeaders } from "./lib/ops/security-headers";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const isProduction = process.env.NODE_ENV === "production";
+
+function isLocalOrPrivateImageHostname(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "localhost" || host === "127.0.0.1" || host === "::1") return true;
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+  const rfc1918 = /^172\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/.exec(host);
+  if (!rfc1918) return false;
+  const second = Number(rfc1918[1]);
+  return second >= 16 && second <= 31;
+}
 
 function supabaseImageHostnames(): string[] {
   const hostnames = new Set<string>(["pklotmwxtnnepaitedic.supabase.co"]);
@@ -12,7 +24,10 @@ function supabaseImageHostnames(): string[] {
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim();
   if (configured) {
     try {
-      hostnames.add(new URL(configured).hostname);
+      const hostname = new URL(configured).hostname;
+      if (!(isProduction && isLocalOrPrivateImageHostname(hostname))) {
+        hostnames.add(hostname);
+      }
     } catch {
       // ignore invalid URL at build time
     }
@@ -20,7 +35,6 @@ function supabaseImageHostnames(): string[] {
   return [...hostnames];
 }
 
-const isProduction = process.env.NODE_ENV === "production";
 const securityHeaders = buildNextConfigSecurityHeaders(isProduction);
 
 const nextConfig: NextConfig = {
@@ -151,6 +165,9 @@ const nextConfig: NextConfig = {
     "172.31.*.*",
   ],
   images: {
+    // Next 16 blocks optimizer fetches to private IPs (SSRF). Local Supabase
+    // Storage is http://127.0.0.1:54321 — allow only in `next dev`, never Production.
+    ...(!isProduction ? { dangerouslyAllowLocalIP: true } : {}),
     // Serve AVIF/WebP where supported so product thumbnails ship far smaller
     // payloads on mobile. Product images are immutable (unique filenames), so the
     // optimized results are cached for 30 days to avoid re-optimizing and let
@@ -167,6 +184,17 @@ const nextConfig: NextConfig = {
         protocol: "https" as const,
         hostname,
       })),
+      // Local Supabase Storage (npm run dev). Never present in Production.
+      ...(!isProduction
+        ? [
+            {
+              protocol: "http" as const,
+              hostname: "127.0.0.1",
+              port: "54321",
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
       // Demo-environment avatars (search overlays, seller cards in E2E/demo mode).
       {
         protocol: "https" as const,
@@ -179,7 +207,7 @@ const nextConfig: NextConfig = {
     // Explicit sitemap index — Next generateSitemaps() children live at /sitemap/:id.xml
     // but the metadata root index is not reliably served on live (404). Avoid conflicting
     // with app/sitemap.ts by rewriting /sitemap.xml → API route (not a parallel metadata route).
-    return [
+    const routes = [
       {
         source: "/sitemap.xml",
         destination: "/api/seo/sitemap-index",
@@ -189,6 +217,19 @@ const nextConfig: NextConfig = {
         destination: "/user/:username",
       },
     ];
+    // Dev/local only: phone LAN PWA fetches same-origin Storage via :3000.
+    // Next on the PC proxies to local Kong. Never ship this rewrite in Production.
+    if (!isProduction) {
+      routes.push({
+        source: "/rovexo-local-storage/:path*",
+        destination: "http://127.0.0.1:54321/:path*",
+      });
+      routes.push({
+        source: "/rovexo-local-supabase/:path*",
+        destination: "http://127.0.0.1:54321/:path*",
+      });
+    }
+    return routes;
   },
   async redirects() {
     return [

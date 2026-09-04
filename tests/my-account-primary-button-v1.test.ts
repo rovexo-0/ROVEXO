@@ -58,7 +58,10 @@ describe("My Account Primary Button — Global Button Recovery v1.0", () => {
     expect(page).toContain("CanonicalButton");
     expect(form).toContain("Search Address");
     expect(form).toContain("CanonicalButton");
-    expect(form).toContain("no Save / Cancel");
+    expect(form).not.toContain(">Cancel<");
+    expect(form).not.toContain('"Cancel"');
+    // Add Address saves via lookup select; Edit uses "Save address" (not a Cancel pair).
+    expect(form).toContain("Save address");
   });
 
   it("keeps PremiumButton primary gradient as colour SSOT peer (Visit/Follow family)", () => {

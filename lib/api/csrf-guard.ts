@@ -7,6 +7,23 @@ import { DEFAULT_APP_URL, getAppUrl, isLoopbackAppOrigin } from "@/lib/supabase/
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+/**
+ * Real Production CSRF runtime (Vercel Production only).
+ * Local `next start` / Playwright managed server often set NODE_ENV=production
+ * while still serving loopback — those are NOT Production CSRF.
+ */
+function isRealProductionCsrfRuntime(): boolean {
+  return process.env.VERCEL_ENV === "production";
+}
+
+/**
+ * Local / TEST / Playwright-managed — may accept loopback Origin.
+ * Never true on Vercel Production.
+ */
+function isLocalAuthorizedCsrfRuntime(): boolean {
+  return !isRealProductionCsrfRuntime();
+}
+
 function normalizeHost(raw: string): string {
   return raw.trim().toLowerCase();
 }
@@ -33,7 +50,7 @@ function tryAddConfiguredOriginHost(hosts: Set<string>, raw: string, allowLoopba
 /** Configured public hosts (env) — not the only allow source. */
 function configuredHosts(): Set<string> {
   const hosts = new Set<string>();
-  const allowLoopbackFromEnv = process.env.NODE_ENV !== "production";
+  const allowLoopbackFromEnv = isLocalAuthorizedCsrfRuntime();
 
   for (const key of ["NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL"]) {
     const raw = process.env[key]?.trim();
@@ -45,12 +62,13 @@ function configuredHosts(): Set<string> {
   if (vercel) tryAddConfiguredOriginHost(hosts, vercel, allowLoopbackFromEnv);
 
   // Production identity always includes the canonical ROVEXO origin (never loopback).
-  if (process.env.NODE_ENV === "production") {
+  if (isRealProductionCsrfRuntime() || process.env.NODE_ENV === "production") {
     tryAddConfiguredOriginHost(hosts, getAppUrl(), false);
     tryAddConfiguredOriginHost(hosts, DEFAULT_APP_URL, false);
   }
 
-  if (process.env.NODE_ENV !== "production") {
+  // Localhost / Playwright managed (NODE_ENV may be "production" without VERCEL_ENV=production).
+  if (isLocalAuthorizedCsrfRuntime()) {
     hosts.add("localhost:3000");
     hosts.add("127.0.0.1:3000");
   }
@@ -135,7 +153,9 @@ export async function validateMutationOrigin(
     return null;
   }
 
-  if (!originHost && !refererHost && process.env.NODE_ENV !== "production") {
+  // Local / Playwright managed may omit Origin on APIRequestContext POSTs.
+  // Real Vercel Production stays fail-closed (Origin/Referer required).
+  if (!originHost && !refererHost && isLocalAuthorizedCsrfRuntime()) {
     return null;
   }
 
