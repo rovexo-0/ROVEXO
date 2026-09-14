@@ -8,18 +8,18 @@ import {
 import { requireApiAuth } from "@/lib/auth/session";
 import { notificationSettingsPatchSchema } from "@/lib/account/schemas";
 
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
 
-  const { settings, engine } = await getNotificationEngine(auth.user.id);
+  const { settings, engine } = await getNotificationEngine(auth.user.id, auth.supabase);
   return NextResponse.json({ settings, engine });
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -28,17 +28,21 @@ export async function PATCH(request: Request) {
     const body = notificationSettingsPatchSchema.parse(await request.json());
 
     if (body.topicId || body.channelId || body.engine) {
-      const result = await updateNotificationEngine(auth.user.id, {
-        topicId: body.topicId,
-        channelId: body.channelId,
-        enabled: body.enabled,
-        engine: body.engine,
-      });
+      const result = await updateNotificationEngine(
+        auth.user.id,
+        {
+          topicId: body.topicId,
+          channelId: body.channelId,
+          enabled: body.enabled,
+          engine: body.engine,
+        },
+        auth.supabase,
+      );
       return NextResponse.json(result);
     }
 
-    const settings = await updateNotificationSettings(auth.user.id, body);
-    const { engine } = await getNotificationEngine(auth.user.id);
+    const settings = await updateNotificationSettings(auth.user.id, body, auth.supabase);
+    const { engine } = await getNotificationEngine(auth.user.id, auth.supabase);
     return NextResponse.json({ settings, engine });
   } catch (error) {
     if (error instanceof z.ZodError) {

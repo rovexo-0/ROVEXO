@@ -218,8 +218,9 @@ export async function updateNotificationPreferences(
 
 export async function getNotificationSettings(
   userId: string,
+  client?: UserScopedClient,
 ): Promise<NotificationSettings | null> {
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("notification_settings")
     .select("*")
@@ -232,6 +233,8 @@ export async function getNotificationSettings(
 
   return mapSettings(data);
 }
+
+type UserScopedClient = Awaited<ReturnType<typeof createClient>>;
 
 const DEFAULT_SETTINGS: NotificationSettings = {
   pushEnabled: true,
@@ -256,8 +259,9 @@ const DEFAULT_SETTINGS: NotificationSettings = {
 
 export async function getNotificationEngine(
   userId: string,
+  client?: UserScopedClient,
 ): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("notification_settings")
     .select("*")
@@ -282,8 +286,9 @@ async function persistEngineState(
   userId: string,
   engine: NotificationEngineState,
   baseSettings: NotificationSettings | null,
+  client?: UserScopedClient,
 ): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   const legacy = engineToLegacyNotificationSettings(engine, baseSettings);
   const prefs = engineToNotificationPreferences(engine);
 
@@ -313,7 +318,7 @@ async function persistEngineState(
 
   await updateNotificationPreferences(userId, prefs);
 
-  return getNotificationEngine(userId);
+  return getNotificationEngine(userId, supabase);
 }
 
 export async function updateNotificationEngine(
@@ -324,8 +329,9 @@ export async function updateNotificationEngine(
     enabled?: boolean;
     engine?: unknown;
   },
+  client?: UserScopedClient,
 ): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
-  const current = await getNotificationEngine(userId);
+  const current = await getNotificationEngine(userId, client);
   let nextEngine = current.engine;
 
   if (patch.engine) {
@@ -342,7 +348,7 @@ export async function updateNotificationEngine(
     });
   }
 
-  return persistEngineState(userId, nextEngine, current.settings);
+  return persistEngineState(userId, nextEngine, current.settings, client);
 }
 
 export async function updateNotificationSettings(
@@ -353,14 +359,15 @@ export async function updateNotificationSettings(
     enabled?: boolean;
     engine?: unknown;
   },
+  client?: UserScopedClient,
 ): Promise<NotificationSettings | null> {
   if (patch.topicId || patch.channelId || patch.engine) {
-    const result = await updateNotificationEngine(userId, patch);
+    const result = await updateNotificationEngine(userId, patch, client);
     return result.settings;
   }
 
-  const supabase = await createClient();
-  const current = await getNotificationEngine(userId);
+  const supabase = client ?? (await createClient());
+  const current = await getNotificationEngine(userId, supabase);
   const update: Record<string, boolean | string | Json | undefined> = {};
 
   if (patch.pushEnabled !== undefined) update.push_enabled = patch.pushEnabled;
@@ -431,5 +438,5 @@ export async function updateNotificationSettings(
     await updateNotificationPreferences(userId, engineToNotificationPreferences(engine));
   }
 
-  return getNotificationSettings(userId);
+  return getNotificationSettings(userId, supabase);
 }

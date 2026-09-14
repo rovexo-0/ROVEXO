@@ -4,13 +4,13 @@ import { privacyEngineToLegacy } from "@/lib/privacy/privacy-engine-v1";
 import { requireApiAuth } from "@/lib/auth/session";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  const auth = await requireApiAuth();
+export async function GET(request: Request) {
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
 
-  const { privacy, cookies } = await getPrivacyEngine(auth.user.id);
+  const { privacy, cookies } = await getPrivacyEngine(auth.user.id, auth.supabase);
   const legacy = privacyEngineToLegacy(privacy);
   return NextResponse.json({
     privacy: {
@@ -24,7 +24,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiAuth(request);
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -39,12 +39,16 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const privacy = await updatePrivacyEngine(auth.user.id, {
-      switchId: parsed.data.switchId,
-      switchEnabled: parsed.data.switchEnabled,
-      whoCanViewProfile: parsed.data.whoCanViewProfile ?? parsed.data.profileVisibility,
-      engine: parsed.data.engine,
-    });
+    const privacy = await updatePrivacyEngine(
+      auth.user.id,
+      {
+        switchId: parsed.data.switchId,
+        switchEnabled: parsed.data.switchEnabled,
+        whoCanViewProfile: parsed.data.whoCanViewProfile ?? parsed.data.profileVisibility,
+        engine: parsed.data.engine,
+      },
+      auth.supabase,
+    );
     const legacy = privacyEngineToLegacy(privacy);
 
     // Support legacy full-object saves (activity + marketing + visibility together).
@@ -53,25 +57,29 @@ export async function PATCH(request: Request) {
       parsed.data.showActivityStatus !== undefined ||
       parsed.data.profileVisibility !== undefined
     ) {
-      const next = await updatePrivacyEngine(auth.user.id, {
-        whoCanViewProfile: parsed.data.profileVisibility ?? privacy.whoCanViewProfile,
-        engine: {
-          ...privacy,
+      const next = await updatePrivacyEngine(
+        auth.user.id,
+        {
           whoCanViewProfile: parsed.data.profileVisibility ?? privacy.whoCanViewProfile,
-          switches: {
-            ...privacy.switches,
-            ...(parsed.data.marketingEmails !== undefined
-              ? { marketingEmails: parsed.data.marketingEmails }
-              : {}),
-            ...(parsed.data.showActivityStatus !== undefined
-              ? {
-                  showOnlineStatus: parsed.data.showActivityStatus,
-                  showLastSeen: parsed.data.showActivityStatus,
-                }
-              : {}),
+          engine: {
+            ...privacy,
+            whoCanViewProfile: parsed.data.profileVisibility ?? privacy.whoCanViewProfile,
+            switches: {
+              ...privacy.switches,
+              ...(parsed.data.marketingEmails !== undefined
+                ? { marketingEmails: parsed.data.marketingEmails }
+                : {}),
+              ...(parsed.data.showActivityStatus !== undefined
+                ? {
+                    showOnlineStatus: parsed.data.showActivityStatus,
+                    showLastSeen: parsed.data.showActivityStatus,
+                  }
+                : {}),
+            },
           },
         },
-      });
+        auth.supabase,
+      );
       const nextLegacy = privacyEngineToLegacy(next);
       return NextResponse.json({
         privacy: {

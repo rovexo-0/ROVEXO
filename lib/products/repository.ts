@@ -758,6 +758,30 @@ export async function getSimilarProducts(slug: string, limit = 8): Promise<Produ
   return result.items.map(toPublicProductDocument);
 }
 
+export async function getMemberProducts(slug: string, limit = 8): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data: current } = await supabase
+    .from("products")
+    .select("seller_id")
+    .eq("slug", slug)
+    .eq("is_demo", false)
+    .maybeSingle();
+
+  if (!current?.seller_id) {
+    return [];
+  }
+
+  const { getEligibleListings } = await import("@/lib/listings/eligible-listings");
+  const result = await getEligibleListings({
+    surface: "seller",
+    sellerId: current.seller_id,
+    excludeSlug: slug,
+    page: 1,
+    pageSize: limit,
+  });
+  return result.items.map(toPublicProductDocument);
+}
+
 export async function searchProducts(query: string, page = 1, pageSize = PAGE_SIZE) {
   const result = await searchListingsRepo({
     query,

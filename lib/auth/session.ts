@@ -113,6 +113,16 @@ export async function requireAuthContext(): Promise<AuthContext> {
 export async function requireApiAuth(
   request?: Request,
 ): Promise<AuthContext | NextResponse> {
+  if (request) {
+    const { readBearerAccessToken } = await import("@/lib/auth/verify-bearer-access-token-v1");
+    if (readBearerAccessToken(request)) {
+      const { requireCookieOrBearerApiAuth } = await import(
+        "@/lib/auth/require-cookie-or-bearer-api-auth-v1"
+      );
+      return requireCookieOrBearerApiAuth(request);
+    }
+  }
+
   const context = await getAuthContext();
   if (!context) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

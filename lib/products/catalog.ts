@@ -6,6 +6,7 @@ export {
   getProductsBySection,
   getShowcaseSellerSections,
   getSimilarProducts,
+  getMemberProducts,
   searchProducts,
 } from "@/lib/products/repository";
 export { createSellerListing as createListing } from "@/lib/listings/repository";

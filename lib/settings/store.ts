@@ -22,6 +22,8 @@ import {
   isPrivacySwitchId,
 } from "@/lib/privacy/privacy-engine-v1";
 
+type UserScopedClient = Awaited<ReturnType<typeof createClient>>;
+
 type SettingsRow = {
   push_notifications: boolean;
   email_notifications: boolean;
@@ -97,8 +99,9 @@ export async function getAppSettings(userId: string): Promise<AppSettings> {
 
 export async function getPrivacyEngine(
   userId: string,
+  client?: UserScopedClient,
 ): Promise<{ privacy: PrivacyEngineState; cookies: CookiePreferencesState; settings: AppSettings }> {
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   const { data } = await supabase
     .from("user_settings")
     .select("*")
@@ -185,9 +188,10 @@ export async function updatePrivacyEngine(
     whoCanViewProfile?: ProfileVisibility;
     engine?: unknown;
   },
+  client?: UserScopedClient,
 ): Promise<PrivacyEngineState> {
-  const supabase = await createClient();
-  const existing = await getPrivacyEngine(userId);
+  const supabase = client ?? (await createClient());
+  const existing = await getPrivacyEngine(userId, supabase);
   let privacy = existing.privacy;
 
   if (patch.engine) {
