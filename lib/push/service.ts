@@ -5,6 +5,14 @@ import { buildNotificationDeepLinkData } from "@/lib/notifications/notification-
 import { isWithinQuietHours } from "@/lib/notifications/quiet-hours";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { logPushRtFlow } from "@/lib/push/push-realtime-flow-log-v1";
+import {
+  PUSH_DEVICE_TOKENS_TABLE,
+  buildFcmDataPayload,
+  fingerprintFcmToken,
+  sendFcmHttpV1,
+  toFcmSendInput,
+  type FcmTransport,
+} from "@/lib/push/fcm-http-v1";
 
 export type PushPayload = {
   title: string;
@@ -27,6 +35,10 @@ export type PushSendResult = {
   sent: number;
   failed: number;
   skipped: number;
+};
+
+export type SendPushNotificationDeps = {
+  sendFcm?: FcmTransport;
 };
 
 const STALE_STATUS_CODES = new Set([404, 410]);
@@ -65,9 +77,161 @@ function serializeHeaders(headers: unknown): Record<string, string> | null {
   return out;
 }
 
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+type FcmDeviceTokenRow = {
+  id: string;
+  token: string;
+  provider: string;
+  platform: string;
+};
+
+async function loadFcmDeviceTokens(admin: AdminClient, userId: string): Promise<FcmDeviceTokenRow[]> {
+  try {
+    const { data, error } = await admin
+      .from(PUSH_DEVICE_TOKENS_TABLE)
+      .select("id, token, provider, platform")
+      .eq("user_id", userId)
+      .eq("provider", "fcm")
+      .eq("platform", "android");
+    if (error || !data) {
+      if (error) {
+        logPushRtFlow("PUSH_FAILED", { reason: "fcm_token_query_failed", userId });
+      }
+      return [];
+    }
+    return data.filter((row) => typeof row.token === "string" && row.token.length > 0);
+  } catch {
+    logPushRtFlow("PUSH_FAILED", { reason: "fcm_token_query_failed", userId });
+    return [];
+  }
+}
+
+async function deliverFcmDeviceTokens(input: {
+  admin: AdminClient;
+  userId: string;
+  payload: PushPayload;
+  deviceTokens: FcmDeviceTokenRow[];
+  deepLink: ReturnType<typeof buildNotificationDeepLinkData>;
+  conversationId: string | null;
+  offerId: string | null;
+  orderId: string | null;
+  result: PushSendResult;
+  sendFcm: FcmTransport;
+}): Promise<void> {
+  if (input.deviceTokens.length === 0) return;
+
+  const loggedMissingCredential = { current: false };
+
+  for (const device of input.deviceTokens) {
+    const tokenFingerprint = fingerprintFcmToken(device.token);
+    const pushTraceId = createPushTraceId();
+    const data = buildFcmDataPayload({
+      notificationId: input.deepLink.notificationId,
+      type: input.deepLink.type,
+      href: input.deepLink.href,
+      conversationId: input.conversationId,
+      offerId: input.offerId,
+      orderId: input.orderId,
+      pushTraceId,
+    });
+
+    const logBase = {
+      user_id: input.userId,
+      channel: "push",
+      event_type: input.payload.eventType ?? "message",
+      notification_id: input.payload.notificationId ?? null,
+      priority: input.payload.priority ?? "normal",
+      silent: input.payload.silent ?? false,
+      group_key: input.payload.groupKey ?? null,
+      payload: {
+        transport: "fcm",
+        provider: "fcm",
+        platform: device.platform,
+        tokenFingerprint,
+        title: input.payload.title,
+        body: input.payload.body,
+        href: input.deepLink.href,
+        pushTraceId,
+      },
+    };
+
+    try {
+      const outcome = await input.sendFcm(toFcmSendInput(device.token, input.payload, data));
+      if (outcome.ok) {
+        logPushRtFlow("PUSH_SENT", {
+          transport: "fcm",
+          tokenFingerprint,
+          pushTraceId,
+          userId: input.userId,
+        });
+        await input.admin.from("notification_delivery_log").insert({
+          ...logBase,
+          status: "sent",
+          delivered_at: new Date().toISOString(),
+        });
+        input.result.sent += 1;
+        continue;
+      }
+
+      if (outcome.reason === "fcm_credential_not_configured") {
+        if (!loggedMissingCredential.current) {
+          loggedMissingCredential.current = true;
+          logPushRtFlow("PUSH_FAILED", {
+            transport: "fcm",
+            reason: "fcm_credential_not_configured",
+            userId: input.userId,
+          });
+        }
+        input.result.skipped += 1;
+        continue;
+      }
+
+      logPushRtFlow("PUSH_FAILED", {
+        transport: "fcm",
+        reason: outcome.reason,
+        stale: outcome.stale,
+        tokenFingerprint,
+        pushTraceId,
+        userId: input.userId,
+      });
+
+      if (outcome.stale) {
+        await input.admin.from(PUSH_DEVICE_TOKENS_TABLE).delete().eq("id", device.id);
+      }
+
+      await input.admin.from("notification_delivery_log").insert({
+        ...logBase,
+        status: "failed",
+        retry_count: 0,
+        next_retry_at: computeRetryAt(0),
+        error_message: outcome.reason,
+      });
+      input.result.failed += 1;
+    } catch {
+      logPushRtFlow("PUSH_FAILED", {
+        transport: "fcm",
+        reason: "fcm_send_failed",
+        tokenFingerprint,
+        pushTraceId,
+        userId: input.userId,
+      });
+      await input.admin.from("notification_delivery_log").insert({
+        ...logBase,
+        status: "failed",
+        retry_count: 0,
+        next_retry_at: computeRetryAt(0),
+        error_message: "fcm_send_failed",
+      });
+      input.result.failed += 1;
+    }
+  }
+}
+
 export async function sendPushNotification(
   userId: string,
   payload: PushPayload,
+  deps?: SendPushNotificationDeps,
 ): Promise<PushSendResult> {
   const result: PushSendResult = { sent: 0, failed: 0, skipped: 0 };
   const admin = createAdminClient();
@@ -111,7 +275,10 @@ export async function sendPushNotification(
     .select("id, endpoint, p256dh, auth, platform")
     .eq("user_id", userId);
 
-  if (!subscriptions?.length) {
+  const webSubscriptions = subscriptions ?? [];
+  const deviceTokens = await loadFcmDeviceTokens(admin, userId);
+
+  if (!webSubscriptions.length && deviceTokens.length === 0) {
     logPushRtFlow("DELIVERY_FAILED", { reason: "no_subscriptions", userId });
     return result;
   }
@@ -122,11 +289,12 @@ export async function sendPushNotification(
 
   logPushRtFlow("DELIVERY_START", {
     userId,
-    subscriptionCount: subscriptions.length,
+    subscriptionCount: webSubscriptions.length,
+    fcmTokenCount: deviceTokens.length,
     silent,
     priority,
     eventType: payload.eventType,
-    platforms: subscriptions.map((s) => s.platform),
+    platforms: webSubscriptions.map((s) => s.platform),
   });
 
   const resolvedHref = resolvePushNotificationHref(payload.href, {
@@ -190,7 +358,7 @@ export async function sendPushNotification(
 
   const pushReady = isPushConfigured() && configureWebPush();
 
-  for (const subscription of subscriptions) {
+  for (const subscription of webSubscriptions) {
     if (subscription.platform === "web" && !(settings?.browser_push ?? true)) {
       result.skipped += 1;
       continue;
@@ -432,6 +600,19 @@ export async function sendPushNotification(
       result.failed += 1;
     }
   }
+
+  await deliverFcmDeviceTokens({
+    admin,
+    userId,
+    payload,
+    deviceTokens,
+    deepLink,
+    conversationId,
+    offerId,
+    orderId,
+    result,
+    sendFcm: deps?.sendFcm ?? sendFcmHttpV1,
+  });
 
   return result;
 }
