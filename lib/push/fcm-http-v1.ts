@@ -148,17 +148,20 @@ async function getFirebaseMessaging(): Promise<Messaging | null> {
   if (!account) return null;
   if (!messagingClient) {
     messagingClient = (async () => {
-      const admin = await import("firebase-admin");
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          credential: admin.credential.cert({
+      const { cert, getApps, initializeApp } = await import("firebase-admin/app");
+      const { getMessaging } = await import("firebase-admin/messaging");
+
+      if (getApps().length === 0) {
+        initializeApp({
+          credential: cert({
             projectId: account.projectId,
             clientEmail: account.clientEmail,
             privateKey: account.privateKey,
           }),
         });
       }
-      return admin.messaging();
+
+      return getMessaging();
     })();
   }
   try {

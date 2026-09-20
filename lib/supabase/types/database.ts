@@ -6144,6 +6144,44 @@ export type Database = {
           },
         ]
       }
+      push_device_tokens: {
+        Row: {
+          id: string
+          user_id: string
+          token: string
+          provider: string
+          platform: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          token: string
+          provider?: string
+          platform?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          token?: string
+          provider?: string
+          platform?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_device_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rovexo_idea_updates: {
         Row: {
           created_at: string
